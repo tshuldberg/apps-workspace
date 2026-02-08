@@ -1,0 +1,14 @@
+# OS files
+.DS_Store
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Git sub-repositories (tracked independently)
+macos-hub/
+receipts/
+shiphawk-templates/
+tron-castle-fight/
+Parks/EasyStreet/
+Parks/easystreet-monorepo/
+SH/shiphawk-dev/

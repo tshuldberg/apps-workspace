@@ -1,0 +1,20 @@
+{
+  "name": "automation-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "job:email-triage": "npm run build --silent && node dist/cli.js run-email-triage",
+    "job:email-triage:dry-run": "npm run build --silent && node dist/cli.js run-email-triage --dry-run"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2"
+  }
+}
