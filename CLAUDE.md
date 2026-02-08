@@ -14,6 +14,22 @@ This is a multi-project workspace. Each subdirectory is an independent project w
 
 ## Projects
 
+### macos-hub — macOS Integration MCP Server
+Personal macOS integration hub giving Claude Code direct access to native Apple apps via AppleScript. Has its own CLAUDE.md.
+
+**Stack:** Node.js (ES modules), TypeScript 5.9, MCP SDK 1.18.1 (stdio transport), Zod 3.24, osascript (AppleScript)
+
+**Key commands:**
+```bash
+npm run build          # Compile TypeScript to dist/
+npm run dev            # Run with tsx (dev mode)
+npm start              # Run compiled JS
+```
+
+**Architecture:** 29 tools organized by app: Reminders (6), Notes (6), Calendar (6), Mail (5), System (3), Watcher (1), Keybindings (2). Bridges layer handles AppleScript via osascript. Config-driven via `config/watchers.json` and `config/keybindings.json`. MCP resources: `macos://changes/recent` (polling) and `macos://keybindings`.
+
+---
+
 ### shiphawk-dev — Rails Shipping Platform (Ignored by Default)
 Large-scale Ruby on Rails 8.0 application for shipping and logistics management.
 
@@ -142,15 +158,77 @@ npm install && npm start                   # Multiplayer (WebSocket server on :8
 
 ---
 
-## Reference Documents
-
-- `codex-self-sufficient-skillops-guide.md` — Guide for autonomous AI agent system setup
-- `Mac-Keyboard-Shortcuts.md` — macOS keyboard shortcut reference
-- `Mac-Window-Tiling-Shortcuts.md` — macOS window tiling (Control+Globe)
-- `Tmux-Cheatsheet.md` — Tmux commands and workflows
-
 ## Cross-Project Patterns
 
-- **Timeline tracking:** EasyStreet, easystreet-monorepo, receipts, and tron-castle-fight all maintain `timeline.md` files documenting development sessions. Update these after completing work.
-- **Project-level CLAUDE.md:** shiphawk-templates, tron-castle-fight, EasyStreet, easystreet-monorepo, and receipts each have their own CLAUDE.md with project-specific rules. Always defer to those when working within a project.
+- **Timeline tracking:** EasyStreet, easystreet-monorepo, receipts, shiphawk-templates, and tron-castle-fight all maintain change tracking files (`timeline.md` or `PROJECT_LOG.md`). Update these after completing work.
+- **Project-level CLAUDE.md:** macos-hub, shiphawk-templates, tron-castle-fight, EasyStreet, easystreet-monorepo, and receipts each have their own CLAUDE.md with project-specific rules. Always defer to those when working within a project.
 - **Git conventions vary by project:** ShipHawk uses Jira-linked branches (`vs-DEV-12345-*`), Receeps uses Conventional Commits, EasyStreet uses `feature/`/`bugfix/` prefixes, tron-castle-fight uses PROJECT_LOG.md entries.
+- **Shared business logic:** EasyStreet (native) and easystreet-monorepo share the sweepingRuleEngine and holidayCalculator concepts. Changes to holiday logic or sweeping rules in one should be verified against the other.
+- **ShipHawk ecosystem:** shiphawk-templates produces templates consumed by shiphawk-dev. Template variable references must align with shiphawk-dev's data schema.
+- **macOS Hub MCP server:** macos-hub provides MCP tools used by Claude Code across all projects. Changes to its tool interface affect all projects that use those tools.
+
+## Workspace Standards
+
+Every project in /Apps/ must meet these baseline requirements. Project-specific CLAUDE.md files may add stricter rules but may not weaken these.
+
+### Required Documentation
+1. **CLAUDE.md** — Project instructions for Claude Code. Location: either project root or `.claude/CLAUDE.md` (both are valid).
+2. **Change tracking file** — Either `timeline.md` or `PROJECT_LOG.md`. Must be updated after every development session.
+3. **README.md** — User-facing project overview with setup instructions.
+
+### CLAUDE.md Minimum Sections
+Every project CLAUDE.md must include at minimum:
+- **Overview** — What the project does (1-3 sentences)
+- **Stack** — Languages, frameworks, and key dependencies
+- **Key Commands** — Build, test, lint, dev server commands
+- **Architecture** — Directory structure and design patterns
+- **Git Workflow** — Branch naming, commit format
+
+### CLAUDE.md Quality Tiers
+
+**Tier 1 (Minimum):** Overview, Stack, Key Commands, Architecture, Git Workflow. Template: `docs/templates/claude-md-minimum.md`
+
+**Tier 2 (Standard):** Tier 1 plus Testing, Code Style, Environment Setup, Important Notes, change tracking file. Template: `docs/templates/claude-md-standard.md`
+
+**Tier 3 (Mature):** Tier 2 plus `.claude/docs/` with architecture docs, custom skills with SKILLS_REGISTRY.md, plugin inventory, development tracking rules.
+
+| Project | Current Tier | Target Tier |
+|---------|-------------|-------------|
+| receipts | 3 | 3 |
+| EasyStreet (native) | 3 | 3 |
+| easystreet-monorepo | 2 | 2 |
+| macos-hub | 1 | 2 |
+| shiphawk-templates | 2 | 2 |
+| tron-castle-fight | 2 | 2 |
+
+### Directory Structure Standards
+- Group related projects in subdirectories (e.g., `Parks/` for EasyStreet variants, `SH/` for ShipHawk ecosystem)
+- New groups follow the pattern: `/Apps/<GroupName>/<ProjectName>/`
+- Standalone projects sit at `/Apps/<ProjectName>/`
+- Workspace-level documentation lives in `/Apps/docs/`
+
+### Naming Conventions
+- **Project directories:** lowercase-with-hyphens (`my-project`)
+- **Group directories:** PascalCase for product families (`Parks/`, `SH/`)
+- **Documentation files:** PascalCase for proper-noun files (`CLAUDE.md`, `README.md`), lowercase-with-hyphens for content files (`timeline.md`)
+- **Reports:** `<project>-<type>-<YYYY-MM-DD>.md`
+
+## Documentation Index
+
+### Workspace-Level
+- `/Apps/docs/` — Central documentation hub ([index](docs/README.md))
+- `/Apps/docs/guides/` — Plugin, MCP server, tool, and skill user guides
+- `/Apps/docs/reports/` — Research reports and analysis outputs
+- `/Apps/docs/plans/` — Workspace-level implementation plans
+- `/Apps/docs/templates/` — Reusable templates (CLAUDE.md, timeline, guides, reports)
+- `/Apps/timeline.md` — Workspace-level action log
+
+### Workspace Skills
+- `/research-app` — Analyze an app codebase and generate a structured research report
+- `/onboard-new-app` — Onboard a new application into the workspace (generates docs, updates root index, runs research)
+
+### Reference Documents
+- `codex-self-sufficient-skillops-guide.md` — Autonomous AI agent system setup
+- `Mac-Keyboard-Shortcuts.md` — macOS keyboard shortcuts
+- `Mac-Window-Tiling-Shortcuts.md` — macOS window tiling (Control+Globe)
+- `Tmux-Cheatsheet.md` — Tmux commands and workflows
