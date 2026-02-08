@@ -225,6 +225,7 @@ Every project CLAUDE.md must include at minimum:
 
 ### Workspace Skills
 - `/research-app` — Analyze an app codebase and generate a structured research report
+- `/onboard-new-app` — Onboard a new application into the workspace (generates docs, updates root index, runs research)
 
 ### Reference Documents
 - `codex-self-sufficient-skillops-guide.md` — Autonomous AI agent system setup

@@ -87,6 +87,41 @@ Tracks actions performed at the workspace root level (`/Apps/`). Individual proj
 
 ---
 
+## 2026-02-08 — Phase 2: Skill Creation & User Guides
+
+**Session:** Executing Phase 2 of the implementation plan — creating skills and writing plugin/tool user guides
+
+### Actions
+- **Created** `/Apps/.claude/skills/onboard-new-app/SKILL.md` — Workspace-level skill for onboarding new apps (9-step process: verify project, audit docs, generate missing docs, update root CLAUDE.md, run research, update timeline)
+- **Updated** `/Apps/.claude/skills/SKILLS_REGISTRY.md` — Added `/onboard-new-app` entry
+- **Created** `/Apps/docs/guides/plugins/superpowers.md` — User guide for the superpowers plugin (15 skills across 5 categories: design, implementation, execution, code review, meta)
+- **Created** `/Apps/docs/guides/plugins/commit-commands.md` — User guide for `/commit`, `/commit-push-pr`, `/clean_gone` commands
+- **Created** `/Apps/docs/guides/mcp-servers/macos-hub.md` — User guide for the macos-hub MCP server (29 tools across Reminders, Notes, Calendar, Mail, System, Keybindings)
+- **Created** `/Apps/docs/guides/skills/writing-skills.md` — Comprehensive skill authoring guide with frontmatter reference, patterns, and common mistakes
+- **Updated** `/Apps/docs/README.md` — Added direct links to all 4 new guides
+- **Updated** `/Apps/CLAUDE.md` — Added `/onboard-new-app` to Workspace Skills in Documentation Index
+
+### Files Created
+- `/Apps/.claude/skills/onboard-new-app/SKILL.md`
+- `/Apps/docs/guides/plugins/superpowers.md`
+- `/Apps/docs/guides/plugins/commit-commands.md`
+- `/Apps/docs/guides/mcp-servers/macos-hub.md`
+- `/Apps/docs/guides/skills/writing-skills.md`
+
+### Files Modified
+- `/Apps/.claude/skills/SKILLS_REGISTRY.md` — Added `/onboard-new-app` entry
+- `/Apps/docs/README.md` — Updated guides section with direct links to new guides
+- `/Apps/CLAUDE.md` — Added `/onboard-new-app` to Workspace Skills
+- `/Apps/timeline.md` — This entry
+
+### Notes
+- Phase 2 items 2.4-2.6 (running `/research-app` on projects) were already covered by the initial research agents — reports exist in `/Apps/docs/reports/`
+- The `/onboard-new-app` skill includes `Skill` in its `allowed-tools` so it can invoke `/research-app` as a sub-step
+- Remaining Phase 2 items from the implementation plan (code-review guide, git-worktrees guide) deferred to Phase 3
+- Phase 3 (ongoing maintenance, cross-project skill sharing, workspace health checks) is ready to begin
+
+---
+
 ## 2026-02-07 — Workspace Git Repository & Collaboration Setup
 
 **Session:** Notion guide creation, git architecture discussion, and workspace repo initialization
