@@ -4,6 +4,47 @@ Tracks actions performed at the workspace root level (`/Apps/`). Individual proj
 
 ---
 
+## 2026-02-08 — Workspace Git Health Audit
+
+**Session:** Full audit of all project worktrees, branches, open PRs, and remotes across 7 repos.
+
+### Requirements
+
+Get every project in `/Apps/` to a clean, backed-up, PR-resolved state:
+- All worktrees clean (nothing uncommitted)
+- All repos pushed to a GitHub remote
+- All open PRs triaged (merged, closed, or marked draft with follow-up)
+- All stale branches deleted
+- All local checkouts on the default branch
+
+### Findings
+
+| Category | Projects | Details |
+|----------|----------|---------|
+| **Dirty worktrees** | tron-castle-fight, easystreet-monorepo | 20 modified + 16 untracked files total across both |
+| **No remote** | tron-castle-fight | Local-only repo, no backup |
+| **Open PRs** | receipts (10), EasyStreet (1) | receipts also checked out on feature branch, not main |
+| **Stale branches** | macos-hub | 1 merged branch not deleted |
+| **Untracked workspace files** | /Apps root | 1 report not committed |
+| **Clean** | shiphawk-templates | No action needed |
+
+### Success Outcomes
+
+1. `tron-castle-fight` — all work committed, GitHub remote created, code pushed
+2. `easystreet-monorepo` — all work committed and pushed
+3. `receipts` — 10 PRs each merged/closed/drafted; local checkout back on `main`
+4. `EasyStreet` — PR #6 resolved (merge or close)
+5. `macos-hub` — stale branch deleted
+6. `/Apps` root — report committed and pushed
+7. Every repo returns empty output from `git status --short`
+
+### Next Steps
+
+Full action list with 8 prioritized items, detailed per-project checklists, and a verification script:
+**[`docs/next-steps-workspace-cleanup-2026-02-08.md`](docs/next-steps-workspace-cleanup-2026-02-08.md)**
+
+---
+
 ## 2026-02-08 — Workspace Infrastructure & Research Initiative
 
 **Session:** App Manager setup — directory structure, agent team deployment, documentation framework
