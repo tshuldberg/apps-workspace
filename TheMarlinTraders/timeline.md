@@ -366,3 +366,142 @@ Charts, watchlists, alerts, screener, paper trading, journal, performance, optio
 
 ### Pages (25+ routes)
 Chart, Watchlist, Screener, Alerts, Paper Trading, Settings (6 sub-pages), Performance, Journal (list + detail), Ideas (feed + detail + new), Options (chain + strategy), Heat Map, Leaderboards, Profile, Embed (chart + ticker tape), Chat (list + room), News (feed + economic calendar + earnings calendar)
+
+---
+
+## 2026-02-14 — Session 4: Phase 3 Build (Sprints 23-38) — In Progress
+
+### Status: Code Written, Needs Stabilization Pass
+
+Phase 3 code has been written across all 8 sprint groups (23-38) but remains in `in_progress` state. The implementations exist as files in the repo but need integration testing, wiring verification, and a stabilization pass before marking complete.
+
+### Sprint 23-24: Phase 2 Polish & Stabilization
+- **Status:** in_progress — needs systematic error boundary, loading state, and test coverage audit across Phase 1-2 features
+
+### Sprint 25-26: Broker Integration — Alpaca
+- **Code written:**
+  - `apps/api/src/adapters/broker/alpaca.ts` — Full BrokerAdapter implementation (OAuth, positions, orders)
+  - `apps/api/src/routers/broker.ts` — Broker router with connect/disconnect, positions, orders, submit/cancel
+  - `apps/api/src/db/schema/broker-connections.ts` — Broker connections + live orders tables
+  - `apps/web/app/(app)/settings/broker/page.tsx` — Broker connection settings page
+  - `apps/web/app/(app)/trade/[symbol]/page.tsx` — Live trade execution page
+  - `packages/ui/src/trading/live-order-entry.tsx` — Real-time order entry
+  - `packages/ui/src/trading/live-positions.tsx` — Real-time positions display
+  - `packages/ui/src/trading/order-confirmation.tsx` — Risk confirmation dialog
+
+### Sprint 27-28: Broker Integration — Interactive Brokers
+- **Code written:**
+  - `apps/api/src/adapters/broker/ibkr.ts` — Full IBKR Client Portal API adapter (session auth, keep-alive, multi-account, bracket/OCA/conditional/adaptive orders)
+  - `apps/api/src/adapters/broker/ibkr-contracts.ts` — IBKR contract resolver with Redis caching
+  - `apps/api/src/services/multi-account.ts` — Multi-account portfolio aggregation
+  - `apps/web/app/(app)/settings/broker/ibkr/page.tsx` — IBKR connection UI with session management
+  - `packages/ui/src/trading/multi-account-portfolio.tsx` — Multi-broker portfolio view
+  - `packages/ui/src/trading/bracket-order.tsx` — Bracket order entry with risk:reward
+  - `packages/ui/src/trading/order-manager.tsx` — Unified order manager across brokers
+  - `packages/shared/src/orders/ibkr-order-types.ts` — IBKR-specific Zod schemas
+  - `apps/api/src/db/schema/broker-connections.ts` — Extended with IBKR sub-accounts table
+  - Tests: 48 tests across 4 test files (IBKR adapter, contracts, multi-account, order types)
+
+### Sprint 29-30: Advanced Order Types + DOM
+- **Code written:**
+  - `packages/shared/src/orders/advanced-types.ts` — Conditional, bracket, OCO order types
+  - `packages/shared/src/orders/level2-types.ts` — Order book snapshot/update types
+  - `apps/api/src/routers/advanced-orders.ts` — Advanced order endpoints
+  - `packages/ui/src/trading/dom-ladder.tsx` — Depth of Market price ladder
+  - `packages/ui/src/trading/trailing-stop-viz.tsx` — Trailing stop visualization
+  - `packages/ui/src/trading/chart-order-lines.tsx` — Order lines overlaid on chart
+  - `services/market-data/src/providers/level2-provider.ts` — Level 2 data provider
+  - `services/market-data/src/aggregation/order-book.ts` — Order book aggregation
+
+### Sprint 31-32: AI Chart Analysis
+- **Code written:**
+  - `apps/api/src/services/nlp-query.ts` — Natural language stock query service
+  - `apps/api/src/routers/ai-analysis.ts` — AI analysis endpoints
+  - `packages/ui/src/trading/ai-analysis-panel.tsx` — AI-generated trade analysis panel
+  - `packages/ui/src/trading/nlp-search.tsx` — Natural language search component
+
+### Sprint 33-34: Crypto + Forex Data
+- **Code written:**
+  - `services/market-data/src/providers/binance-ws.ts` — Binance WebSocket adapter
+  - `services/market-data/src/providers/coinbase-ws.ts` — Coinbase WebSocket adapter
+  - `services/market-data/src/providers/forex-provider.ts` — Forex data provider
+  - `packages/shared/src/forex/calculators.ts` — Pip value, margin, position sizing
+  - `packages/shared/src/forex/currency-strength.ts` — Relative strength per currency
+  - `packages/shared/src/forex/correlation.ts` — Currency pair correlation
+  - `apps/web/app/(app)/crypto/page.tsx` — Crypto dashboard page
+  - `apps/web/app/(app)/forex/page.tsx` — Forex dashboard page
+  - `packages/ui/src/trading/crypto-ticker.tsx` — Crypto price ticker
+  - `packages/ui/src/trading/forex-sessions.tsx` — Forex session times
+  - `packages/ui/src/trading/forex-calculator.tsx` — Pip/margin calculators
+  - `packages/ui/src/trading/currency-strength-meter.tsx` — Currency strength meter
+  - `packages/ui/src/trading/correlation-matrix.tsx` — Asset correlation heatmap
+
+### Sprint 35-36: Options Flow + IV Analytics
+- **Code written:**
+  - `apps/api/src/services/options-flow.ts` — Unusual options activity detection
+  - `apps/api/src/services/iv-analytics.ts` — IV rank, percentile, skew analytics
+  - `apps/api/src/routers/options-flow.ts` — Options flow endpoints
+  - `packages/shared/src/options/flow-types.ts` — Flow data types
+  - `packages/shared/src/options/iv-types.ts` — IV metric types
+  - `apps/web/app/(app)/options/flow/page.tsx` — Options flow page
+  - `apps/web/app/(app)/options/iv/[symbol]/page.tsx` — IV analytics page
+  - `packages/ui/src/trading/options-flow-table.tsx` — Unusual activity table
+  - `packages/ui/src/trading/iv-dashboard.tsx` — IV rank/percentile dashboard
+  - `packages/ui/src/trading/put-call-chart.tsx` — Put/call ratio chart
+  - `packages/ui/src/trading/expected-move-overlay.tsx` — Expected move zones
+
+### Sprint 37-38: Futures + Auto Pattern Recognition
+- **Code written:**
+  - `packages/shared/src/futures/types.ts` — Contract specs, COT data, rollover types
+  - `packages/shared/src/futures/calculators.ts` — Tick value, P&L, margin, COT index (11 major futures)
+  - `services/market-data/src/providers/futures-provider.ts` — Futures WebSocket adapter + continuous contract construction
+  - `apps/api/src/services/cot-data.ts` — CFTC COT report fetcher
+  - `apps/api/src/services/pattern-scanner.ts` — Technical pattern scanner with accuracy tracking
+  - `apps/api/src/routers/futures.ts` — 9 endpoints (specs, continuous chart, rollover, COT, patterns, scan)
+  - `apps/web/app/(app)/futures/page.tsx` — Futures dashboard (4 tabs: dashboard, rollover, COT, spreads)
+  - `apps/web/app/(app)/scanner/page.tsx` — Pattern scanner page
+  - `packages/ui/src/trading/futures-dashboard.tsx` — Contract grid by asset class
+  - `packages/ui/src/trading/cot-chart.tsx` — Stacked COT chart + gauge
+  - `packages/ui/src/trading/rollover-calendar.tsx` — List + calendar rollover views
+  - `packages/ui/src/trading/futures-spread.tsx` — Spread chart with sigma bands
+  - `packages/ui/src/trading/pattern-scanner-dashboard.tsx` — Pattern scanner with filters/sort/refresh
+  - `packages/ui/src/trading/pattern-overlay.tsx` — Chart pattern overlay
+  - Tests: 40 tests across 2 files (futures calculators, pattern scanner)
+
+---
+
+## Next Steps — Phase 3 Completion
+
+### Priority 1: Stabilization Pass (Sprint 23-24 scope)
+1. Audit all Phase 3 files for stub vs real implementations
+2. Verify all barrel exports are wired (`packages/shared/src/index.ts`, `apps/api/src/routers/index.ts`, `apps/api/src/db/schema/index.ts`)
+3. Add error boundaries and loading states to new pages
+4. Run `pnpm typecheck` across the monorepo and fix type errors
+5. Run `pnpm build` and fix build failures
+6. Run existing tests (`pnpm test`) and fix regressions
+
+### Priority 2: Integration Wiring
+1. Ensure `appRouter` includes all new routers: `broker`, `advancedOrders`, `aiAnalysis`, `optionsFlow`, `futures`, `multiAsset`, `moderation`
+2. Ensure `schema/index.ts` exports all new schemas: `brokerConnections`, `ibkrSubAccounts`, `moderation`
+3. Verify `packages/shared/src/index.ts` re-exports: `orders`, `forex`, `futures`, `patterns`
+4. Verify `services/market-data/src/providers/index.ts` barrel exports all providers
+
+### Priority 3: Test Coverage
+1. Write integration tests for broker adapter → router → UI flow
+2. Write tests for forex calculators and currency strength
+3. Write tests for options flow detection and IV analytics
+4. Write E2E tests for new pages (crypto, forex, futures, scanner, trade)
+5. Target: every new service and router has at least unit test coverage
+
+### Priority 4: Phase 3 Polish
+1. Consistent UI patterns across all new pages (loading skeletons, empty states, error fallbacks)
+2. Mobile screens for new features (crypto, forex, futures — at minimum view-only)
+3. Settings page updates (broker connections visible in sidebar)
+4. Dockview panel registration for new panel types (futures, crypto, forex, AI, flow)
+
+### After Phase 3: Phase 4 Begins (Sprints 39-50)
+- Strategy IDE with Monaco editor (TypeScript + Python)
+- Backtesting engine (vectorized + event-driven)
+- Sandboxed execution + live deployment with risk controls
+- Visual builder + Pine Script import
+- ML integration

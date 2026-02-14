@@ -9,6 +9,7 @@ import { layoutRouter } from './layouts.js'
 import { screenerRouter } from './screener.js'
 import { drawingsRouter } from './drawings.js'
 import { optionsRouter } from './options.js'
+import { optionsFlowRouter } from './options-flow.js'
 import { journalRouter } from './journal.js'
 import { heatmapRouter } from './heatmap.js'
 import { performanceRouter } from './performance.js'
@@ -17,6 +18,12 @@ import { profilesRouter } from './profiles.js'
 import { leaderboardsRouter } from './leaderboards.js'
 import { chatRouter } from './chat.js'
 import { newsRouter } from './news.js'
+import { brokerRouter } from './broker.js'
+import { multiAssetRouter } from './multi-asset.js'
+import { advancedOrdersRouter } from './advanced-orders.js'
+import { aiAnalysisRouter } from './ai-analysis.js'
+import { moderationRouter } from './moderation.js'
+import { futuresRouter } from './futures.js'
 
 export const appRouter = router({
   health: publicProcedure.query(() => ({
@@ -39,6 +46,7 @@ export const appRouter = router({
   screener: screenerRouter,
   drawings: drawingsRouter,
   options: optionsRouter,
+  optionsFlow: optionsFlowRouter,
   journal: journalRouter,
   heatmap: heatmapRouter,
   performance: performanceRouter,
@@ -47,6 +55,12 @@ export const appRouter = router({
   leaderboards: leaderboardsRouter,
   chat: chatRouter,
   news: newsRouter,
+  broker: brokerRouter,
+  multiAsset: multiAssetRouter,
+  advancedOrders: advancedOrdersRouter,
+  aiAnalysis: aiAnalysisRouter,
+  moderation: moderationRouter,
+  futures: futuresRouter,
 })
 
 export type AppRouter = typeof appRouter

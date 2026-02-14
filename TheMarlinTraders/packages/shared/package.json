@@ -10,7 +10,8 @@
     "./types": "./src/types/index.ts",
     "./utils": "./src/utils/index.ts",
     "./constants": "./src/constants/index.ts",
-    "./indicators": "./src/indicators/index.ts"
+    "./indicators": "./src/indicators/index.ts",
+    "./patterns": "./src/patterns/index.ts"
   },
   "scripts": {
     "build": "tsc",

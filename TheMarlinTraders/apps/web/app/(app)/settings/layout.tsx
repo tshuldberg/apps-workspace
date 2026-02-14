@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: '/settings/profile', label: 'Profile' },
   { href: '/settings/privacy', label: 'Privacy' },
   { href: '/settings/billing', label: 'Billing' },
+  { href: '/settings/broker', label: 'Broker' },
   { href: '/settings/notifications', label: 'Notifications' },
   { href: '/settings/appearance', label: 'Appearance' },
 ]
@@ -29,7 +30,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
               href={item.href}
               className={cn(
                 'rounded-md px-3 py-2 text-sm transition-colors',
-                pathname === item.href
+                pathname === item.href || pathname?.startsWith(item.href + '/')
                   ? 'bg-navy-light text-text-primary'
                   : 'text-text-secondary hover:bg-navy-mid hover:text-text-primary',
               )}
