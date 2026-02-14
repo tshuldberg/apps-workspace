@@ -1,0 +1,8 @@
+import { createTRPCReact } from '@trpc/react-query'
+
+// AppRouter type will be imported from the API package once it's built.
+// Using `any` as a temporary placeholder avoids tRPC's Router constraint.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AppRouter = any
+
+export const trpc = createTRPCReact<AppRouter>()
