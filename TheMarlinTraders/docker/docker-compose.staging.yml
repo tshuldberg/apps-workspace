@@ -1,0 +1,82 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: timescale/timescaledb:2.14.2-pg16
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: marlin_staging
+      POSTGRES_USER: marlin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-marlin_staging_pw}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U marlin']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.7
+    restart: unless-stopped
+    ports:
+      - '7700:7700'
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-marlin_staging_meili}
+      MEILI_ENV: production
+    volumes:
+      - meilidata:/meili_data
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    ports:
+      - '4000:4000'
+    environment:
+      DATABASE_URL: postgres://marlin:${POSTGRES_PASSWORD:-marlin_staging_pw}@postgres:5432/marlin_staging
+      REDIS_URL: redis://redis:6379
+      MEILI_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-marlin_staging_meili}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
+      POLYGON_API_KEY: ${POLYGON_API_KEY}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_started
+
+  market-data:
+    build:
+      context: ..
+      dockerfile: services/market-data/Dockerfile
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://redis:6379
+      POLYGON_API_KEY: ${POLYGON_API_KEY}
+      NODE_ENV: production
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  meilidata:
