@@ -1,0 +1,36 @@
+{
+  "name": "@marlin/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun dist/index.js",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "bun src/db/seed.ts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@clerk/backend": "^2.31.0",
+    "@marlin/shared": "workspace:*",
+    "@trpc/server": "^11.0.0-rc.682",
+    "drizzle-orm": "^0.38.4",
+    "ioredis": "^5.9.3",
+    "meilisearch": "^0.55.0",
+    "postgres": "^3.4.8",
+    "ws": "^8.18.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@marlin/config": "workspace:*",
+    "@types/bun": "^1.1.14",
+    "@types/ws": "^8.5.13",
+    "drizzle-kit": "^0.30.6",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
