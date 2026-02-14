@@ -24,6 +24,10 @@ import { advancedOrdersRouter } from './advanced-orders.js'
 import { aiAnalysisRouter } from './ai-analysis.js'
 import { moderationRouter } from './moderation.js'
 import { futuresRouter } from './futures.js'
+import { strategyRouter } from './strategy.js'
+import { strategyDeployRouter } from './strategy-deploy.js'
+import { backtestRouter } from './backtest.js'
+import { mlRouter } from './ml.js'
 
 export const appRouter = router({
   health: publicProcedure.query(() => ({
@@ -61,6 +65,10 @@ export const appRouter = router({
   aiAnalysis: aiAnalysisRouter,
   moderation: moderationRouter,
   futures: futuresRouter,
+  strategy: strategyRouter,
+  strategyDeploy: strategyDeployRouter,
+  backtest: backtestRouter,
+  ml: mlRouter,
 })
 
 export type AppRouter = typeof appRouter

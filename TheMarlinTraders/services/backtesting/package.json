@@ -6,7 +6,10 @@
   "main": "./src/patterns/index.ts",
   "types": "./src/patterns/index.ts",
   "exports": {
-    "./patterns": "./src/patterns/index.ts"
+    "./patterns": "./src/patterns/index.ts",
+    "./vectorized": "./src/vectorized/index.ts",
+    "./data": "./src/data/index.ts",
+    "./event-driven": "./src/event-driven/index.ts"
   },
   "scripts": {
     "build": "tsc",

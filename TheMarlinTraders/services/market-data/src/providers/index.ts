@@ -9,3 +9,7 @@ export type { BinanceWSOptions, BinanceTrade, BinanceTicker } from './binance-ws
 
 export { ForexWebSocketAdapter, getForexSessionStatuses, getSessionOverlaps } from './forex-provider.js'
 export type { ForexProviderOptions, PolygonForexQuote, PolygonForexAggregate, SessionStatus } from './forex-provider.js'
+
+export { FuturesWebSocketAdapter, parseFuturesSymbol, buildFuturesSymbol, getContractSpecification, identifyFrontMonth, getRolloverCalendar, MAJOR_FUTURES } from './futures-provider.js'
+
+export { Level2Provider } from './level2-provider.js'
