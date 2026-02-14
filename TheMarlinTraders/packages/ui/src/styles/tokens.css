@@ -1,0 +1,79 @@
+/* ==========================================================================
+   TheMarlinTraders — Design Tokens
+   ========================================================================== */
+
+:root {
+  /* Base surfaces */
+  --navy-black: #0a0a0f;
+  --navy-dark: #0f0f1a;
+  --navy-mid: #1a1a2e;
+  --navy-light: #2a2a3e;
+
+  /* Trading signals */
+  --trading-green: #22c55e;
+  --trading-red: #ef4444;
+  --trading-green-dim: #16a34a;
+  --trading-red-dim: #dc2626;
+
+  /* Accent */
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-dim: #1d4ed8;
+
+  /* Text */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Borders */
+  --border: #1e293b;
+  --border-hover: #334155;
+
+  /* Semantic */
+  --warning: #f59e0b;
+  --info: #06b6d4;
+
+  /* Radius */
+  --radius-panel: 6px;
+  --radius-md: 6px;
+  --radius-sm: 4px;
+  --radius-lg: 8px;
+
+  /* Spacing */
+  --panel-gap: 2px;
+  --toolbar-h: 36px;
+  --sidebar-w: 280px;
+  --header-h: 48px;
+}
+
+/* Light mode overrides */
+.light {
+  --navy-black: #ffffff;
+  --navy-dark: #f8fafc;
+  --navy-mid: #f1f5f9;
+  --navy-light: #e2e8f0;
+
+  --trading-green: #16a34a;
+  --trading-red: #dc2626;
+  --trading-green-dim: #15803d;
+  --trading-red-dim: #b91c1c;
+
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-dim: #1e40af;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+}
+
+/* Colorblind mode (deuteranopia-safe: blue + orange instead of green + red) */
+.colorblind {
+  --trading-green: #2196f3;
+  --trading-red: #ff9800;
+  --trading-green-dim: #1976d2;
+  --trading-red-dim: #f57c00;
+}
