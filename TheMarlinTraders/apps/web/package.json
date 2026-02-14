@@ -1,0 +1,35 @@
+{
+  "name": "@marlin/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^6.37.4",
+    "@clerk/themes": "^2.4.52",
+    "@marlin/charts": "workspace:*",
+    "@marlin/data": "workspace:*",
+    "@marlin/shared": "workspace:*",
+    "@marlin/ui": "workspace:*",
+    "dockview-react": "^4.13.1",
+    "next": "^15.1.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@marlin/config": "workspace:*",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.3"
+  }
+}
