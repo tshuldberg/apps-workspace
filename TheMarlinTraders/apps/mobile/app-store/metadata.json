@@ -1,0 +1,27 @@
+{
+  "appName": "Marlin Traders",
+  "subtitle": "Professional Trading Platform",
+  "category": "Finance",
+  "subcategory": "Investing",
+  "keywords": [
+    "trading",
+    "stocks",
+    "charts",
+    "alerts",
+    "investing",
+    "portfolio",
+    "technical analysis",
+    "watchlist",
+    "paper trading",
+    "market data"
+  ],
+  "description": "Marlin Traders is an all-in-one trading platform where charting, strategy development, execution, journaling, and community exist in a single experience. Get professional-grade tools without the professional-grade price.\n\nFeatures:\n- Real-time stock charts with 50+ technical indicators\n- 20+ drawing tools including trendlines, Fibonacci, and channels\n- Customizable watchlists with real-time streaming prices\n- Price and volume alerts with push notifications\n- Paper trading simulator with realistic execution\n- Portfolio tracking and P&L analysis\n- Multiple chart types: candlestick, OHLC, line, area, Heikin-Ashi\n- Multiple timeframes from 1-minute to monthly\n\nFree tier includes:\n- 10 indicators per chart\n- 100 active alerts\n- Paper trading with $100K virtual capital\n- 5 watchlists\n\nPowered by real-time US equity data from Polygon.io.",
+  "privacyUrl": "https://marlintraders.com/privacy",
+  "supportUrl": "https://marlintraders.com/support",
+  "marketingUrl": "https://marlintraders.com",
+  "ageRating": "17+",
+  "contentDescriptions": {
+    "unrestricted_web_access": false,
+    "gambling_simulated": false
+  }
+}

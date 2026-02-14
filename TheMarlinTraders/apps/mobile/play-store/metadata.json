@@ -1,0 +1,45 @@
+{
+  "appName": "Marlin Traders",
+  "shortDescription": "Professional trading platform with real-time charts, alerts, and paper trading",
+  "fullDescription": "Marlin Traders brings institutional-grade trading tools to everyone. Get real-time streaming charts with 50+ technical indicators, customizable multi-chart layouts, smart price alerts, and paper trading -- all in one app.\n\nKey Features:\n\n- Real-Time Charts: Candlestick, line, and bar charts powered by high-performance rendering with pinch-to-zoom and crosshair inspection\n- 50+ Technical Indicators: SMA, EMA, MACD, RSI, Bollinger Bands, Ichimoku, VWAP, and dozens more with full customization\n- Smart Alerts: Set price alerts with push notifications and email delivery. Never miss a move\n- Watchlists: Organize symbols into multiple lists with sparkline previews and swipe actions\n- Paper Trading: Practice strategies risk-free with simulated market, limit, and stop orders\n- Portfolio Tracking: Monitor positions, P&L, and recent orders at a glance\n- Dark Theme: Designed for extended trading sessions with a professional navy-black interface\n- Cross-Platform: Seamless experience across web and mobile\n\nWhether you are a day trader, swing trader, or long-term investor, Marlin Traders gives you the tools the pros use -- without the professional price tag.\n\nFree tier includes 10 indicators per chart, 100 alerts, and full paper trading access.",
+  "category": "FINANCE",
+  "contentRating": "Everyone",
+  "keywords": [
+    "trading",
+    "stocks",
+    "charts",
+    "portfolio",
+    "stock market",
+    "technical analysis",
+    "day trading",
+    "investing",
+    "watchlist",
+    "price alerts",
+    "paper trading",
+    "candlestick charts",
+    "stock screener",
+    "market data",
+    "financial"
+  ],
+  "privacyPolicyUrl": "https://marlintraders.com/privacy",
+  "defaultLanguage": "en-US",
+  "contactEmail": "support@marlintraders.com",
+  "contactWebsite": "https://marlintraders.com",
+  "screenshots": {
+    "phone": [
+      "screenshots/phone-01-chart.png",
+      "screenshots/phone-02-watchlist.png",
+      "screenshots/phone-03-alerts.png",
+      "screenshots/phone-04-portfolio.png",
+      "screenshots/phone-05-indicators.png"
+    ],
+    "tablet7": [],
+    "tablet10": []
+  },
+  "featureGraphic": "graphics/feature-graphic.png",
+  "promoGraphic": "graphics/promo-graphic.png",
+  "icon": "graphics/play-store-icon.png",
+  "releaseNotes": {
+    "en-US": "Initial release of Marlin Traders for Android. Includes real-time charting, 50+ indicators, watchlists, price alerts, and paper trading."
+  }
+}

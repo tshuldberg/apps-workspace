@@ -1,0 +1,73 @@
+{
+  "expo": {
+    "name": "Marlin Traders",
+    "slug": "the-marlin-traders",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "marlin",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0a0a0f"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.themarlintraders.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to authenticate"
+      }
+    },
+    "android": {
+      "package": "com.marlintraders.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon-foreground.png",
+        "backgroundImage": "./assets/adaptive-icon-background.png",
+        "backgroundColor": "#0a0a0f"
+      },
+      "splash": {
+        "backgroundColor": "#0a0a0f",
+        "resizeMode": "contain"
+      },
+      "permissions": [
+        "INTERNET",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
+      ],
+      "googleServicesFile": "./google-services.json",
+      "softwareKeyboardLayoutMode": "pan",
+      "allowBackup": false,
+      "statusBar": {
+        "barStyle": "light-content",
+        "backgroundColor": "#0a0a0f",
+        "translucent": true
+      },
+      "navigationBar": {
+        "backgroundColor": "#0f0f1a",
+        "barStyle": "light-content"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#3b82f6",
+          "sounds": []
+        }
+      ],
+      "expo-haptics"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "http://localhost:4000",
+      "eas": {
+        "projectId": "the-marlin-traders"
+      }
+    }
+  }
+}

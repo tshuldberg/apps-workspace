@@ -1,0 +1,29 @@
+{
+  "name": "@marlin/market-data",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx --watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@marlin/shared": "workspace:*",
+    "ioredis": "^5.9.3",
+    "ws": "^8.18.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@marlin/config": "workspace:*",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
