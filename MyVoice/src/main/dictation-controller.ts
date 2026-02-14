@@ -1,29 +1,30 @@
+import { clipboard } from 'electron';
+import { execFile } from 'child_process';
 import { DictationState } from '../shared/types';
 import { IPC_CHANNELS } from '../shared/types';
-import { SILENCE_TIMEOUT_MS, SPEECH_LOCALE, KEYSTROKE_DELAY_MS } from '../shared/constants';
+import { SILENCE_TIMEOUT_MS } from '../shared/constants';
 import { showOverlay, hideOverlay, sendToOverlay } from './overlay-window';
 import { setRecordingState } from './tray';
 import * as native from './native-bridge';
+import type { WhisperPaths } from './dependency-setup';
+import { getFormattingSettings } from './formatting-settings';
+import { formatTranscript } from './transcript-formatter';
 
 let state: DictationState = 'idle';
 let silenceTimer: ReturnType<typeof setTimeout> | null = null;
 let lastAudioAboveThreshold = 0;
 let isFinishing = false;
 let permissionsChecked = false;
+let audioLevelCount = 0;
 const SILENCE_AUDIO_THRESHOLD = 0.02;
 
-const ERROR_MESSAGES: Record<string, string> = {
-  'Speech recognizer not available for this locale':
-    'On-device speech model not found. Download it in System Settings → Keyboard → Dictation.',
-  'Audio engine failed':
-    'Microphone access failed. Check System Settings → Privacy & Security → Microphone.',
-};
+let whisperCli: string | null = null;
+let whisperModel: string | null = null;
 
-function friendlyError(rawError: string): string {
-  for (const [key, msg] of Object.entries(ERROR_MESSAGES)) {
-    if (rawError.includes(key)) return msg;
-  }
-  return rawError;
+export function initDictation(paths: WhisperPaths): void {
+  whisperCli = paths.whisperCli;
+  whisperModel = paths.whisperModel;
+  console.log('[MyVoice] Dictation initialized:', { whisperCli, whisperModel });
 }
 
 export function getDictationState(): DictationState {
@@ -56,9 +57,9 @@ async function checkPermissions(): Promise<boolean> {
     return false;
   }
 
-  const speechAuthorized = await native.speechRequestAuth();
-  if (!speechAuthorized) {
-    console.error('Speech recognition permission denied');
+  const micAuthorized = await native.speechRequestAuth();
+  if (!micAuthorized) {
+    console.error('[MyVoice] Microphone permission denied');
     return false;
   }
 
@@ -67,6 +68,11 @@ async function checkPermissions(): Promise<boolean> {
 }
 
 async function startDictation(): Promise<void> {
+  if (!whisperCli || !whisperModel) {
+    console.error('[MyVoice] Dictation not initialized — call initDictation() first');
+    return;
+  }
+
   const permitted = await checkPermissions();
   if (!permitted) return;
 
@@ -75,22 +81,20 @@ async function startDictation(): Promise<void> {
   setRecordingState(true);
   showOverlay();
   lastAudioAboveThreshold = Date.now();
+  audioLevelCount = 0;
 
-  native.speechStart(
-    SPEECH_LOCALE,
-    // onPartialResult
-    (text: string) => {
-      sendToOverlay(IPC_CHANNELS.DICTATION_PARTIAL_TEXT, text);
-    },
-    // onFinalResult
-    (text: string) => {
-      finishDictation(text);
-    },
+  console.log('[MyVoice] Starting audio recording for Whisper');
+
+  native.recordStart(
     // onAudioLevel
     (level: number) => {
+      audioLevelCount++;
+      if (audioLevelCount <= 5 || (level > SILENCE_AUDIO_THRESHOLD && audioLevelCount % 10 === 0)) {
+        console.log(`[MyVoice] Audio level #${audioLevelCount}: ${level.toFixed(4)}`);
+      }
+
       sendToOverlay(IPC_CHANNELS.DICTATION_AUDIO_LEVEL, level);
 
-      // Silence detection
       if (level > SILENCE_AUDIO_THRESHOLD) {
         lastAudioAboveThreshold = Date.now();
       }
@@ -99,13 +103,14 @@ async function startDictation(): Promise<void> {
     },
     // onError
     (error: string) => {
-      console.error('Speech recognition error:', error);
-      sendToOverlay(IPC_CHANNELS.DICTATION_ERROR, friendlyError(error));
+      console.error('[MyVoice] Recording error:', error);
+      clearSilenceTimer();
+      native.speechStop();
+      sendToOverlay(IPC_CHANNELS.DICTATION_ERROR, error);
       resetState();
     }
   );
 
-  // Start silence detection timer
   startSilenceTimer();
 }
 
@@ -114,40 +119,92 @@ function stopDictation(): void {
 
   state = 'stopping';
   clearSilenceTimer();
-  native.speechStop();
-  // finishDictation will be called via onFinalResult callback
 
-  // Safety timeout: if no final result in 2s, reset
-  setTimeout(() => {
-    if (state === 'stopping') {
-      resetState();
+  console.log('[MyVoice] Stopping recording…');
+  const wavPath = native.recordStop();
+
+  if (!wavPath) {
+    console.log('[MyVoice] No audio recorded');
+    resetState();
+    return;
+  }
+
+  console.log('[MyVoice] WAV saved:', wavPath);
+  sendToOverlay(IPC_CHANNELS.DICTATION_PARTIAL_TEXT, 'Transcribing…');
+
+  transcribeWithWhisper(wavPath);
+}
+
+function transcribeWithWhisper(wavPath: string): void {
+  console.log('[MyVoice] Running whisper-cli on', wavPath);
+
+  execFile(
+    whisperCli!,
+    [
+      '-m', whisperModel!,
+      '--no-timestamps',
+      '-l', 'en',
+      '-f', wavPath,
+    ],
+    { timeout: 30000 },
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error('[MyVoice] Whisper error:', error.message);
+        if (stderr) console.error('[MyVoice] Whisper stderr:', stderr);
+        sendToOverlay(IPC_CHANNELS.DICTATION_ERROR, 'Transcription failed. Check whisper-cli installation.');
+        resetState();
+        return;
+      }
+
+      // whisper-cli outputs the transcript on stdout, strip whitespace
+      const transcript = stdout.trim();
+      console.log('[MyVoice] Whisper transcript:', JSON.stringify(transcript));
+
+      if (transcript.length === 0) {
+        console.log('[MyVoice] Empty transcript — no speech detected');
+        sendToOverlay(IPC_CHANNELS.DICTATION_ERROR, 'No speech detected.');
+        resetState();
+        return;
+      }
+
+      const formatting = getFormattingSettings();
+      if (formatting.aiEnhancementEnabled) {
+        // Placeholder for optional AI formatter integration; local formatter remains default.
+        console.log('[MyVoice] AI enhancement enabled; falling back to local formatter (provider not configured).');
+      }
+
+      const formatted = formatTranscript(transcript, formatting.mode);
+      finishDictation(formatted || transcript);
     }
-  }, 2000);
+  );
 }
 
 function finishDictation(transcript: string): void {
   if (isFinishing) return;
   isFinishing = true;
 
+  console.log('[MyVoice] finishDictation:', JSON.stringify(transcript));
+
   clearSilenceTimer();
   sendToOverlay(IPC_CHANNELS.DICTATION_STOP, transcript);
 
-  if (transcript.trim().length > 0) {
-    // Estimate typing duration to avoid resetting state before typing completes
-    const estimatedTypingMs = transcript.length * KEYSTROKE_DELAY_MS + 200;
+  // Save original clipboard, paste transcribed text, then restore
+  const originalClipboard = clipboard.readText();
+  clipboard.writeText(transcript);
 
-    setTimeout(() => {
-      native.keyboardType(transcript, KEYSTROKE_DELAY_MS);
-    }, 100);
+  console.log('[MyVoice] Pasting via Cmd+V in 150ms');
 
+  setTimeout(() => {
+    console.log('[MyVoice] Invoking keyboardPaste now');
+    native.keyboardPaste();
+
+    // Restore original clipboard after paste completes
     setTimeout(() => {
+      clipboard.writeText(originalClipboard);
+      console.log('[MyVoice] Clipboard restored');
       resetState();
-    }, 100 + estimatedTypingMs);
-  } else {
-    setTimeout(() => {
-      resetState();
-    }, 100);
-  }
+    }, 300);
+  }, 150);
 }
 
 function resetState(): void {
@@ -162,7 +219,7 @@ function resetState(): void {
   }, 250);
 }
 
-// --- Silence Detection -------------------------------------------------
+// --- Silence Detection ---------------------------------------------------
 
 function startSilenceTimer(): void {
   clearSilenceTimer();

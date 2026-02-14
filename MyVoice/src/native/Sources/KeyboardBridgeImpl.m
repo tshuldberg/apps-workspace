@@ -5,7 +5,16 @@
 @implementation KeyboardBridge
 
 + (void)typeText:(NSString *)text delayMs:(int)delay {
+    NSLog(@"[MyVoice] KeyboardBridge.typeText called: \"%@\" (delay=%dms)", text, delay);
+
+    BOOL trusted = AXIsProcessTrusted();
+    NSLog(@"[MyVoice] Accessibility trusted: %@", trusted ? @"YES" : @"NO");
+
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+    if (!source) {
+        NSLog(@"[MyVoice] ERROR: Failed to create CGEventSource");
+        return;
+    }
 
     for (NSUInteger i = 0; i < text.length; i++) {
         unichar character = [text characterAtIndex:i];
@@ -32,6 +41,35 @@
     if (source) {
         CFRelease(source);
     }
+
+    NSLog(@"[MyVoice] KeyboardBridge.typeText finished (%lu chars)", (unsigned long)text.length);
+}
+
++ (void)pasteFromClipboard {
+    NSLog(@"[MyVoice] KeyboardBridge.pasteFromClipboard called");
+
+    BOOL trusted = AXIsProcessTrusted();
+    NSLog(@"[MyVoice] Accessibility trusted: %@", trusted ? @"YES" : @"NO");
+
+    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+    if (!source) {
+        NSLog(@"[MyVoice] ERROR: Failed to create CGEventSource");
+        return;
+    }
+
+    // Simulate Cmd+V (keycode 9 = V on macOS)
+    CGEventRef keyDown = CGEventCreateKeyboardEvent(source, 9, true);
+    CGEventSetFlags(keyDown, kCGEventFlagMaskCommand);
+    CGEventPost(kCGHIDEventTap, keyDown);
+    CFRelease(keyDown);
+
+    CGEventRef keyUp = CGEventCreateKeyboardEvent(source, 9, false);
+    CGEventSetFlags(keyUp, kCGEventFlagMaskCommand);
+    CGEventPost(kCGHIDEventTap, keyUp);
+    CFRelease(keyUp);
+
+    CFRelease(source);
+    NSLog(@"[MyVoice] Cmd+V posted");
 }
 
 + (BOOL)checkAccessibilityPermission {

@@ -18,7 +18,6 @@
       "libraries": [
         "-framework Foundation",
         "-framework AppKit",
-        "-framework Speech",
         "-framework AVFoundation",
         "-framework CoreGraphics",
         "-framework ApplicationServices"

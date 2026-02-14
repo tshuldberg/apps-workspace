@@ -11,6 +11,9 @@ export const WAVEFORM_BAR_WIDTH = 3;
 export const WAVEFORM_BAR_GAP = 2;
 export const WAVEFORM_MIN_HEIGHT = 3;
 export const WAVEFORM_MAX_HEIGHT = 50;
+export const WAVEFORM_LEVEL_DECAY = 0.985;
+export const WAVEFORM_LEVEL_SMOOTHING_ALPHA = 0.45;
+export const WAVEFORM_NO_INPUT_MS = 1200;
 
 // Overlay window — expanded state
 export const OVERLAY_EXPANDED_WIDTH = 620;

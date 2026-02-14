@@ -1,5 +1,16 @@
-import { Tray, Menu, nativeImage, app } from 'electron';
+import { Tray, Menu, nativeImage, app, shell } from 'electron';
 import path from 'path';
+import {
+  getFormattingSettings,
+  setFormattingMode,
+  setAiEnhancementEnabled,
+} from './formatting-settings';
+import {
+  getVisualizationSettings,
+  setWaveformSensitivity,
+  setWaveformDebugOverlay,
+} from './visualization-settings';
+import { broadcastWaveformConfig } from './overlay-window';
 
 let tray: Tray | null = null;
 let isRecording = false;
@@ -57,6 +68,8 @@ export function setRecordingState(recording: boolean): void {
 function updateTrayMenu(): void {
   if (!tray) return;
 
+  const formatting = getFormattingSettings();
+  const visualization = getVisualizationSettings();
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'MyVoice',
@@ -75,6 +88,103 @@ function updateTrayMenu(): void {
       click: (menuItem) => {
         app.setLoginItemSettings({ openAtLogin: menuItem.checked });
       },
+    },
+    {
+      label: 'Text Formatting',
+      submenu: [
+        {
+          label: 'Off (verbatim)',
+          type: 'radio',
+          checked: formatting.mode === 'off',
+          click: () => {
+            setFormattingMode('off');
+            updateTrayMenu();
+          },
+        },
+        {
+          label: 'Basic (default)',
+          type: 'radio',
+          checked: formatting.mode === 'basic',
+          click: () => {
+            setFormattingMode('basic');
+            updateTrayMenu();
+          },
+        },
+        {
+          label: 'Structured (more paragraph/list formatting)',
+          type: 'radio',
+          checked: formatting.mode === 'structured',
+          click: () => {
+            setFormattingMode('structured');
+            updateTrayMenu();
+          },
+        },
+        { type: 'separator' },
+        {
+          label: 'AI Enhancement (optional)',
+          type: 'checkbox',
+          checked: formatting.aiEnhancementEnabled,
+          click: (menuItem) => {
+            setAiEnhancementEnabled(menuItem.checked);
+            updateTrayMenu();
+          },
+        },
+        {
+          label: 'AI enhancement currently falls back to local formatting.',
+          enabled: false,
+        },
+      ],
+    },
+    {
+      label: 'Waveform',
+      submenu: [
+        {
+          label: 'Sensitivity: Low',
+          type: 'radio',
+          checked: visualization.sensitivity === 'low',
+          click: () => {
+            setWaveformSensitivity('low');
+            broadcastWaveformConfig();
+            updateTrayMenu();
+          },
+        },
+        {
+          label: 'Sensitivity: Balanced (default)',
+          type: 'radio',
+          checked: visualization.sensitivity === 'balanced',
+          click: () => {
+            setWaveformSensitivity('balanced');
+            broadcastWaveformConfig();
+            updateTrayMenu();
+          },
+        },
+        {
+          label: 'Sensitivity: High',
+          type: 'radio',
+          checked: visualization.sensitivity === 'high',
+          click: () => {
+            setWaveformSensitivity('high');
+            broadcastWaveformConfig();
+            updateTrayMenu();
+          },
+        },
+        { type: 'separator' },
+        {
+          label: 'Show Waveform Debug Overlay',
+          type: 'checkbox',
+          checked: visualization.debugOverlay,
+          click: (menuItem) => {
+            setWaveformDebugOverlay(menuItem.checked);
+            broadcastWaveformConfig();
+            updateTrayMenu();
+          },
+        },
+      ],
+    },
+    { type: 'separator' },
+    {
+      label: 'Buy Me a Coffee ☕',
+      click: () => shell.openExternal('https://buymeacoffee.com/TreyTre'),
     },
     { type: 'separator' },
     {

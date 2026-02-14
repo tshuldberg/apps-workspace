@@ -1,12 +1,11 @@
 #include <napi.h>
 #import "SwiftBridge.h"
 
-// --- Speech Recognition ------------------------------------------------
+// --- Audio Recording ---------------------------------------------------
 
-static Napi::ThreadSafeFunction partialTsfn;
-static Napi::ThreadSafeFunction finalTsfn;
 static Napi::ThreadSafeFunction levelTsfn;
 static Napi::ThreadSafeFunction errorTsfn;
+static bool recordingActive = false;
 
 Napi::Value SpeechRequestAuth(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
@@ -15,7 +14,7 @@ Napi::Value SpeechRequestAuth(const Napi::CallbackInfo& info) {
     auto tsfn = Napi::ThreadSafeFunction::New(env, callback, "AuthCallback", 0, 1);
 
     [SpeechBridge requestAuthorization:^(BOOL granted) {
-        tsfn.BlockingCall([granted](Napi::Env env, Napi::Function jsCallback) {
+        tsfn.NonBlockingCall([granted](Napi::Env env, Napi::Function jsCallback) {
             jsCallback.Call({Napi::Boolean::New(env, granted)});
         });
         tsfn.Release();
@@ -28,41 +27,31 @@ Napi::Value SpeechIsAvailable(const Napi::CallbackInfo& info) {
     return Napi::Boolean::New(info.Env(), [SpeechBridge isAvailable]);
 }
 
-Napi::Value SpeechStart(const Napi::CallbackInfo& info) {
+Napi::Value RecordStart(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    std::string locale = info[0].As<Napi::String>().Utf8Value();
-    Napi::Function onPartial = info[1].As<Napi::Function>();
-    Napi::Function onFinal = info[2].As<Napi::Function>();
-    Napi::Function onLevel = info[3].As<Napi::Function>();
-    Napi::Function onError = info[4].As<Napi::Function>();
+    Napi::Function onLevel = info[0].As<Napi::Function>();
+    Napi::Function onError = info[1].As<Napi::Function>();
 
-    partialTsfn = Napi::ThreadSafeFunction::New(env, onPartial, "PartialResult", 0, 1);
-    finalTsfn = Napi::ThreadSafeFunction::New(env, onFinal, "FinalResult", 0, 1);
     levelTsfn = Napi::ThreadSafeFunction::New(env, onLevel, "AudioLevel", 0, 1);
     errorTsfn = Napi::ThreadSafeFunction::New(env, onError, "Error", 0, 1);
+    recordingActive = true;
 
-    NSString *nsLocale = [NSString stringWithUTF8String:locale.c_str()];
-
-    [SpeechBridge startRecognitionWithLocale:nsLocale
+    [SpeechBridge startRecognitionWithLocale:@"en-US"
         onPartialResult:^(NSString *text) {
-            std::string cppText = [text UTF8String];
-            partialTsfn.NonBlockingCall([cppText](Napi::Env env, Napi::Function cb) {
-                cb.Call({Napi::String::New(env, cppText)});
-            });
+            // Not used with Whisper
         }
         onFinalResult:^(NSString *text) {
-            std::string cppText = [text UTF8String];
-            finalTsfn.NonBlockingCall([cppText](Napi::Env env, Napi::Function cb) {
-                cb.Call({Napi::String::New(env, cppText)});
-            });
+            // Not used with Whisper
         }
         onAudioLevel:^(float level) {
+            if (!recordingActive) return;
             levelTsfn.NonBlockingCall([level](Napi::Env env, Napi::Function cb) {
                 cb.Call({Napi::Number::New(env, level)});
             });
         }
         onError:^(NSString *error) {
+            if (!recordingActive) return;
             std::string cppError = [error UTF8String];
             errorTsfn.NonBlockingCall([cppError](Napi::Env env, Napi::Function cb) {
                 cb.Call({Napi::String::New(env, cppError)});
@@ -73,15 +62,34 @@ Napi::Value SpeechStart(const Napi::CallbackInfo& info) {
     return env.Undefined();
 }
 
-Napi::Value SpeechStop(const Napi::CallbackInfo& info) {
-    [SpeechBridge stopRecognition];
+Napi::Value RecordStop(const Napi::CallbackInfo& info) {
+    if (!recordingActive) {
+        return info.Env().Null();
+    }
 
-    // Release thread-safe functions
-    if (partialTsfn) partialTsfn.Release();
-    if (finalTsfn) finalTsfn.Release();
+    recordingActive = false;
+
+    // Stop recording and get WAV file path
+    NSString *wavPath = [SpeechBridge stopAndSaveRecording];
+
+    // Release TSFNs
     if (levelTsfn) levelTsfn.Release();
     if (errorTsfn) errorTsfn.Release();
 
+    if (wavPath) {
+        return Napi::String::New(info.Env(), [wavPath UTF8String]);
+    }
+    return info.Env().Null();
+}
+
+Napi::Value SpeechStop(const Napi::CallbackInfo& info) {
+    if (!recordingActive) {
+        return info.Env().Undefined();
+    }
+    recordingActive = false;
+    [SpeechBridge stopRecognition];
+    if (levelTsfn) levelTsfn.Release();
+    if (errorTsfn) errorTsfn.Release();
     return info.Env().Undefined();
 }
 
@@ -118,11 +126,15 @@ Napi::Value KeyboardType(const Napi::CallbackInfo& info) {
 
     NSString *nsText = [NSString stringWithUTF8String:text.c_str()];
 
-    // Run on background thread to avoid blocking Node event loop
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [KeyboardBridge typeText:nsText delayMs:delay];
     });
 
+    return info.Env().Undefined();
+}
+
+Napi::Value KeyboardPaste(const Napi::CallbackInfo& info) {
+    [KeyboardBridge pasteFromClipboard];
     return info.Env().Undefined();
 }
 
@@ -138,10 +150,11 @@ Napi::Value KeyboardRequestPermission(const Napi::CallbackInfo& info) {
 // --- Module Registration -----------------------------------------------
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    // Speech
+    // Audio recording
     exports.Set("speechRequestAuth", Napi::Function::New(env, SpeechRequestAuth));
     exports.Set("speechIsAvailable", Napi::Function::New(env, SpeechIsAvailable));
-    exports.Set("speechStart", Napi::Function::New(env, SpeechStart));
+    exports.Set("recordStart", Napi::Function::New(env, RecordStart));
+    exports.Set("recordStop", Napi::Function::New(env, RecordStop));
     exports.Set("speechStop", Napi::Function::New(env, SpeechStop));
 
     // Hotkey
@@ -150,6 +163,7 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 
     // Keyboard
     exports.Set("keyboardType", Napi::Function::New(env, KeyboardType));
+    exports.Set("keyboardPaste", Napi::Function::New(env, KeyboardPaste));
     exports.Set("keyboardCheckPermission", Napi::Function::New(env, KeyboardCheckPermission));
     exports.Set("keyboardRequestPermission", Napi::Function::New(env, KeyboardRequestPermission));
 

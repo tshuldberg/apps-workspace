@@ -6,6 +6,8 @@ export const IPC_CHANNELS = {
   DICTATION_AUDIO_LEVEL: 'dictation:audio-level',
   DICTATION_PARTIAL_TEXT: 'dictation:partial-text',
   DICTATION_ERROR: 'dictation:error',
+  WAVEFORM_CONFIG: 'waveform:config',
+  OVERLAY_READY: 'overlay:ready',
   OVERLAY_DISMISSED: 'overlay:dismissed',
   OVERLAY_SET_SIZE: 'overlay:set-size',
 } as const;
@@ -15,6 +17,7 @@ export type DictationState = 'idle' | 'recording' | 'stopping';
 
 // Overlay state
 export type OverlayMode = 'expanded' | 'minimized';
+export type WaveformSensitivity = 'low' | 'balanced' | 'high';
 
 // IPC payloads
 export interface AudioLevelPayload {
@@ -37,4 +40,9 @@ export interface OverlaySetSizePayload {
   width: number;
   height: number;
   position: 'center' | 'top-left';
+}
+
+export interface WaveformConfigPayload {
+  sensitivity: WaveformSensitivity;
+  debugOverlay: boolean;
 }

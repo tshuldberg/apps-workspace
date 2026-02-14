@@ -1,8 +1,9 @@
 import { app, globalShortcut } from 'electron';
 import { createOverlayWindow } from './overlay-window';
 import { createTray } from './tray';
-import { toggleDictation, cancelDictation, getDictationState } from './dictation-controller';
+import { toggleDictation, cancelDictation, getDictationState, initDictation } from './dictation-controller';
 import { hotkeyStart, hotkeyStop } from './native-bridge';
+import { ensureWhisperReady } from './dependency-setup';
 
 // Prevent multiple instances
 const gotTheLock = app.requestSingleInstanceLock();
@@ -13,12 +14,18 @@ if (!gotTheLock) {
 // Hide dock icon (menu bar app only)
 app.dock?.hide();
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // Ensure whisper-cli and model are available (may show setup UI)
+  const whisperPaths = await ensureWhisperReady();
+
   // Create tray icon
   createTray();
 
   // Pre-create overlay window (hidden)
   createOverlayWindow();
+
+  // Initialize dictation with resolved paths
+  initDictation(whisperPaths);
 
   // Start listening for fn double-tap
   hotkeyStart(() => {

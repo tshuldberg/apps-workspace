@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 
-// Speech recognition bridge
+// Audio recording bridge (captures audio for Whisper transcription)
 @interface SpeechBridge : NSObject
 + (void)requestAuthorization:(void (^)(BOOL granted))callback;
 + (BOOL)isAvailable;
@@ -9,6 +9,7 @@
                      onFinalResult:(void (^)(NSString *text))finalCallback
                       onAudioLevel:(void (^)(float level))levelCallback
                            onError:(void (^)(NSString *error))errorCallback;
++ (NSString *)stopAndSaveRecording;
 + (void)stopRecognition;
 @end
 
@@ -21,6 +22,7 @@
 // Keyboard simulation bridge
 @interface KeyboardBridge : NSObject
 + (void)typeText:(NSString *)text delayMs:(int)delay;
++ (void)pasteFromClipboard;
 + (BOOL)checkAccessibilityPermission;
 + (void)requestAccessibilityPermission;
 @end

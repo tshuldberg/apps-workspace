@@ -4,7 +4,7 @@ import path from 'path';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const native = require(path.join(__dirname, '../../src/native/build/Release/myvoice_native.node'));
 
-// --- Speech Recognition ------------------------------------------------
+// --- Microphone Authorization ---------------------------------------------
 
 export function speechRequestAuth(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -16,21 +16,25 @@ export function speechIsAvailable(): boolean {
   return native.speechIsAvailable();
 }
 
-export function speechStart(
-  locale: string,
-  onPartialResult: (text: string) => void,
-  onFinalResult: (text: string) => void,
+// --- Audio Recording (for Whisper) ----------------------------------------
+
+export function recordStart(
   onAudioLevel: (level: number) => void,
   onError: (error: string) => void
 ): void {
-  native.speechStart(locale, onPartialResult, onFinalResult, onAudioLevel, onError);
+  native.recordStart(onAudioLevel, onError);
+}
+
+/** Stops recording and returns the path to the WAV file, or null if no audio. */
+export function recordStop(): string | null {
+  return native.recordStop();
 }
 
 export function speechStop(): void {
   native.speechStop();
 }
 
-// --- Hotkey Detection --------------------------------------------------
+// --- Hotkey Detection ------------------------------------------------------
 
 export function hotkeyStart(onDoubleTapFn: () => void): void {
   native.hotkeyStart(onDoubleTapFn);
@@ -40,10 +44,14 @@ export function hotkeyStop(): void {
   native.hotkeyStop();
 }
 
-// --- Keyboard Simulation -----------------------------------------------
+// --- Keyboard Simulation ---------------------------------------------------
 
 export function keyboardType(text: string, delayMs?: number): void {
   native.keyboardType(text, delayMs ?? 10);
+}
+
+export function keyboardPaste(): void {
+  native.keyboardPaste();
 }
 
 export function keyboardCheckPermission(): boolean {
