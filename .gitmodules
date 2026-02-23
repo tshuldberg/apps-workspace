@@ -1,0 +1,66 @@
+[submodule "MyLife/HumanHomes"]
+	path = MyLife/HumanHomes
+	url = https://github.com/tshuldberg/HumanHomes.git
+[submodule "MyLife/MyBooks"]
+	path = MyLife/MyBooks
+	url = https://github.com/tshuldberg/MyBooks.git
+[submodule "MyLife/MyBudget"]
+	path = MyLife/MyBudget
+	url = https://github.com/tshuldberg/MyBudget
+[submodule "MyLife/MyCar"]
+	path = MyLife/MyCar
+	url = https://github.com/tshuldberg/MyCar.git
+[submodule "MyLife/MyCloset"]
+	path = MyLife/MyCloset
+	url = https://github.com/tshuldberg/MyCloset.git
+[submodule "MyLife/MyCycle"]
+	path = MyLife/MyCycle
+	url = https://github.com/tshuldberg/MyCycle.git
+[submodule "MyLife/MyFast"]
+	path = MyLife/MyFast
+	url = https://github.com/tshuldberg/MyFast.git
+[submodule "MyLife/MyFlash"]
+	path = MyLife/MyFlash
+	url = https://github.com/tshuldberg/MyFlash.git
+[submodule "MyLife/MyGarden"]
+	path = MyLife/MyGarden
+	url = https://github.com/tshuldberg/MyGarden.git
+[submodule "MyLife/MyHabits"]
+	path = MyLife/MyHabits
+	url = https://github.com/tshuldberg/MyHabits.git
+[submodule "MyLife/MyJournal"]
+	path = MyLife/MyJournal
+	url = https://github.com/tshuldberg/MyJournal.git
+[submodule "MyLife/MyMeds"]
+	path = MyLife/MyMeds
+	url = https://github.com/tshuldberg/MyMeds.git
+[submodule "MyLife/MyMood"]
+	path = MyLife/MyMood
+	url = https://github.com/tshuldberg/MyMood.git
+[submodule "MyLife/MyNotes"]
+	path = MyLife/MyNotes
+	url = https://github.com/tshuldberg/MyNotes.git
+[submodule "MyLife/MyPets"]
+	path = MyLife/MyPets
+	url = https://github.com/tshuldberg/MyPets.git
+[submodule "MyLife/MyRecipes"]
+	path = MyLife/MyRecipes
+	url = https://github.com/tshuldberg/MyRecipes.git
+[submodule "MyLife/MyStars"]
+	path = MyLife/MyStars
+	url = https://github.com/tshuldberg/MyStars.git
+[submodule "MyLife/MySubs"]
+	path = MyLife/MySubs
+	url = https://github.com/tshuldberg/MySubs.git
+[submodule "MyLife/MySurf"]
+	path = MyLife/MySurf
+	url = https://github.com/tshuldberg/MySurf.git
+[submodule "MyLife/MyTrails"]
+	path = MyLife/MyTrails
+	url = https://github.com/tshuldberg/MyTrails.git
+[submodule "MyLife/MyVoice"]
+	path = MyLife/MyVoice
+	url = https://github.com/tshuldberg/MyVoice.git
+[submodule "MyLife/MyWorkouts"]
+	path = MyLife/MyWorkouts
+	url = https://github.com/tshuldberg/MyWorkouts.git
