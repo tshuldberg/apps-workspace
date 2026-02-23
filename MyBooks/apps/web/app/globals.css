@@ -1,0 +1,41 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --background: #0E0C09;
+  --surface: #1A1610;
+  --surface-elevated: #23201A;
+  --text: #F4EDE2;
+  --text-secondary: #A99E8E;
+  --text-tertiary: #6B6155;
+  --accent: #C9894D;
+  --accent-light: #E0B07A;
+  --accent-dim: #7A5530;
+  --border: #2A2520;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-light);
+}

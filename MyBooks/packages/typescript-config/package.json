@@ -1,0 +1,5 @@
+{
+  "name": "@mybooks/typescript-config",
+  "private": true,
+  "files": ["base.json"]
+}

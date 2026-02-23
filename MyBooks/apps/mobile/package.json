@@ -1,0 +1,36 @@
+{
+  "name": "@mybooks/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start",
+    "build": "expo export",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .expo dist"
+  },
+  "dependencies": {
+    "@mybooks/shared": "workspace:*",
+    "@mybooks/ui": "workspace:*",
+    "expo": "~52.0.0",
+    "expo-router": "~4.0.0",
+    "expo-sqlite": "~15.0.0",
+    "expo-camera": "~16.0.0",
+    "expo-barcode-scanner": "~13.0.0",
+    "expo-document-picker": "~13.0.0",
+    "expo-file-system": "~18.0.0",
+    "expo-image": "~2.0.0",
+    "expo-status-bar": "~2.0.0",
+    "react": "^18.3.0",
+    "react-native": "^0.76.0",
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-screens": "~4.4.0",
+    "react-native-svg": "^15.0.0"
+  },
+  "devDependencies": {
+    "@mybooks/typescript-config": "workspace:*",
+    "@types/react": "^18.3.0",
+    "typescript": "^5.7.0"
+  }
+}

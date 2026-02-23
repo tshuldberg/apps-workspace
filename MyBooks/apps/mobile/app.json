@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "MyBooks",
+    "slug": "mybooks",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "scheme": "mybooks",
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow MyBooks to use the camera for barcode scanning."
+        }
+      ],
+      "expo-document-picker"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.mybooks.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.mybooks.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0E0C09"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

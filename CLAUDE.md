@@ -223,11 +223,72 @@ cd FedMemes && xcodegen generate         # Generate Xcode project
 
 ---
 
+### MySurf — Surf Forecasting Platform
+Full-stack surf forecasting app (iOS + Android + Web) competing with Surfline. Interactive swell maps, spot-level intelligence, AI-generated narratives via Claude API, and community spot discovery. California MVP with ~200 curated spots. Has its own CLAUDE.md.
+
+**Stack:** TypeScript, Expo (React Native), Next.js 15, Supabase (PostgreSQL + PostGIS + Edge Functions + Auth + Realtime), Mapbox GL (@rnmapbox/maps mobile, MapLibre GL JS web), Turborepo, Bun 1.2.4, Claude API, Zod 3.24, Vitest
+
+**Key commands:**
+```bash
+bun run dev              # All apps (Turborepo)
+bun run dev:mobile       # Expo mobile only
+bun run dev:web          # Next.js web only
+bun run build            # Build all
+bun run test             # Test all (Vitest)
+bun run typecheck        # Type check all
+supabase start           # Local Supabase instance
+supabase db reset        # Apply migrations + seed data
+```
+
+**Architecture:** Turborepo monorepo — `apps/mobile/` (Expo, 5-tab nav), `apps/web/` (Next.js 15), `apps/data-pipeline/` (NOAA/NDBC ingestion, AI narrative gen). `packages/shared/` (Zod types, rating algorithm, geo utils), `packages/api/` (Supabase client, typed queries), `packages/ui/` (dark theme tokens), `packages/maps/` (Mapbox config, CA buoy/tide stations). `supabase/` (migrations, Edge Functions, seed data). 9 database tables with PostGIS geospatial indexing and RLS.
+
+---
+
+### MyBudget — Envelope Budgeting + Subscription Tracker
+Privacy-first envelope budgeting app with integrated subscription tracking. Merges YNAB-style envelope budgeting with a 215-entry subscription catalog, renewal calendar, and cost dashboard. All data on-device, zero network calls. Has its own CLAUDE.md.
+
+**Stack:** TypeScript, Expo (React Native), Next.js 15, SQLite (expo-sqlite mobile / better-sqlite3 web), Turborepo, pnpm, Zod 3.24, Vitest
+
+**Key commands:**
+```bash
+pnpm install             # Install all dependencies
+pnpm build               # Build all packages and apps
+pnpm dev                 # Dev mode for all
+pnpm dev:mobile          # Expo mobile only
+pnpm dev:web             # Next.js web only
+pnpm test                # Run all tests (vitest)
+pnpm typecheck           # Type check all
+```
+
+**Architecture:** Turborepo monorepo — `apps/mobile/` (Expo, 5-tab nav: Budget, Transactions, Subscriptions, Reports, Accounts), `apps/web/` (Next.js 15). `packages/shared/` (13-table SQLite schema, budget engine, subscription engine with renewal/cost/status, CSV parser, 215-entry catalog, Zod models). `packages/ui/` (dark theme tokens, 7 components). 200 tests passing. Subscriptions bridge to budget system via categories and recurring_templates.
+
+---
+
+### MyBooks — Private Book Tracking App
+Privacy-first book tracking app for iOS, Android, and web. Library management, reading lists (TBR/reading/finished), private half-star ratings and reviews, reading stats and goals, year-in-review, barcode scanning, and Goodreads/StoryGraph import. All data local SQLite, book metadata via Open Library API. No accounts, no cloud, no telemetry. Has its own CLAUDE.md.
+
+**Stack:** TypeScript, Expo (React Native), Next.js 15, SQLite (expo-sqlite mobile / better-sqlite3 web), Open Library API, Turborepo, pnpm, Zod 3.24, Vitest
+
+**Key commands:**
+```bash
+pnpm install             # Install all dependencies
+pnpm build               # Build all packages and apps
+pnpm dev                 # Dev mode for all
+pnpm dev:mobile          # Expo mobile only
+pnpm dev:web             # Next.js web only
+pnpm test                # Run all tests (vitest)
+pnpm typecheck           # Type check all
+```
+
+**Architecture:** Turborepo monorepo — `apps/mobile/` (Expo, 5-tab nav: Home, Library, Search, Stats, Settings), `apps/web/` (Next.js 15). `packages/shared/` (11-table SQLite schema + FTS5, Open Library API client, Goodreads/StoryGraph CSV import, CSV/JSON/Markdown export, stats engine, year-in-review aggregation, Zod models). `packages/ui/` (literary dark theme tokens, book/rating/shelf/stats components).
+
+---
+
 ## Cross-Project Patterns
 
-- **Timeline tracking:** EasyStreet, easystreet-monorepo, receipts, shiphawk-templates, tron-castle-fight, system-monitor, and fed-memes all maintain change tracking files (`timeline.md` or `PROJECT_LOG.md`). Update these after completing work.
-- **Project-level CLAUDE.md:** macos-hub, shiphawk-templates, tron-castle-fight, EasyStreet, easystreet-monorepo, receipts, system-monitor, and fed-memes each have their own CLAUDE.md with project-specific rules. Always defer to those when working within a project.
-- **Git conventions vary by project:** ShipHawk uses Jira-linked branches (`vs-DEV-12345-*`), Receeps uses Conventional Commits, EasyStreet uses `feature/`/`bugfix/` prefixes, tron-castle-fight uses PROJECT_LOG.md entries, fed-memes uses Conventional Commits.
+- **Timeline tracking:** EasyStreet, easystreet-monorepo, receipts, shiphawk-templates, tron-castle-fight, system-monitor, fed-memes, MySurf, MyBudget, and MyBooks all maintain change tracking files (`timeline.md` or `PROJECT_LOG.md`). Update these after completing work.
+- **Project-level CLAUDE.md:** macos-hub, shiphawk-templates, tron-castle-fight, EasyStreet, easystreet-monorepo, receipts, system-monitor, fed-memes, MySurf, MyBudget, and MyBooks each have their own CLAUDE.md with project-specific rules. Always defer to those when working within a project.
+- **Git conventions vary by project:** ShipHawk uses Jira-linked branches (`vs-DEV-12345-*`), Receeps uses Conventional Commits, EasyStreet uses `feature/`/`bugfix/` prefixes, tron-castle-fight uses PROJECT_LOG.md entries, fed-memes uses Conventional Commits, MySurf uses Conventional Commits, MyBudget uses Conventional Commits, MyBooks uses Conventional Commits.
 - **Shared business logic:** EasyStreet (native) and easystreet-monorepo share the sweepingRuleEngine and holidayCalculator concepts. Changes to holiday logic or sweeping rules in one should be verified against the other.
 - **ShipHawk ecosystem:** shiphawk-templates produces templates consumed by shiphawk-dev. Template variable references must align with shiphawk-dev's data schema.
 - **macOS Hub MCP server:** macos-hub provides MCP tools used by Claude Code across all projects. Changes to its tool interface affect all projects that use those tools.
@@ -267,6 +328,9 @@ Every project CLAUDE.md must include at minimum:
 | tron-castle-fight | 2 | 2 |
 | system-monitor | 2 | 2 |
 | fed-memes | 2 | 3 |
+| MySurf | 2 | 3 |
+| MyBudget | 2 | 3 |
+| MyBooks | 2 | 3 |
 
 ### Directory Structure Standards
 - Group related projects in subdirectories (e.g., `Parks/` for EasyStreet variants, `SH/` for ShipHawk ecosystem)
@@ -321,7 +385,14 @@ Every project CLAUDE.md must include at minimum:
 ## Plan Queue Protocol
 
 ### Overview
-The workspace uses a plan-file queue system to drive parallel Claude Code agents. Plans are markdown files that describe self-contained units of work. Agents pick up plans from the queue, execute them, and move them to done/failed.
+The workspace uses a plan-file queue system to drive parallel Claude Code and Codex agents. Plans are markdown files that describe self-contained units of work. Agents pick up plans from the queue, execute them, and move them to done/failed.
+
+### Canonical Sources (Keep in Sync)
+- `docs/guides/parallel-agent-orchestration.md` — End-to-end queue/dispatch/worktree workflow
+- `.claude/skills/dispatch/SKILL.md` — Dispatch algorithm and strategy selection
+- `docs/plans/templates/plan-template.md` — Required plan structure
+- `docs/plans/scripts/plan-runner.sh` and `docs/plans/scripts/parallel-plan-runner.sh` — Headless queue execution
+- `.claude/agents/plan-executor.md` / `test-writer.md` / `docs-agent.md` / `reviewer.md` — Role definitions for dispatched work
 
 ### Directory Structure
 ```
@@ -363,6 +434,22 @@ Every plan file must contain at minimum:
 - Do NOT modify files outside the declared Scope
 - Follow the target project's CLAUDE.md conventions
 
+### Dispatch Preflight (Mandatory)
+- Read `docs/plans/queue/*.md` sorted by filename (priority order)
+- Parse each plan's Metadata and Scope before dispatching
+- Check `docs/plans/active/` for in-flight plans before starting new work
+- Enforce dependencies: if a dependency is not in `docs/plans/done/`, mark the plan blocked and skip it
+- Check scope overlap:
+  - Hard conflict: same file in multiple plans
+  - Soft conflict: parent/child directory overlap
+
+### Queue State Transitions (Mandatory)
+- Move plans from `queue/` to `active/` when execution starts
+- Move plans from `active/` to `done/` on success
+- Move plans from `active/` to `failed/` on blocker or execution failure
+- Never delete plan files; only move between `queue/`, `active/`, `done/`, and `failed/`
+- Write execution logs to `docs/plans/logs/` for headless/scripted runs
+
 ### Queue Runners
 - **Sequential:** `./docs/plans/scripts/plan-runner.sh` — processes plans one at a time via `claude -p`
 - **Parallel:** `./docs/plans/scripts/parallel-plan-runner.sh [max-concurrent]` — creates git worktrees per plan, runs up to N agents simultaneously
@@ -381,6 +468,7 @@ Enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`.
 | Scenario | Strategy |
 |----------|----------|
 | 2+ plans target the same project with overlapping scope | **Agent Team** — lead coordinates, teammates own file zones |
+| 2+ plans target the same project with zero scope overlap | **Parallel Subagents** — independent zones, no coordinator needed |
 | Plans target different projects, no overlap | **Parallel Subagents** — independent, fire-and-forget |
 | Single plan or trivial standalone work | **Single Subagent** — simplest path |
 | Research/exploration tasks | **Background Subagents** — `run_in_background: true` |
@@ -388,6 +476,10 @@ Enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`.
 **Team composition:** Lead (coordinator, delegate mode) + specialized teammates. Size tasks at 5-6 per teammate. Each teammate owns different files (use project CLAUDE.md file ownership zones).
 
 **`/dispatch` selects strategy automatically** — groups plans by project, checks for file conflicts, and chooses Team vs Subagent accordingly. Use `--strategy team|subagent` to override.
+
+### Codex Parity Rule
+- Codex must follow the same dispatch algorithm and queue lifecycle defined in the canonical sources above.
+- If Agent Team tooling is unavailable in a Codex session, use the queue runner scripts or independent subagent execution while preserving the same dependency checks, conflict checks, scope guardrails, and queue state transitions.
 
 ### Custom Agent Definitions
 Reusable agent roles defined in `.claude/agents/`:
@@ -424,6 +516,14 @@ Use as `subagent_type` when spawning teammates or subagents. Prefer specialized 
 - For research-heavy tasks, spawn background agents with `run_in_background: true`
 - Collect results after completion rather than blocking
 - Multiple research agents can run concurrently on different questions
+
+### Viewing Video Files
+When the user shares a `.mov`, `.mp4`, or other video file:
+1. Use `ffmpeg` to extract frames: `ffmpeg -y -i <video> -vf "fps=1" /tmp/video-frames/frame_%02d.png`
+2. Read the extracted PNG frames with the `Read` tool (they render as images)
+3. For short videos (<30s), extract at 1fps. For longer videos, use `fps=0.5` or `fps=0.25`
+4. macOS screen recordings have a unicode narrow no-break space (`\u202f`) before AM/PM in filenames — use Python `shutil.copy2` to copy to `/tmp/` with a clean name if the file won't open directly
+5. Clean up `/tmp/video-frames/` after analysis
 
 ### Headless Execution
 - `claude -p "[prompt]"` runs Claude Code without an interactive terminal
