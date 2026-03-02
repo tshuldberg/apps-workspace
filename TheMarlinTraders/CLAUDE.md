@@ -151,6 +151,18 @@ Polygon.io WebSocket
 - [Architecture Index](docs/architecture/README.md) — System design, tech stack, decisions
 - [Implementation Plan](docs/plans/implementation-plan.md) — 6-phase build plan with team/infra/risks
 
+## Context7 — Live Documentation
+
+When writing or modifying code that uses external libraries, automatically use Context7 MCP tools (`resolve-library-id` → `query-docs`) to fetch current documentation instead of relying on training data.
+
+**Pre-resolved library IDs for this project:**
+- Next.js: `/vercel/next.js`
+- tRPC: `/trpc/trpc`
+- Zod: `/colinhacks/zod`
+
+Use when: implementing library APIs, upgrading dependencies, debugging API behavior, writing framework configuration.
+Skip when: pure business logic, editing docs/config with no framework dependency.
+
 ## Parallel Agent Work
 
 This project participates in the workspace plan queue system. See `/Users/trey/Desktop/Apps/CLAUDE.md` for the full Plan Queue Protocol.
@@ -161,17 +173,24 @@ This project participates in the workspace plan queue system. See `/Users/trey/D
 
 ### File Ownership Boundaries
 When multiple agents work on this project simultaneously, use these boundaries to avoid conflicts:
-- **Web agent:** `apps/web/` (Next.js 15 App Router — pages, layouts, client components)
-- **Mobile agent:** `apps/mobile/` (React Native + Expo — screens, navigation, native modules)
-- **API agent:** `apps/api/` (tRPC routers, services, adapters, jobs, WebSocket gateway, Drizzle schema/migrations)
-- **Shared package agent:** `packages/shared/` (types, indicators, risk calc, validation, utils)
-- **UI package agent:** `packages/ui/` (shadcn/ui + trading components)
-- **Charts package agent:** `packages/charts/` (charting engine wrapper, custom renderers)
-- **Data package agent:** `packages/data/` (tRPC client, WS client, Zustand stores)
-- **Services agent:** `services/market-data/`, `services/backtesting/`, `services/notifications/`
-- **Config agent:** `packages/config/` (ESLint, TypeScript, Tailwind shared configs), root `turbo.json`, `pnpm-workspace.yaml`
-- **Tests agent:** Test files across all packages (`.test.ts`, `.spec.ts`, Playwright E2E)
-- **Docs agent:** `docs/` (research, requirements, architecture, plans)
+
+| Agent Role | Owned Paths |
+|------------|-------------|
+| Web | `apps/web/` (Next.js 15 App Router -- pages, layouts, client components) |
+| Mobile | `apps/mobile/` (React Native + Expo -- screens, navigation, native modules) |
+| API | `apps/api/` (tRPC routers, services, adapters, jobs, WebSocket gateway, Drizzle schema/migrations) |
+| Shared package | `packages/shared/` (types, indicators, risk calc, validation, utils) |
+| UI package | `packages/ui/` (shadcn/ui + trading components) |
+| Charts package | `packages/charts/` (charting engine wrapper, custom renderers) |
+| Data package | `packages/data/` (tRPC client, WS client, Zustand stores) |
+| Services | `services/market-data/`, `services/backtesting/`, `services/notifications/` |
+| Config | `packages/config/`, root `turbo.json`, `pnpm-workspace.yaml` |
+| Tests | Test files across all packages (`.test.ts`, `.spec.ts`, Playwright E2E) |
+| Docs | `docs/`, `README.md`, `CLAUDE.md`, `AGENTS.md` |
+
+**Rules:**
+- Each file belongs to exactly one zone
+- Never have two agents editing the same file simultaneously
 
 ### Conflict Prevention
 - Check which files other active plans target before starting (read `docs/plans/active/*.md`)
@@ -192,3 +211,20 @@ When `/dispatch` detects 2+ plans targeting this project with overlapping scope,
 - **Provider abstraction is mandatory:** All external services (Polygon, Clerk, Stripe, brokers) must sit behind adapter interfaces
 - **Web Workers for computation:** Indicator calculations, data parsing, and aggregation run in workers, never on the main thread
 - **Dark mode first:** Navy-black base is the default; light mode is opt-in
+
+
+## Writing Style
+- Do not use em dashes in documents or writing.
+
+
+### Code Intelligence
+
+Prefer LSP over Grep/Read for code navigation - it's faster, precise, and avoids reading entire files:
+- `workspaceSymbol` to find where something is defined
+- `findReferences` to see all usages across the codebase
+- `goToDefinition` / `goToImplementation` to jump to source
+- `hover` for type info without reading the file
+
+Use Grep only when LSP isn't available or for text/pattern searches (comments, strings, config).
+
+After writing or editing code, check LSP diagnostics and fix errors before proceeding.

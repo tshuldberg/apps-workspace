@@ -97,6 +97,17 @@ npm test
 - Commit messages: Conventional Commits (imperative mood)
 - Always `npm run build && npm test` before committing
 
+## Context7 — Live Documentation
+
+When writing or modifying code that uses external libraries, automatically use Context7 MCP tools (`resolve-library-id` → `query-docs`) to fetch current documentation instead of relying on training data.
+
+**Pre-resolved library IDs for this project:**
+- Zod: `/colinhacks/zod`
+- Vitest: `/vitest-dev/vitest`
+
+Use when: implementing library APIs, upgrading dependencies, debugging API behavior, writing framework configuration.
+Skip when: pure business logic, editing docs/config with no framework dependency.
+
 ## Parallel Agent Work
 
 This project participates in the workspace plan queue system. See `/Users/trey/Desktop/Apps/CLAUDE.md` for the full Plan Queue Protocol.
@@ -107,12 +118,20 @@ This project participates in the workspace plan queue system. See `/Users/trey/D
 
 ### File Ownership Boundaries
 When multiple agents work on this project simultaneously, use these boundaries to avoid conflicts:
-- **Adapters agent:** `src/adapters/` (all adapter implementations, `adapter.interface.ts`, `factory.ts`, `router.ts`)
-- **Jobs agent:** `src/jobs/` (all 4 job runners), `jobs/` (YAML job specs)
-- **Listeners agent:** `src/listeners/`, `src/listener-cli.ts`
-- **Core/runtime agent:** `src/contracts.ts`, `src/cli.ts`, `src/runtime/`, `src/approval/`, `src/utils/`
-- **Config agent:** `config/`, `policies/`, `schemas/`
-- **Tests agent:** `tests/` (all test suites)
+
+| Agent Role | Owned Paths |
+|------------|-------------|
+| Adapters | `src/adapters/` (all adapter implementations, `adapter.interface.ts`, `factory.ts`, `router.ts`) |
+| Jobs | `src/jobs/`, `jobs/` (YAML job specs) |
+| Listeners | `src/listeners/`, `src/listener-cli.ts` |
+| Core/runtime | `src/contracts.ts`, `src/cli.ts`, `src/runtime/`, `src/approval/`, `src/utils/` |
+| Config | `config/`, `policies/`, `schemas/` |
+| Tests | `tests/` (all test suites) |
+| Docs | `README.md`, `CLAUDE.md`, `AGENTS.md`, `docs/` |
+
+**Rules:**
+- Each file belongs to exactly one zone
+- Never have two agents editing the same file simultaneously
 
 ### Conflict Prevention
 - Check which files other active plans target before starting (read `docs/plans/active/*.md`)
@@ -125,3 +144,20 @@ When `/dispatch` detects 2+ plans targeting this project with overlapping scope,
 - `test-writer` — Write tests without modifying source code
 - `docs-agent` — Update documentation (CLAUDE.md, timeline, diagrams)
 - `reviewer` — Read-only code review and quality gates (uses Sonnet)
+
+
+## Writing Style
+- Do not use em dashes in documents or writing.
+
+
+### Code Intelligence
+
+Prefer LSP over Grep/Read for code navigation - it's faster, precise, and avoids reading entire files:
+- `workspaceSymbol` to find where something is defined
+- `findReferences` to see all usages across the codebase
+- `goToDefinition` / `goToImplementation` to jump to source
+- `hover` for type info without reading the file
+
+Use Grep only when LSP isn't available or for text/pattern searches (comments, strings, config).
+
+After writing or editing code, check LSP diagnostics and fix errors before proceeding.

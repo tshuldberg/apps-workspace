@@ -284,6 +284,47 @@ pnpm typecheck           # Type check all
 
 ---
 
+## Context7 — Live Documentation for LLMs
+
+Context7 is an MCP server (by Upstash) that fetches **current, version-specific library documentation** and injects it into the AI context window at query time. This eliminates hallucinated APIs, outdated patterns, and stale training data.
+
+### Auto-Invocation Rule
+When writing or modifying code that uses any external library or framework, **automatically use Context7 MCP tools** to fetch current documentation. Do not rely on training data for API signatures, configuration options, or code patterns. Always:
+1. Call `resolve-library-id` (or use a known library ID from the table below)
+2. Call `query-docs` with a specific, detailed query about the API or pattern needed
+
+### Known Library IDs by Project
+
+Use these pre-resolved IDs to skip the `resolve-library-id` step and go directly to `query-docs`:
+
+| Project | Library IDs |
+|---------|-------------|
+| **MySurf** | `/vercel/next.js` (v15), `/supabase/supabase`, `/supabase/supabase-js`, `/expo/expo`, `/colinhacks/zod`, `/rnmapbox/maps` |
+| **MyBudget** | `/expo/expo`, `/vercel/next.js` (v15), `/colinhacks/zod` |
+| **MyBooks** | `/expo/expo`, `/vercel/next.js` (v15), `/colinhacks/zod` |
+| **receipts** | `/djangoproject/django`, `/mantinedev/mantine`, `/reduxjs/redux-toolkit` |
+| **easystreet-monorepo** | `/expo/expo`, `/vercel/next.js` (v15) |
+| **fed-memes** | `/djangoproject/django`, `/meilisearch/meilisearch` |
+| **TheMarlinTraders** | `/vercel/next.js` (v15), `/trpc/trpc` |
+| **automation-hub** | `/colinhacks/zod` |
+| **macos-hub** | `/modelcontextprotocol/typescript-sdk`, `/colinhacks/zod` |
+| **system-monitor** | `/colinhacks/zod` |
+
+> **Tip:** When multiple Context7 sources exist for a library, prefer the `/org/repo` format (e.g., `/vercel/next.js`) for highest benchmark scores. Use `/websites/*` or `/llmstxt/*` variants only if the primary source lacks coverage for your query.
+
+### When to Use Context7
+- Implementing a new feature that uses a library API you haven't called recently
+- Upgrading a dependency version and need migration guidance
+- Debugging unexpected behavior that might stem from API misunderstanding
+- Writing configuration (e.g., Next.js config, Supabase RLS, Expo app.json)
+
+### When NOT to Use Context7
+- Pure business logic with no external library calls
+- Editing markdown, YAML, or config files unrelated to frameworks
+- Vanilla JS/TS/HTML/CSS with no framework dependency (e.g., tron-castle-fight)
+
+---
+
 ## Cross-Project Patterns
 
 - **Timeline tracking:** EasyStreet, easystreet-monorepo, receipts, shiphawk-templates, tron-castle-fight, system-monitor, fed-memes, MySurf, MyBudget, and MyBooks all maintain change tracking files (`timeline.md` or `PROJECT_LOG.md`). Update these after completing work.
@@ -331,6 +372,12 @@ Every project CLAUDE.md must include at minimum:
 | MySurf | 2 | 3 |
 | MyBudget | 2 | 3 |
 | MyBooks | 2 | 3 |
+
+### Directory Creation Guardrail (Critical)
+- Never create ad-hoc directories at the `/Apps/` root for staging, scaffolding, or PR preparation (e.g., `MyLife-root-pr/`, `MyLife-staging/`, `*-temp/`).
+- The only valid pattern for sibling working directories is git worktrees: `../Apps-wt-[plan-name]` (created via `cmux` or the plan queue scripts).
+- For parity work, edit standalone submodule directories in place (they live inside `MyLife/`). Do not create copies or parallel trees.
+- Any directory creation at the `/Apps/` root must correspond to a real project or group directory, not a transient workspace.
 
 ### Directory Structure Standards
 - Group related projects in subdirectories (e.g., `Parks/` for EasyStreet variants, `SH/` for ShipHawk ecosystem)
@@ -555,3 +602,20 @@ Use the `AskUserQuestion` tool frequently to:
 - **Surface trade-offs** when a decision has meaningful consequences
 
 Do not wait until work is complete to discover misalignment. Check in early and often. Prefer 2-option questions with a recommended default when possible.
+
+
+## Writing Style
+- Do not use em dashes in documents or writing.
+
+
+### Code Intelligence
+
+Prefer LSP over Grep/Read for code navigation - it's faster, precise, and avoids reading entire files:
+- `workspaceSymbol` to find where something is defined
+- `findReferences` to see all usages across the codebase
+- `goToDefinition` / `goToImplementation` to jump to source
+- `hover` for type info without reading the file
+
+Use Grep only when LSP isn't available or for text/pattern searches (comments, strings, config).
+
+After writing or editing code, check LSP diagnostics and fix errors before proceeding.

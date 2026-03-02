@@ -33,6 +33,13 @@ Workspace-wide agent instructions for `/Users/trey/Desktop/Apps`.
 - EasyStreet (monorepo): `/Users/trey/Desktop/Apps/Parks/easystreet-monorepo/AGENTS.md`
 - Fed Memes: `/Users/trey/Desktop/Apps/fed-memes/AGENTS.md`
 
+## Directory Creation Guardrail (Critical)
+
+- Never create ad-hoc directories at the `/Apps/` root for staging, scaffolding, or PR preparation (e.g., `MyLife-root-pr/`, `MyLife-staging/`, `*-temp/`).
+- The only valid pattern for sibling working directories is git worktrees: `../Apps-wt-[plan-name]` (created via `cmux` or the plan queue scripts).
+- For parity work, edit standalone submodule directories in place (they live inside `MyLife/`). Do not create copies or parallel trees.
+- Any directory creation at the `/Apps/` root must correspond to a real project or group directory, not a transient workspace.
+
 ## Workspace Standards
 
 - Use each project's local `AGENTS.md` before editing that project.
@@ -40,12 +47,45 @@ Workspace-wide agent instructions for `/Users/trey/Desktop/Apps`.
 - Follow each project's git workflow and validation commands before declaring work complete.
 - Keep documentation in sync with behavior changes when public workflows, APIs, or templates change.
 
+## Context7 — Live Documentation for LLMs
+
+Context7 is an MCP server that fetches current, version-specific library documentation at query time. Eliminates hallucinated APIs and stale training data.
+
+### Auto-Invocation Rule
+When writing or modifying code that uses any external library or framework, **automatically use Context7 MCP tools** to fetch current documentation. Do not rely on training data for API signatures, configuration options, or code patterns.
+
+### Known Library IDs by Project
+
+Skip `resolve-library-id` by using these pre-resolved IDs directly with `query-docs`:
+
+| Project | Library IDs |
+|---------|-------------|
+| **MySurf** | `/vercel/next.js` (v15), `/supabase/supabase`, `/supabase/supabase-js`, `/expo/expo`, `/colinhacks/zod`, `/rnmapbox/maps` |
+| **MyBudget** | `/expo/expo`, `/vercel/next.js` (v15), `/colinhacks/zod` |
+| **MyBooks** | `/expo/expo`, `/vercel/next.js` (v15), `/colinhacks/zod` |
+| **receipts** | `/djangoproject/django`, `/mantinedev/mantine`, `/reduxjs/redux-toolkit` |
+| **easystreet-monorepo** | `/expo/expo`, `/vercel/next.js` (v15) |
+| **fed-memes** | `/djangoproject/django`, `/meilisearch/meilisearch` |
+| **TheMarlinTraders** | `/vercel/next.js` (v15), `/trpc/trpc` |
+| **automation-hub** | `/colinhacks/zod` |
+| **macos-hub** | `/modelcontextprotocol/typescript-sdk`, `/colinhacks/zod` |
+| **system-monitor** | `/colinhacks/zod` |
+
+Prefer `/org/repo` format for highest benchmark scores. Use `/websites/*` or `/llmstxt/*` variants only if primary source lacks coverage.
+
+### When to Use / When Not to Use
+- **Use:** Library API calls, dependency upgrades, framework configuration, migration guidance
+- **Skip:** Pure business logic, vanilla JS/HTML/CSS, markdown/YAML editing, tron-castle-fight
+
+---
+
 ## Cross-Project Notes
 
 - EasyStreet native and EasyStreet monorepo share sweeping-domain logic concepts (rules, holidays, status mapping). Keep behavior consistent across both when changing domain logic.
 - `shiphawk-templates` output is consumed by the ShipHawk ecosystem. Keep canonical field names aligned with `config/reference-fields/standard-fields.json`.
 - `macos-hub` is an MCP server used across projects; interface changes can impact workflows outside its own repository.
 - `fed-memes` (Federal Reserve of Memes) is a GIF/meme platform with a 7-stage implementation plan in `docs/plan/`. Backend uses Django/DRF (similar to receipts), iOS uses Swift/UIKit (similar to EasyStreet).
+- `MyBudget` is an envelope budgeting + subscription tracker app (Expo + Next.js, SQLite, Turborepo). Subscriptions bridge to the budget system via categories and recurring_templates. Uses Conventional Commits.
 
 ## Workspace Skills
 
@@ -70,7 +110,14 @@ Workspace-wide agent instructions for `/Users/trey/Desktop/Apps`.
 ## Plan Queue Protocol
 
 ### Overview
-The workspace uses a plan-file queue system to drive parallel Claude Code agents. Plans are markdown files describing self-contained units of work. Agents pick up plans from the queue, execute them, and move them to done/failed.
+The workspace uses a plan-file queue system to drive parallel Claude Code and Codex agents. Plans are markdown files describing self-contained units of work. Agents pick up plans from the queue, execute them, and move them to done/failed.
+
+### Canonical Sources (Keep in Sync)
+- `docs/guides/parallel-agent-orchestration.md` — End-to-end queue/dispatch/worktree workflow
+- `.claude/skills/dispatch/SKILL.md` — Dispatch algorithm and strategy selection
+- `docs/plans/templates/plan-template.md` — Required plan structure
+- `docs/plans/scripts/plan-runner.sh` and `docs/plans/scripts/parallel-plan-runner.sh` — Headless queue execution
+- `.claude/agents/plan-executor.md` / `test-writer.md` / `docs-agent.md` / `reviewer.md` — Role definitions for dispatched work
 
 ### Directory Structure
 - `docs/plans/queue/` — Plans waiting for execution (prioritized by filename prefix)
@@ -95,6 +142,22 @@ Always start new plans by copying `docs/plans/templates/plan-template.md`. Do no
 - Do NOT modify files outside the declared Scope
 - Follow target project's CLAUDE.md conventions
 
+### Dispatch Preflight (Mandatory)
+- Read `docs/plans/queue/*.md` sorted by filename (priority order)
+- Parse each plan's Metadata and Scope before dispatching
+- Check `docs/plans/active/` for in-flight plans before starting new work
+- Enforce dependencies: if a dependency is not in `docs/plans/done/`, mark the plan blocked and skip it
+- Check scope overlap:
+  - Hard conflict: same file in multiple plans
+  - Soft conflict: parent/child directory overlap
+
+### Queue State Transitions (Mandatory)
+- Move plans from `queue/` to `active/` when execution starts
+- Move plans from `active/` to `done/` on success
+- Move plans from `active/` to `failed/` on blocker or execution failure
+- Never delete plan files; only move between `queue/`, `active/`, `done/`, and `failed/`
+- Write execution logs to `docs/plans/logs/` for headless/scripted runs
+
 ### Worktree Conventions
 - Worktree dirs: `../Apps-wt-[plan-name]` (sibling to main checkout)
 - Branch naming: `plan/[plan-name]`
@@ -106,11 +169,16 @@ Enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`.
 
 **Strategy selection (auto via `/dispatch`):**
 - 2+ plans same project with overlapping scope → **Agent Team** (lead + specialized teammates)
+- 2+ plans same project with zero scope overlap → **Parallel Subagents** (independent zones)
 - Plans target different projects, no overlap → **Parallel Subagents** (independent)
 - Single plan or trivial work → **Single Subagent**
 - Research/exploration → **Background Subagents**
 
 Team sizing: 5-6 tasks per teammate. Each teammate owns different files (use project CLAUDE.md file ownership zones).
+
+### Codex Parity Rule
+- Codex must follow the same dispatch algorithm and queue lifecycle defined in the canonical sources above.
+- If Agent Team tooling is unavailable in a Codex session, use the queue runner scripts or independent subagent execution while preserving the same dependency checks, conflict checks, scope guardrails, and queue state transitions.
 
 ### Custom Agent Definitions
 Reusable agent roles in `.claude/agents/`: `plan-executor` (implementation), `test-writer` (tests only), `docs-agent` (docs only), `reviewer` (read-only review). Use as `subagent_type` when spawning teammates or subagents.
@@ -122,3 +190,20 @@ Reusable agent roles in `.claude/agents/`: `plan-executor` (implementation), `te
 - Plans: `/Users/trey/Desktop/Apps/docs/plans/`
 - Reports: `/Users/trey/Desktop/Apps/docs/reports/`
 - Parallel Agent Guide: `/Users/trey/Desktop/Apps/docs/guides/parallel-agent-orchestration.md`
+
+
+## Writing Style
+- Do not use em dashes in documents or writing.
+
+
+### Code Intelligence
+
+Prefer LSP over Grep/Read for code navigation - it's faster, precise, and avoids reading entire files:
+- `workspaceSymbol` to find where something is defined
+- `findReferences` to see all usages across the codebase
+- `goToDefinition` / `goToImplementation` to jump to source
+- `hover` for type info without reading the file
+
+Use Grep only when LSP isn't available or for text/pattern searches (comments, strings, config).
+
+After writing or editing code, check LSP diagnostics and fix errors before proceeding.
