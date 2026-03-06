@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-The fastest path to $10K MRR is a **three-pronged launch**: (1) list on MCP marketplaces for organic discovery, (2) launch the top 4 revenue apps first on Hacker News + Reddit for developer adoption, and (3) pursue 2-3 enterprise design partners simultaneously. The x402 micropayment model eliminates traditional SaaS sales friction -- agents pay per call with no accounts, no contracts, no procurement. This means our GTM motion is fundamentally different from traditional SaaS: we're selling to machines first, developers second, enterprises third.
+The fastest path to $10K MRR is a **three-pronged launch**: (1) list on MCP marketplaces for organic discovery, (2) launch the top 4 revenue apps first on Hacker News + Reddit for developer adoption, and (3) pursue 2-3 enterprise design partners simultaneously. The x402 micropayment model eliminates traditional SaaS sales friction -- agents pay per call with no accounts, no contracts, no procurement. **Privacy-first by architecture:** zero accounts, zero API keys, zero content logging, zero tracking. This means our GTM motion is fundamentally different from traditional SaaS: we're selling to machines first, developers second, enterprises third.
 
 **Key finding: We need ~500 active agents calling 3-4 apps at moderate frequency to hit $10K MRR.** Based on the revenue model (Moderate scenario Month 3 = $14.5K), this is achievable within 8-12 weeks with strong marketplace presence and 2-3 viral demos.
 
@@ -88,9 +88,9 @@ The fastest path to $10K MRR is a **three-pronged launch**: (1) list on MCP mark
 
 | Channel | Action | Expected Impact | Timeline |
 |---------|--------|----------------|----------|
-| **Hacker News** | "Show HN: 15 MCP tools for AI agents, paid via x402 micropayments" | High -- HN loves novel economic models. Target 200+ upvotes. | Week 1 (Tue/Wed, 9am ET) |
-| **Reddit r/AI_Agents** (180K+) | "Build log" style post showing real agent workflow using 3-4 tools. | Medium-High | Week 1, day after HN |
-| **Reddit r/LocalLLaMA** (500K+) | Angle: "local-first MCP tools that don't need OpenAI API keys" | Medium | Week 2 |
+| **Hacker News** | "Show HN: 15 MCP tools for AI agents -- no accounts, no API keys, no tracking. Pay per call with x402." | High -- HN loves privacy + novel economics. Target 200+ upvotes. | Week 1 (Tue/Wed, 9am ET) |
+| **Reddit r/AI_Agents** (180K+) | "Build log" style post: lead with "zero tracking, zero accounts" then show real agent workflow using 3-4 tools. | Medium-High | Week 1, day after HN |
+| **Reddit r/LocalLLaMA** (500K+) | Angle: "local-first MCP tools -- no accounts, no API keys, no content logging, 14/15 use local compute only" | Medium | Week 2 |
 | **Twitter/X** | Thread: "I built 15 paid MCP tools. Here's what I learned about pricing for AI agents." | Medium | Ongoing from Day 1 |
 | **ProductHunt** | Launch as "MCP Bank - Pay-per-call tools for AI agents." | Low-Medium | Week 2 (Tuesday) |
 
@@ -207,7 +207,34 @@ Cold outreach to 20 companies, close 2-3 at $3-5K/mo each.
 
 ---
 
-## 9. Week 1 Actions
+## 9. Privacy Messaging Playbook
+
+Privacy is the lead differentiator across all channels. Every touchpoint should reinforce: "no accounts, no API keys, no tracking."
+
+### Core Messaging (Use Everywhere)
+
+**One-liner:** "MCP tools for AI agents. No accounts. No API keys. No tracking. Pay per call."
+
+**Three-sentence pitch:** "Every competitor requires email signup, API keys, and usage dashboards. We require nothing. Your agent sends a wallet payment, gets the result, and we forget it happened."
+
+### Channel-Specific Talking Points
+
+| Channel | Lead Message | Supporting Points |
+|---------|-------------|-------------------|
+| **MCP Marketplaces** (Smithery, Glama, mcp.so) | Badge: "Privacy-first -- no accounts required" | Zero signup friction. Wallet-only identity. No content logging. |
+| **Hacker News** | "No accounts, no API keys, no tracking" in title | Structural privacy from x402 model. 14/15 apps use local compute only. Full LLM disclosure for the 1 app that calls Anthropic. |
+| **Reddit r/AI_Agents** | "Your agent's data stays your agent's data" | Metering logs only operational metadata. Request/response content never stored. |
+| **Reddit r/LocalLLaMA** | "Local-first compute, no content leaves the server" | spaCy NER, pymupdf, sentence-transformers all run locally. Only Structured Extractor uses external LLM (disclosed). |
+| **Enterprise Sales** | "Zero PII collection by design" | No SOC 2 data retention concerns for user content. Wallet-only identity means no PII to protect. Compliance is simpler. |
+| **Framework Integrations** | "Privacy-first MCP tools" badge in docs | Link to `/privacy` endpoint. Highlight zero-signup flow. |
+
+### Transparency Rules
+
+1. **Always disclose the Structured Extractor's Anthropic API usage.** Never claim "zero third-party processing" for the portfolio -- say "14 of 15 apps" or name the exception.
+2. **Never say "we don't collect any data."** We collect operational metering data (tool name, wallet, price, duration). Be specific about what we collect and what we don't.
+3. **Link to the `/privacy` endpoint** in every listing, README, and marketing page. Machine-readable privacy policies build trust with both developers and autonomous agents.
+
+## 10. Week 1 Actions
 
 1. **Ship Phase 1 apps** (Extractor, Crawler, Doc Parser, KG) to production
 2. **List on Smithery + Glama + mcp.so + PulseMCP**

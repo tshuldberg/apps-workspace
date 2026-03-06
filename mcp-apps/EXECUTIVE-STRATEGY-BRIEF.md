@@ -44,6 +44,30 @@ We have built a portfolio of **15 MCP (Model Context Protocol) tool servers** th
 
 **Key insight:** Every competitor is VC-funded, uses traditional API keys + billing, and offers 1-3 tools. We offer 15 tools with zero-friction x402 payments. No competitor has both MCP + x402 together.
 
+### Privacy Architecture
+
+Our portfolio has a structural privacy advantage that no competitor can easily match:
+
+**Zero PII collection by design.** The x402 wallet-based payment model means we never need to collect names, emails, passwords, or any personal information. Identity is a wallet address. Authentication is a cryptographic payment. There are no accounts to create, no API keys to manage, no dashboards to log into.
+
+**What we collect vs. what competitors collect:**
+
+| Data Point | Us | Firecrawl / Exa / Tavily |
+|------------|-----|--------------------------|
+| Email address | No | Yes (signup required) |
+| API keys | No | Yes (dashboard required) |
+| Usage dashboards | No | Yes (tracks all calls) |
+| Request/response content | No | Varies (often logged) |
+| IP address storage | No (ephemeral rate limiting only) | Yes (typically logged) |
+| Cookies / browser tracking | No | Yes (marketing analytics) |
+| Personal information | No | Yes (billing info, company) |
+
+**Metering captures only operational metadata:** tool name, wallet address, call price, response duration, and cache status. Request and response body content is never logged, never stored, never analyzed.
+
+**One transparency note:** The Structured Extractor sends cleaned HTML/images to Anthropic's Claude Haiku API for LLM fallback on approximately 40% of calls. This is fully disclosed in the app's README, `/privacy` endpoint, and `/capabilities` response. All other apps (14 of 15) use local compute only with zero external API calls.
+
+This privacy posture is not a feature we added -- it is a structural property of the x402 payment model. Competitors would need to fundamentally redesign their authentication and billing systems to match it.
+
 ### Why Now
 
 1. **OpenAI WebSocket mode** (Jan 2026): 40% faster agent tool-calling, increasing demand for quality MCP tools
