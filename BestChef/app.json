@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "BestChef",
+    "slug": "bestchef",
+    "version": "1.0.0",
+    "scheme": "bestchef",
+    "platforms": ["ios", "android"],
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#131318"
+    },
+    "ios": {
+      "bundleIdentifier": "com.bestchef.app",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.bestchef.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#131318"
+      }
+    },
+    "plugins": ["expo-router"]
+  }
+}
