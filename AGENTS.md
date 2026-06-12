@@ -32,6 +32,7 @@ Workspace-wide agent instructions for `/Users/trey/Desktop/Apps`.
 - EasyStreet (native): `/Users/trey/Desktop/Apps/Parks/EasyStreet/AGENTS.md`
 - EasyStreet (monorepo): `/Users/trey/Desktop/Apps/Parks/easystreet-monorepo/AGENTS.md`
 - Fed Memes: `/Users/trey/Desktop/Apps/fed-memes/AGENTS.md`
+- ArenaLite: `/Users/trey/Desktop/Apps/arenalite/AGENTS.md`
 
 ## Directory Creation Guardrail (Critical)
 
@@ -83,7 +84,7 @@ Prefer `/org/repo` format for highest benchmark scores. Use `/websites/*` or `/l
 
 - EasyStreet native and EasyStreet monorepo share sweeping-domain logic concepts (rules, holidays, status mapping). Keep behavior consistent across both when changing domain logic.
 - `shiphawk-templates` output is consumed by the ShipHawk ecosystem. Keep canonical field names aligned with `config/reference-fields/standard-fields.json`.
-- `macos-hub` is an MCP server used across projects; interface changes can impact workflows outside its own repository.
+- `macos-hub` is retired as an MCP server (2026-03-23). macOS integrations use cloud MCP servers (Gmail, Google Calendar) instead.
 - `fed-memes` (Federal Reserve of Memes) is a GIF/meme platform with a 7-stage implementation plan in `docs/plan/`. Backend uses Django/DRF (similar to receipts), iOS uses Swift/UIKit (similar to EasyStreet).
 - `MyBudget` is an envelope budgeting + subscription tracker app (Expo + Next.js, SQLite, Turborepo). Subscriptions bridge to the budget system via categories and recurring_templates. Uses Conventional Commits.
 
@@ -94,7 +95,7 @@ Prefer `/org/repo` format for highest benchmark scores. Use `/websites/*` or `/l
 - `/research-documentation` — Research official docs and produce cited guidance for instruction, tooling, and platform questions. File: `/Users/trey/Desktop/Apps/.claude/skills/research-documentation/SKILL.md`
 - `/daily-report-ops` — Daily/ad-hoc reporting plus PR triage with strict naming rules. File: `/Users/trey/Desktop/Apps/.claude/skills/daily-report-ops/SKILL.md`
 - `/generate-architecture-diagrams` — Generate mermaid erDiagram + flowchart for a project, saved to `.claude/docs/data-models.md` and referenced from CLAUDE.md. File: `/Users/trey/Desktop/Apps/.claude/skills/generate-architecture-diagrams/SKILL.md`
-- `/scan-emails` — Scan an email inbox via macos-hub MCP mail tools, categorize unread messages by type/priority, and build an actionable task list. File: `/Users/trey/Desktop/Apps/.claude/skills/scan-emails/SKILL.md`
+- `/scan-emails` — Scan an email inbox via Gmail cloud MCP, categorize unread messages by type/priority, and build an actionable task list. File: `/Users/trey/Desktop/Apps/.claude/skills/scan-emails/SKILL.md`
 - `/dispatch` — Intelligently dispatch plans using auto-selected strategy (Agent Teams for same-project coordination, parallel subagents for independent work). File: `/Users/trey/Desktop/Apps/.claude/skills/dispatch/SKILL.md`
 
 ### Marketing Skills (via [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills))
