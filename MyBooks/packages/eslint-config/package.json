@@ -1,5 +1,0 @@
-{
-  "name": "@mybooks/eslint-config",
-  "private": true,
-  "files": ["index.js"]
-}
