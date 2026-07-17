@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, use } from 'react'
+import { useState, useEffect, useCallback, useMemo, use } from 'react'
 import { MarlinChart, ChartSkeleton, ChartError, type ChartType } from '@marlin/charts'
 import type { OHLCV, Timeframe, DOMLevel, OrderBook } from '@marlin/shared'
 import { DOMLadder } from '@marlin/ui/trading/dom-ladder'

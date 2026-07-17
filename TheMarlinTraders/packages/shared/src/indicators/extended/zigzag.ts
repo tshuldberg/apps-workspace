@@ -18,45 +18,48 @@ export function zigzag(data: OHLCV[], params: Record<string, unknown>): number[]
   type Pivot = { index: number; price: number; type: 'high' | 'low' }
   const pivots: Pivot[] = []
 
-  let lastPivot: Pivot = { index: 0, price: data[0].high, type: 'high' }
-  let lastLow: Pivot = { index: 0, price: data[0].low, type: 'low' }
+  const firstBar = data[0]!
+  let lastPivot: Pivot = { index: 0, price: firstBar.high, type: 'high' }
+  let lastLow: Pivot = { index: 0, price: firstBar.low, type: 'low' }
 
-  if (data[0].low < data[0].high) {
+  if (firstBar.low < firstBar.high) {
     // Start with whichever comes first
-    lastPivot = { index: 0, price: data[0].high, type: 'high' }
-    lastLow = { index: 0, price: data[0].low, type: 'low' }
+    lastPivot = { index: 0, price: firstBar.high, type: 'high' }
+    lastLow = { index: 0, price: firstBar.low, type: 'low' }
   }
 
-  let currentHigh = data[0].high
-  let currentLow = data[0].low
+  let currentHigh = firstBar.high
+  let currentLow = firstBar.low
   let currentHighIdx = 0
   let currentLowIdx = 0
   let trend = 0 // 0=unknown, 1=up, -1=down
 
   for (let i = 1; i < len; i++) {
-    if (data[i].high > currentHigh) {
-      currentHigh = data[i].high
+    const bar = data[i]!
+
+    if (bar.high > currentHigh) {
+      currentHigh = bar.high
       currentHighIdx = i
     }
-    if (data[i].low < currentLow) {
-      currentLow = data[i].low
+    if (bar.low < currentLow) {
+      currentLow = bar.low
       currentLowIdx = i
     }
 
     if (trend >= 0) {
-      if (data[i].low <= currentHigh * (1 - threshold)) {
+      if (bar.low <= currentHigh * (1 - threshold)) {
         pivots.push({ index: currentHighIdx, price: currentHigh, type: 'high' })
-        currentLow = data[i].low
+        currentLow = bar.low
         currentLowIdx = i
         trend = -1
       }
     }
     if (trend <= 0) {
-      if (data[i].high >= currentLow * (1 + threshold)) {
+      if (bar.high >= currentLow * (1 + threshold)) {
         if (trend === -1) {
           pivots.push({ index: currentLowIdx, price: currentLow, type: 'low' })
         }
-        currentHigh = data[i].high
+        currentHigh = bar.high
         currentHighIdx = i
         trend = 1
       }
@@ -72,15 +75,18 @@ export function zigzag(data: OHLCV[], params: Record<string, unknown>): number[]
 
   // Interpolate between pivots
   for (let p = 0; p < pivots.length; p++) {
-    result[pivots[p].index] = pivots[p].price
+    const pivot = pivots[p]!
+    result[pivot.index] = pivot.price
   }
 
   // Linear interpolation between pivots
   for (let p = 0; p < pivots.length - 1; p++) {
-    const startIdx = pivots[p].index
-    const endIdx = pivots[p + 1].index
-    const startPrice = pivots[p].price
-    const endPrice = pivots[p + 1].price
+    const startPivot = pivots[p]!
+    const endPivot = pivots[p + 1]!
+    const startIdx = startPivot.index
+    const endIdx = endPivot.index
+    const startPrice = startPivot.price
+    const endPrice = endPivot.price
     const steps = endIdx - startIdx
 
     for (let i = 1; i < steps; i++) {

@@ -148,6 +148,7 @@ export const CanonicalTaskSchema = z.object({
     "messages",
     "superwhisper",
     "calendar",
+    "slack",
   ]),
   source_reference: z.string(),
   evidence: z
@@ -161,6 +162,7 @@ export const CanonicalTaskSchema = z.object({
           "message_id",
           "reminder_id",
           "transcript_id",
+          "slack_message_id",
         ]),
         value: z.string(),
       })

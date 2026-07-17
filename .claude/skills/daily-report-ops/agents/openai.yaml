@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daily Report + PR Triage"
+  short_description: "Daily reports with PR cleanup"
+  default_prompt: "Generate the daily report and handle any stale/conflicting PRs following the workspace conventions."

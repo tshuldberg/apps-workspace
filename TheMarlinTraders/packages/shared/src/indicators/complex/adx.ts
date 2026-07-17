@@ -25,14 +25,16 @@ export function adx(
   const minusDM = new Array<number>(len).fill(0)
 
   for (let i = 1; i < len; i++) {
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
     tr[i] = Math.max(
-      data[i].high - data[i].low,
-      Math.abs(data[i].high - data[i - 1].close),
-      Math.abs(data[i].low - data[i - 1].close),
+      bar.high - bar.low,
+      Math.abs(bar.high - prevBar.close),
+      Math.abs(bar.low - prevBar.close),
     )
 
-    const upMove = data[i].high - data[i - 1].high
-    const downMove = data[i - 1].low - data[i].low
+    const upMove = bar.high - prevBar.high
+    const downMove = prevBar.low - bar.low
 
     plusDM[i] = upMove > downMove && upMove > 0 ? upMove : 0
     minusDM[i] = downMove > upMove && downMove > 0 ? downMove : 0
@@ -44,42 +46,46 @@ export function adx(
   let smoothMinusDM = 0
 
   for (let i = 1; i <= period; i++) {
-    smoothTR += tr[i]
-    smoothPlusDM += plusDM[i]
-    smoothMinusDM += minusDM[i]
+    smoothTR += tr[i]!
+    smoothPlusDM += plusDM[i]!
+    smoothMinusDM += minusDM[i]!
   }
 
   diPlus[period] = smoothTR !== 0 ? (smoothPlusDM / smoothTR) * 100 : 0
   diMinus[period] = smoothTR !== 0 ? (smoothMinusDM / smoothTR) * 100 : 0
 
   const dx = new Array<number>(len).fill(NaN)
-  const diSum = diPlus[period] + diMinus[period]
-  dx[period] = diSum !== 0 ? (Math.abs(diPlus[period] - diMinus[period]) / diSum) * 100 : 0
+  const diPlusPeriod = diPlus[period]!
+  const diMinusPeriod = diMinus[period]!
+  const diSum = diPlusPeriod + diMinusPeriod
+  dx[period] = diSum !== 0 ? (Math.abs(diPlusPeriod - diMinusPeriod) / diSum) * 100 : 0
 
   for (let i = period + 1; i < len; i++) {
-    smoothTR = smoothTR - smoothTR / period + tr[i]
-    smoothPlusDM = smoothPlusDM - smoothPlusDM / period + plusDM[i]
-    smoothMinusDM = smoothMinusDM - smoothMinusDM / period + minusDM[i]
+    smoothTR = smoothTR - smoothTR / period + tr[i]!
+    smoothPlusDM = smoothPlusDM - smoothPlusDM / period + plusDM[i]!
+    smoothMinusDM = smoothMinusDM - smoothMinusDM / period + minusDM[i]!
 
     diPlus[i] = smoothTR !== 0 ? (smoothPlusDM / smoothTR) * 100 : 0
     diMinus[i] = smoothTR !== 0 ? (smoothMinusDM / smoothTR) * 100 : 0
 
-    const s = diPlus[i] + diMinus[i]
-    dx[i] = s !== 0 ? (Math.abs(diPlus[i] - diMinus[i]) / s) * 100 : 0
+    const diPlusValue = diPlus[i]!
+    const diMinusValue = diMinus[i]!
+    const s = diPlusValue + diMinusValue
+    dx[i] = s !== 0 ? (Math.abs(diPlusValue - diMinusValue) / s) * 100 : 0
   }
 
   // ADX = smoothed DX (first = SMA, then Wilder's)
   let adxSum = 0
   const adxStart = period * 2
   for (let i = period; i < adxStart; i++) {
-    adxSum += dx[i]
+    adxSum += dx[i]!
   }
   if (adxStart - 1 < len) {
     adxResult[adxStart - 1] = adxSum / period
   }
 
   for (let i = adxStart; i < len; i++) {
-    adxResult[i] = (adxResult[i - 1] * (period - 1) + dx[i]) / period
+    adxResult[i] = (adxResult[i - 1]! * (period - 1) + dx[i]!) / period
   }
 
   return { adx: adxResult, diPlus, diMinus }

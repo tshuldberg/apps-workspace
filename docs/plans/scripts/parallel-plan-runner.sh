@@ -6,12 +6,13 @@ set -euo pipefail
 MAX_CONCURRENT=${1:-4}
 PLANS_DIR="${2:-docs/plans}"
 QUEUE="$PLANS_DIR/queue"
+ACTIVE="$PLANS_DIR/active"
 DONE="$PLANS_DIR/done"
 FAILED="$PLANS_DIR/failed"
 LOGS="$PLANS_DIR/logs"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
-mkdir -p "$DONE" "$FAILED" "$LOGS"
+mkdir -p "$ACTIVE" "$DONE" "$FAILED" "$LOGS"
 
 plan_count=$(ls "$QUEUE"/*.md 2>/dev/null | wc -l | tr -d ' ')
 if [ "$plan_count" -eq 0 ]; then
@@ -27,11 +28,20 @@ run_plan_in_worktree() {
   local plan_file="$1"
   local plan_name
   plan_name=$(basename "$plan_file" .md)
+  local plan_basename
+  plan_basename=$(basename "$plan_file")
+  local active_file="${REPO_ROOT}/${ACTIVE}/${plan_basename}"
   local worktree_dir="${REPO_ROOT}/../Apps-wt-${plan_name}"
   local timestamp
   timestamp=$(date +%Y%m%d-%H%M%S)
   local log_file="${REPO_ROOT}/${LOGS}/${plan_name}-${timestamp}.json"
   local branch_name="plan/${plan_name}"
+
+  # Move queue -> active before execution starts
+  if ! mv "$plan_file" "$active_file"; then
+    echo "[${plan_name}] FAILED: Could not move plan to active/"
+    return 1
+  fi
 
   echo "[${plan_name}] Creating worktree at $worktree_dir"
 
@@ -40,26 +50,26 @@ run_plan_in_worktree() {
     # Branch might already exist — try checking it out
     if ! git -C "$REPO_ROOT" worktree add "$worktree_dir" "$branch_name" 2>/dev/null; then
       echo "[${plan_name}] FAILED: Could not create worktree"
-      mv "$plan_file" "${REPO_ROOT}/${FAILED}/"
+      mv "$active_file" "${REPO_ROOT}/${FAILED}/"
       return 1
     fi
   fi
 
   # Copy plan into worktree
-  cp "$plan_file" "$worktree_dir/"
+  cp "$active_file" "$worktree_dir/"
 
   echo "[${plan_name}] Running Claude in worktree..."
 
   # Execute in worktree
   if (cd "$worktree_dir" && claude -p "Execute this implementation plan completely. Follow each phase in order. Check off each step as you complete it. If you hit a blocker you cannot resolve, explain what blocked you and stop.
 
-$(cat "$(basename "$plan_file")")" \
+$(cat "$(basename "$active_file")")" \
     --allowedTools "Read,Edit,Write,Bash,Glob,Grep" \
     --output-format json > "$log_file" 2>&1); then
-    mv "$plan_file" "${REPO_ROOT}/${DONE}/"
+    mv "$active_file" "${REPO_ROOT}/${DONE}/"
     echo "[${plan_name}] COMPLETED (log: $log_file)"
   else
-    mv "$plan_file" "${REPO_ROOT}/${FAILED}/"
+    mv "$active_file" "${REPO_ROOT}/${FAILED}/"
     echo "[${plan_name}] FAILED (log: $log_file)"
   fi
 
@@ -68,7 +78,7 @@ $(cat "$(basename "$plan_file")")" \
 }
 
 export -f run_plan_in_worktree
-export REPO_ROOT DONE FAILED LOGS
+export REPO_ROOT ACTIVE DONE FAILED LOGS
 
 # Run plans in parallel, limited to MAX_CONCURRENT
 ls "$QUEUE"/*.md 2>/dev/null | sort | \

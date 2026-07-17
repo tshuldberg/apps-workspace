@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -23,6 +23,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "@marlin/config": "workspace:*",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.5",

@@ -25,8 +25,9 @@ export function volumeProfile(
   let overallLow = Infinity
 
   for (let i = 0; i < len; i++) {
-    if (data[i].high > overallHigh) overallHigh = data[i].high
-    if (data[i].low < overallLow) overallLow = data[i].low
+    const bar = data[i]!
+    if (bar.high > overallHigh) overallHigh = bar.high
+    if (bar.low < overallLow) overallLow = bar.low
   }
 
   const range = overallHigh - overallLow
@@ -43,9 +44,10 @@ export function volumeProfile(
 
   for (let i = 0; i < len; i++) {
     // Distribute volume across bins the bar spans
-    const tp = (data[i].high + data[i].low + data[i].close) / 3
+    const bar = data[i]!
+    const tp = (bar.high + bar.low + bar.close) / 3
     const binIdx = Math.min(Math.floor((tp - overallLow) / binSize), binCount - 1)
-    binVolumes[binIdx] += data[i].volume
+    binVolumes[binIdx]! += bar.volume
   }
 
   let maxVol = 0
@@ -54,9 +56,10 @@ export function volumeProfile(
   for (let b = 0; b < binCount; b++) {
     const priceLow = overallLow + b * binSize
     const priceHigh = priceLow + binSize
-    result.push({ priceHigh, priceLow, volume: binVolumes[b] })
-    if (binVolumes[b] > maxVol) {
-      maxVol = binVolumes[b]
+    const volume = binVolumes[b]!
+    result.push({ priceHigh, priceLow, volume })
+    if (volume > maxVol) {
+      maxVol = volume
       pocIdx = b
     }
   }

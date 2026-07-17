@@ -21,10 +21,10 @@ export type {
   StrategyLeg,
   Strategy,
   StrikeReference,
-  StrategyCategory,
+  StrategyCategory as OptionsStrategyCategory,
   RiskProfile,
   StrategyLegPattern,
-  StrategyTemplate,
+  StrategyTemplate as OptionsStrategyTemplate,
   PnLPoint,
 } from './strategy-types.js'
 
@@ -42,7 +42,7 @@ export {
 } from './pnl-calculator.js'
 
 export {
-  STRATEGY_TEMPLATES,
+  STRATEGY_TEMPLATES as OPTIONS_STRATEGY_TEMPLATES,
   getTemplatesByCategory,
   getTemplateById,
   buildStrategyFromTemplate,

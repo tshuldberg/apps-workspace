@@ -13,19 +13,21 @@ export function wad(data: OHLCV[], _params: Record<string, unknown>): number[] {
   result[0] = 0
 
   for (let i = 1; i < len; i++) {
-    const trueHigh = Math.max(data[i].high, data[i - 1].close)
-    const trueLow = Math.min(data[i].low, data[i - 1].close)
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
+    const trueHigh = Math.max(bar.high, prevBar.close)
+    const trueLow = Math.min(bar.low, prevBar.close)
 
     let ad: number
-    if (data[i].close > data[i - 1].close) {
-      ad = data[i].close - trueLow
-    } else if (data[i].close < data[i - 1].close) {
-      ad = data[i].close - trueHigh
+    if (bar.close > prevBar.close) {
+      ad = bar.close - trueLow
+    } else if (bar.close < prevBar.close) {
+      ad = bar.close - trueHigh
     } else {
       ad = 0
     }
 
-    result[i] = result[i - 1] + ad
+    result[i] = result[i - 1]! + ad
   }
 
   return result

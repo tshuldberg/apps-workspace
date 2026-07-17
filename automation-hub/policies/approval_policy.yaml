@@ -50,6 +50,10 @@ rules:
     decision: "allow"
     requires_human_approval: true
 
+  - action: "slack.send_message"
+    decision: "allow"
+    requires_human_approval: true
+
   - action: "reminders.create_reminder"
     decision: "allow"
     requires_human_approval: true

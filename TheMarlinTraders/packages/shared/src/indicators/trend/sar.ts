@@ -9,17 +9,22 @@ export const SarParamsSchema = z.object({
 
 export function sar(data: OHLCV[], params: Record<string, unknown>): number[] {
   const { step, max } = SarParamsSchema.parse(params)
-  const result = new Array<number>(data.length).fill(NaN)
-  if (data.length < 2) return result
+  const len = data.length
+  const result = new Array<number>(len).fill(NaN)
+  if (len < 2) return result
 
-  let isLong = data[1].close >= data[0].close
+  const firstBar = data[0]!
+  const secondBar = data[1]!
+  let isLong = secondBar.close >= firstBar.close
   let af = step
-  let ep = isLong ? data[0].high : data[0].low
-  let sarValue = isLong ? data[0].low : data[0].high
+  let ep = isLong ? firstBar.high : firstBar.low
+  let sarValue = isLong ? firstBar.low : firstBar.high
 
   result[0] = sarValue
 
-  for (let i = 1; i < data.length; i++) {
+  for (let i = 1; i < len; i++) {
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
     const prevSar = sarValue
 
     // Update SAR
@@ -28,40 +33,40 @@ export function sar(data: OHLCV[], params: Record<string, unknown>): number[] {
     if (isLong) {
       // Ensure SAR is not above the prior two lows
       if (i >= 2) {
-        sarValue = Math.min(sarValue, data[i - 1].low, data[i - 2].low)
+        sarValue = Math.min(sarValue, prevBar.low, data[i - 2]!.low)
       } else {
-        sarValue = Math.min(sarValue, data[i - 1].low)
+        sarValue = Math.min(sarValue, prevBar.low)
       }
 
       // Check for reversal
-      if (data[i].low < sarValue) {
+      if (bar.low < sarValue) {
         isLong = false
         sarValue = ep
-        ep = data[i].low
+        ep = bar.low
         af = step
       } else {
-        if (data[i].high > ep) {
-          ep = data[i].high
+        if (bar.high > ep) {
+          ep = bar.high
           af = Math.min(af + step, max)
         }
       }
     } else {
       // Ensure SAR is not below the prior two highs
       if (i >= 2) {
-        sarValue = Math.max(sarValue, data[i - 1].high, data[i - 2].high)
+        sarValue = Math.max(sarValue, prevBar.high, data[i - 2]!.high)
       } else {
-        sarValue = Math.max(sarValue, data[i - 1].high)
+        sarValue = Math.max(sarValue, prevBar.high)
       }
 
       // Check for reversal
-      if (data[i].high > sarValue) {
+      if (bar.high > sarValue) {
         isLong = true
         sarValue = ep
-        ep = data[i].high
+        ep = bar.high
         af = step
       } else {
-        if (data[i].low < ep) {
-          ep = data[i].low
+        if (bar.low < ep) {
+          ep = bar.low
           af = Math.min(af + step, max)
         }
       }

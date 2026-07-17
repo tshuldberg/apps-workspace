@@ -32,30 +32,352 @@ const ReactionSchema = z.object({
   emoji: z.string().min(1).max(8),
 })
 
+// ── Local Fallback Data (dev-only) ──────────────────────────────────────────
+
+type RoomType = 'ticker' | 'strategy' | 'general'
+
+interface FallbackRoom {
+  id: string
+  name: string
+  type: RoomType
+  symbol: string | null
+  description: string | null
+  minAccountAgeDays: number
+  minKarma: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface FallbackMessage {
+  id: string
+  roomId: string
+  userId: string
+  parentId: string | null
+  body: string
+  isDeleted: boolean
+  createdAt: Date
+  updatedAt: Date
+  displayName: string
+  avatarUrl: string | null
+}
+
+const FALLBACK_ROOMS: FallbackRoom[] = [
+  {
+    id: '00000000-0000-4000-8000-000000000001',
+    name: 'General Trading',
+    type: 'general',
+    symbol: null,
+    description: 'Open discussion about market conditions, setups, and trade management.',
+    minAccountAgeDays: 0,
+    minKarma: 0,
+    createdAt: new Date('2026-02-14T14:00:00.000Z'),
+    updatedAt: new Date('2026-02-14T14:00:00.000Z'),
+  },
+  {
+    id: '00000000-0000-4000-8000-000000000002',
+    name: 'AAPL Discussion',
+    type: 'ticker',
+    symbol: 'AAPL',
+    description: 'Apple-focused technical and options discussion.',
+    minAccountAgeDays: 0,
+    minKarma: 0,
+    createdAt: new Date('2026-02-14T14:00:00.000Z'),
+    updatedAt: new Date('2026-02-14T14:00:00.000Z'),
+  },
+  {
+    id: '00000000-0000-4000-8000-000000000003',
+    name: 'Options Strategies',
+    type: 'strategy',
+    symbol: null,
+    description: 'Spreads, volatility, and event-driven options trade planning.',
+    minAccountAgeDays: 0,
+    minKarma: 0,
+    createdAt: new Date('2026-02-14T14:00:00.000Z'),
+    updatedAt: new Date('2026-02-14T14:00:00.000Z'),
+  },
+]
+
+function createFallbackMessages(): Record<string, FallbackMessage[]> {
+  const now = Date.now()
+
+  const messages: FallbackMessage[] = [
+    {
+      id: '10000000-0000-4000-8000-000000000001',
+      roomId: FALLBACK_ROOMS[0]!.id,
+      userId: 'fallback-user-1',
+      parentId: null,
+      body: 'Watching SPY around key resistance into the close.',
+      isDeleted: false,
+      createdAt: new Date(now - 32 * 60_000),
+      updatedAt: new Date(now - 32 * 60_000),
+      displayName: 'TraderMike',
+      avatarUrl: null,
+    },
+    {
+      id: '10000000-0000-4000-8000-000000000002',
+      roomId: FALLBACK_ROOMS[0]!.id,
+      userId: 'fallback-user-2',
+      parentId: null,
+      body: 'If yields keep sliding, QQQ can squeeze higher tomorrow.',
+      isDeleted: false,
+      createdAt: new Date(now - 18 * 60_000),
+      updatedAt: new Date(now - 18 * 60_000),
+      displayName: 'MacroFlow',
+      avatarUrl: null,
+    },
+    {
+      id: '10000000-0000-4000-8000-000000000003',
+      roomId: FALLBACK_ROOMS[1]!.id,
+      userId: 'fallback-user-3',
+      parentId: null,
+      body: 'AAPL held VWAP cleanly. Looking for continuation if market stays bid.',
+      isDeleted: false,
+      createdAt: new Date(now - 24 * 60_000),
+      updatedAt: new Date(now - 24 * 60_000),
+      displayName: 'ChartNinja',
+      avatarUrl: null,
+    },
+    {
+      id: '10000000-0000-4000-8000-000000000004',
+      roomId: FALLBACK_ROOMS[1]!.id,
+      userId: 'fallback-user-4',
+      parentId: null,
+      body: 'Seeing call buying at 190 and 195 strikes into next week.',
+      isDeleted: false,
+      createdAt: new Date(now - 8 * 60_000),
+      updatedAt: new Date(now - 8 * 60_000),
+      displayName: 'ThetaWatcher',
+      avatarUrl: null,
+    },
+    {
+      id: '10000000-0000-4000-8000-000000000005',
+      roomId: FALLBACK_ROOMS[2]!.id,
+      userId: 'fallback-user-5',
+      parentId: null,
+      body: 'Premium still rich. Favoring short verticals over naked sales.',
+      isDeleted: false,
+      createdAt: new Date(now - 40 * 60_000),
+      updatedAt: new Date(now - 40 * 60_000),
+      displayName: 'RiskManager',
+      avatarUrl: null,
+    },
+    {
+      id: '10000000-0000-4000-8000-000000000006',
+      roomId: FALLBACK_ROOMS[2]!.id,
+      userId: 'fallback-user-6',
+      parentId: null,
+      body: 'SPY iron condor looks best if implied vol stays elevated.',
+      isDeleted: false,
+      createdAt: new Date(now - 12 * 60_000),
+      updatedAt: new Date(now - 12 * 60_000),
+      displayName: 'VolTrader',
+      avatarUrl: null,
+    },
+  ]
+
+  const grouped: Record<string, FallbackMessage[]> = {}
+  for (const room of FALLBACK_ROOMS) {
+    grouped[room.id] = messages
+      .filter((m) => m.roomId === room.id)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+  }
+  return grouped
+}
+
+const fallbackMessagesByRoom = new Map<string, FallbackMessage[]>(
+  Object.entries(createFallbackMessages()),
+)
+
+function isMissingChatTableError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error)
+  return /relation "chat_(rooms|messages|reactions)" does not exist/.test(message)
+}
+
+function shouldUseFallbackForMissingTable(error: unknown): boolean {
+  return process.env.NODE_ENV !== 'production' && isMissingChatTableError(error)
+}
+
+function getFallbackRoomsList() {
+  return [...FALLBACK_ROOMS]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((room) => {
+      const messages = fallbackMessagesByRoom.get(room.id) ?? []
+      const userIds = new Set(messages.map((m) => m.userId))
+      const last = [...messages].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
+
+      return {
+        ...room,
+        memberCount: userIds.size,
+        lastMessage: last
+          ? {
+              body: last.body,
+              authorName: last.displayName,
+              createdAt: last.createdAt,
+            }
+          : null,
+      }
+    })
+}
+
+function getFallbackRoomPayload(roomId: string) {
+  const room = FALLBACK_ROOMS.find((r) => r.id === roomId)
+  if (!room) throw new Error('Room not found')
+
+  const messages = [...(fallbackMessagesByRoom.get(roomId) ?? [])].sort(
+    (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+  )
+
+  return { room, messages }
+}
+
+function getFallbackPaginatedMessages(roomId: string, cursor: string | undefined, limit: number) {
+  const allDesc = [...(fallbackMessagesByRoom.get(roomId) ?? [])].sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+  )
+
+  let start = 0
+  if (cursor) {
+    const idx = allDesc.findIndex((m) => m.id === cursor)
+    if (idx >= 0) start = idx + 1
+  }
+
+  const items = allDesc.slice(start, start + limit)
+  const hasMore = allDesc.length > start + limit
+  const nextCursor = hasMore ? items[items.length - 1]?.id : undefined
+
+  return { items, nextCursor }
+}
+
+async function listRoomsFromDb() {
+  const rooms = await db.select().from(chatRooms).orderBy(chatRooms.name)
+
+  const memberCounts = await db
+    .select({
+      roomId: chatMessages.roomId,
+      count: sql<number>`count(distinct ${chatMessages.userId})::int`,
+    })
+    .from(chatMessages)
+    .groupBy(chatMessages.roomId)
+
+  const countMap = new Map(memberCounts.map((m) => [m.roomId, m.count]))
+
+  const latestPerRoom = await Promise.all(
+    rooms.map(async (room) => {
+      const [latest] = await db
+        .select({
+          body: chatMessages.body,
+          authorName: users.displayName,
+          createdAt: chatMessages.createdAt,
+        })
+        .from(chatMessages)
+        .innerJoin(users, eq(users.clerkId, chatMessages.userId))
+        .where(eq(chatMessages.roomId, room.id))
+        .orderBy(desc(chatMessages.createdAt))
+        .limit(1)
+
+      return [room.id, latest ?? null] as const
+    }),
+  )
+
+  const latestMap = new Map(latestPerRoom)
+
+  return rooms.map((room) => ({
+    ...room,
+    memberCount: countMap.get(room.id) ?? 0,
+    lastMessage: latestMap.get(room.id) ?? null,
+  }))
+}
+
+async function getRoomFromDb(roomId: string) {
+  const [room] = await db
+    .select()
+    .from(chatRooms)
+    .where(eq(chatRooms.id, roomId))
+    .limit(1)
+
+  if (!room) {
+    throw new Error('Room not found')
+  }
+
+  const messages = await db
+    .select({
+      id: chatMessages.id,
+      roomId: chatMessages.roomId,
+      userId: chatMessages.userId,
+      parentId: chatMessages.parentId,
+      body: chatMessages.body,
+      isDeleted: chatMessages.isDeleted,
+      createdAt: chatMessages.createdAt,
+      updatedAt: chatMessages.updatedAt,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(chatMessages)
+    .innerJoin(users, eq(users.clerkId, chatMessages.userId))
+    .where(eq(chatMessages.roomId, roomId))
+    .orderBy(desc(chatMessages.createdAt))
+    .limit(50)
+
+  return { room, messages: messages.reverse() }
+}
+
+async function getMessagesFromDb(roomId: string, cursor: string | undefined, limit: number) {
+  const conditions = [eq(chatMessages.roomId, roomId)]
+
+  if (cursor) {
+    const cursorMsg = await db
+      .select({ createdAt: chatMessages.createdAt })
+      .from(chatMessages)
+      .where(eq(chatMessages.id, cursor))
+      .limit(1)
+
+    if (cursorMsg[0]?.createdAt) {
+      conditions.push(sql`${chatMessages.createdAt} < ${cursorMsg[0].createdAt}`)
+    }
+  }
+
+  const results = await db
+    .select({
+      id: chatMessages.id,
+      roomId: chatMessages.roomId,
+      userId: chatMessages.userId,
+      parentId: chatMessages.parentId,
+      body: chatMessages.body,
+      isDeleted: chatMessages.isDeleted,
+      createdAt: chatMessages.createdAt,
+      updatedAt: chatMessages.updatedAt,
+      displayName: users.displayName,
+      avatarUrl: users.avatarUrl,
+    })
+    .from(chatMessages)
+    .innerJoin(users, eq(users.clerkId, chatMessages.userId))
+    .where(and(...conditions))
+    .orderBy(desc(chatMessages.createdAt))
+    .limit(limit + 1)
+
+  const hasMore = results.length > limit
+  const items = hasMore ? results.slice(0, limit) : results
+  const nextCursor = hasMore ? items[items.length - 1]?.id : undefined
+
+  return { items, nextCursor }
+}
+
 // ── Router ───────────────────────────────────────────────────────────────────
 
 export const chatRouter = router({
   /**
-   * List all chat rooms with member counts (unique message authors).
+   * List all chat rooms with member counts and last-message preview.
    */
   listRooms: publicProcedure.query(async () => {
-    const rooms = await db.select().from(chatRooms).orderBy(chatRooms.name)
-
-    // Get unique author count per room as a proxy for "member count"
-    const memberCounts = await db
-      .select({
-        roomId: chatMessages.roomId,
-        count: sql<number>`count(distinct ${chatMessages.userId})::int`,
-      })
-      .from(chatMessages)
-      .groupBy(chatMessages.roomId)
-
-    const countMap = new Map(memberCounts.map((m) => [m.roomId, m.count]))
-
-    return rooms.map((room) => ({
-      ...room,
-      memberCount: countMap.get(room.id) ?? 0,
-    }))
+    try {
+      return await listRoomsFromDb()
+    } catch (error) {
+      if (shouldUseFallbackForMissingTable(error)) {
+        console.warn('[chat] Using in-memory fallback for room list')
+        return getFallbackRoomsList()
+      }
+      throw error
+    }
   }),
 
   /**
@@ -64,37 +386,15 @@ export const chatRouter = router({
   getRoom: publicProcedure
     .input(GetRoomSchema)
     .query(async ({ input }) => {
-      const [room] = await db
-        .select()
-        .from(chatRooms)
-        .where(eq(chatRooms.id, input.roomId))
-        .limit(1)
-
-      if (!room) {
-        throw new Error('Room not found')
+      try {
+        return await getRoomFromDb(input.roomId)
+      } catch (error) {
+        if (shouldUseFallbackForMissingTable(error)) {
+          console.warn('[chat] Using in-memory fallback for room payload')
+          return getFallbackRoomPayload(input.roomId)
+        }
+        throw error
       }
-
-      // Fetch recent messages
-      const messages = await db
-        .select({
-          id: chatMessages.id,
-          roomId: chatMessages.roomId,
-          userId: chatMessages.userId,
-          parentId: chatMessages.parentId,
-          body: chatMessages.body,
-          isDeleted: chatMessages.isDeleted,
-          createdAt: chatMessages.createdAt,
-          updatedAt: chatMessages.updatedAt,
-          displayName: users.displayName,
-          avatarUrl: users.avatarUrl,
-        })
-        .from(chatMessages)
-        .innerJoin(users, eq(users.clerkId, chatMessages.userId))
-        .where(eq(chatMessages.roomId, input.roomId))
-        .orderBy(desc(chatMessages.createdAt))
-        .limit(50)
-
-      return { room, messages: messages.reverse() }
     }),
 
   /**
@@ -103,47 +403,15 @@ export const chatRouter = router({
   getMessages: publicProcedure
     .input(GetMessagesSchema)
     .query(async ({ input }) => {
-      const limit = input.limit
-      const conditions = [eq(chatMessages.roomId, input.roomId)]
-
-      if (input.cursor) {
-        const cursorMsg = await db
-          .select({ createdAt: chatMessages.createdAt })
-          .from(chatMessages)
-          .where(eq(chatMessages.id, input.cursor))
-          .limit(1)
-
-        if (cursorMsg[0]?.createdAt) {
-          conditions.push(
-            sql`${chatMessages.createdAt} < ${cursorMsg[0].createdAt}`,
-          )
+      try {
+        return await getMessagesFromDb(input.roomId, input.cursor, input.limit)
+      } catch (error) {
+        if (shouldUseFallbackForMissingTable(error)) {
+          console.warn('[chat] Using in-memory fallback for paginated messages')
+          return getFallbackPaginatedMessages(input.roomId, input.cursor, input.limit)
         }
+        throw error
       }
-
-      const results = await db
-        .select({
-          id: chatMessages.id,
-          roomId: chatMessages.roomId,
-          userId: chatMessages.userId,
-          parentId: chatMessages.parentId,
-          body: chatMessages.body,
-          isDeleted: chatMessages.isDeleted,
-          createdAt: chatMessages.createdAt,
-          updatedAt: chatMessages.updatedAt,
-          displayName: users.displayName,
-          avatarUrl: users.avatarUrl,
-        })
-        .from(chatMessages)
-        .innerJoin(users, eq(users.clerkId, chatMessages.userId))
-        .where(and(...conditions))
-        .orderBy(desc(chatMessages.createdAt))
-        .limit(limit + 1)
-
-      const hasMore = results.length > limit
-      const items = hasMore ? results.slice(0, limit) : results
-      const nextCursor = hasMore ? items[items.length - 1]?.id : undefined
-
-      return { items, nextCursor }
     }),
 
   /**
@@ -153,7 +421,6 @@ export const chatRouter = router({
   sendMessage: protectedProcedure
     .input(SendMessageSchema)
     .mutation(async ({ ctx, input }) => {
-      // Fetch room for reputation gates
       const [room] = await db
         .select()
         .from(chatRooms)
@@ -164,7 +431,6 @@ export const chatRouter = router({
         throw new Error('Room not found')
       }
 
-      // Check reputation gate: account age
       if (room.minAccountAgeDays > 0) {
         const [user] = await db
           .select({ createdAt: users.createdAt })
@@ -183,8 +449,6 @@ export const chatRouter = router({
           }
         }
       }
-
-      // TODO: Check minKarma when karma system is implemented
 
       const [message] = await db
         .insert(chatMessages)
@@ -230,7 +494,6 @@ export const chatRouter = router({
   addReaction: protectedProcedure
     .input(ReactionSchema)
     .mutation(async ({ ctx, input }) => {
-      // Check if reaction already exists
       const [existing] = await db
         .select()
         .from(chatReactions)

@@ -1,4 +1,4 @@
-import { redis } from '../db/redis.js'
+import { redis } from '../lib/redis.js'
 
 export type Timeframe = '1D' | '1W' | '1M' | '3M' | 'YTD' | '1Y'
 export type ColorMetric = 'changePercent' | 'peRatio' | 'rsi' | 'ivRank' | 'marketCap'
@@ -53,6 +53,24 @@ const _GICS_SECTORS = [
 
 const CACHE_PREFIX = 'heatmap:sp500'
 const CACHE_TTL = 300 // 5 minutes
+const memoryCache = new Map<string, { data: HeatmapData; expiresAt: number }>()
+
+function getFromMemoryCache(cacheKey: string): HeatmapData | null {
+  const hit = memoryCache.get(cacheKey)
+  if (!hit) return null
+  if (Date.now() > hit.expiresAt) {
+    memoryCache.delete(cacheKey)
+    return null
+  }
+  return hit.data
+}
+
+function setInMemoryCache(cacheKey: string, data: HeatmapData): void {
+  memoryCache.set(cacheKey, {
+    data,
+    expiresAt: Date.now() + CACHE_TTL * 1000,
+  })
+}
 
 /**
  * Get full S&P 500 heatmap data, grouped by sector.
@@ -61,10 +79,15 @@ const CACHE_TTL = 300 // 5 minutes
 export async function getMarketHeatmap(timeframe: Timeframe = '1D'): Promise<HeatmapData> {
   const cacheKey = `${CACHE_PREFIX}:${timeframe}`
 
-  // Try cache first
-  const cached = await redis.get(cacheKey)
-  if (cached) {
-    return JSON.parse(cached) as HeatmapData
+  // Try Redis cache first
+  try {
+    const cached = await redis.get(cacheKey)
+    if (cached) {
+      return JSON.parse(cached) as HeatmapData
+    }
+  } catch {
+    const memCached = getFromMemoryCache(cacheKey)
+    if (memCached) return memCached
   }
 
   const stocks = await fetchSP500Data(timeframe)
@@ -75,8 +98,13 @@ export async function getMarketHeatmap(timeframe: Timeframe = '1D'): Promise<Hea
     updatedAt: new Date().toISOString(),
   }
 
-  // Cache with TTL
-  await redis.set(cacheKey, JSON.stringify(data), 'EX', CACHE_TTL)
+  // Cache with TTL (best effort)
+  setInMemoryCache(cacheKey, data)
+  try {
+    await redis.set(cacheKey, JSON.stringify(data), 'EX', CACHE_TTL)
+  } catch {
+    // Redis optional in local dev; keep serving from memory cache
+  }
 
   return data
 }

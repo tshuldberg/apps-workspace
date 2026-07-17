@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pillbill"
+version = "0.1.0"
+description = "Verification-first post-op medication schedule generator"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "ThePillBill" }]
+dependencies = []
+
+[project.optional-dependencies]
+pdf = ["pypdf>=5.0.0"]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+pillbill = "pillbill.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

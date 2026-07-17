@@ -25,9 +25,11 @@ export function ppo(
   const validPpo: number[] = []
 
   for (let i = 0; i < len; i++) {
-    if (!isNaN(emaFast[i]) && !isNaN(emaSlow[i]) && emaSlow[i] !== 0) {
-      ppoLine[i] = ((emaFast[i] - emaSlow[i]) / emaSlow[i]) * 100
-      validPpo.push(ppoLine[i])
+    const fastValue = emaFast[i]
+    const slowValue = emaSlow[i]
+    if (fastValue !== undefined && slowValue !== undefined && !isNaN(fastValue) && !isNaN(slowValue) && slowValue !== 0) {
+      ppoLine[i] = ((fastValue - slowValue) / slowValue) * 100
+      validPpo.push(ppoLine[i]!)
     }
   }
 
@@ -38,9 +40,12 @@ export function ppo(
 
   for (let i = 0; i < signalEma.length; i++) {
     const idx = ppoStart + i
-    signalLine[idx] = signalEma[i]
-    if (!isNaN(ppoLine[idx]) && !isNaN(signalEma[i])) {
-      histogram[idx] = ppoLine[idx] - signalEma[i]
+    const signalValue = signalEma[i]
+    const ppoValue = ppoLine[idx]
+    if (signalValue === undefined || ppoValue === undefined) continue
+    signalLine[idx] = signalValue
+    if (!isNaN(ppoValue) && !isNaN(signalValue)) {
+      histogram[idx] = ppoValue - signalValue
     }
   }
 

@@ -6,7 +6,7 @@ import { strategies, strategyRuns } from '../db/schema/strategies.js'
 import {
   StrategyLanguageSchema,
   StrategyParameterSchema,
-  STRATEGY_TEMPLATES,
+  ALGO_STRATEGY_TEMPLATES,
 } from '@marlin/shared'
 
 // ── Input Schemas ──────────────────────────────────────────────────────────
@@ -43,11 +43,15 @@ const ValidateCodeSchema = z.object({
 // ── Router ─────────────────────────────────────────────────────────────────
 
 export const strategyRouter = router({
-  list: protectedProcedure
+  list: publicProcedure
     .input(ListStrategiesSchema)
     .query(async ({ ctx, input }) => {
       const limit = input?.limit ?? 50
       const offset = input?.offset ?? 0
+
+      if (!ctx.userId) {
+        return []
+      }
 
       return db
         .select()
@@ -149,10 +153,10 @@ export const strategyRouter = router({
     }),
 
   getTemplates: publicProcedure.query(() => {
-    return STRATEGY_TEMPLATES
+    return ALGO_STRATEGY_TEMPLATES
   }),
 
-  validate: protectedProcedure
+  validate: publicProcedure
     .input(ValidateCodeSchema)
     .mutation(({ input }) => {
       const errors: { line: number; message: string }[] = []

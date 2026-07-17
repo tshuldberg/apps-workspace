@@ -1,0 +1,77 @@
+{
+  "skill_name": "skill-finder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Find skill opportunities in the MyBudget project. What areas could benefit from new skills?",
+      "expected_output": "A prioritized report saved to docs/reports/ identifying skill opportunities in MyBudget, with scored rankings and draft SKILL.md stubs for top candidates.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "creates-opportunity-report",
+          "assertion": "A file matching docs/reports/REPORT-skill-opportunities-*.md is created with a markdown table of ranked opportunities"
+        },
+        {
+          "name": "scores-with-rubric",
+          "assertion": "Each opportunity in the report includes a weighted score out of 5.0 with Impact, Frequency, Complexity, Testability, and Gap factors"
+        },
+        {
+          "name": "generates-skill-stubs",
+          "assertion": "At least 3 draft SKILL.md files are created in .claude/skills/ directories with valid YAML frontmatter containing name and description fields"
+        },
+        {
+          "name": "generates-eval-files",
+          "assertion": "Each generated skill stub has an accompanying evals/evals.json file with at least 2 test cases containing prompt and expectations fields"
+        },
+        {
+          "name": "identifies-domain-expertise",
+          "assertion": "The report identifies budget engine, subscription engine, or envelope calculation logic as domain expertise skill opportunities"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit our workspace skill coverage. Where are the biggest gaps?",
+      "expected_output": "A workspace-wide skill opportunity report showing existing coverage map, gap analysis across all projects, and prioritized recommendations with stubs.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "inventories-existing-skills",
+          "assertion": "The report contains a coverage map table listing existing skills with their tier, domain, and status"
+        },
+        {
+          "name": "analyzes-multiple-projects",
+          "assertion": "The report covers at least 5 different projects from the workspace (e.g., TheMarlinTraders, MySurf, MyBudget, receipts, macos-hub)"
+        },
+        {
+          "name": "identifies-cross-project-patterns",
+          "assertion": "The report includes a section on cross-project patterns or cross-cutting observations identifying shared needs across projects"
+        },
+        {
+          "name": "provides-build-order",
+          "assertion": "The report includes a recommended execution or build order section prioritizing which skills to create first"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "What functions in TheMarlinTraders could we benchmark with skills and evals?",
+      "expected_output": "Analysis of testable functions in TheMarlinTraders with focus on indicator calculations, trading algorithms, and API endpoints, producing eval-ready skill stubs.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "identifies-testable-functions",
+          "assertion": "The report identifies specific function names and file paths for testable modules like indicator calculations, options pricing, or market data transformers"
+        },
+        {
+          "name": "generates-benchmarkable-evals",
+          "assertion": "Generated evals/evals.json files contain expectations with assertions that test specific computational outputs or data transformations"
+        },
+        {
+          "name": "references-concrete-evidence",
+          "assertion": "Each opportunity cites specific file paths and line numbers or function names as evidence rather than making vague claims"
+        }
+      ]
+    }
+  ]
+}

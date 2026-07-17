@@ -17,12 +17,21 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const pathname = usePathname()
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full flex-col">
+      {/* Top bar (mobile + desktop) */}
+      <header className="flex h-header-h items-center justify-between border-b border-border bg-navy-dark px-4">
+        <span className="text-sm font-semibold text-text-primary">Settings</span>
+        <Link
+          href="/"
+          className="rounded-md border border-border px-3 py-1.5 text-xs text-text-secondary transition-colors hover:bg-navy-mid hover:text-text-primary"
+        >
+          Back to Home
+        </Link>
+      </header>
+
       {/* Settings sidebar nav */}
+      <div className="flex flex-1 overflow-hidden">
       <nav className="hidden w-56 shrink-0 border-r border-border bg-navy-dark md:block">
-        <div className="flex h-header-h items-center border-b border-border px-4">
-          <span className="text-sm font-semibold text-text-primary">Settings</span>
-        </div>
         <div className="flex flex-col gap-1 p-2">
           {NAV_ITEMS.map((item) => (
             <Link
@@ -43,6 +52,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
       {/* Settings content */}
       <div className="flex-1 overflow-y-auto p-6">{children}</div>
+      </div>
     </div>
   )
 }

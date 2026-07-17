@@ -40,16 +40,29 @@ export function kst(
 
   const validKst: number[] = []
   for (let i = 0; i < len; i++) {
-    if (!isNaN(smaRoc1[i]) && !isNaN(smaRoc2[i]) && !isNaN(smaRoc3[i]) && !isNaN(smaRoc4[i])) {
-      kstLine[i] = smaRoc1[i] + 2 * smaRoc2[i] + 3 * smaRoc3[i] + 4 * smaRoc4[i]
-      validKst.push(kstLine[i])
+    const r1 = smaRoc1[i]
+    const r2 = smaRoc2[i]
+    const r3 = smaRoc3[i]
+    const r4 = smaRoc4[i]
+    if (
+      r1 !== undefined &&
+      r2 !== undefined &&
+      r3 !== undefined &&
+      r4 !== undefined &&
+      !isNaN(r1) &&
+      !isNaN(r2) &&
+      !isNaN(r3) &&
+      !isNaN(r4)
+    ) {
+      kstLine[i] = r1 + 2 * r2 + 3 * r3 + 4 * r4
+      validKst.push(kstLine[i]!)
     }
   }
 
   const sigEma = smaArray(validKst, p.signal)
   const kstStart = len - validKst.length
   for (let i = 0; i < sigEma.length; i++) {
-    signalLine[kstStart + i] = sigEma[i]
+    signalLine[kstStart + i] = sigEma[i]!
   }
 
   return { kst: kstLine, signal: signalLine }

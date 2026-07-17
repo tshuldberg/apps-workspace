@@ -25,14 +25,16 @@ export function klinger(
   let prevTrend = 0
 
   for (let i = 1; i < len; i++) {
-    const hlc = data[i].high + data[i].low + data[i].close
-    const prevHlc = data[i - 1].high + data[i - 1].low + data[i - 1].close
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
+    const hlc = bar.high + bar.low + bar.close
+    const prevHlc = prevBar.high + prevBar.low + prevBar.close
     const trend = hlc > prevHlc ? 1 : hlc < prevHlc ? -1 : prevTrend
-    const dm = data[i].high - data[i].low
+    const dm = bar.high - bar.low
     const cm = i > 0 && trend === prevTrend
-      ? (vf[i - 1] !== 0 ? dm + Math.abs(dm) : dm)
+      ? (vf[i - 1]! !== 0 ? dm + Math.abs(dm) : dm)
       : dm
-    vf[i] = cm !== 0 ? data[i].volume * Math.abs(2 * (dm / cm) - 1) * trend : 0
+    vf[i] = cm !== 0 ? bar.volume * Math.abs(2 * (dm / cm) - 1) * trend : 0
     prevTrend = trend
   }
 
@@ -41,16 +43,18 @@ export function klinger(
 
   const validKvo: number[] = []
   for (let i = 0; i < len; i++) {
-    if (!isNaN(emaFast[i]) && !isNaN(emaSlow[i])) {
-      kvoLine[i] = emaFast[i] - emaSlow[i]
-      validKvo.push(kvoLine[i])
+    const fastValue = emaFast[i]
+    const slowValue = emaSlow[i]
+    if (fastValue !== undefined && slowValue !== undefined && !isNaN(fastValue) && !isNaN(slowValue)) {
+      kvoLine[i] = fastValue - slowValue
+      validKvo.push(kvoLine[i]!)
     }
   }
 
   const signalEma = emaArray(validKvo, signal)
   const kvoStart = len - validKvo.length
   for (let i = 0; i < signalEma.length; i++) {
-    signalLine[kvoStart + i] = signalEma[i]
+    signalLine[kvoStart + i] = signalEma[i]!
   }
 
   return { kvo: kvoLine, signal: signalLine }

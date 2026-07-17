@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { cn } from '../lib/utils.js'
 import type {
-  StrategyTemplate,
+  AlgoStrategyTemplate,
   StrategyFile,
   StrategyParameter,
   BacktestResult,
@@ -32,7 +32,7 @@ export interface StrategyIDEProps {
   /** Whether a backtest is currently running */
   isRunning: boolean
   /** Available templates */
-  templates: StrategyTemplate[]
+  templates: AlgoStrategyTemplate[]
   /** Callbacks */
   onTabChange: (tabId: string) => void
   onTabClose: (tabId: string) => void
@@ -40,7 +40,7 @@ export interface StrategyIDEProps {
   onParameterChange: (tabId: string, paramName: string, value: number | string | boolean) => void
   onRunBacktest: () => void
   onSave: () => void
-  onLoadTemplate: (template: StrategyTemplate) => void
+  onLoadTemplate: (template: AlgoStrategyTemplate) => void
   /** Validation errors */
   validationErrors?: { line: number; message: string }[]
   className?: string
@@ -512,10 +512,10 @@ function TemplatePicker({
   onClose,
   onSelect,
 }: {
-  templates: StrategyTemplate[]
+  templates: AlgoStrategyTemplate[]
   isOpen: boolean
   onClose: () => void
-  onSelect: (template: StrategyTemplate) => void
+  onSelect: (template: AlgoStrategyTemplate) => void
 }) {
   if (!isOpen) return null
 

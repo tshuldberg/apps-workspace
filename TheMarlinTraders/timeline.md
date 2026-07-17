@@ -468,6 +468,105 @@ Phase 3 code has been written across all 8 sprint groups (23-38) but remains in 
   - `packages/ui/src/trading/pattern-overlay.tsx` — Chart pattern overlay
   - Tests: 40 tests across 2 files (futures calculators, pattern scanner)
 
+### 2026-02-14: Runtime Stabilization (Navigation/Data Loading)
+- Fixed shared export collisions that prevented API startup:
+  - `packages/shared/src/index.ts` now provides disambiguated aliases for overlapping exports (`ALGO_STRATEGY_TEMPLATES`, options/forex/futures aliases).
+  - Updated strategy consumers to explicit strategy aliases:
+    - `apps/api/src/routers/strategy.ts`
+    - `apps/web/app/(app)/strategy/page.tsx`
+    - `packages/ui/src/trading/strategy-ide.tsx`
+- Added API compatibility for legacy frontend tRPC batch payload shape:
+  - `apps/api/src/index.ts` now normalizes `input={"0":{"json":...}}` to modern form and wraps batch responses back to `{ data: { json: ... } }`.
+- Removed local hard-fail env assumptions for development boot:
+  - `apps/api/src/db/connection.ts` defaults `DATABASE_URL` to `postgresql://localhost:5432/postgres` in non-production.
+  - `apps/api/src/lib/redis.ts` defaults `REDIS_URL` to `redis://localhost:6379` in non-production.
+- Added resilient market data fallbacks so charts render without external credentials:
+  - `apps/api/src/adapters/polygon-rest.ts` now returns deterministic mock OHLCV bars in non-production when Polygon is unavailable/misconfigured.
+  - `apps/api/src/services/market-data.ts` treats DB cache read/write as best-effort in non-production.
+
+### 2026-02-14: UX Navigation + Live Data Validation
+- Added global app-wide navigation drawer rendered in the shared `(app)` layout:
+  - `apps/web/components/global-nav-menu.tsx`
+  - `apps/web/app/(app)/layout.tsx`
+- Updated settings shell to include explicit top-level return path:
+  - `apps/web/app/(app)/settings/layout.tsx` now includes a persistent "Back to Home" action.
+- Cleared stale local OHLCV cache rows after switching Polygon credentials:
+  - `ohlcv_bars` truncated in local dev DB to remove previously generated fallback bars.
+- Verified route-level navigation affordances on key pages (`/chart`, `/trade`, `/scanner`, `/strategy`, `/options`, `/heatmap`, `/ideas`, `/chat`, `/news`, `/settings`) each include:
+  - global menu trigger
+  - direct home link in rendered markup
+- Verified live market data from Polygon for `AAPL`:
+  - API response now includes exchange metrics (`vwap`, `tradeCount`) and realistic volumes/prices.
+- Hardened local API behavior for missing infrastructure/entitlements:
+  - `apps/api/src/services/heatmap-data.ts` now falls back to in-memory cache when Redis is unavailable.
+  - `apps/api/src/lib/redis.ts` now handles connection failures gracefully with bounded retries and a single warning.
+  - `apps/api/src/adapters/options-data.ts` now provides non-production fallback options expirations/chain when Polygon options endpoints return entitlement errors.
+
+### 2026-02-15: Navigation Consistency + Attribution UX
+- Extended global navigation to home route so `/` now has the same persistent menu entry-point as all `(app)` pages:
+  - `apps/web/app/page.tsx`
+- Disabled Next.js development indicator badge in web config to remove bottom-left debug icon confusion during QA:
+  - `apps/web/next.config.ts` (`devIndicators: false`)
+- Moved chart attribution into app chrome and disabled in-chart attribution logo:
+  - `packages/charts/src/lightweight/config.ts` (`layout.attributionLogo = false`)
+  - `apps/web/components/global-nav-menu.tsx` footer link to TradingView attribution
+- Re-ran route matrix to confirm menu presence across home + nested app routes and validated live `market.getBars` responses include `vwap` and `tradeCount`.
+
+### 2026-02-15: tRPC Wiring + QA Sweep
+- Wired major previously-mock pages to live tRPC data paths with loading/retry/error handling:
+  - `apps/web/app/(app)/chat/page.tsx`
+  - `apps/web/app/(app)/chat/[roomId]/page.tsx`
+  - `apps/web/app/(app)/news/page.tsx`
+  - `apps/web/app/(app)/scanner/page.tsx`
+  - `apps/web/app/(app)/strategy/page.tsx`
+  - `apps/web/lib/trpc-fetch.ts`
+- Added non-production fallback responses for missing local DB tables so pages remain usable while schema migration coverage catches up:
+  - `apps/api/src/routers/chat.ts` (rooms/messages fallback)
+  - `apps/api/src/routers/news.ts` (articles/economic/earnings fallback)
+- Relaxed auth-only gating where needed for local strategy/backtest testing:
+  - `apps/api/src/routers/strategy.ts` (`validate` public)
+  - `apps/api/src/routers/backtest.ts` (`run` public with anonymous user fallback)
+- Removed TradingView attribution hyperlink from nav drawer footer:
+  - `apps/web/components/global-nav-menu.tsx`
+- Executed route/API smoke checks:
+  - Web routes verified 200/redirect as expected for key surfaces (`/`, `/chart/AAPL`, `/scanner`, `/strategy`, `/chat`, `/news`, `/settings/*`).
+  - tRPC endpoints verified for market bars, chat room/message retrieval, news/economic/earnings calendars, futures scanner, and strategy templates.
+- Type-sweep attempt:
+  - Added missing workspace dependencies used by typecheck and imports:
+    - `packages/ui/package.json` -> `@marlin/shared`
+    - `apps/web/package.json` -> `@playwright/test`
+    - `packages/shared/package.json` -> `@types/node`
+  - Refined shared barrel exports to eliminate root-level symbol collisions:
+    - `packages/shared/src/options/index.ts`
+    - `packages/shared/src/index.ts`
+  - Full monorepo typecheck still fails due broad pre-existing strict-indexing issues concentrated in indicator/chart/UI code.
+
+### 2026-02-15: Type-Sweep Tranche + Browser QA (Round 2)
+- Performed a focused strict-indexing type-fix tranche in shared indicators:
+  - `packages/shared/src/indicators/trend/supertrend.ts`
+  - `packages/shared/src/indicators/complex/adx.ts`
+  - `packages/shared/src/indicators/extended/zigzag.ts`
+  - `packages/shared/src/indicators/trend/sar.ts`
+  - `packages/shared/src/indicators/additional/ultimate-oscillator.ts`
+  - `packages/shared/src/indicators/additional/klinger.ts`
+  - `packages/shared/src/indicators/additional/choppiness.ts`
+  - `packages/shared/src/indicators/additional/volume-profile.ts`
+  - `packages/shared/src/indicators/volatility/atr.ts`
+  - `packages/shared/src/indicators/extended/wad.ts`
+  - `packages/shared/src/indicators/extended/ppo.ts`
+  - `packages/shared/src/indicators/extended/kst.ts`
+  - `packages/shared/src/indicators/volume/obv.ts`
+- Typecheck impact:
+  - `@marlin/shared` errors reduced from **401 -> 198**.
+  - Workspace `pnpm typecheck` errors reduced from **802 -> 396** in this session.
+- Ran headed browser QA via Playwright CLI across key flows:
+  - Home -> Settings -> Home, plus menu-driven transitions through Chart, Scanner, Strategy, Chat, News, and back Home.
+  - Verified global nav affordance exists across tested routes and allows return navigation.
+  - Verified chart renders canvas data state without "Failed to load chart data" banner.
+  - Verified scanner/news pages load without load-failure banners in tested flow.
+- Fixed QA-discovered strategy console noise for signed-out users:
+  - `apps/api/src/routers/strategy.ts` `list` changed from protected to public-with-guard (`[]` when unauthenticated), eliminating repeated 401 console errors during strategy page load.
+
 ---
 
 ## Next Steps — Phase 3 Completion

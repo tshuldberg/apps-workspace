@@ -1,0 +1,23 @@
+{
+  "name": "system-monitor",
+  "version": "1.0.0",
+  "description": "macOS system monitor daemon with threshold-based alerting and report generation",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "install-daemon": "bash scripts/install.sh",
+    "uninstall-daemon": "bash scripts/uninstall.sh",
+    "test": "tsx src/test-collectors.ts"
+  },
+  "dependencies": {
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

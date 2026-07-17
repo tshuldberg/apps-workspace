@@ -18,7 +18,7 @@ import {
   getContractSpecification,
   getRolloverCalendar,
   buildContinuousContract,
-} from '../../../services/market-data/src/providers/futures-provider.js'
+} from '../../../../services/market-data/src/providers/futures-provider.js'
 
 // ── Input Schemas ───────────────────────────────────────────────────────────
 

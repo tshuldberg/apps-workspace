@@ -1,19 +1,12 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@marlin/ui/lib/utils'
 import { NewsFeed, type NewsArticleData } from '@marlin/ui/trading/news-feed'
-import {
-  EconomicCalendar,
-  type EconomicEventData,
-} from '@marlin/ui/trading/economic-calendar'
-import {
-  EarningsCalendar,
-  type EarningsEventData,
-} from '@marlin/ui/trading/earnings-calendar'
-
-// ── Types ───────────────────────────────────────────────────────────────────
+import { EconomicCalendar, type EconomicEventData } from '@marlin/ui/trading/economic-calendar'
+import { EarningsCalendar, type EarningsEventData } from '@marlin/ui/trading/earnings-calendar'
+import { TrpcClientError, trpcQuery } from '../../../lib/trpc-fetch.js'
 
 type Tab = 'news' | 'economic' | 'earnings'
 
@@ -23,211 +16,216 @@ const TABS: { value: Tab; label: string }[] = [
   { value: 'earnings', label: 'Earnings Calendar' },
 ]
 
-// ── Mock data — will be replaced with tRPC queries ───────────────────────────
-// TODO: Replace with trpc.news.getArticles.useInfiniteQuery()
-// TODO: Replace with trpc.news.getEconomicCalendar.useQuery()
-// TODO: Replace with trpc.news.getEarningsCalendar.useQuery()
+interface ApiArticlesResponse {
+  items: {
+    id: string
+    source: 'benzinga' | 'custom'
+    title: string
+    summary: string
+    url: string
+    imageUrl: string | null
+    symbols: string[]
+    categories: string[]
+    publishedAt: string
+  }[]
+  nextCursor?: string
+}
 
-const now = Date.now()
+interface ApiEconomicEvent {
+  id: string
+  name: string
+  description: string | null
+  eventDate: string
+  impact: 'low' | 'medium' | 'high'
+  actual: string | null
+  forecast: string | null
+  previous: string | null
+  country: string
+}
 
-const MOCK_ARTICLES: NewsArticleData[] = [
-  {
-    id: 'art-1',
-    title: 'Fed Signals Patience on Rate Cuts Amid Sticky Inflation',
-    summary:
-      'Federal Reserve officials indicated they are in no rush to lower interest rates, citing persistent inflationary pressures and a resilient labor market that continues to exceed expectations.',
-    source: 'Benzinga',
-    url: '#',
-    imageUrl: null,
-    symbols: ['SPY', 'QQQ', 'TLT'],
-    categories: ['macro', 'fed'],
-    publishedAt: new Date(now - 1800000).toISOString(),
-  },
-  {
-    id: 'art-2',
-    title: 'NVIDIA Beats Q4 Estimates, Revenue Surges 265% on AI Demand',
-    summary:
-      'NVIDIA reported fourth-quarter earnings that smashed Wall Street expectations, with revenue jumping 265% year-over-year driven by unprecedented demand for AI training chips.',
-    source: 'Benzinga',
-    url: '#',
-    imageUrl: null,
-    symbols: ['NVDA', 'AMD', 'SMCI'],
-    categories: ['earnings', 'tech', 'ai'],
-    publishedAt: new Date(now - 3600000).toISOString(),
-  },
-  {
-    id: 'art-3',
-    title: 'Apple Announces $110 Billion Share Buyback, Largest in History',
-    summary:
-      'Apple Inc. announced a record-breaking $110 billion share repurchase program, the largest in corporate history, alongside a 4% increase in its quarterly dividend.',
-    source: 'Benzinga',
-    url: '#',
-    imageUrl: null,
-    symbols: ['AAPL'],
-    categories: ['corporate', 'buyback'],
-    publishedAt: new Date(now - 7200000).toISOString(),
-  },
-  {
-    id: 'art-4',
-    title: 'Tesla Delivery Numbers Fall Short of Expectations in Q1',
-    summary:
-      'Tesla delivered 386,810 vehicles in the first quarter, falling short of the 449,000 analyst consensus. The company cited factory retooling for the updated Model Y.',
-    source: 'Benzinga',
-    url: '#',
-    imageUrl: null,
-    symbols: ['TSLA'],
-    categories: ['earnings', 'ev'],
-    publishedAt: new Date(now - 14400000).toISOString(),
-  },
-  {
-    id: 'art-5',
-    title: 'Oil Prices Surge as OPEC+ Maintains Production Cuts',
-    summary:
-      'Crude oil prices rose over 3% after OPEC+ members agreed to extend production cuts through the end of the year, supporting prices amid global demand uncertainty.',
-    source: 'Custom',
-    url: '#',
-    imageUrl: null,
-    symbols: ['USO', 'XLE', 'CVX'],
-    categories: ['commodities', 'energy'],
-    publishedAt: new Date(now - 21600000).toISOString(),
-  },
-]
+interface ApiEarningsEvent {
+  id: string
+  symbol: string
+  companyName: string
+  reportDate: string
+  quarter: string
+  estimatedEps: string | null
+  actualEps: string | null
+  estimatedRevenue: string | null
+  actualRevenue: string | null
+}
 
-const todayStr = new Date().toISOString().slice(0, 10)
-const tomorrowDate = new Date()
-tomorrowDate.setDate(tomorrowDate.getDate() + 1)
-const tomorrowStr = tomorrowDate.toISOString().slice(0, 10)
+function toNewsArticleData(item: ApiArticlesResponse['items'][number]): NewsArticleData {
+  return {
+    id: item.id,
+    title: item.title,
+    summary: item.summary,
+    source: item.source === 'benzinga' ? 'Benzinga' : 'Custom',
+    url: item.url,
+    imageUrl: item.imageUrl,
+    symbols: item.symbols ?? [],
+    categories: item.categories ?? [],
+    publishedAt: item.publishedAt,
+  }
+}
 
-const MOCK_ECONOMIC_EVENTS: EconomicEventData[] = [
-  {
-    id: 'eco-1',
-    name: 'FOMC Meeting Minutes',
-    description: 'Minutes from the most recent Federal Open Market Committee meeting',
-    eventDate: new Date(`${todayStr}T19:00:00Z`).toISOString(),
-    impact: 'high',
-    actual: null,
-    forecast: null,
-    previous: null,
-    country: 'US',
-  },
-  {
-    id: 'eco-2',
-    name: 'Initial Jobless Claims',
-    description: 'Weekly first-time unemployment benefit claims',
-    eventDate: new Date(`${todayStr}T13:30:00Z`).toISOString(),
-    impact: 'medium',
-    actual: '215K',
-    forecast: '220K',
-    previous: '222K',
-    country: 'US',
-  },
-  {
-    id: 'eco-3',
-    name: 'Existing Home Sales',
-    description: 'Monthly existing home sales data',
-    eventDate: new Date(`${todayStr}T15:00:00Z`).toISOString(),
-    impact: 'medium',
-    actual: null,
-    forecast: '4.20M',
-    previous: '4.00M',
-    country: 'US',
-  },
-  {
-    id: 'eco-4',
-    name: 'CPI (YoY)',
-    description: 'Consumer Price Index year-over-year',
-    eventDate: new Date(`${tomorrowStr}T13:30:00Z`).toISOString(),
-    impact: 'high',
-    actual: null,
-    forecast: '3.1%',
-    previous: '3.2%',
-    country: 'US',
-  },
-  {
-    id: 'eco-5',
-    name: 'PMI Manufacturing',
-    description: 'Purchasing Managers Index for manufacturing sector',
-    eventDate: new Date(`${tomorrowStr}T14:45:00Z`).toISOString(),
-    impact: 'low',
-    actual: null,
-    forecast: '51.5',
-    previous: '50.9',
-    country: 'US',
-  },
-]
+function toEconomicEventData(item: ApiEconomicEvent): EconomicEventData {
+  return {
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    eventDate: item.eventDate,
+    impact: item.impact,
+    actual: item.actual,
+    forecast: item.forecast,
+    previous: item.previous,
+    country: item.country,
+  }
+}
 
-const MOCK_EARNINGS_EVENTS: EarningsEventData[] = [
-  {
-    id: 'earn-1',
-    symbol: 'NVDA',
-    companyName: 'NVIDIA Corporation',
-    reportDate: new Date(`${todayStr}T21:00:00Z`).toISOString(),
-    quarter: 'Q4 2024',
-    estimatedEps: '4.59',
-    actualEps: '5.16',
-    estimatedRevenue: '20500000000',
-    actualRevenue: '22100000000',
-  },
-  {
-    id: 'earn-2',
-    symbol: 'AAPL',
-    companyName: 'Apple Inc.',
-    reportDate: new Date(`${tomorrowStr}T21:00:00Z`).toISOString(),
-    quarter: 'Q1 2025',
-    estimatedEps: '2.10',
-    actualEps: null,
-    estimatedRevenue: '117800000000',
-    actualRevenue: null,
-  },
-  {
-    id: 'earn-3',
-    symbol: 'MSFT',
-    companyName: 'Microsoft Corporation',
-    reportDate: new Date(`${tomorrowStr}T21:00:00Z`).toISOString(),
-    quarter: 'Q2 2025',
-    estimatedEps: '3.22',
-    actualEps: null,
-    estimatedRevenue: '68600000000',
-    actualRevenue: null,
-  },
-  {
-    id: 'earn-4',
-    symbol: 'TSLA',
-    companyName: 'Tesla Inc.',
-    reportDate: new Date(`${tomorrowStr}T09:00:00Z`).toISOString(),
-    quarter: 'Q1 2025',
-    estimatedEps: '0.52',
-    actualEps: null,
-    estimatedRevenue: '25200000000',
-    actualRevenue: null,
-  },
-  {
-    id: 'earn-5',
-    symbol: 'AMZN',
-    companyName: 'Amazon.com Inc.',
-    reportDate: new Date(`${todayStr}T09:00:00Z`).toISOString(),
-    quarter: 'Q4 2024',
-    estimatedEps: '1.00',
-    actualEps: '1.21',
-    estimatedRevenue: '166200000000',
-    actualRevenue: '170000000000',
-  },
-]
+function toEarningsEventData(item: ApiEarningsEvent): EarningsEventData {
+  return {
+    id: item.id,
+    symbol: item.symbol,
+    companyName: item.companyName,
+    reportDate: item.reportDate,
+    quarter: item.quarter,
+    estimatedEps: item.estimatedEps,
+    actualEps: item.actualEps,
+    estimatedRevenue: item.estimatedRevenue,
+    actualRevenue: item.actualRevenue,
+  }
+}
 
-// ── Page Component ───────────────────────────────────────────────────────────
+function toIsoStart(date: string): string {
+  return new Date(`${date}T00:00:00.000Z`).toISOString()
+}
+
+function toIsoEnd(date: string): string {
+  return new Date(`${date}T23:59:59.999Z`).toISOString()
+}
 
 export default function NewsPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<Tab>('news')
-  const [symbolFilter, setSymbolFilter] = useState('')
 
-  // Earnings calendar date range
-  const weekFromNow = new Date()
-  weekFromNow.setDate(weekFromNow.getDate() + 7)
+  const [symbolFilter, setSymbolFilter] = useState('')
+  const [articles, setArticles] = useState<NewsArticleData[]>([])
+  const [articlesCursor, setArticlesCursor] = useState<string | undefined>(undefined)
+  const [articlesLoading, setArticlesLoading] = useState(true)
+  const [articlesLoadingMore, setArticlesLoadingMore] = useState(false)
+
+  const [economicEvents, setEconomicEvents] = useState<EconomicEventData[]>([])
+  const [economicLoading, setEconomicLoading] = useState(true)
+
+  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  const defaultEndDate = useMemo(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 7)
+    return d.toISOString().slice(0, 10)
+  }, [])
+
   const [earningsStartDate, setEarningsStartDate] = useState(todayStr)
-  const [earningsEndDate, setEarningsEndDate] = useState(
-    weekFromNow.toISOString().slice(0, 10),
+  const [earningsEndDate, setEarningsEndDate] = useState(defaultEndDate)
+  const [earningsEvents, setEarningsEvents] = useState<EarningsEventData[]>([])
+  const [earningsLoading, setEarningsLoading] = useState(true)
+
+  const [error, setError] = useState<string | null>(null)
+
+  const loadArticles = useCallback(
+    async ({ cursor, append }: { cursor?: string; append?: boolean } = {}) => {
+      if (append) {
+        setArticlesLoadingMore(true)
+      } else {
+        setArticlesLoading(true)
+      }
+      setError(null)
+
+      try {
+        const response = await trpcQuery<ApiArticlesResponse>('news.getArticles', {
+          symbol: symbolFilter.trim() || undefined,
+          cursor,
+          limit: 20,
+        })
+
+        const mapped = response.items.map(toNewsArticleData)
+        setArticles((prev) => (append ? [...prev, ...mapped] : mapped))
+        setArticlesCursor(response.nextCursor)
+      } catch (err) {
+        const message =
+          err instanceof TrpcClientError ? err.message : err instanceof Error ? err.message : String(err)
+        setError(message)
+        if (!append) {
+          setArticles([])
+          setArticlesCursor(undefined)
+        }
+      } finally {
+        setArticlesLoading(false)
+        setArticlesLoadingMore(false)
+      }
+    },
+    [symbolFilter],
   )
+
+  const loadEconomic = useCallback(async () => {
+    setEconomicLoading(true)
+    setError(null)
+    try {
+      const start = new Date()
+      start.setDate(start.getDate() - 1)
+      const end = new Date()
+      end.setDate(end.getDate() + 7)
+
+      const response = await trpcQuery<ApiEconomicEvent[]>('news.getEconomicCalendar', {
+        startDate: start.toISOString(),
+        endDate: end.toISOString(),
+      })
+      setEconomicEvents(response.map(toEconomicEventData))
+    } catch (err) {
+      const message =
+        err instanceof TrpcClientError ? err.message : err instanceof Error ? err.message : String(err)
+      setError(message)
+      setEconomicEvents([])
+    } finally {
+      setEconomicLoading(false)
+    }
+  }, [])
+
+  const loadEarnings = useCallback(async () => {
+    setEarningsLoading(true)
+    setError(null)
+    try {
+      const response = await trpcQuery<ApiEarningsEvent[]>('news.getEarningsCalendar', {
+        startDate: toIsoStart(earningsStartDate),
+        endDate: toIsoEnd(earningsEndDate),
+      })
+      setEarningsEvents(response.map(toEarningsEventData))
+    } catch (err) {
+      const message =
+        err instanceof TrpcClientError ? err.message : err instanceof Error ? err.message : String(err)
+      setError(message)
+      setEarningsEvents([])
+    } finally {
+      setEarningsLoading(false)
+    }
+  }, [earningsEndDate, earningsStartDate])
+
+  useEffect(() => {
+    loadArticles()
+  }, [loadArticles])
+
+  useEffect(() => {
+    loadEconomic()
+  }, [loadEconomic])
+
+  useEffect(() => {
+    loadEarnings()
+  }, [loadEarnings])
+
+  const handleLoadMoreArticles = useCallback(() => {
+    if (!articlesCursor || articlesLoadingMore) return
+    loadArticles({ cursor: articlesCursor, append: true })
+  }, [articlesCursor, articlesLoadingMore, loadArticles])
 
   const handleSymbolClick = useCallback(
     (symbol: string) => {
@@ -236,25 +234,15 @@ export default function NewsPage() {
     [router],
   )
 
-  // Client-side filtering for mock data
-  let filteredArticles = MOCK_ARTICLES
-  if (symbolFilter) {
-    filteredArticles = filteredArticles.filter((a) =>
-      a.symbols.some((s) => s.includes(symbolFilter)),
-    )
-  }
+  const loading = articlesLoading || economicLoading || earningsLoading
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-navy-black">
-      {/* Header */}
       <div className="shrink-0 border-b border-border bg-navy-dark px-6 py-4">
         <h1 className="text-lg font-semibold text-text-primary">News & Events</h1>
-        <p className="text-xs text-text-muted">
-          Market news, economic calendar, and earnings reports
-        </p>
+        <p className="text-xs text-text-muted">Market news, economic calendar, and earnings reports</p>
       </div>
 
-      {/* Tab bar */}
       <div className="shrink-0 border-b border-border bg-navy-dark px-6">
         <div className="flex gap-0">
           {TABS.map((tab) => (
@@ -275,32 +263,43 @@ export default function NewsPage() {
         </div>
       </div>
 
-      {/* Content */}
+      {error && (
+        <div className="flex shrink-0 items-center justify-between border-b border-border bg-trading-red/5 px-6 py-2">
+          <span className="text-xs text-trading-red">Failed to load data: {error}</span>
+          <button
+            type="button"
+            onClick={() => {
+              if (activeTab === 'news') loadArticles()
+              if (activeTab === 'economic') loadEconomic()
+              if (activeTab === 'earnings') loadEarnings()
+            }}
+            className="rounded bg-accent px-2 py-1 text-[10px] text-text-primary transition-colors hover:bg-accent/80"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-4xl">
           {activeTab === 'news' && (
             <NewsFeed
-              articles={filteredArticles}
-              hasMore={false}
-              onLoadMore={() => {}}
-              isLoading={false}
+              articles={articles}
+              hasMore={Boolean(articlesCursor)}
+              onLoadMore={handleLoadMoreArticles}
+              isLoading={articlesLoading || articlesLoadingMore}
               symbolFilter={symbolFilter}
               onSymbolFilterChange={setSymbolFilter}
               onSymbolClick={handleSymbolClick}
             />
           )}
 
-          {activeTab === 'economic' && (
-            <EconomicCalendar
-              events={MOCK_ECONOMIC_EVENTS}
-              isLoading={false}
-            />
-          )}
+          {activeTab === 'economic' && <EconomicCalendar events={economicEvents} isLoading={economicLoading || loading} />}
 
           {activeTab === 'earnings' && (
             <EarningsCalendar
-              events={MOCK_EARNINGS_EVENTS}
-              isLoading={false}
+              events={earningsEvents}
+              isLoading={earningsLoading || loading}
               onSymbolClick={handleSymbolClick}
               startDate={earningsStartDate}
               endDate={earningsEndDate}

@@ -1,2 +1,70 @@
 .DS_Store
 *.log
+node_modules
+node_modules/
+dist/
+.next/
+.expo/
+.turbo/
+*.tsbuildinfo
+.env
+.env.local
+.env.*.local
+ios/
+android/
+# The broad ios/ and android/ rules above target Expo-generated prebuild dirs.
+# The owned @mylife/meerkat-native-transport package keeps its AUTHORED Swift and
+# Kotlin sources under ios/ and android/; those must be tracked so a dev build can
+# compile them (Plan 42 WP-42C). Un-ignore that package's native source trees.
+!/packages/meerkat-native-transport/ios/
+!/packages/meerkat-native-transport/ios/**
+!/packages/meerkat-native-transport/android/
+!/packages/meerkat-native-transport/android/**
+# Same rule for the other owned native packages (Plan 41 WP-41F iCloud module,
+# Plan 25 call-native module): authored sources must be tracked.
+!/packages/meerkat-icloud-storage/ios/
+!/packages/meerkat-icloud-storage/ios/**
+!/packages/meerkat-call-native/ios/
+!/packages/meerkat-call-native/ios/**
+!/packages/meerkat-call-native/android/
+!/packages/meerkat-call-native/android/**
+coverage/
+.vercel/
+.claude/worktrees/
+*.sqlite
+*.db
+*.sqlite-shm
+*.sqlite-wal
+*.db-shm
+*.db-wal
+apps/web/.tmp/
+apps/web/test-results/
+apps/meerkat-web/test-results/
+supabase/.temp/
+deploy/self-host/backups/
+deploy/self-host/releases/*.zip
+artifacts/
+.mdd/
+docs/performance/function-inventory.*
+docs/performance/performance-remediation-plan.md
+.gstack/
+*.png
+!apps/manhattan/assets/*.png
+!apps/yearn/assets/
+!apps/yearn/assets/*.png
+app.json
+!apps/bestchef/app.json
+!apps/dowork/app.json
+!apps/manhattan/app.json
+!apps/meerkat/app.json
+!apps/yearn/app.json
+.claude/memory/runtime/
+
+# Agent/tooling scratch (session artifacts, never repo content)
+.agents/
+.playwright-mcp/
+.playwright-cli/
+/*.jpeg
+
+# Visual brainstorming companion mockups
+.superpowers/

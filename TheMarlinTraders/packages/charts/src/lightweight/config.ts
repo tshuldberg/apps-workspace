@@ -6,6 +6,7 @@ export const DEFAULT_CHART_OPTIONS: DeepPartial<ChartOptions> = {
     textColor: '#94a3b8',
     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
     fontSize: 11,
+    attributionLogo: false,
   },
   grid: {
     vertLines: { color: '#1a1a2e' },

@@ -20,12 +20,15 @@ export function supertrend(
 
   // Compute ATR
   const tr = new Array<number>(len).fill(0)
-  tr[0] = data[0].high - data[0].low
+  const firstBar = data[0]!
+  tr[0] = firstBar.high - firstBar.low
   for (let i = 1; i < len; i++) {
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
     tr[i] = Math.max(
-      data[i].high - data[i].low,
-      Math.abs(data[i].high - data[i - 1].close),
-      Math.abs(data[i].low - data[i - 1].close),
+      bar.high - bar.low,
+      Math.abs(bar.high - prevBar.close),
+      Math.abs(bar.low - prevBar.close),
     )
   }
 
@@ -34,7 +37,7 @@ export function supertrend(
   for (let i = 0; i < period; i++) sum += tr[i]
   atr[period - 1] = sum / period
   for (let i = period; i < len; i++) {
-    atr[i] = (atr[i - 1] * (period - 1) + tr[i]) / period
+    atr[i] = (atr[i - 1]! * (period - 1) + tr[i]!) / period
   }
 
   // Compute Supertrend
@@ -42,34 +45,41 @@ export function supertrend(
   const lowerBand = new Array<number>(len).fill(NaN)
 
   for (let i = period - 1; i < len; i++) {
-    const hl2 = (data[i].high + data[i].low) / 2
-    const basicUpper = hl2 + multiplier * atr[i]
-    const basicLower = hl2 - multiplier * atr[i]
+    const bar = data[i]!
+    const hl2 = (bar.high + bar.low) / 2
+    const atrValue = atr[i]!
+    const basicUpper = hl2 + multiplier * atrValue
+    const basicLower = hl2 - multiplier * atrValue
 
     if (i === period - 1) {
       upperBand[i] = basicUpper
       lowerBand[i] = basicLower
-      direction[i] = data[i].close <= upperBand[i] ? -1 : 1
-      value[i] = direction[i] === 1 ? lowerBand[i] : upperBand[i]
+      direction[i] = bar.close <= upperBand[i]! ? -1 : 1
+      value[i] = direction[i]! === 1 ? lowerBand[i]! : upperBand[i]!
       continue
     }
 
-    upperBand[i] = basicUpper < upperBand[i - 1] || data[i - 1].close > upperBand[i - 1]
-      ? basicUpper
-      : upperBand[i - 1]
-    lowerBand[i] = basicLower > lowerBand[i - 1] || data[i - 1].close < lowerBand[i - 1]
-      ? basicLower
-      : lowerBand[i - 1]
+    const prevBar = data[i - 1]!
+    const prevUpperBand = upperBand[i - 1]!
+    const prevLowerBand = lowerBand[i - 1]!
+    const prevDirection = direction[i - 1]!
 
-    if (direction[i - 1] === -1) {
+    upperBand[i] = basicUpper < prevUpperBand || prevBar.close > prevUpperBand
+      ? basicUpper
+      : prevUpperBand
+    lowerBand[i] = basicLower > prevLowerBand || prevBar.close < prevLowerBand
+      ? basicLower
+      : prevLowerBand
+
+    if (prevDirection === -1) {
       // Was bearish
-      direction[i] = data[i].close > upperBand[i] ? 1 : -1
+      direction[i] = bar.close > upperBand[i]! ? 1 : -1
     } else {
       // Was bullish
-      direction[i] = data[i].close < lowerBand[i] ? -1 : 1
+      direction[i] = bar.close < lowerBand[i]! ? -1 : 1
     }
 
-    value[i] = direction[i] === 1 ? lowerBand[i] : upperBand[i]
+    value[i] = direction[i]! === 1 ? lowerBand[i]! : upperBand[i]!
   }
 
   return { value, direction }

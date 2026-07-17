@@ -2,6 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@marlin/ui', '@marlin/shared', '@marlin/data', '@marlin/charts'],
+  devIndicators: false,
 
   // ── Headers for embeddable widgets (Sprint 20) ─────────────────────────────
   async headers() {

@@ -1,0 +1,62 @@
+{
+  "_comment": "Template for skill eval files. Copy this structure for each generated skill stub.",
+  "_format_notes": {
+    "id": "Sequential integer starting at 1",
+    "prompt": "Realistic user prompt that should trigger the skill. Write it as a real person would type it.",
+    "expected_output": "Plain English description of what a successful result looks like.",
+    "files": "Array of file paths to pre-create in the eval workspace (empty for most skills).",
+    "expectations": "Array of named assertions. Each must be objectively verifiable."
+  },
+  "_assertion_rules": [
+    "Assertions MUST be objectively verifiable -- no subjective quality judgments",
+    "Use descriptive kebab-case names that explain what is being tested",
+    "Reference exact output characteristics: file existence, content patterns, structure",
+    "Good: 'Output contains a markdown table with at least 3 rows'",
+    "Bad: 'Output is well-written and useful'",
+    "Good: 'Generated file has valid YAML frontmatter with name and description fields'",
+    "Bad: 'The skill file looks correct'"
+  ],
+  "skill_name": "REPLACE-WITH-SKILL-NAME",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "REPLACE: A realistic prompt a user would type to trigger this skill",
+      "expected_output": "REPLACE: Description of what success looks like",
+      "files": [],
+      "expectations": [
+        {
+          "name": "REPLACE-descriptive-assertion-name",
+          "assertion": "REPLACE: Specific, objectively verifiable assertion about the output"
+        },
+        {
+          "name": "REPLACE-second-assertion",
+          "assertion": "REPLACE: Another verifiable assertion testing a different aspect"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "REPLACE: A different user prompt testing another aspect of the skill",
+      "expected_output": "REPLACE: What success looks like for this variation",
+      "files": [],
+      "expectations": [
+        {
+          "name": "REPLACE-assertion-for-variation",
+          "assertion": "REPLACE: Verifiable assertion for this prompt variation"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "REPLACE: An edge case or less obvious trigger for the skill",
+      "expected_output": "REPLACE: What success looks like for this edge case",
+      "files": [],
+      "expectations": [
+        {
+          "name": "REPLACE-edge-case-assertion",
+          "assertion": "REPLACE: Verifiable assertion for the edge case"
+        }
+      ]
+    }
+  ]
+}

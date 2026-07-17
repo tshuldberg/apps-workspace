@@ -11,6 +11,7 @@ Skills available at the `/Apps/` workspace level. These apply when working from 
 | `/generate-architecture-diagrams` | Generate mermaid erDiagram + flowchart for a project's data models and system architecture, saved to .claude/docs/ | Workspace | Both | 2026-02-08 |
 | `/scan-emails` | Scan an email inbox via macos-hub MCP mail tools, categorize unread messages, and build a prioritized task list | Workspace | Both | 2026-02-09 |
 | `/dispatch` | Intelligently dispatch plans — auto-selects Agent Teams (same-project coordination) or parallel subagents (cross-project) based on plan analysis | Workspace | User-only | 2026-02-13 |
+| `/skill-finder` | Deeply investigate a codebase to identify high-impact skill opportunities, testable features, and benchmarkable functions. Produces prioritized report + draft SKILL.md stubs + evals.json files for skill-creator | Workspace | Both | 2026-03-05 |
 
 ## Marketing Skills (via [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills))
 

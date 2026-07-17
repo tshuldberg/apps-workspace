@@ -1,0 +1,19 @@
+{
+  "name": "pokemon-red",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "bun build src/main.ts --outdir dist --target browser",
+    "dev": "bun build src/main.ts --outdir dist --target browser --watch",
+    "start": "bun run build && bun serve.ts",
+    "test": "npx vitest run",
+    "test:watch": "npx vitest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "playwright": "^1.58.2",
+    "typescript": "^5.9.0",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "$#" -lt 3 ]; then
+  echo "Usage: $0 <patient-id> <medication-id> <verified-by> [extra mark-verified args...]" >&2
+  echo "Example: $0 patient-001 med-003 Trey --dose '5 mg' --route 'by mouth'" >&2
+  exit 1
+fi
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PB="$ROOT/scripts/pb"
+
+PATIENT_ID="$1"
+MED_ID="$2"
+VERIFIED_BY="$3"
+shift 3
+
+"$PB" mark-verified --patient-id "$PATIENT_ID" --medication-id "$MED_ID" --verified-by "$VERIFIED_BY" "$@"

@@ -27,6 +27,8 @@ failed_count=0
 
 for plan_file in $(ls "$QUEUE"/*.md 2>/dev/null | sort); do
   plan_name=$(basename "$plan_file" .md)
+  plan_basename=$(basename "$plan_file")
+  active_file="$ACTIVE/$plan_basename"
   timestamp=$(date +%Y%m%d-%H%M%S)
   log_file="$LOGS/${plan_name}-${timestamp}.json"
 
@@ -34,20 +36,18 @@ for plan_file in $(ls "$QUEUE"/*.md 2>/dev/null | sort); do
   echo "  Log: $log_file"
 
   # Move to active
-  cp "$plan_file" "$ACTIVE/"
+  mv "$plan_file" "$active_file"
 
   if claude -p "Execute this implementation plan completely. Follow each phase in order. Check off each step as you complete it. If you hit a blocker you cannot resolve, explain what blocked you and stop.
 
-$(cat "$plan_file")" \
+$(cat "$active_file")" \
     --allowedTools "Read,Edit,Write,Bash,Glob,Grep" \
     --output-format json > "$log_file" 2>&1; then
-    mv "$plan_file" "$DONE/"
-    rm -f "$ACTIVE/$(basename "$plan_file")"
+    mv "$active_file" "$DONE/"
     completed=$((completed + 1))
     echo "--- Completed: $plan_name ---"
   else
-    mv "$plan_file" "$FAILED/"
-    rm -f "$ACTIVE/$(basename "$plan_file")"
+    mv "$active_file" "$FAILED/"
     failed_count=$((failed_count + 1))
     echo "--- FAILED: $plan_name (see $log_file) ---"
   fi

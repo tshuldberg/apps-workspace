@@ -26,7 +26,7 @@ Each project below has its own CLAUDE.md with full details (stack, commands, arc
 
 | Project | Description |
 |---------|-------------|
-| `MyLife/` | Unified hub app consolidating 29 privacy-first modules (iOS, Android, Web) |
+| `MyLife/` | Unified hub app: 40 privacy-first registry modules + standalone apps (BestChef, DoWork, Manhattan, Meerkat) on iOS, Android, Web |
 | `automation-hub/` | Multi-channel task automation engine (email, calendar, Slack, iMessage) |
 | `SH/shiphawk-dev/` | Rails shipping platform (out of scope by default) |
 | `Parks/EasyStreet/` | Street sweeping parking app (native iOS + Android) |

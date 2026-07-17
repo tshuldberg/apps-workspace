@@ -24,11 +24,13 @@ import {
   toTitleCase,
 } from "../utils/extraction.js";
 import { semanticFingerprint } from "../utils/hash.js";
+import type { AdapterKit } from "../adapters/factory.js";
 
 interface JobRunOptions {
   repoRoot: string;
   dryRun: boolean;
   approveWrites: boolean;
+  adapters?: AdapterKit;
 }
 
 function normalizeRelativePath(inputPath: string): string {
@@ -119,10 +121,21 @@ export async function runEmailTriageJob(
   const paths = await createRunPaths(options.repoRoot, runId, jobSpec.outputs);
   const stateDir = path.join(options.repoRoot, normalizeRelativePath(runtime.paths.state_dir));
 
-  const emailAdapter = new MockEmailAdapter(stateDir);
-  const pmAdapter = new MockPmAdapter(stateDir);
-  const calendarAdapter = new MockCalendarAdapter(stateDir);
-  await pmAdapter.initialize();
+  // Use adapter kit if provided, otherwise fall back to legacy mock adapters
+  let emailAdapter: MockEmailAdapter;
+  let pmAdapter: MockPmAdapter;
+  let calendarAdapter: MockCalendarAdapter;
+
+  if (options.adapters?.mockEmail && options.adapters?.mockPm && options.adapters?.mockCalendar) {
+    emailAdapter = options.adapters.mockEmail;
+    pmAdapter = options.adapters.mockPm;
+    calendarAdapter = options.adapters.mockCalendar;
+  } else {
+    emailAdapter = new MockEmailAdapter(stateDir);
+    pmAdapter = new MockPmAdapter(stateDir);
+    calendarAdapter = new MockCalendarAdapter(stateDir);
+    await pmAdapter.initialize();
+  }
 
   const threads = await emailAdapter.listThreads();
   const includeKeywords = jobSpec.inputs.email?.filters?.include_keywords ?? [];

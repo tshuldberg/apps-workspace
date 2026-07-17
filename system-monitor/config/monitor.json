@@ -1,0 +1,42 @@
+{
+  "polling": {
+    "intervalMs": 10000,
+    "processSnapshotCount": 30
+  },
+  "thresholds": {
+    "cpu": {
+      "warnPercent": 85,
+      "criticalPercent": 95,
+      "sustainedSeconds": 60
+    },
+    "memory": {
+      "warnPercent": 100,
+      "criticalPercent": 100,
+      "pressureLevel": "warn"
+    },
+    "disk": {
+      "warnPercent": 85,
+      "criticalPercent": 95,
+      "volumes": ["/"]
+    }
+  },
+  "cooldown": {
+    "minSecondsBetweenReports": 300,
+    "aggregateWindowSeconds": 60,
+    "maxReportsPerDay": 20
+  },
+  "notifications": {
+    "enabled": true,
+    "sound": "Funk"
+  },
+  "reports": {
+    "outputDir": "/Users/trey/Desktop/Apps/docs/reports",
+    "namingPrefix": "REPORT-system-monitor"
+  },
+  "history": {
+    "logDir": "logs",
+    "maxFileSizeMB": 50,
+    "maxFiles": 10,
+    "flushIntervalMs": 60000
+  }
+}

@@ -18,23 +18,26 @@ export function atrArray(data: OHLCV[], period: number): number[] {
 
   // True Range
   const tr = new Array<number>(len)
-  tr[0] = data[0].high - data[0].low
+  const firstBar = data[0]!
+  tr[0] = firstBar.high - firstBar.low
   for (let i = 1; i < len; i++) {
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
     tr[i] = Math.max(
-      data[i].high - data[i].low,
-      Math.abs(data[i].high - data[i - 1].close),
-      Math.abs(data[i].low - data[i - 1].close),
+      bar.high - bar.low,
+      Math.abs(bar.high - prevBar.close),
+      Math.abs(bar.low - prevBar.close),
     )
   }
 
   // First ATR = simple average
   let sum = 0
-  for (let i = 0; i < period; i++) sum += tr[i]
+  for (let i = 0; i < period; i++) sum += tr[i]!
   result[period - 1] = sum / period
 
   // Subsequent = Wilder's smoothing
   for (let i = period; i < len; i++) {
-    result[i] = (result[i - 1] * (period - 1) + tr[i]) / period
+    result[i] = (result[i - 1]! * (period - 1) + tr[i]!) / period
   }
 
   return result

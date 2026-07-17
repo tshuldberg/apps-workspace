@@ -20,12 +20,14 @@ export function ultimateOscillator(data: OHLCV[], params: Record<string, unknown
   const tr = new Array<number>(len).fill(0)
 
   for (let i = 1; i < len; i++) {
-    const low = Math.min(data[i].low, data[i - 1].close)
-    bp[i] = data[i].close - low
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
+    const low = Math.min(bar.low, prevBar.close)
+    bp[i] = bar.close - low
     tr[i] = Math.max(
-      data[i].high - data[i].low,
-      Math.abs(data[i].high - data[i - 1].close),
-      Math.abs(data[i].low - data[i - 1].close),
+      bar.high - bar.low,
+      Math.abs(bar.high - prevBar.close),
+      Math.abs(bar.low - prevBar.close),
     )
   }
 
@@ -35,16 +37,16 @@ export function ultimateOscillator(data: OHLCV[], params: Record<string, unknown
     let bpSum3 = 0, trSum3 = 0
 
     for (let j = i - period1 + 1; j <= i; j++) {
-      bpSum1 += bp[j]
-      trSum1 += tr[j]
+      bpSum1 += bp[j]!
+      trSum1 += tr[j]!
     }
     for (let j = i - period2 + 1; j <= i; j++) {
-      bpSum2 += bp[j]
-      trSum2 += tr[j]
+      bpSum2 += bp[j]!
+      trSum2 += tr[j]!
     }
     for (let j = i - period3 + 1; j <= i; j++) {
-      bpSum3 += bp[j]
-      trSum3 += tr[j]
+      bpSum3 += bp[j]!
+      trSum3 += tr[j]!
     }
 
     const avg1 = trSum1 !== 0 ? bpSum1 / trSum1 : 0

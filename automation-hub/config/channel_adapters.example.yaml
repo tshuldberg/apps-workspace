@@ -50,6 +50,18 @@ adapters:
       - "draft_message"
       - "send_message"
 
+  slack:
+    enabled: true
+    provider_options:
+      primary: slack_mcp
+    capabilities:
+      - list_messages
+      - send_message
+      - search_messages
+      - read_thread
+      - read_channel
+    self_user_id: "U01BBL118JC"
+
   superwhisper:
     enabled: true
     provider_options:

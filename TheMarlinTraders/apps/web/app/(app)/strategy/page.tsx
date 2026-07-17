@@ -1,18 +1,19 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { cn } from '@marlin/ui/lib/utils'
 import { StrategyIDE } from '@marlin/ui/trading/strategy-ide'
 import type { StrategyTab } from '@marlin/ui/trading/strategy-ide'
 import type {
-  StrategyTemplate,
+  AlgoStrategyTemplate,
   BacktestResult,
   BacktestTrade,
   EquityPoint,
 } from '@marlin/shared'
 import {
-  STRATEGY_TEMPLATES,
+  ALGO_STRATEGY_TEMPLATES,
 } from '@marlin/shared'
+import { TrpcClientError, trpcMutation, trpcQuery } from '../../../lib/trpc-fetch.js'
 
 // ── Mock Data ──────────────────────────────────────────────────────────────
 // TODO: Replace with tRPC queries
@@ -27,6 +28,8 @@ interface StrategySidebarItem {
   name: string
   language: 'typescript' | 'python' | 'pine'
   updatedAt: string
+  code?: string
+  parameters?: AlgoStrategyTemplate['parameters']
 }
 
 const MOCK_STRATEGIES: StrategySidebarItem[] = [
@@ -34,6 +37,141 @@ const MOCK_STRATEGIES: StrategySidebarItem[] = [
   { id: 's2', name: 'RSI Reversal v2', language: 'typescript', updatedAt: '2026-02-13T15:30:00Z' },
   { id: 's3', name: 'Breakout Scalper', language: 'typescript', updatedAt: '2026-02-12T09:00:00Z' },
 ]
+
+interface ApiStrategyFile {
+  id: string
+  name: string
+  language: 'typescript' | 'python' | 'pine'
+  code: string
+  parameters: AlgoStrategyTemplate['parameters']
+  updatedAt: string
+}
+
+interface ApiValidationResult {
+  valid: boolean
+  errors: { line: number; message: string }[]
+}
+
+interface ApiBacktestRunResult {
+  result: {
+    trades: {
+      entryTime: number
+      exitTime: number
+      side: 'long' | 'short'
+      entryPrice: number
+      exitPrice: number
+      quantity: number
+      pnl: number
+      commission: number
+    }[]
+    equity: {
+      timestamp: number
+      equity: number
+    }[]
+    metrics: {
+      totalReturnPct: number
+      sharpeRatio: number
+      sortinoRatio: number
+      maxDrawdownPct: number
+      winRate: number
+      profitFactor: number
+      totalTrades: number
+      avgWin: number
+      avgLoss: number
+      expectancy: number
+    }
+  }
+}
+
+function inferBacktestStrategy(tab: StrategyTab) {
+  const names = tab.parameters.reduce<Record<string, number>>((acc, param) => {
+    if (param.type !== 'number') return acc
+    const value = typeof param.default === 'number' ? param.default : Number(param.default)
+    if (!Number.isFinite(value)) return acc
+    acc[param.name.toLowerCase()] = value
+    return acc
+  }, {})
+
+  const tabName = tab.name.toLowerCase()
+
+  if (tabName.includes('rsi') || 'oversold' in names || 'overbought' in names) {
+    return {
+      type: 'rsi_mean_reversion' as const,
+      params: {
+        period: names.period ?? 14,
+        oversold: names.oversold ?? 30,
+        overbought: names.overbought ?? 70,
+      },
+    }
+  }
+
+  if (tabName.includes('ma') || tabName.includes('moving') || 'fastperiod' in names || 'slowperiod' in names) {
+    return {
+      type: 'ma_crossover' as const,
+      params: {
+        fastPeriod: names.fastperiod ?? names.fast ?? 10,
+        slowPeriod: names.slowperiod ?? names.slow ?? 30,
+      },
+    }
+  }
+
+  return {
+    type: 'buy_and_hold' as const,
+    params: {},
+  }
+}
+
+function mapBacktestResultToUi(backtest: ApiBacktestRunResult['result']): BacktestResult {
+  let runningPeak = Number.NEGATIVE_INFINITY
+
+  const equity: EquityPoint[] = backtest.equity.map((point) => {
+    if (point.equity > runningPeak) runningPeak = point.equity
+    const drawdown = runningPeak > 0 ? ((runningPeak - point.equity) / runningPeak) * 100 : 0
+    return {
+      date: new Date(point.timestamp).toISOString().slice(0, 10),
+      equity: Number(point.equity.toFixed(2)),
+      drawdown: Number(drawdown.toFixed(2)),
+    }
+  })
+
+  const trades: BacktestTrade[] = backtest.trades.map((trade, index) => {
+    const basis = Math.max(1, trade.entryPrice * trade.quantity)
+    return {
+      id: `bt-${index + 1}`,
+      entryDate: new Date(trade.entryTime).toISOString(),
+      exitDate: new Date(trade.exitTime).toISOString(),
+      side: trade.side,
+      entryPrice: Number(trade.entryPrice.toFixed(2)),
+      exitPrice: Number(trade.exitPrice.toFixed(2)),
+      quantity: trade.quantity,
+      pnl: Number(trade.pnl.toFixed(2)),
+      pnlPercent: Number(((trade.pnl / basis) * 100).toFixed(2)),
+      commission: Number(trade.commission.toFixed(2)),
+      holdingPeriodBars: Math.max(
+        1,
+        Math.round((trade.exitTime - trade.entryTime) / (24 * 60 * 60 * 1000)),
+      ),
+      reason: trade.pnl >= 0 ? 'Exit with profit' : 'Exit with loss',
+    }
+  })
+
+  return {
+    trades,
+    equity,
+    metrics: {
+      totalReturn: Number(backtest.metrics.totalReturnPct.toFixed(2)),
+      sharpe: Number(backtest.metrics.sharpeRatio.toFixed(2)),
+      sortino: Number(backtest.metrics.sortinoRatio.toFixed(2)),
+      maxDrawdown: Number(backtest.metrics.maxDrawdownPct.toFixed(2)),
+      winRate: Number((backtest.metrics.winRate / 100).toFixed(4)),
+      profitFactor: Number(backtest.metrics.profitFactor.toFixed(2)),
+      totalTrades: backtest.metrics.totalTrades,
+      avgWin: Number(backtest.metrics.avgWin.toFixed(2)),
+      avgLoss: Number(backtest.metrics.avgLoss.toFixed(2)),
+      expectancy: Number(backtest.metrics.expectancy.toFixed(2)),
+    },
+  }
+}
 
 // Generate realistic mock backtest data
 function generateMockBacktestResult(): BacktestResult {
@@ -168,9 +306,58 @@ export default function StrategyPage() {
   const [isRunning, setIsRunning] = useState(false)
   const [validationErrors, setValidationErrors] = useState<{ line: number; message: string }[]>([])
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarStrategies, setSidebarStrategies] = useState<StrategySidebarItem[]>(MOCK_STRATEGIES)
+  const [templates, setTemplates] = useState<AlgoStrategyTemplate[]>(ALGO_STRATEGY_TEMPLATES)
+  const [statusError, setStatusError] = useState<string | null>(null)
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
 
-  // Stable mock result — only generate when running
-  const mockResult = useMemo(() => generateMockBacktestResult(), [])
+  useEffect(() => {
+    let cancelled = false
+
+    async function hydrateStrategyData() {
+      try {
+        const templateData = await trpcQuery<AlgoStrategyTemplate[]>('strategy.getTemplates')
+        if (!cancelled && templateData.length > 0) {
+          setTemplates(templateData)
+        }
+      } catch {
+        // Keep local fallback templates.
+      }
+
+      try {
+        const strategyFiles = await trpcQuery<ApiStrategyFile[]>('strategy.list', { limit: 100, offset: 0 })
+        if (cancelled) return
+
+        const mapped = strategyFiles.map((item) => ({
+          id: item.id,
+          name: item.name,
+          language: item.language,
+          updatedAt: item.updatedAt,
+          code: item.code,
+          parameters: item.parameters,
+        }))
+        if (mapped.length > 0) {
+          setSidebarStrategies(mapped)
+        } else {
+          setSidebarStrategies([])
+        }
+      } catch (error) {
+        if (cancelled) return
+        const trpcError = error instanceof TrpcClientError ? error : null
+        if (trpcError?.code === 'UNAUTHORIZED') {
+          setStatusMessage('Sign in to load saved strategies. Templates are still available.')
+          setSidebarStrategies([])
+          return
+        }
+        setSidebarStrategies(MOCK_STRATEGIES)
+      }
+    }
+
+    hydrateStrategyData()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleTabChange = useCallback((tabId: string) => {
     setActiveTabId(tabId)
@@ -218,24 +405,131 @@ export default function StrategyPage() {
     [],
   )
 
-  const handleRunBacktest = useCallback(() => {
+  const handleRunBacktest = useCallback(async () => {
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab) return
+
     setIsRunning(true)
     setValidationErrors([])
-    // Simulate backtest execution
-    setTimeout(() => {
+    setStatusError(null)
+    setStatusMessage(null)
+
+    try {
+      const validation = await trpcMutation<ApiValidationResult>('strategy.validate', {
+        code: activeTab.code,
+        language: activeTab.language,
+      })
+
+      if (!validation.valid) {
+        setValidationErrors(validation.errors)
+        setStatusError('Strategy validation failed.')
+        return
+      }
+
+      const inferred = inferBacktestStrategy(activeTab)
+      const endDate = new Date()
+      const startDate = new Date()
+      startDate.setMonth(startDate.getMonth() - 6)
+
+      const run = await trpcMutation<ApiBacktestRunResult>('backtest.run', {
+        strategy: inferred,
+        config: {
+          symbol: 'AAPL',
+          timeframe: '1D',
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          initialCapital: 100000,
+          positionSize: 100,
+          slippageBps: 1,
+        },
+      })
+
+      setBacktestResult(mapBacktestResultToUi(run.result))
+      setStatusMessage('Backtest completed.')
+    } catch (error) {
+      const trpcError = error instanceof TrpcClientError ? error : null
+      if (trpcError?.code === 'UNAUTHORIZED') {
+        setStatusMessage('Sign in required for server backtests. Showing local simulation result.')
+      } else {
+        setStatusError(
+          trpcError?.message ?? (error instanceof Error ? error.message : 'Backtest failed'),
+        )
+      }
       setBacktestResult(generateMockBacktestResult())
+    } finally {
       setIsRunning(false)
-    }, 1500)
-  }, [])
+    }
+  }, [tabs, activeTabId])
 
-  const handleSave = useCallback(() => {
-    setTabs((prev) =>
-      prev.map((t) => (t.id === activeTabId ? { ...t, isDirty: false } : t)),
-    )
-    // TODO: trpc.strategy.update.mutate() or trpc.strategy.create.mutate()
-  }, [activeTabId])
+  const handleSave = useCallback(async () => {
+    const activeTab = tabs.find((t) => t.id === activeTabId)
+    if (!activeTab) return
 
-  const handleLoadTemplate = useCallback((template: StrategyTemplate) => {
+    setStatusError(null)
+    setStatusMessage(null)
+
+    const payload = {
+      name: activeTab.name,
+      language: activeTab.language,
+      code: activeTab.code,
+      parameters: activeTab.parameters,
+      isPublic: false,
+    }
+
+    try {
+      if (activeTab.id.startsWith('tab-')) {
+        const created = await trpcMutation<ApiStrategyFile>('strategy.create', payload)
+        setTabs((prev) =>
+          prev.map((t) => (t.id === activeTab.id ? { ...t, id: created.id, isDirty: false } : t)),
+        )
+        setActiveTabId(created.id)
+        setSidebarStrategies((prev) => [
+          {
+            id: created.id,
+            name: created.name,
+            language: created.language,
+            updatedAt: created.updatedAt,
+            code: created.code,
+            parameters: created.parameters,
+          },
+          ...prev.filter((s) => s.id !== created.id),
+        ])
+        setStatusMessage('Strategy saved.')
+      } else {
+        await trpcMutation('strategy.update', { id: activeTab.id, ...payload })
+        setTabs((prev) =>
+          prev.map((t) => (t.id === activeTab.id ? { ...t, isDirty: false } : t)),
+        )
+        setSidebarStrategies((prev) =>
+          prev.map((item) =>
+            item.id === activeTab.id
+              ? {
+                  ...item,
+                  name: activeTab.name,
+                  language: activeTab.language,
+                  updatedAt: new Date().toISOString(),
+                  code: activeTab.code,
+                  parameters: activeTab.parameters,
+                }
+              : item,
+          ),
+        )
+        setStatusMessage('Strategy updated.')
+      }
+    } catch (error) {
+      const trpcError = error instanceof TrpcClientError ? error : null
+      if (trpcError?.code === 'UNAUTHORIZED') {
+        setTabs((prev) =>
+          prev.map((t) => (t.id === activeTab.id ? { ...t, isDirty: false } : t)),
+        )
+        setStatusMessage('Saved locally only. Sign in to persist strategies.')
+      } else {
+        setStatusError(trpcError?.message ?? (error instanceof Error ? error.message : 'Save failed'))
+      }
+    }
+  }, [activeTabId, tabs])
+
+  const handleLoadTemplate = useCallback((template: AlgoStrategyTemplate) => {
     const newTab: StrategyTab = {
       id: `tab-${Date.now()}`,
       name: template.name,
@@ -258,24 +552,43 @@ export default function StrategyPage() {
       return
     }
 
-    // Open new tab with mock code
-    const template = STRATEGY_TEMPLATES[0]!
+    const fallbackTemplate = templates[0] ?? ALGO_STRATEGY_TEMPLATES[0]
     const newTab: StrategyTab = {
       id: item.id,
       name: item.name,
       language: item.language,
-      code: template.code,
-      parameters: template.parameters,
+      code: item.code ?? fallbackTemplate?.code ?? '',
+      parameters: item.parameters ?? fallbackTemplate?.parameters ?? [],
       isDirty: false,
     }
     setTabs((prev) => [...prev, newTab])
     setActiveTabId(newTab.id)
     setBacktestResult(null)
     setValidationErrors([])
-  }, [tabs])
+  }, [tabs, templates])
 
   return (
     <div className="flex h-full overflow-hidden bg-navy-black">
+      {(statusError || statusMessage) && (
+        <div className="absolute left-12 right-4 top-3 z-[70] flex items-center justify-between gap-2 rounded border border-border bg-navy-dark/95 px-3 py-2">
+          {statusError ? (
+            <span className="text-xs text-trading-red">{statusError}</span>
+          ) : (
+            <span className="text-xs text-text-secondary">{statusMessage}</span>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setStatusError(null)
+              setStatusMessage(null)
+            }}
+            className="rounded px-2 py-1 text-[10px] text-text-muted transition-colors hover:bg-navy-mid hover:text-text-primary"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Sidebar — Strategy file list */}
       <div
         className={cn(
@@ -306,7 +619,7 @@ export default function StrategyPage() {
         {!sidebarCollapsed && (
           <div className="flex-1 overflow-y-auto p-2">
             <div className="space-y-0.5">
-              {MOCK_STRATEGIES.map((strat) => (
+              {sidebarStrategies.map((strat) => (
                 <button
                   key={strat.id}
                   className={cn(
@@ -324,6 +637,9 @@ export default function StrategyPage() {
                   </div>
                 </button>
               ))}
+              {sidebarStrategies.length === 0 && (
+                <div className="px-3 py-4 text-xs text-text-muted">No saved strategies yet.</div>
+              )}
             </div>
 
             <div className="mt-3 border-t border-border pt-3">
@@ -358,7 +674,7 @@ export default function StrategyPage() {
           activeTabId={activeTabId}
           backtestResult={backtestResult}
           isRunning={isRunning}
-          templates={STRATEGY_TEMPLATES}
+          templates={templates}
           onTabChange={handleTabChange}
           onTabClose={handleTabClose}
           onCodeChange={handleCodeChange}

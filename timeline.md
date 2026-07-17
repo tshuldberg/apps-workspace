@@ -4,6 +4,53 @@ Tracks actions performed at the workspace root level (`/Apps/`). Individual proj
 
 ---
 
+## 2026-03-08 -- Phase 5: MySurf Business Logic Consolidation
+
+Expanded `MyLife/modules/surf/` from a lightweight adapter (2 tables, 12 CRUD functions, 4 types) into a full-featured module. Added 32 Zod schemas + 10 engine interfaces (518 lines), V2+V3 schema migrations (16 total SQLite tables), 40+ local CRUD functions, 30 Supabase cloud query adapters (first hub module with `src/cloud/`), 4 rating engines (spot rating, energy, wind, tide), and 6 utility modules (directions, geo, GPS wave detection, alert evaluation, trail analytics, GPX I/O). Zero TypeScript errors. Tests and standalone archival in progress.
+
+---
+
+## 2026-03-08 -- Phase 4: MyWorkouts Business Logic Consolidation
+
+Ported all 8 pure-logic engine files from standalone MyWorkouts (`packages/shared/src/`) into `MyLife/modules/workouts/src/`. Added V3 schema migration (5 new tables, 15 new CRUD functions), 30+ type definitions, and 284 tests across 16 files. Typecheck and all parity checks pass.
+
+---
+
+## 2026-02-14 — Plan Orchestration Instruction Sync for Codex
+
+**Session:** Audited workspace plan orchestration docs/setup and synchronized root instructions so Codex follows the same queue/dispatch protocol as Claude.
+
+### Actions
+- **Reviewed** orchestration sources:
+  - `docs/guides/parallel-agent-orchestration.md`
+  - `.claude/skills/dispatch/SKILL.md`
+  - `docs/plans/templates/plan-template.md`
+  - `docs/plans/scripts/plan-runner.sh`
+  - `docs/plans/scripts/parallel-plan-runner.sh`
+  - `.claude/agents/plan-executor.md`, `test-writer.md`, `docs-agent.md`, `reviewer.md`
+  - `.claude/settings.json`
+- **Updated** `/Apps/AGENTS.md` and `/Apps/CLAUDE.md` (instruction sync pair):
+  - Added canonical-source references for queue/dispatch/worktree behavior
+  - Added mandatory dispatch preflight rules (priority ordering, metadata/scope parsing, active-plan checks, dependency gating, conflict detection)
+  - Added mandatory queue state transitions (`queue -> active -> done/failed`) and log expectations
+  - Added explicit strategy rule: same-project plans with zero scope overlap use parallel subagents
+  - Added Codex parity fallback when Agent Team tooling is unavailable
+- **Updated** queue runners to match documented lifecycle:
+  - `/Apps/docs/plans/scripts/plan-runner.sh` now moves plans `queue -> active -> done/failed` (no copy/remove detour)
+  - `/Apps/docs/plans/scripts/parallel-plan-runner.sh` now tracks `active/` and moves plans from `active` to `done/failed`
+
+### Files Modified
+- `/Apps/AGENTS.md` — Plan queue protocol expanded and aligned to dispatch implementation
+- `/Apps/CLAUDE.md` — Matching protocol updates for synchronized instruction parity
+- `/Apps/docs/plans/scripts/plan-runner.sh` — Queue lifecycle transitions made explicit (`queue -> active -> done/failed`)
+- `/Apps/docs/plans/scripts/parallel-plan-runner.sh` — Added `active/` state transitions for parallel execution
+- `/Apps/timeline.md` — This entry
+
+### Notes
+- Root instruction files now encode the same strategy and lifecycle semantics documented in `/Apps/docs/guides/parallel-agent-orchestration.md` and `.claude` dispatch/agent setup.
+
+---
+
 ## 2026-02-08 — Workspace Git Health Audit
 
 **Session:** Full audit of all project worktrees, branches, open PRs, and remotes across 7 repos.

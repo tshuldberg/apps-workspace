@@ -14,12 +14,15 @@ export function choppiness(data: OHLCV[], params: Record<string, unknown>): numb
 
   // True Range array
   const tr = new Array<number>(len)
-  tr[0] = data[0].high - data[0].low
+  const firstBar = data[0]!
+  tr[0] = firstBar.high - firstBar.low
   for (let i = 1; i < len; i++) {
+    const bar = data[i]!
+    const prevBar = data[i - 1]!
     tr[i] = Math.max(
-      data[i].high - data[i].low,
-      Math.abs(data[i].high - data[i - 1].close),
-      Math.abs(data[i].low - data[i - 1].close),
+      bar.high - bar.low,
+      Math.abs(bar.high - prevBar.close),
+      Math.abs(bar.low - prevBar.close),
     )
   }
 
@@ -29,9 +32,10 @@ export function choppiness(data: OHLCV[], params: Record<string, unknown>): numb
     let lowestLow = Infinity
 
     for (let j = i - period + 1; j <= i; j++) {
-      atrSum += tr[j]
-      if (data[j].high > highestHigh) highestHigh = data[j].high
-      if (data[j].low < lowestLow) lowestLow = data[j].low
+      const bar = data[j]!
+      atrSum += tr[j]!
+      if (bar.high > highestHigh) highestHigh = bar.high
+      if (bar.low < lowestLow) lowestLow = bar.low
     }
 
     const range = highestHigh - lowestLow
