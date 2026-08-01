@@ -35,6 +35,7 @@ Each project below has its own CLAUDE.md with full details (stack, commands, arc
 | `SH/shiphawk-templates/` | Liquid-templated shipping document templates |
 | `tron-castle-fight/` | Browser RTS game (vanilla JS + Canvas 2D) |
 | `system-monitor/` | macOS system monitor daemon (Node.js + launchd) |
+| `mylife-talk/` | MyTalk voice copilot for Claude Code sessions (Node + Swift, codex brain, on-device speech) |
 | `fed-memes/` | GIF/meme platform (Django + Swift + discord.js) |
 | `MySurf/` | Surf forecasting app (Expo + Next.js + Supabase) |
 | `MyBudget/` | Envelope budgeting app (Expo + Next.js + SQLite) |

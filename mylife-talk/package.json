@@ -1,0 +1,31 @@
+{
+  "name": "mylife-talk",
+  "version": "0.1.0",
+  "description": "MyTalk: a voice copilot daemon for Claude Code sessions. Speak to a codex-powered narrator that watches the session, discusses it with you, and types verified prompts into your terminal. All speech stays on-device.",
+  "type": "module",
+  "bin": {
+    "talk": "dist/cli.js"
+  },
+  "main": "dist/cli.js",
+  "scripts": {
+    "build": "tsc && npm run build:ear",
+    "build:ts": "tsc",
+    "build:ear": "bash scripts/build-ear.sh",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}

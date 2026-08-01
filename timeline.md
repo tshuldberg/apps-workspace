@@ -4,6 +4,12 @@ Tracks actions performed at the workspace root level (`/Apps/`). Individual proj
 
 ---
 
+## 2026-08-01 -- New project: mylife-talk (MyTalk voice copilot)
+
+Created `mylife-talk/`, a standalone dev tool (system-monitor pattern, tracked by the Apps repo): a macOS daemon that lets the founder run Claude Code sessions entirely by voice. On-device STT via a Swift `talk-ear` helper (SFSpeechRecognizer, echo-cancelled, silence segmentation, push-to-talk key tap, CI fixture mode), TTS via `say`, codex (gpt-5.5) as the runtime brain that narrates the live session transcript (`~/.claude/projects/<slug>/*.jsonl`), answers questions, and drafts verified prompts injected into the Claude terminal via System Events or tmux. All turn-taking, narration, and verification modes configurable via `talk settings`. Zero runtime npm deps; 120 Vitest tests + typecheck green; live codex integration verified. Built per docs/spec.md + docs/plan.md (Fable design/review, codex bulk implementation).
+
+---
+
 ## 2026-03-08 -- Phase 5: MySurf Business Logic Consolidation
 
 Expanded `MyLife/modules/surf/` from a lightweight adapter (2 tables, 12 CRUD functions, 4 types) into a full-featured module. Added 32 Zod schemas + 10 engine interfaces (518 lines), V2+V3 schema migrations (16 total SQLite tables), 40+ local CRUD functions, 30 Supabase cloud query adapters (first hub module with `src/cloud/`), 4 rating engines (spot rating, energy, wind, tide), and 6 utility modules (directions, geo, GPS wave detection, alert evaluation, trail analytics, GPX I/O). Zero TypeScript errors. Tests and standalone archival in progress.

@@ -33,6 +33,7 @@ Workspace-wide agent instructions for `/Users/trey/Desktop/Apps`.
 - EasyStreet (monorepo): `/Users/trey/Desktop/Apps/Parks/easystreet-monorepo/AGENTS.md`
 - Fed Memes: `/Users/trey/Desktop/Apps/fed-memes/AGENTS.md`
 - ArenaLite: `/Users/trey/Desktop/Apps/arenalite/AGENTS.md`
+- MyTalk: `/Users/trey/Desktop/Apps/mylife-talk/AGENTS.md`
 
 ## Directory Creation Guardrail (Critical)
 
