@@ -68,3 +68,9 @@ app.json
 
 # Visual brainstorming companion mockups
 .superpowers/
+
+# Playwright artifacts (mynews e2e)
+apps/mynews-web/test-results/
+apps/mynews-console/test-results/
+apps/mynews-web/playwright-report/
+apps/mynews-console/playwright-report/
