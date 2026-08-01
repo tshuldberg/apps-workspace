@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import {
+  appendFileSync,
   closeSync,
   existsSync,
   mkdirSync,
@@ -34,6 +35,7 @@ import { newestTranscript, transcriptDirFor } from './transcript/locate.js';
 import { TranscriptWatcher } from './transcript/watcher.js';
 import { TurnTaking } from './turntaking.js';
 import { Ui } from './ui.js';
+import { VoiceLog, loadRecentHistory } from './voicelog.js';
 
 const settingsKeys = Object.keys(DEFAULT_SETTINGS) as Array<keyof Settings>;
 
@@ -102,6 +104,12 @@ async function startCommand(args: string[]): Promise<number> {
     await injectViaTmux(prompt, settings.tmuxTarget);
   };
 
+  const voiceLogIo = { mkdirSync, appendFileSync, readdirSync, readFileSync };
+  const transcriptsDir = resolve(dirname(settingsPath()), 'transcripts');
+  const initialHistory = loadRecentHistory(transcriptsDir, voiceLogIo, settings.historyTurns);
+  const voiceLog = new VoiceLog(transcriptsDir, voiceLogIo);
+  voiceLog.start();
+
   const daemon = new Daemon({
     settings,
     ear,
@@ -113,12 +121,19 @@ async function startCommand(args: string[]): Promise<number> {
     turnTaking,
     ui,
     log: (line) => ui.log(line),
+    voiceLog,
+    initialHistory,
   });
   ui.log(`MyTalk watching ${transcript}`);
+  if (initialHistory.length > 0) {
+    ui.log(`Recalled ${String(initialHistory.length)} turns from the last conversation.`);
+  }
+  if (voiceLog.path !== null) ui.log(`Saving this conversation to ${voiceLog.path}`);
   daemon.start();
   process.once('SIGINT', () => {
     daemon.stop();
-    process.stdout.write('\nMyTalk stopped.\n');
+    voiceLog.close();
+    process.stdout.write('\nMyTalk stopped. Conversation saved.\n');
   });
   return 0;
 }
@@ -148,7 +163,9 @@ function parseSettingValue(
     key === 'silenceMs' ||
     key === 'readBackGraceMs' ||
     key === 'turnEndQuietMs' ||
-    key === 'codexTimeoutMs'
+    key === 'codexTimeoutMs' ||
+    key === 'ttsMuteTailMs' ||
+    key === 'historyTurns'
   ) {
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;

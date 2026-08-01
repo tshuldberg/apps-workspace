@@ -30,6 +30,8 @@ export interface Settings {
   codexTimeoutMs: number;
   pttKey: 'rightOption' | 'rightCommand' | 'f13';
   locale: string;
+  ttsMuteTailMs: number;
+  historyTurns: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -55,6 +57,8 @@ export const DEFAULT_SETTINGS: Settings = {
   codexTimeoutMs: 90_000,
   pttKey: 'rightOption',
   locale: 'en-US',
+  ttsMuteTailMs: 300,
+  historyTurns: 10,
 };
 
 const turnTakingModes = new Set<TurnTakingMode>([
@@ -142,6 +146,8 @@ function validatedSettings(value: unknown): Settings {
       ? (input.pttKey as Settings['pttKey'])
       : DEFAULT_SETTINGS.pttKey,
     locale: stringValue('locale', DEFAULT_SETTINGS.locale),
+    ttsMuteTailMs: numberValue('ttsMuteTailMs', DEFAULT_SETTINGS.ttsMuteTailMs),
+    historyTurns: numberValue('historyTurns', DEFAULT_SETTINGS.historyTurns),
   };
 }
 

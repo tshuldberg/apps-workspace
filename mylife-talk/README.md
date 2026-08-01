@@ -58,8 +58,14 @@ Start `claude` in another terminal as usual. Then just speak.
 | voice / rate | any `say -v ?` voice, words per minute |
 | terminalApp / injector | `Terminal` via osascript, or `tmux` with a target pane |
 | pttKey | `rightOption`, `rightCommand`, `f13` |
+| ttsMuteTailMs | mic stays muted this long after TTS ends (default 300) |
+| historyTurns | prior-conversation turns recalled at startup (default 10) |
 
 Claude's questions and permission prompts are always spoken, regardless of narration mode.
+
+## Conversation history
+
+Every session is saved live to `~/.config/mylife-talk/transcripts/<timestamp>.jsonl` (your words, the copilot's words, every injected prompt). The next `talk start` recalls the last `historyTurns` turns so the copilot remembers where you left off. Read any transcript back with `cat` or pipe it to `jq`.
 
 ## How it works
 
@@ -67,6 +73,11 @@ Claude's questions and permission prompts are always spoken, regardless of narra
 2. The utterance routes to a stateless `codex exec` call carrying rolling conversation history plus recent session events tailed from `~/.claude/projects/<slug>/<session>.jsonl`.
 3. The brain answers as JSON: speak something, and/or submit a prompt. Prompts go through the verification flow, then System Events keystrokes (or `tmux send-keys`) into the Claude terminal.
 4. Session events narrate per your narration mode; `stop_reason: end_turn` triggers a spoken summary of Claude's reply.
+
+## Troubleshooting
+
+- **Nothing happens when you speak:** make sure your terminal app has Microphone + Speech Recognition permission, then watch `talk-ear` directly: `./bin/talk-ear --debug-levels` and speak. `level 0.000xx` lines confirm mic audio; partials confirm recognition. Do not enable `--aec`: macOS voice processing feeds SFSpeechRecognizer a multichannel format it cannot read (this presents exactly as "nothing happens").
+- **The copilot hears itself:** raise `ttsMuteTailMs`.
 
 ## Development
 

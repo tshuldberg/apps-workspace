@@ -123,4 +123,81 @@ describe('Daemon', () => {
     expect(ear.stop).toHaveBeenCalledOnce();
     expect(watcher.stop).toHaveBeenCalledOnce();
   });
+
+  it('mutes the ear while TTS speaks and unmutes after the tail', async () => {
+    const ear = new FakeEar();
+    const speaker = new FakeSpeaker();
+    const settings = { ...DEFAULT_SETTINGS, ttsMuteTailMs: 5 };
+    const turnTaking = new TurnTaking(settings);
+    const daemon = new Daemon({
+      settings,
+      ear,
+      speaker,
+      watcher: new FakeWatcher(),
+      brain: { ask: vi.fn(async () => null) },
+      injector: vi.fn(),
+      narrator: new Narrator(settings.narration),
+      turnTaking,
+      ui: { log: vi.fn(), status: vi.fn() },
+      log: vi.fn(),
+    });
+
+    speaker.emit('speaking-start');
+    expect(ear.mute).toHaveBeenCalledOnce();
+    expect(ear.unmute).not.toHaveBeenCalled();
+
+    speaker.emit('speaking-end');
+    await vi.waitFor(() => expect(ear.unmute).toHaveBeenCalledOnce());
+
+    // a founder mute must survive the TTS tail
+    ear.emit('final', 'stop listening');
+    speaker.emit('speaking-start');
+    speaker.emit('speaking-end');
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(ear.unmute).toHaveBeenCalledOnce();
+    daemon.stop();
+  });
+
+  it('records the conversation to the voice log and seeds prior history', async () => {
+    const ear = new FakeEar();
+    const speaker = new FakeSpeaker();
+    const entries: Array<{ who: string; kind: string; text: string }> = [];
+    const contexts: BrainContext[] = [];
+    const settings = { ...DEFAULT_SETTINGS, verification: 'instant' as const };
+    const daemon = new Daemon({
+      settings,
+      ear,
+      speaker,
+      watcher: new FakeWatcher(),
+      brain: {
+        ask: vi.fn(async (context: BrainContext): Promise<BrainResult | null> => {
+          contexts.push(context);
+          return { action: 'prompt', speak: null, prompt: 'Do the thing' };
+        }),
+      },
+      injector: vi.fn(),
+      narrator: new Narrator(settings.narration),
+      turnTaking: new TurnTaking(settings),
+      ui: { log: vi.fn(), status: vi.fn() },
+      log: vi.fn(),
+      voiceLog: { append: (entry) => entries.push(entry) },
+      initialHistory: [{ who: 'copilot', text: 'Last time we shipped the parser.' }],
+    });
+    daemon.start();
+
+    ear.emit('final', 'please do the thing');
+    await vi.waitFor(() =>
+      expect(entries).toContainEqual({ who: 'system', kind: 'inject', text: 'Do the thing' }),
+    );
+    expect(entries).toContainEqual({
+      who: 'founder',
+      kind: 'utterance',
+      text: 'please do the thing',
+    });
+    expect(contexts[0]?.history[0]).toEqual({
+      who: 'copilot',
+      text: 'Last time we shipped the parser.',
+    });
+    daemon.stop();
+  });
 });

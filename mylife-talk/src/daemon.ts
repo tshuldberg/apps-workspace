@@ -54,6 +54,14 @@ interface UiPort {
   status(state: { phase: string; detail?: string }): void;
 }
 
+interface VoiceLogPort {
+  append(entry: {
+    who: 'founder' | 'copilot' | 'system';
+    kind: 'utterance' | 'speech' | 'inject' | 'note';
+    text: string;
+  }): void;
+}
+
 export interface DaemonDependencies {
   settings: Settings;
   ear: EarPort;
@@ -65,14 +73,18 @@ export interface DaemonDependencies {
   turnTaking: TurnTakingPort;
   ui: UiPort;
   log: (line: string) => void;
+  voiceLog?: VoiceLogPort;
+  initialHistory?: BrainTurn[];
 }
 
 export class Daemon {
   private readonly history: BrainTurn[] = [];
   private readonly sessionEvents: string[] = [];
   private timer: NodeJS.Timeout | null = null;
+  private unmuteTimer: NodeJS.Timeout | null = null;
 
   constructor(private readonly dependencies: DaemonDependencies) {
+    this.history.push(...(dependencies.initialHistory ?? []).slice(-20));
     this.wire();
   }
 
@@ -87,6 +99,8 @@ export class Daemon {
   stop(): void {
     if (this.timer !== null) clearInterval(this.timer);
     this.timer = null;
+    if (this.unmuteTimer !== null) clearTimeout(this.unmuteTimer);
+    this.unmuteTimer = null;
     this.dependencies.ear.stop();
     this.dependencies.speaker.stop();
     this.dependencies.watcher.stop();
@@ -122,8 +136,21 @@ export class Daemon {
     });
     watcher.on('error', (error) => this.edgeError('Transcript', error));
 
-    speaker.on('speaking-start', () => this.dependencies.ui.status({ phase: 'speaking' }));
-    speaker.on('speaking-end', () => this.updatePhase());
+    // the mic has no echo cancellation (AEC breaks SFSpeechRecognizer input),
+    // so keep the ear muted while TTS plays plus a short tail
+    speaker.on('speaking-start', () => {
+      if (this.unmuteTimer !== null) clearTimeout(this.unmuteTimer);
+      this.unmuteTimer = null;
+      ear.mute();
+      this.dependencies.ui.status({ phase: 'speaking' });
+    });
+    speaker.on('speaking-end', () => {
+      this.unmuteTimer = setTimeout(() => {
+        this.unmuteTimer = null;
+        if (turnTaking.phase !== 'muted') ear.unmute();
+      }, this.dependencies.settings.ttsMuteTailMs);
+      this.updatePhase();
+    });
   }
 
   private async routeUtterance(utterance: string): Promise<void> {
@@ -225,6 +252,7 @@ export class Daemon {
   private async inject(prompt: string): Promise<void> {
     try {
       await this.dependencies.injector(prompt);
+      this.dependencies.voiceLog?.append({ who: 'system', kind: 'inject', text: prompt });
       this.updatePhase();
     } catch (error) {
       this.edgeError('Injection', error);
@@ -270,6 +298,11 @@ export class Daemon {
   private remember(turn: BrainTurn): void {
     this.history.push(turn);
     if (this.history.length > 20) this.history.splice(0, this.history.length - 20);
+    this.dependencies.voiceLog?.append({
+      who: turn.who,
+      kind: turn.who === 'founder' ? 'utterance' : 'speech',
+      text: turn.text,
+    });
   }
 
   private renderSessionEvent(event: SessionEvent): string {

@@ -19,7 +19,7 @@ A lightweight macOS terminal daemon (`talk`) you run beside Claude Code. You tal
 3. **Lightweight:** no Electron, no TUI framework, zero runtime npm dependencies, no bundled ML models.
 4. **Codex is the runtime brain:** every user utterance and narration decision routes through `codex exec`. If codex is unavailable, the daemon falls back to verbatim mode and says so out loud (transport honesty; never fake the copilot).
 5. **Narration:** settings menu with all modes: `milestones` + turn-end (default), `turn-end` only, `play-by-play`. Claude questions and permission requests are always spoken regardless of mode.
-6. **Speech stack:** macOS-native. STT via a small bundled Swift helper (`talk-ear`) using on-device SFSpeechRecognizer with echo-cancelled input (voice-processing audio unit). TTS via `say` with a configurable system voice.
+6. **Speech stack:** macOS-native. STT via a small bundled Swift helper (`talk-ear`) using on-device SFSpeechRecognizer. TTS via `say` with a configurable system voice. **AEC amendment (2026-08-01, live-verified):** the voice-processing audio unit reshapes the input to a multichannel format (48kHz x9 observed) that SFSpeechRecognizer cannot consume, producing zero partials. AEC is therefore opt-in (`--aec`); echo is prevented instead by the daemon muting the ear while TTS plays plus a `ttsMuteTailMs` tail (default 300 ms). Voice barge-in is disabled by design outside push-to-talk.
 7. **Prompt verification** (a setting): `read-back` (default; codex speaks "Sending: ..." and injects after a grace window unless you say the wait/cancel word), `instant`, `explicit` (requires the send word).
 8. **Placement:** standalone dev-tool project at `Apps/mylife-talk/` (same pattern as `system-monitor/`). Not a MyLife hub module; no parity obligations.
 9. **Build split:** Fable authors spec + plan and reviews; codex does bulk TS implementation; Fable writes the Swift helper and verifies everything.
@@ -74,6 +74,12 @@ A lightweight macOS terminal daemon (`talk`) you run beside Claude Code. You tal
 ## Testing
 
 Vitest on all pure logic (parser, locate slug, control words, narration policy, verification state machine, brain JSON extraction/validation, settings merge, injector arg building). Integration tests use a fixture transcript writer and a mocked codex/spawn. `talk-ear --fixture <file>` replays scripted utterances so CI never needs a mic. No network, no mic, no osascript in tests.
+
+## Conversation transcripts and cross-session history (added 2026-08-01, founder request)
+
+- Every voice session is appended live (crash-safe, not written at close) to `~/.config/mylife-talk/transcripts/YYYY-MM-DD-HHMMSS.jsonl`: founder utterances, copilot speech, injected prompts, session start/end notes.
+- On startup the daemon seeds the codex brain's rolling history with the last `historyTurns` (default 10) founder/copilot turns from the most recent transcript, so the copilot remembers the previous conversation.
+- Transcript write failures never interrupt the conversation.
 
 ## Non-goals (v1)
 

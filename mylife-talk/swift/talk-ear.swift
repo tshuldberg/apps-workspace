@@ -28,6 +28,11 @@ struct Args {
     var locale: String = "en-US"
     var pttKey: String? = nil
     var fixture: String? = nil
+    // AEC (voice-processing IO) reshapes the input to a multichannel format that
+    // SFSpeechRecognizer cannot consume (observed: 48kHz x9 -> zero partials),
+    // so it is opt-in; the daemon mutes the mic during TTS instead.
+    var aec: Bool = false
+    var debugLevels: Bool = false
 }
 
 func parseArgs() -> Args {
@@ -39,6 +44,9 @@ func parseArgs() -> Args {
         case "--locale": if let v = it.next() { args.locale = v }
         case "--ptt-key": if let v = it.next() { args.pttKey = v }
         case "--fixture": if let v = it.next() { args.fixture = v }
+        case "--aec": args.aec = true
+        case "--no-aec": args.aec = false
+        case "--debug-levels": args.debugLevels = true
         default: emitStatus("ignoring unknown flag \(flag)")
         }
     }
@@ -95,7 +103,13 @@ final class EarEngine {
     private var muted: Bool
     private var restarting = false
 
-    init?(locale: String, silenceMs: Int, pttMode: Bool) {
+    private let useAec: Bool
+    private let debugLevels: Bool
+    private var lastLevelAt: Date = .distantPast
+
+    init?(locale: String, silenceMs: Int, pttMode: Bool, useAec: Bool, debugLevels: Bool) {
+        self.useAec = useAec
+        self.debugLevels = debugLevels
         guard let rec = SFSpeechRecognizer(locale: Locale(identifier: locale)) else {
             emitError("no speech recognizer for locale \(locale)")
             return nil
@@ -108,18 +122,37 @@ final class EarEngine {
 
     func start() {
         let input = audioEngine.inputNode
-        do {
-            try input.setVoiceProcessingEnabled(true)
-        } catch {
-            emitStatus("echo cancellation unavailable; TTS may be picked up by the mic")
+        if useAec {
+            do {
+                try input.setVoiceProcessingEnabled(true)
+                emit(["type": "status", "message": "aec:on"])
+            } catch {
+                emit(["type": "status", "message": "aec:off"])
+            }
+        } else {
+            emit(["type": "status", "message": "aec:off"])
         }
         let format = input.outputFormat(forBus: 0)
+        emitStatus("input format \(Int(format.sampleRate))Hz x\(format.channelCount)")
         guard format.sampleRate > 0 else {
             emitError("no usable microphone input (sample rate 0); check Microphone permission for your terminal app")
             return
         }
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
             guard let self else { return }
+            if self.debugLevels, Date().timeIntervalSince(self.lastLevelAt) > 0.5 {
+                self.lastLevelAt = Date()
+                var rms: Float = 0
+                if let data = buffer.floatChannelData?[0] {
+                    let count = Int(buffer.frameLength)
+                    if count > 0 {
+                        var sum: Float = 0
+                        for index in 0..<count { sum += data[index] * data[index] }
+                        rms = (sum / Float(count)).squareRoot()
+                    }
+                }
+                emit(["type": "status", "message": String(format: "level %.5f", rms)])
+            }
             self.state.sync {
                 guard !self.muted, let req = self.request else { return }
                 req.append(buffer)
@@ -327,7 +360,13 @@ func requestPermissions(_ done: @escaping (Bool) -> Void) {
     }
 }
 
-guard let engine = EarEngine(locale: args.locale, silenceMs: args.silenceMs, pttMode: args.pttKey != nil) else {
+guard let engine = EarEngine(
+    locale: args.locale,
+    silenceMs: args.silenceMs,
+    pttMode: args.pttKey != nil,
+    useAec: args.aec,
+    debugLevels: args.debugLevels
+) else {
     exit(1)
 }
 
