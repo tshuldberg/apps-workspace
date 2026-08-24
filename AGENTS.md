@@ -1,211 +1,113 @@
 # AGENTS.md
 
-Workspace-wide agent instructions for `/Users/trey/Desktop/Apps`.
+Workspace-wide agent instructions for `/Users/trey/Desktop/Apps`. This file is the canonical instruction source at this level: `CLAUDE.md` imports it via `@AGENTS.md`. Edit rules here, never by hand-copying between the two files.
 
 ## Scope Guardrail (Critical)
 
 - Ignore `/Users/trey/Desktop/Apps/SH/shiphawk-dev` for all requests scoped to `/Users/trey/Desktop/Apps`.
-- Do not read, search, edit, or run commands in `shiphawk-dev` unless the user explicitly directs work to `/Users/trey/Desktop/Apps/SH/shiphawk-dev`.
-- When a request references "all apps" or "/Apps", always treat `shiphawk-dev` as out of scope by default.
+- Do not read, search, edit, or run commands in `shiphawk-dev` unless the user explicitly directs work there.
+- If a request references "all apps" or "/Apps", treat `shiphawk-dev` as out of scope by default.
 
-## Instruction Sync (Critical)
+## Instruction File Mechanism (Critical)
 
-- When adding, removing, or changing a persistent rule in this workspace, update both:
-  - `/Users/trey/Desktop/Apps/AGENTS.md`
-  - `/Users/trey/Desktop/Apps/CLAUDE.md`
-- Treat `AGENTS.md` and `CLAUDE.md` as a synchronized pair. A rule change is not complete until both files reflect it.
-- For project-specific rule changes, apply the same sync rule in that project's instruction pair (`AGENTS.md` and `CLAUDE.md` or `.claude/CLAUDE.md`).
+- At every level (workspace, project, standalone app), `AGENTS.md` is the canonical shared instruction file. The sibling `CLAUDE.md` contains only `@AGENTS.md` plus Claude-specific extras below the import.
+- Never duplicate content between the pair. A rule change goes into `AGENTS.md` once; the import keeps both tools current.
+- Claude-only guidance belongs below the import in `CLAUDE.md` or in `.claude/rules/` (path-scoped rule files).
+- Codex loads `AGENTS.md` files from broad to specific, ending at the working directory; project rules override workspace defaults for that subtree. Place specialized rules in the nearest project-level `AGENTS.md`.
 
-## Codex Instruction Layering
+## Workspace Overview
 
-- Codex loads instruction files from broad to specific, ending at the current working directory.
-- Place specialized rules in the nearest project-level `AGENTS.md`.
-- If both root and project rules exist, project rules override workspace defaults for that subtree.
+Multi-project workspace. Each subdirectory is an independent project with its own stack and its own `AGENTS.md`/`CLAUDE.md`. Always check the project-level instructions first when working in a subdirectory.
 
-## Project Instruction Files
-
-- Workspace root: `/Users/trey/Desktop/Apps/AGENTS.md`
-- Receipts: `/Users/trey/Desktop/Apps/receipts/AGENTS.md`
-- ShipHawk templates: `/Users/trey/Desktop/Apps/shiphawk-templates/AGENTS.md`
-- macOS hub: `/Users/trey/Desktop/Apps/macos-hub/AGENTS.md`
-- Tron Castle Fight: `/Users/trey/Desktop/Apps/tron-castle-fight/AGENTS.md`
-- EasyStreet (native): `/Users/trey/Desktop/Apps/Parks/EasyStreet/AGENTS.md`
-- EasyStreet (monorepo): `/Users/trey/Desktop/Apps/Parks/easystreet-monorepo/AGENTS.md`
-- Fed Memes: `/Users/trey/Desktop/Apps/fed-memes/AGENTS.md`
-- ArenaLite: `/Users/trey/Desktop/Apps/arenalite/AGENTS.md`
-- MyTalk: `/Users/trey/Desktop/Apps/mylife-talk/AGENTS.md`
+| Project | Description |
+|---------|-------------|
+| `MyLife/` | Unified hub app: 40+ privacy-first registry modules + standalone apps (BestChef, DoWork, Manhattan, Meerkat) on iOS, Android, Web |
+| `automation-hub/` | Multi-channel task automation engine (email, calendar, Slack, iMessage) |
+| `SH/shiphawk-dev/` | Rails shipping platform (out of scope by default) |
+| `Parks/EasyStreet/` | Street sweeping parking app (native iOS + Android) |
+| `Parks/easystreet-monorepo/` | EasyStreet cross-platform (Expo + Next.js) |
+| `receipts/` | Receipt verification platform (Django + React) |
+| `SH/shiphawk-templates/` | Liquid-templated shipping document templates |
+| `tron-castle-fight/` | Browser RTS game (vanilla JS + Canvas 2D) |
+| `system-monitor/` | macOS system monitor daemon (Node.js + launchd) |
+| `mylife-talk/` | MyTalk voice copilot for Claude Code sessions (Node + Swift, codex brain, on-device speech) |
+| `fed-memes/` | GIF/meme platform (Django + Swift + discord.js) |
+| `MySurf/` | Surf forecasting app (Expo + Next.js + Supabase) |
+| `MyBudget/` | Envelope budgeting app (Expo + Next.js + SQLite) |
+| `MyBooks/` | Book tracking app (Expo + Next.js + SQLite) |
+| `macos-hub/` | Retired MCP server (reference only) |
+| `arenalite/` | Browser-based arena PvP prototype (TS + Three.js, deterministic sim over Arena's ability JSON) |
 
 ## Directory Creation Guardrail (Critical)
 
-- Never create ad-hoc directories at the `/Apps/` root for staging, scaffolding, or PR preparation (e.g., `MyLife-root-pr/`, `MyLife-staging/`, `*-temp/`).
-- The only valid pattern for sibling working directories is git worktrees: `../Apps-wt-[plan-name]` (created via `cmux` or the plan queue scripts).
-- For parity work, edit standalone submodule directories in place (they live inside `MyLife/`). Do not create copies or parallel trees.
-- Any directory creation at the `/Apps/` root must correspond to a real project or group directory, not a transient workspace.
+- Never create ad-hoc directories at the `/Apps/` root for staging, scaffolding, or PR preparation.
+- The only valid pattern for sibling working directories is git worktrees: `../Apps-wt-[plan-name]` (via `cmux` or the plan queue scripts).
+- Edit standalone submodule directories in place. Do not create copies or parallel trees.
+- Any new directory at the `/Apps/` root must be a real project or group directory, not a transient workspace.
 
 ## Workspace Standards
 
-- Use each project's local `AGENTS.md` before editing that project.
-- Keep project tracking artifacts up to date (`timeline.md` or `PROJECT_LOG.md`) when work changes behavior or architecture.
-- Follow each project's git workflow and validation commands before declaring work complete.
-- Keep documentation in sync with behavior changes when public workflows, APIs, or templates change.
+- Every project must have: `AGENTS.md` (with a `CLAUDE.md` import stub), a change tracking file (`timeline.md` or `PROJECT_LOG.md`), and `README.md`.
+- **Naming:** project directories lowercase-with-hyphens; group directories PascalCase (`Parks/`, `SH/`); reports `REPORT-<project>-YYYY-MM-DD.md`.
+- Follow each project's git workflow and validation commands before declaring work complete. Keep docs in sync when public workflows, APIs, or templates change.
 
-## Context7 — Live Documentation for LLMs
+## Context7 - Live Documentation
 
-Context7 is an MCP server that fetches current, version-specific library documentation at query time. Eliminates hallucinated APIs and stale training data.
-
-### Auto-Invocation Rule
-When writing or modifying code that uses any external library or framework, **automatically use Context7 MCP tools** to fetch current documentation. Do not rely on training data for API signatures, configuration options, or code patterns.
-
-### Known Library IDs by Project
-
-Skip `resolve-library-id` by using these pre-resolved IDs directly with `query-docs`:
+When writing code that uses external libraries, use Context7 MCP tools to fetch current docs instead of relying on training data. Call `resolve-library-id` then `query-docs`, or skip resolution with these pre-resolved IDs:
 
 | Project | Library IDs |
 |---------|-------------|
-| **MySurf** | `/vercel/next.js` (v15), `/supabase/supabase`, `/supabase/supabase-js`, `/expo/expo`, `/colinhacks/zod`, `/rnmapbox/maps` |
-| **MyBudget** | `/expo/expo`, `/vercel/next.js` (v15), `/colinhacks/zod` |
-| **MyBooks** | `/expo/expo`, `/vercel/next.js` (v15), `/colinhacks/zod` |
+| **MySurf** | `/vercel/next.js` (v15), `/supabase/supabase-js`, `/expo/expo`, `/colinhacks/zod`, `/rnmapbox/maps` |
+| **MyBudget / MyBooks / easystreet-monorepo** | `/expo/expo`, `/vercel/next.js` (v15), `/colinhacks/zod` |
 | **receipts** | `/djangoproject/django`, `/mantinedev/mantine`, `/reduxjs/redux-toolkit` |
-| **easystreet-monorepo** | `/expo/expo`, `/vercel/next.js` (v15) |
 | **fed-memes** | `/djangoproject/django`, `/meilisearch/meilisearch` |
-| **TheMarlinTraders** | `/vercel/next.js` (v15), `/trpc/trpc` |
-| **automation-hub** | `/colinhacks/zod` |
-| **macos-hub** | `/modelcontextprotocol/typescript-sdk`, `/colinhacks/zod` |
-| **system-monitor** | `/colinhacks/zod` |
+| **automation-hub / system-monitor** | `/colinhacks/zod` |
 
-Prefer `/org/repo` format for highest benchmark scores. Use `/websites/*` or `/llmstxt/*` variants only if primary source lacks coverage.
-
-### When to Use / When Not to Use
-- **Use:** Library API calls, dependency upgrades, framework configuration, migration guidance
-- **Skip:** Pure business logic, vanilla JS/HTML/CSS, markdown/YAML editing, tron-castle-fight
-
----
+Skip Context7 for pure business logic, markdown/YAML, vanilla JS/TS, and tron-castle-fight.
 
 ## Cross-Project Notes
 
-- EasyStreet native and EasyStreet monorepo share sweeping-domain logic concepts (rules, holidays, status mapping). Keep behavior consistent across both when changing domain logic.
-- `shiphawk-templates` output is consumed by the ShipHawk ecosystem. Keep canonical field names aligned with `config/reference-fields/standard-fields.json`.
-- `macos-hub` is retired as an MCP server (2026-03-23). macOS integrations use cloud MCP servers (Gmail, Google Calendar) instead.
-- `fed-memes` (Federal Reserve of Memes) is a GIF/meme platform with a 7-stage implementation plan in `docs/plan/`. Backend uses Django/DRF (similar to receipts), iOS uses Swift/UIKit (similar to EasyStreet).
-- `MyBudget` is an envelope budgeting + subscription tracker app (Expo + Next.js, SQLite, Turborepo). Subscriptions bridge to the budget system via categories and recurring_templates. Uses Conventional Commits.
+- EasyStreet (native) and easystreet-monorepo share sweepingRuleEngine and holidayCalculator logic. Verify domain changes against both.
+- ShipHawk ecosystem: shiphawk-templates produces templates consumed by shiphawk-dev; keep canonical field names aligned with `config/reference-fields/standard-fields.json`.
+- Git conventions vary by project: ShipHawk uses Jira-linked branches, Receeps/MySurf/MyBudget/MyBooks use Conventional Commits, EasyStreet uses `feature/`/`bugfix/` prefixes.
+- `macos-hub` is retired as an MCP server (2026-03-23); macOS integrations use cloud MCP servers instead.
 
 ## Workspace Skills
 
-- `/research-app` — Analyze an app codebase and generate a structured research report. File: `/Users/trey/Desktop/Apps/.claude/skills/research-app/SKILL.md`
-- `/onboard-new-app` — Onboard a new app into `/Apps` and update workspace docs. File: `/Users/trey/Desktop/Apps/.claude/skills/onboard-new-app/SKILL.md`
-- `/research-documentation` — Research official docs and produce cited guidance for instruction, tooling, and platform questions. File: `/Users/trey/Desktop/Apps/.claude/skills/research-documentation/SKILL.md`
-- `/daily-report-ops` — Daily/ad-hoc reporting plus PR triage with strict naming rules. File: `/Users/trey/Desktop/Apps/.claude/skills/daily-report-ops/SKILL.md`
-- `/generate-architecture-diagrams` — Generate mermaid erDiagram + flowchart for a project, saved to `.claude/docs/data-models.md` and referenced from CLAUDE.md. File: `/Users/trey/Desktop/Apps/.claude/skills/generate-architecture-diagrams/SKILL.md`
-- `/scan-emails` — Scan an email inbox via Gmail cloud MCP, categorize unread messages by type/priority, and build an actionable task list. File: `/Users/trey/Desktop/Apps/.claude/skills/scan-emails/SKILL.md`
-- `/dispatch` — Intelligently dispatch plans using auto-selected strategy (Agent Teams for same-project coordination, parallel subagents for independent work). File: `/Users/trey/Desktop/Apps/.claude/skills/dispatch/SKILL.md`
-
-### Marketing Skills (via [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills))
-25 skills installed at `.claude/skills/marketing/`. Full registry: `.claude/skills/SKILLS_REGISTRY.md`. Applicability report: `docs/reports/marketing-skills-applicability.md`.
-
-**CRO:** `/marketing/page-cro`, `/marketing/signup-flow-cro`, `/marketing/onboarding-cro`, `/marketing/form-cro`, `/marketing/popup-cro`, `/marketing/paywall-upgrade-cro`
-**Content:** `/marketing/copywriting`, `/marketing/copy-editing`, `/marketing/email-sequence`, `/marketing/social-content`, `/marketing/content-strategy`
-**SEO:** `/marketing/seo-audit`, `/marketing/programmatic-seo`, `/marketing/competitor-alternatives`, `/marketing/schema-markup`
-**Measurement:** `/marketing/analytics-tracking`, `/marketing/ab-test-setup`
-**Ads:** `/marketing/paid-ads`
-**Strategy:** `/marketing/marketing-ideas`, `/marketing/marketing-psychology`, `/marketing/launch-strategy`, `/marketing/pricing-strategy`, `/marketing/free-tool-strategy`, `/marketing/referral-program`, `/marketing/product-marketing-context`
+- `/research-app`, `/onboard-new-app`, `/research-documentation`, `/daily-report-ops`, `/generate-architecture-diagrams`, `/scan-emails`, `/dispatch` -- definitions under `.claude/skills/`.
+- Marketing: 25 skills at `.claude/skills/marketing/`. Registry: `.claude/skills/SKILLS_REGISTRY.md`.
 
 ## Plan Queue Protocol
 
-### Overview
-The workspace uses a plan-file queue system to drive parallel Claude Code and Codex agents. Plans are markdown files describing self-contained units of work. Agents pick up plans from the queue, execute them, and move them to done/failed.
+Plans are markdown files driving parallel Claude Code and Codex agents. Full protocol: `docs/guides/parallel-agent-orchestration.md` (canonical), dispatch algorithm in `.claude/skills/dispatch/SKILL.md`.
 
-### Canonical Sources (Keep in Sync)
-- `docs/guides/parallel-agent-orchestration.md` — End-to-end queue/dispatch/worktree workflow
-- `.claude/skills/dispatch/SKILL.md` — Dispatch algorithm and strategy selection
-- `docs/plans/templates/plan-template.md` — Required plan structure
-- `docs/plans/scripts/plan-runner.sh` and `docs/plans/scripts/parallel-plan-runner.sh` — Headless queue execution
-- `.claude/agents/plan-executor.md` / `test-writer.md` / `docs-agent.md` / `reviewer.md` — Role definitions for dispatched work
+- Plans live in `docs/plans/{queue,active,done,failed}/`; move between states, never delete. Execution logs to `docs/plans/logs/`.
+- Always start from `docs/plans/templates/plan-template.md`. Name: `[01-05]-[project]-[description].md` (lower number = higher priority).
+- Before dispatch: check `active/` for in-flight plans, enforce dependencies against `done/`, and check scope overlap (hard conflict: same file; soft: parent/child directory).
+- Execution: read the full plan first, complete phases in order unless `parallel: true`, never modify files outside declared Scope, move to `failed/` with a `## Blockers` section when blocked.
+- Worktrees: `../Apps-wt-[plan-name]`, branch `plan/[plan-name]`, lifecycle via `cmux new|merge|rm`.
+- Strategy selection (auto via `/dispatch`): overlapping same-project plans get an Agent Team; independent plans get parallel subagents; single/trivial work gets one subagent.
+- Codex parity: Codex follows the same dispatch algorithm, dependency checks, scope guardrails, and queue state transitions; use the queue runner scripts when team tooling is unavailable.
 
-### Directory Structure
-- `docs/plans/queue/` — Plans waiting for execution (prioritized by filename prefix)
-- `docs/plans/active/` — Currently being executed
-- `docs/plans/done/` — Completed plans (archive)
-- `docs/plans/failed/` — Plans that hit blockers
-- `docs/plans/templates/` — Reusable plan templates (start from `plan-template.md`)
-- `docs/plans/logs/` — Execution logs (JSON)
-- `docs/plans/scripts/` — Queue runner scripts (`plan-runner.sh`, `parallel-plan-runner.sh`)
+## Custom Agent Definitions
 
-### Plan File Naming
-Format: `[priority]-[project]-[brief-description].md` (e.g., `01-receipts-api-pagination.md`). Priority 01-05, lower = higher.
-
-### Plan Template (Mandatory)
-Always start new plans by copying `docs/plans/templates/plan-template.md`. Do not write plans from scratch. Plans must be detailed enough to make all requirements unambiguous — include specific file paths, expected behavior, edge cases, and concrete acceptance criteria so the executing agent never needs to guess intent.
-
-### Execution Rules
-- Read the full plan before starting any work
-- Complete phases in order unless marked `parallel: true`
-- Check off items as completed
-- If blocked, add `## Blockers`, move plan to `failed/`, stop
-- Do NOT modify files outside the declared Scope
-- Follow target project's CLAUDE.md conventions
-
-### Dispatch Preflight (Mandatory)
-- Read `docs/plans/queue/*.md` sorted by filename (priority order)
-- Parse each plan's Metadata and Scope before dispatching
-- Check `docs/plans/active/` for in-flight plans before starting new work
-- Enforce dependencies: if a dependency is not in `docs/plans/done/`, mark the plan blocked and skip it
-- Check scope overlap:
-  - Hard conflict: same file in multiple plans
-  - Soft conflict: parent/child directory overlap
-
-### Queue State Transitions (Mandatory)
-- Move plans from `queue/` to `active/` when execution starts
-- Move plans from `active/` to `done/` on success
-- Move plans from `active/` to `failed/` on blocker or execution failure
-- Never delete plan files; only move between `queue/`, `active/`, `done/`, and `failed/`
-- Write execution logs to `docs/plans/logs/` for headless/scripted runs
-
-### Worktree Conventions
-- Worktree dirs: `../Apps-wt-[plan-name]` (sibling to main checkout)
-- Branch naming: `plan/[plan-name]`
-- Use `cmux` for lifecycle management: `cmux new`, `cmux merge`, `cmux rm`
-- Per-project bootstrap: `.cmux/setup` scripts handle env symlinks and dependency install
-
-### Agent Teams
-Enabled via `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `.claude/settings.json`.
-
-**Strategy selection (auto via `/dispatch`):**
-- 2+ plans same project with overlapping scope → **Agent Team** (lead + specialized teammates)
-- 2+ plans same project with zero scope overlap → **Parallel Subagents** (independent zones)
-- Plans target different projects, no overlap → **Parallel Subagents** (independent)
-- Single plan or trivial work → **Single Subagent**
-- Research/exploration → **Background Subagents**
-
-Team sizing: 5-6 tasks per teammate. Each teammate owns different files (use project CLAUDE.md file ownership zones).
-
-### Codex Parity Rule
-- Codex must follow the same dispatch algorithm and queue lifecycle defined in the canonical sources above.
-- If Agent Team tooling is unavailable in a Codex session, use the queue runner scripts or independent subagent execution while preserving the same dependency checks, conflict checks, scope guardrails, and queue state transitions.
-
-### Custom Agent Definitions
-Reusable agent roles in `.claude/agents/`: `plan-executor` (implementation), `test-writer` (tests only), `docs-agent` (docs only), `reviewer` (read-only review). Use as `subagent_type` when spawning teammates or subagents.
+Reusable roles in `.claude/agents/`: `plan-executor` (implementation), `test-writer` (tests only), `docs-agent` (docs only), `reviewer` (read-only review).
 
 ## Documentation Index
 
-- Workspace docs root: `/Users/trey/Desktop/Apps/docs/`
-- Guides: `/Users/trey/Desktop/Apps/docs/guides/`
-- Plans: `/Users/trey/Desktop/Apps/docs/plans/`
-- Reports: `/Users/trey/Desktop/Apps/docs/reports/`
-- Parallel Agent Guide: `/Users/trey/Desktop/Apps/docs/guides/parallel-agent-orchestration.md`
-
+- `/Apps/docs/` central hub: `guides/` (plugin, MCP, tool, skill guides), `reports/` (research reports), `plans/` (implementation plans + queue), `timeline.md` (workspace action log).
 
 ## Writing Style
+
 - Do not use em dashes in documents or writing.
 
-
-### Code Intelligence
+## Code Intelligence
 
 Prefer LSP over Grep/Read for code navigation - it's faster, precise, and avoids reading entire files:
+
 - `workspaceSymbol` to find where something is defined
 - `findReferences` to see all usages across the codebase
 - `goToDefinition` / `goToImplementation` to jump to source
 - `hover` for type info without reading the file
 
-Use Grep only when LSP isn't available or for text/pattern searches (comments, strings, config).
-
-After writing or editing code, check LSP diagnostics and fix errors before proceeding.
+Use Grep only when LSP isn't available or for text/pattern searches (comments, strings, config). After writing or editing code, check LSP diagnostics and fix errors before proceeding.
