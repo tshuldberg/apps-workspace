@@ -101,6 +101,30 @@ Reusable roles in `.claude/agents/`: `plan-executor` (implementation), `test-wri
 
 - Do not use em dashes in documents or writing.
 
+## Instruction Writing (Critical)
+
+Any instructions written for a human to follow (guides, runbooks, founder-ops steps, handoffs,
+onboarding, "next steps" in chat) MUST be explicit enough for **someone brand new to the project
+who has never seen the tool before**. Concision applies to explanation, never to steps.
+
+Every step states, in this order:
+
+1. **Where.** A full clickable URL, or the app plus the exact navigation path using the real
+   on-screen labels (`App Store Connect > TestFlight > Builds > iOS > 1.0.0 (17)`). Never "go to
+   the build page"; say which page and how to reach it from a known starting point.
+2. **What you will see.** The literal on-screen text of the control, quoted, so the reader can
+   confirm they are in the right place before acting.
+3. **What to click or type.** Exact label, exact value; for radios and dropdowns, the exact
+   option wording.
+4. **What happens next**, including intermediate screens and dialog titles.
+5. **Done when.** An observable end state the reader can verify.
+6. **If it fails.** The likely cause and next move, for steps that commonly fail.
+
+Also required: expand jargon on first use; numbered steps with one action each; say who does it
+(founder vs agent) and flag what an agent cannot do (entering credentials, creating accounts,
+financial or legal decisions); prefer doing the task over describing it when tooling allows, then
+document what was done; reread as a stranger before shipping.
+
 ## Code Intelligence
 
 Prefer LSP over Grep/Read for code navigation - it's faster, precise, and avoids reading entire files:
