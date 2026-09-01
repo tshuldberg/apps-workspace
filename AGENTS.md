@@ -22,6 +22,8 @@ Multi-project workspace. Each subdirectory is an independent project with its ow
 | Project | Description |
 |---------|-------------|
 | `MyLife/` | Unified hub app: 40+ privacy-first registry modules + standalone apps (BestChef, DoWork, Manhattan, Meerkat) on iOS, Android, Web |
+| `FlashCards/` | Standalone spaced-repetition app (own git repo, Expo + local SQLite) extracted from MyLife flash; Chinese dual-axis SRS + stroke writing quiz |
+| `TrainWithRyan/` | Single-trainer workout app (own git repo, Expo + Supabase) forked from DoWork |
 | `automation-hub/` | Multi-channel task automation engine (email, calendar, Slack, iMessage) |
 | `SH/shiphawk-dev/` | Rails shipping platform (out of scope by default) |
 | `Parks/EasyStreet/` | Street sweeping parking app (native iOS + Android) |
