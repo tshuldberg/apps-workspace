@@ -1,0 +1,9 @@
+{
+  "extends": "@mylife/typescript-config/react.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["node"]
+  },
+  "include": ["src", "src/**/*.json"]
+}

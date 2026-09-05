@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLife Mission Control -- Navigation Wiring</title>
+<style>
+  :root {
+    --bg: #0A0A0F;
+    --surface: #12121A;
+    --elevated: #1A1A24;
+    --text: #F0F0F5;
+    --text-sec: rgba(240,240,245,0.65);
+    --text-ter: rgba(240,240,245,0.35);
+    --border: rgba(255,255,255,0.06);
+    --glass: rgba(255,255,255,0.04);
+    --glass-strong: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.10);
+    --danger: #FF453A;
+    --success: #30D158;
+    --warning: #FBBF24;
+    --accent: #3B82F6;
+    --purple: #8B5CF6;
+    --teal: #14B8A6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  .app { max-width: 1440px; margin: 0 auto; padding: 24px; }
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 24px; margin-bottom: 32px; padding-bottom: 24px;
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .header-left h1 {
+    font-size: 32px; font-weight: 800;
+    background: linear-gradient(135deg, var(--text), var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 4px;
+  }
+  .header-left p { font-size: 14px; color: var(--text-ter); }
+  .header-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 14px; padding: 16px 24px; text-align: center; min-width: 120px;
+    transition: transform 0.2s ease;
+  }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .stat-num { font-size: 36px; font-weight: 800; line-height: 1; }
+  .stat-num.accent { color: var(--accent); }
+  .stat-num.success { color: var(--success); }
+  .stat-num.purple { color: var(--purple); }
+  .stat-num.warning { color: var(--warning); }
+  .stat-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-ter); margin-top: 4px;
+  }
+  .progress-bar-wrap {
+    width: 100%; height: 10px; background: var(--surface);
+    border-radius: 5px; margin-top: 20px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; border-radius: 5px;
+    background: linear-gradient(90deg, var(--accent), var(--success));
+    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .progress-text { font-size: 12px; color: var(--text-sec); margin-top: 6px; text-align: right; }
+  .section-title {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--text-ter); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: ''; width: 3px; height: 14px; background: var(--accent); border-radius: 2px;
+  }
+  .module-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px; margin-bottom: 32px;
+  }
+  .module-card {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 14px; padding: 16px; cursor: pointer;
+    transition: all 0.2s ease; position: relative; overflow: hidden;
+  }
+  .module-card:hover { background: var(--glass-strong); transform: translateY(-2px); }
+  .module-card.active { border-color: rgba(255,255,255,0.2); }
+  .module-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .module-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .module-icon { font-size: 16px; }
+  .module-count { font-size: 11px; color: var(--text-ter); font-weight: 600; }
+  .module-progress { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .module-progress-bar { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+  .module-stats { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--text-ter); }
+  .filter-bar {
+    display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;
+    align-items: center; position: sticky; top: 0; z-index: 50;
+    background: var(--bg); padding: 16px 0; border-bottom: 1px solid var(--border);
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 240px; }
+  .search-box {
+    width: 100%; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px 10px 36px; color: var(--text);
+    font-size: 14px; outline: none;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-ter); font-size: 14px; pointer-events: none; }
+  select {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; color: var(--text);
+    font-size: 13px; cursor: pointer; outline: none; -webkit-appearance: none; min-width: 140px;
+  }
+  .filter-pills { display: flex; gap: 6px; }
+  .pill {
+    padding: 8px 16px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s ease; border: 1px solid var(--border);
+    background: var(--glass); color: var(--text-sec); white-space: nowrap;
+  }
+  .pill:hover { background: var(--glass-strong); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .pill.active.status-done { background: var(--success); border-color: var(--success); }
+  .result-count { font-size: 12px; color: var(--text-ter); white-space: nowrap; padding: 8px 0; }
+  .task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+  .task {
+    background: var(--glass); border: 1px solid var(--glass-border);
+    border-radius: 12px; padding: 16px 20px; cursor: pointer;
+    transition: all 0.2s ease; display: flex; align-items: center; gap: 16px;
+  }
+  .task:hover { background: var(--glass-strong); transform: translateX(4px); }
+  .task.done { opacity: 0.5; }
+  .task-check {
+    width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border);
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s ease; font-size: 12px;
+  }
+  .task-check:hover { border-color: var(--accent); }
+  .task-check.checked { background: var(--success); border-color: var(--success); }
+  .task-body { flex: 1; min-width: 0; }
+  .task-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+  .task-id { font-size: 11px; font-weight: 700; color: var(--accent); font-family: 'SF Mono', 'Fira Code', monospace; }
+  .task-title { font-size: 14px; font-weight: 600; }
+  .task-meta { display: flex; gap: 12px; font-size: 11px; color: var(--text-ter); flex-wrap: wrap; }
+  .task-tag {
+    padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tag-infra { background: rgba(139,92,246,0.15); color: var(--purple); }
+  .tag-wire { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .tag-rebuild { background: rgba(251,191,36,0.15); color: var(--warning); }
+  .tag-detail { background: rgba(20,184,166,0.15); color: var(--teal); }
+  .task-prompt {
+    display: none; margin-top: 12px; padding: 12px 16px;
+    background: var(--surface); border-radius: 8px; border: 1px solid var(--border);
+    font-size: 13px; line-height: 1.6; color: var(--text-sec); white-space: pre-wrap;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .task.expanded .task-prompt { display: block; }
+  .task-files { margin-top: 8px; font-size: 11px; color: var(--text-ter); }
+  .task-files code {
+    background: rgba(59,130,246,0.1); padding: 1px 6px; border-radius: 3px;
+    color: var(--accent); font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .copy-btn {
+    margin-top: 8px; padding: 6px 12px; border-radius: 6px;
+    background: var(--accent); color: white; border: none;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .copy-btn:hover { opacity: 0.8; }
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
+    background: var(--success); color: white; border-radius: 10px;
+    font-size: 13px; font-weight: 600; transform: translateY(100px);
+    transition: transform 0.3s ease; z-index: 999;
+  }
+  .toast.show { transform: translateY(0); }
+  .phase-divider {
+    margin: 32px 0 16px; padding: 12px 0; border-top: 2px solid var(--border);
+    font-size: 16px; font-weight: 800; color: var(--text);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .phase-badge {
+    padding: 4px 12px; border-radius: 6px; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .phase-1 { background: rgba(255,69,58,0.15); color: var(--danger); }
+  .phase-2 { background: rgba(251,191,36,0.15); color: var(--warning); }
+  .phase-3 { background: rgba(139,92,246,0.15); color: var(--purple); }
+  .phase-4 { background: rgba(20,184,166,0.15); color: var(--teal); }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header">
+  <div class="header-left">
+    <h1>Navigation Wiring Mission Control</h1>
+    <p>Wire 190+ orphaned mobile screens into navigable UI across 24 modules</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat-card"><div class="stat-num accent" id="total-count">0</div><div class="stat-label">Total Tasks</div></div>
+    <div class="stat-card"><div class="stat-num success" id="done-count">0</div><div class="stat-label">Done</div></div>
+    <div class="stat-card"><div class="stat-num purple" id="module-count">0</div><div class="stat-label">Modules</div></div>
+    <div class="stat-card"><div class="stat-num warning" id="orphan-count">0</div><div class="stat-label">Orphaned</div></div>
+  </div>
+</div>
+<div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+<div class="progress-text" id="progress-text">0%</div>
+<div class="filter-bar">
+  <div class="search-wrap">
+    <span class="search-icon">&#128269;</span>
+    <input class="search-box" id="search" placeholder="Search tasks, modules, screens...">
+  </div>
+  <select id="module-filter"><option value="all">All Modules</option></select>
+  <select id="phase-filter">
+    <option value="all">All Phases</option>
+    <option value="1">Phase 1: Critical</option>
+    <option value="2">Phase 2: Significant</option>
+    <option value="3">Phase 3: Skeleton</option>
+    <option value="4">Phase 4: Polish</option>
+  </select>
+  <div class="filter-pills">
+    <div class="pill active" data-status="all">All</div>
+    <div class="pill" data-status="pending">Pending</div>
+    <div class="pill status-done" data-status="done">Done</div>
+  </div>
+  <div class="result-count" id="result-count"></div>
+</div>
+<div id="module-grid-section">
+  <div class="section-title">Module Overview</div>
+  <div class="module-grid" id="module-grid"></div>
+</div>
+<div class="task-list" id="task-list"></div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="mission-control-nav-wiring-data.js"></script>
+<script>
+// This file expects TASKS and MODULE_META from the data file
+var doneSet = new Set(JSON.parse(localStorage.getItem('nav-wiring-done') || '[]'));
+var currentFilter = { search: '', module: 'all', status: 'all', phase: 'all' };
+
+function saveDone() { localStorage.setItem('nav-wiring-done', JSON.stringify(Array.from(doneSet))); }
+function getModules() { return Array.from(new Set(TASKS.map(function(t){return t.module}))).sort(); }
+function escapeHtml(s) { var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function renderModuleGrid() {
+  var grid = document.getElementById('module-grid');
+  while(grid.firstChild) grid.removeChild(grid.firstChild);
+  getModules().forEach(function(mod) {
+    var tasks = TASKS.filter(function(t){return t.module===mod});
+    var done = tasks.filter(function(t){return doneSet.has(t.id)}).length;
+    var total = tasks.length;
+    var pct = total ? Math.round((done/total)*100) : 0;
+    var meta = MODULE_META[mod] || {icon:'📦',accent:'#666'};
+    var card = document.createElement('div');
+    card.className = 'module-card' + (currentFilter.module===mod?' active':'');
+    card.onclick = function(){filterByModule(mod)};
+    var bar = document.createElement('div');
+    bar.style.cssText = 'position:absolute;top:0;left:0;width:3px;height:100%;background:'+meta.accent+';border-radius:3px 0 0 3px';
+    card.appendChild(bar);
+    var top = document.createElement('div'); top.className='module-top';
+    var name = document.createElement('div'); name.className='module-name';
+    name.textContent = meta.icon + ' ' + mod;
+    var count = document.createElement('div'); count.className='module-count';
+    count.textContent = done+'/'+total;
+    top.appendChild(name); top.appendChild(count); card.appendChild(top);
+    var prog = document.createElement('div'); prog.className='module-progress';
+    var progBar = document.createElement('div'); progBar.className='module-progress-bar';
+    progBar.style.cssText = 'width:'+pct+'%;background:'+meta.accent;
+    prog.appendChild(progBar); card.appendChild(prog);
+    var stats = document.createElement('div'); stats.className='module-stats';
+    var rem = document.createElement('span'); rem.textContent=(total-done)+' remaining';
+    var pctEl = document.createElement('span'); pctEl.textContent=pct+'%';
+    stats.appendChild(rem); stats.appendChild(pctEl); card.appendChild(stats);
+    grid.appendChild(card);
+  });
+}
+
+function renderTasks() {
+  var list = document.getElementById('task-list');
+  while(list.firstChild) list.removeChild(list.firstChild);
+  var filtered = TASKS.filter(function(t) {
+    if (currentFilter.module!=='all' && t.module!==currentFilter.module) return false;
+    if (currentFilter.status==='pending' && doneSet.has(t.id)) return false;
+    if (currentFilter.status==='done' && !doneSet.has(t.id)) return false;
+    if (currentFilter.phase!=='all' && t.phase!==parseInt(currentFilter.phase)) return false;
+    if (currentFilter.search) {
+      var s = currentFilter.search.toLowerCase();
+      return (t.id+t.title+t.module+t.prompt).toLowerCase().indexOf(s)!==-1;
+    }
+    return true;
+  });
+  document.getElementById('result-count').textContent = filtered.length+' of '+TASKS.length+' tasks';
+  var lastPhase = 0;
+  filtered.forEach(function(t) {
+    if (t.phase!==lastPhase) {
+      var labels = {1:'Phase 1: Critical',2:'Phase 2: Significant',3:'Phase 3: Skeleton',4:'Phase 4: Polish'};
+      var divider = document.createElement('div'); divider.className='phase-divider';
+      var badge = document.createElement('span'); badge.className='phase-badge phase-'+t.phase;
+      badge.textContent = labels[t.phase]; divider.appendChild(badge); list.appendChild(divider);
+      lastPhase = t.phase;
+    }
+    var done = doneSet.has(t.id);
+    var meta = MODULE_META[t.module] || {icon:'📦',accent:'#666'};
+    var tagClass = {infra:'tag-infra',wire:'tag-wire',rebuild:'tag-rebuild',detail:'tag-detail'}[t.type]||'tag-wire';
+    var task = document.createElement('div');
+    task.className = 'task'+(done?' done':'');
+    task.id = 'task-'+t.id;
+    var check = document.createElement('div');
+    check.className = 'task-check'+(done?' checked':'');
+    check.textContent = done?'✓':'';
+    check.onclick = function(e){e.stopPropagation();toggleDone(t.id)};
+    task.appendChild(check);
+    var body = document.createElement('div'); body.className='task-body';
+    body.onclick = function(){task.classList.toggle('expanded')};
+    var header = document.createElement('div'); header.className='task-header';
+    var idEl = document.createElement('span'); idEl.className='task-id'; idEl.textContent=t.id;
+    var tag = document.createElement('span'); tag.className='task-tag '+tagClass; tag.textContent=t.type;
+    var title = document.createElement('span'); title.className='task-title'; title.textContent=t.title;
+    header.appendChild(idEl); header.appendChild(tag); header.appendChild(title);
+    body.appendChild(header);
+    var metaEl = document.createElement('div'); metaEl.className='task-meta';
+    var m1 = document.createElement('span'); m1.textContent=meta.icon+' '+t.module;
+    var m2 = document.createElement('span'); m2.textContent='Phase '+t.phase;
+    var m3 = document.createElement('span'); m3.textContent=t.filesToEdit.length+' file(s)';
+    metaEl.appendChild(m1); metaEl.appendChild(m2); metaEl.appendChild(m3);
+    if (t.dependsOn.length) { var m4=document.createElement('span'); m4.textContent='Depends: '+t.dependsOn.join(', '); metaEl.appendChild(m4); }
+    body.appendChild(metaEl);
+    var prompt = document.createElement('div'); prompt.className='task-prompt';
+    prompt.textContent = t.prompt+'\n\nFiles to edit: '+t.filesToEdit.join(', ')+'\nReference: '+(t.referenceLogic.join(', ')||'none');
+    var copyBtn = document.createElement('button'); copyBtn.className='copy-btn'; copyBtn.textContent='Copy Prompt';
+    copyBtn.onclick = function(e){e.stopPropagation();navigator.clipboard.writeText(t.prompt);showToast('Prompt copied!')};
+    prompt.appendChild(copyBtn);
+    body.appendChild(prompt);
+    var files = document.createElement('div'); files.className='task-files';
+    t.filesToEdit.forEach(function(f){ var c=document.createElement('code'); c.textContent=f; files.appendChild(c); files.appendChild(document.createTextNode(' ')); });
+    body.appendChild(files);
+    task.appendChild(body);
+    list.appendChild(task);
+  });
+}
+
+function updateStats() {
+  var total=TASKS.length, done=TASKS.filter(function(t){return doneSet.has(t.id)}).length;
+  var modules=new Set(TASKS.map(function(t){return t.module})).size;
+  var orphans=TASKS.filter(function(t){return t.type==='wire'||t.type==='detail'}).length;
+  document.getElementById('total-count').textContent=total;
+  document.getElementById('done-count').textContent=done;
+  document.getElementById('module-count').textContent=modules;
+  document.getElementById('orphan-count').textContent=orphans;
+  var pct=Math.round((done/total)*100);
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('progress-text').textContent=done+' of '+total+' tasks ('+pct+'%)';
+}
+
+function toggleDone(id) {
+  if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id);
+  saveDone(); updateStats(); renderTasks(); renderModuleGrid();
+  showToast(doneSet.has(id)?id+' marked done':id+' unmarked');
+}
+
+function filterByModule(mod) {
+  currentFilter.module = currentFilter.module===mod?'all':mod;
+  document.getElementById('module-filter').value=currentFilter.module;
+  renderTasks(); renderModuleGrid();
+}
+
+function showToast(msg) {
+  var toast=document.getElementById('toast');
+  toast.textContent=msg; toast.classList.add('show');
+  setTimeout(function(){toast.classList.remove('show')},2000);
+}
+
+(function init(){
+  var modSelect=document.getElementById('module-filter');
+  getModules().forEach(function(m){
+    var opt=document.createElement('option');
+    opt.value=m; opt.textContent=((MODULE_META[m]||{}).icon||'')+' '+m;
+    modSelect.appendChild(opt);
+  });
+  modSelect.onchange=function(e){currentFilter.module=e.target.value;renderTasks();renderModuleGrid()};
+  document.getElementById('phase-filter').onchange=function(e){currentFilter.phase=e.target.value;renderTasks()};
+  document.getElementById('search').oninput=function(e){currentFilter.search=e.target.value;renderTasks()};
+  document.querySelectorAll('.pill').forEach(function(p){
+    p.onclick=function(){
+      document.querySelectorAll('.pill').forEach(function(pp){pp.classList.remove('active')});
+      p.classList.add('active'); currentFilter.status=p.getAttribute('data-status'); renderTasks();
+    };
+  });
+  updateStats(); renderModuleGrid(); renderTasks();
+})();
+</script>
+</body>
+</html>

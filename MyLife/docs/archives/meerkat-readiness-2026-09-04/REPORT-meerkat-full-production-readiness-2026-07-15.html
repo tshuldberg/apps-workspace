@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Meerkat Full Production Readiness Audit</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+color-scheme: dark;
+--bg: #0e0e13;
+--surface: #1b1b20;
+--surface-high: #2a292f;
+--text: #e4e1e9;
+--muted: #d6c3b5;
+--primary: #ffb877;
+--info: #8bcff0;
+--success: #30d158;
+--danger: #ffb4ab;
+--border: rgba(255,255,255,.10);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+margin: 0;
+background: radial-gradient(circle at top right, rgba(139,207,240,.08), transparent 34rem), var(--bg);
+color: var(--text);
+font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+font-size: 16px;
+line-height: 1.62;
+}
+body > header, body > nav, body > main, body > footer, body > div.section { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+header { padding: 54px 0 20px; }
+header h1 { font-size: clamp(2rem, 5vw, 4rem); line-height: 1.04; margin: 0; letter-spacing: -.045em; }
+body > div.section > h1 { padding-top: 54px; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.045em; }
+nav#TOC {
+margin-top: 22px;
+margin-bottom: 28px;
+padding: 18px 22px;
+border: 1px solid var(--border);
+border-radius: 18px;
+background: rgba(255,255,255,.035);
+backdrop-filter: blur(18px);
+}
+nav#TOC > ul { columns: 2; column-gap: 34px; margin: 0; }
+nav#TOC li { break-inside: avoid; margin: 4px 0; }
+nav#TOC ul { padding-left: 22px; }
+main { padding-bottom: 80px; }
+h1, h2, h3, h4 { color: var(--text); line-height: 1.2; scroll-margin-top: 18px; }
+h2 { margin: 44px 0 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 1.75rem; }
+h3 { margin: 30px 0 12px; color: var(--primary); font-size: 1.24rem; }
+h4 { color: var(--info); }
+p, li { max-width: 92ch; }
+a { color: var(--info); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+strong { color: #fff; }
+code {
+color: #ffd2aa;
+background: rgba(255,184,119,.09);
+border: 1px solid rgba(255,184,119,.18);
+border-radius: 6px;
+padding: .1em .35em;
+}
+pre {
+overflow: auto;
+padding: 18px;
+border: 1px solid var(--border);
+border-radius: 14px;
+background: #131318;
+}
+pre code { padding: 0; background: transparent; border: 0; color: var(--text); }
+table {
+display: block;
+overflow-x: auto;
+width: 100%;
+border-collapse: separate;
+border-spacing: 0;
+margin: 18px 0 26px;
+border: 1px solid var(--border);
+border-radius: 14px;
+background: rgba(255,255,255,.025);
+}
+th, td { min-width: 150px; padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+th { color: var(--primary); background: rgba(255,184,119,.06); font-size: .9rem; letter-spacing: .02em; }
+tr:last-child td { border-bottom: 0; }
+blockquote {
+margin: 20px 0;
+padding: 12px 18px;
+border-left: 3px solid var(--info);
+background: rgba(139,207,240,.06);
+color: var(--muted);
+}
+ul, ol { padding-left: 25px; }
+li { margin: 7px 0; }
+input[type="checkbox"] { width: 1.05rem; height: 1.05rem; margin-right: .45rem; accent-color: var(--success); }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+footer { color: var(--muted); padding-bottom: 40px; }
+@media (max-width: 760px) {
+body > header, body > nav, body > main, body > footer, body > div.section { width: min(100% - 24px, 1120px); }
+header { padding-top: 34px; }
+nav#TOC > ul { columns: 1; }
+th, td { min-width: 190px; }
+}
+@media print {
+:root { color-scheme: light; }
+body { background: #fff; color: #111; }
+nav#TOC { background: #fff; }
+h1, h2, h3, h4, strong { color: #111; }
+a { color: #174d73; }
+table, th, td, nav#TOC { border-color: #ccc; }
+code { color: #7a3e00; background: #fff4e8; }
+}
+</style>
+  <meta name="theme-color" content="#0e0e13">
+  <link href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 64 64&#39;%3E%3Crect width=&#39;64&#39; height=&#39;64&#39; rx=&#39;14&#39; fill=&#39;%23131318&#39;/%3E%3Cpath d=&#39;M15 43V21h8l9 12 9-12h8v22h-8V33l-9 12-9-12v10z&#39; fill=&#39;%23ffb877&#39;/%3E%3C/svg%3E" rel="icon">
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#meerkat-full-production-readiness-audit" id="toc-meerkat-full-production-readiness-audit">Meerkat Full Production
+Readiness Audit</a>
+<ul>
+<li><a href="#executive-verdict" id="toc-executive-verdict">Executive
+verdict</a></li>
+<li><a href="#decision-model" id="toc-decision-model">Decision
+model</a></li>
+<li><a href="#what-changed-from-the-stale-snapshot" id="toc-what-changed-from-the-stale-snapshot">What changed from the
+stale snapshot</a></li>
+<li><a href="#codable-findings-closed-in-this-audit" id="toc-codable-findings-closed-in-this-audit">Codable findings closed
+in this audit</a></li>
+<li><a href="#verification-reproduced-on-the-current-candidate" id="toc-verification-reproduced-on-the-current-candidate">Verification
+reproduced on the current candidate</a></li>
+<li><a href="#what-local-verification-does-not-prove" id="toc-what-local-verification-does-not-prove">What local verification
+does not prove</a></li>
+<li><a href="#remaining-release-blockers-are-non-code-or-live-evidence-tasks" id="toc-remaining-release-blockers-are-non-code-or-live-evidence-tasks">Remaining
+release blockers are non-code or live-evidence tasks</a></li>
+<li><a href="#release-rule" id="toc-release-rule">Release rule</a></li>
+<li><a href="#final-assessment" id="toc-final-assessment">Final
+assessment</a></li>
+</ul></li>
+</ul>
+</nav>
+<section id="meerkat-full-production-readiness-audit" class="level1">
+<h1>Meerkat Full Production Readiness Audit</h1>
+<p>Date: 2026-07-15</p>
+<p>Code candidate: <code>25c38e51</code></p>
+<p>Primary remediation commit: <code>234d7492</code></p>
+<p>Branch: <code>fix/meerkat-plan41-audit-findings</code></p>
+<p>Production release decision: <strong>NO-GO pending live and
+founder-operated evidence</strong></p>
+<p>Code decision: <strong>PASS for every codable blocker identified by
+the prior version of this report</strong></p>
+<section id="executive-verdict" class="level2">
+<h2>Executive verdict</h2>
+<p>The prior version of this report was materially stale. It evaluated
+candidate <code>6b70b994</code> and said Plan 25 was absent, Plan 43 was
+incomplete, Plan 40 residuals remained, and the production topology did
+not compose the managed archive and storage services. Those claims are
+no longer true on the reviewed candidate.</p>
+<p>The complete Plan 41 storage system is integrated. Plan 25 direct
+calls and rooms and the Plan 40 closures are integrated through
+<code>b0aaf0dd</code>. Plan 43 product wiring is integrated through
+<code>da314310</code>. The production topology now composes the OAuth
+broker, signed storage descriptor, archive intake, ClamAV scanning,
+seeding, NCMEC filing, registered DMCA identity, least-privilege
+database roles, and readiness dependencies. The additional audit
+remediation in <code>234d7492</code> closes managed-archive
+authorization, signed-manifest, quota, replay, atomic-router,
+restore-activation, identity-recovery, browser database, and native
+iCloud proof gaps. Browser QA then found and closed a loopback-only
+Storage &amp; Backup crash in <code>25c38e51</code> without weakening
+the production HTTPS boundary.</p>
+<p>Local code and packaging are ready to become a release candidate.
+Public production launch is still a NO-GO because the exact candidate
+has not been pushed through remote CI, deployed by immutable digest,
+exercised against live providers and physical devices, signed for the
+stores, or backed by the required legal, safety, billing, load, soak,
+canary, restore, and rollback evidence.</p>
+</section>
+<section id="decision-model" class="level2">
+<h2>Decision model</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Verdict</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Product and runtime code</td>
+<td>PASS</td>
+<td>All code blockers named in the superseded report are present and
+locally verified.</td>
+</tr>
+<tr>
+<td>Security remediation</td>
+<td>PASS</td>
+<td>The reviewed attack paths have regression coverage and pass.</td>
+</tr>
+<tr>
+<td>Production topology as code</td>
+<td>PASS</td>
+<td>The complete first-party service graph renders and has topology
+tests.</td>
+</tr>
+<tr>
+<td>Local automated verification</td>
+<td>PASS</td>
+<td>6,313 unit/integration tests plus browser launch paths pass.</td>
+</tr>
+<tr>
+<td>Live infrastructure and providers</td>
+<td>OPEN</td>
+<td>Requires real accounts, credentials, deployments, devices, and
+evidence.</td>
+</tr>
+<tr>
+<td>Legal, safety, billing, and stores</td>
+<td>OPEN</td>
+<td>Requires founder, counsel, vendor, and store actions.</td>
+</tr>
+<tr>
+<td>Public launch</td>
+<td>NO-GO</td>
+<td>The open live-evidence layers are mandatory release gates.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="what-changed-from-the-stale-snapshot" class="level2">
+<h2>What changed from the stale snapshot</h2>
+<table>
+<thead>
+<tr>
+<th>Prior claim</th>
+<th>Verified current state</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan 25 calls and rooms were absent</td>
+<td>Direct calls, community rooms, LiveKit, TURN policy, native
+CallKit/PushKit and Android Telecom bridges, call history, and
+mobile/web UX are integrated.</td>
+<td>Merge <code>b0aaf0dd</code>; full mobile, web, sync, and relay
+suites pass.</td>
+</tr>
+<tr>
+<td>Plan 43 was incomplete</td>
+<td>Managed archive status UI, automatic sealed-history lifecycle,
+operator alert lanes, worker composition, and the final proof target are
+integrated.</td>
+<td><code>da314310</code>; <code>pnpm test:meerkat-plan43-proof</code>
+passes 182 tests.</td>
+</tr>
+<tr>
+<td>Plan 40 Share Inbox DM and fake-client residuals remained</td>
+<td>Share Inbox DM routing is present, retired no-op clients are
+removed, and push registration has a by-hash getter.</td>
+<td>Merge <code>b0aaf0dd</code>; mobile/web suites and parity checks
+pass.</td>
+</tr>
+<tr>
+<td>Production Compose was stale</td>
+<td>The topology now includes OAuth KMS/provider secrets, signed
+storage, archive workers, ClamAV, NCMEC, DMCA configuration, health
+gates, and scoped database roles.</td>
+<td><code>compose.production.yml</code>; production-topology tests;
+Compose config rendering passes.</td>
+</tr>
+<tr>
+<td>Restore activation was insufficient</td>
+<td>Mobile and web restore now verify and activate database, blobs, and
+recovered identity with rollback and torn-journal recovery.</td>
+<td><code>234d7492</code>; focused restore tests and full app suites
+pass.</td>
+</tr>
+<tr>
+<td>Router truth could split across writes</td>
+<td>Router verification, backup, and terminal job state now checkpoint
+atomically with startup reconciliation.</td>
+<td><code>234d7492</code>; injected fault and restart tests pass.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="codable-findings-closed-in-this-audit" class="level2">
+<h2>Codable findings closed in this audit</h2>
+<section id="managed-archive-and-entitlement-security" class="level3">
+<h3>Managed archive and entitlement security</h3>
+<ul>
+<li>Hosted entitlements are bound to the authenticated subject. A valid
+token cannot be shared across owners.</li>
+<li>Archive requests bind method, path, timestamp, nonce, and body
+digest. A proof cannot be replayed across methods or mutations.</li>
+<li>Nonces are replay-protected and dynamic archive paths share
+normalized rate-limit buckets.</li>
+<li>Publication approval is resolved authoritatively before intake.
+Caller-supplied status cannot promote an archive.</li>
+<li>The archive protocol signs the ordered object manifest and root.
+Intake validates exact object names, byte lengths, and SHA-256
+object digests.</li>
+<li>Owner authorization covers create, upload, complete, status, cancel,
+takedown, and delete boundaries.</li>
+<li>File and PostgreSQL quota reservations are atomic under
+concurrency.</li>
+<li>Quarantine object keys are hash-qualified, preventing same-name
+cross-publication collisions.</li>
+<li>Account deletion remains available after entitlement lapse through
+retained account-store authority.</li>
+</ul>
+</section>
+<section id="safety-and-operator-plane" class="level3">
+<h3>Safety and operator plane</h3>
+<ul>
+<li>ClamD streaming is bounded and fails closed on protocol errors, size
+violations, and signature changes during a scan.</li>
+<li>NCMEC responses are bounded and remote text is normalized to stable
+safe error codes.</li>
+<li>The NCMEC migration preserves a single authoritative filing row and
+has migration regressions.</li>
+<li>The production topology composes scanner, seeder, and filing workers
+behind readiness gates.</li>
+<li>Operator console access is network restricted and failed
+authentication is rate limited.</li>
+<li>DMCA first-party startup validates registered-agent fields and
+rejects placeholders.</li>
+</ul>
+</section>
+<section id="storage-backup-and-restore" class="level3">
+<h3>Storage, backup, and restore</h3>
+<ul>
+<li>Router checkpoints commit dependent verification, backup, and job
+truth atomically.</li>
+<li>Startup reconciliation repairs legacy split state without inventing
+success.</li>
+<li>Mobile restore uses rotating checksummed journal slots, falls back
+from a torn newest slot, and rolls back SQLite main, WAL, SHM, and
+objects idempotently.</li>
+<li>Web restore verifies every object and commits database and blob
+activation in one IndexedDB transaction.</li>
+<li>Recovered identity is injected deterministically, stored only after
+verification, and restored to the sync identity tables and secure
+store.</li>
+<li>IndexedDB open rejects blocked upgrades, closes on version changes,
+and evicts stale cached handles.</li>
+<li>The iCloud package contains a real Swift native module, podspec, app
+plugin proof, source parsing, and iOS 15.1 type checking.</li>
+<li>Broker reconnect, schedulers, backup inventory, and restore
+activation have direct regression tests.</li>
+</ul>
+</section>
+<section id="browser-qa-closure" class="level3">
+<h3>Browser QA closure</h3>
+<ul>
+<li>The launch harness now supplies an explicit loopback hosted API
+origin so positive and forged-cache entitlement tests exercise the real
+fetch boundary.</li>
+<li>Storage credential brokers permit HTTP only for loopback hosts in
+Vite development mode. Production remains HTTPS-only.</li>
+<li>Storage &amp; Backup opens from Settings, renders its honest empty
+state, opens the destination list, and emits no console warning or
+error.</li>
+<li>Share Inbox opens and shows the device-local staging boundary with
+no console warning or error.</li>
+</ul>
+</section>
+</section>
+<section id="verification-reproduced-on-the-current-candidate" class="level2">
+<h2>Verification reproduced on the current candidate</h2>
+<table>
+<thead>
+<tr>
+<th>Verification</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@mylife/sync</code> full suite</td>
+<td>192 files passed; 2,372 tests passed; 3 environment cases skipped.
+Warning-traced rerun is clean.</td>
+</tr>
+<tr>
+<td><code>@mylife/meerkat-relay</code> full suite</td>
+<td>195 files passed; 1,508 tests passed; 184 live-environment cases
+skipped.</td>
+</tr>
+<tr>
+<td><code>@mylife/meerkat-app</code> full suite</td>
+<td>137 files and 1,375 tests passed.</td>
+</tr>
+<tr>
+<td><code>@mylife/meerkat-web</code> full suite</td>
+<td>131 files and 970 tests passed.</td>
+</tr>
+<tr>
+<td><code>@mylife/meerkat-icloud-storage</code></td>
+<td>3 files and 11 tests passed; lint and typecheck pass.</td>
+</tr>
+<tr>
+<td><code>@mylife/entitlements</code></td>
+<td>7 files and 77 tests passed; 97.92% statement coverage.</td>
+</tr>
+<tr>
+<td>Combined package suites</td>
+<td>665 files and 6,313 tests passed.</td>
+</tr>
+<tr>
+<td>Browser launch paths</td>
+<td>6 passed; the real-relay case skipped honestly because no live relay
+URL was provided.</td>
+</tr>
+<tr>
+<td>Plan 43 proof target</td>
+<td>182 tests passed across relay and sync.</td>
+</tr>
+<tr>
+<td>Function-quality gates</td>
+<td>Passed for the full remediation and the browser QA follow-up,
+including consumer typechecks.</td>
+</tr>
+<tr>
+<td>Mobile production export</td>
+<td>iOS and Android exports passed.</td>
+</tr>
+<tr>
+<td>Web production build</td>
+<td>Passed, 509 modules transformed.</td>
+</tr>
+<tr>
+<td>Sync package build</td>
+<td>Passed.</td>
+</tr>
+<tr>
+<td>Production Compose rendering</td>
+<td>Passed with all required variables represented.</td>
+</tr>
+<tr>
+<td>Meerkat transport negative controls</td>
+<td>Passed.</td>
+</tr>
+<tr>
+<td>Meerkat parity and full workspace parity</td>
+<td>Passed.</td>
+</tr>
+<tr>
+<td>Generated-artifact guard</td>
+<td>Passed.</td>
+</tr>
+<tr>
+<td><code>git diff --check</code></td>
+<td>Passed before both code commits.</td>
+</tr>
+</tbody>
+</table>
+<p>The web build still reports advisory chunk-size notices for the
+application, sync, and LiveKit bundles and the standard sql.js browser
+externalization notices. The build completes and browser launch paths
+pass. These notices are performance-optimization inputs, not evidence of
+a functional release failure. Production performance must still be
+measured under the load and browser budgets in the activation
+runbook.</p>
+</section>
+<section id="what-local-verification-does-not-prove" class="level2">
+<h2>What local verification does not prove</h2>
+<p>The following skipped or unavailable cases are deliberately not
+relabeled as passing:</p>
+<ul>
+<li>PostgreSQL and S3 integration suites that require live isolated
+services.</li>
+<li>A production relay handshake in the browser launch suite.</li>
+<li>Real OAuth provider authorization and revocation.</li>
+<li>Signed iOS and Android builds on physical hardware.</li>
+<li>APNs, FCM, VAPID, LiveKit, TURN, nearby radios, background wake, and
+terminated-state behavior.</li>
+<li>Live ClamAV definition updates, licensed abuse-hash data, and NCMEC
+provider acceptance.</li>
+<li>Production migrations, backup, PITR, failover, restore, load, soak,
+canary, and rollback.</li>
+<li>Store review, export compliance, privacy declarations, legal
+publication, and operational staffing.</li>
+</ul>
+</section>
+<section id="remaining-release-blockers-are-non-code-or-live-evidence-tasks" class="level2">
+<h2>Remaining release blockers are non-code or live-evidence tasks</h2>
+<section id="exact-release-and-remote-ci" class="level3">
+<h3>Exact release and remote CI</h3>
+<ul>
+<li>The candidate exists only on the local branch. It has not been
+pushed, reviewed, merged through the protected release path, or tied to
+remote CI evidence.</li>
+<li>No immutable app build ids, container digests, signed release
+manifest, SBOM, provenance, vulnerability verdict, canary record, or
+rollback record is attached.</li>
+</ul>
+</section>
+<section id="production-infrastructure" class="level3">
+<h3>Production infrastructure</h3>
+<ul>
+<li>No live PostgreSQL 17, S3-compatible object storage, KMS, DNS, TLS,
+monitoring, alerting, backup, PITR, regional recovery, or restricted
+operator network evidence is attached.</li>
+<li>Migrations and least-privilege roles have not been exercised against
+the production database.</li>
+</ul>
+</section>
+<section id="providers-and-hardware" class="level3">
+<h3>Providers and hardware</h3>
+<ul>
+<li>Google Drive, Dropbox, OneDrive, Box, WebDAV, S3, iCloud, Files,
+SAF, hosted storage, and connected-server matrices require real accounts
+and devices.</li>
+<li>Calls, rooms, TURN, push, nearby transports, background execution,
+reboot, permission loss, and radio-off cases require physical-device
+proof.</li>
+</ul>
+</section>
+<section id="safety-legal-billing-and-stores" class="level3">
+<h3>Safety, legal, billing, and stores</h3>
+<ul>
+<li>Licensed abuse-hash access, current ClamAV definitions, NCMEC
+onboarding, DMCA registration, moderation staffing, and incident drills
+require real organizations and vendors.</li>
+<li>Terms, Privacy Policy, Community Standards, deletion, support, and
+appeals URLs require approval and publication.</li>
+<li>Apple, Google, RevenueCat, Stripe, APNs, FCM, VAPID, OAuth, and
+LiveKit accounts and credentials require owner action.</li>
+<li>Export classification, privacy labels, Data Safety, UGC
+declarations, screenshots, submissions, and store approvals remain
+open.</li>
+</ul>
+</section>
+<section id="operational-proof" class="level3">
+<h3>Operational proof</h3>
+<ul>
+<li>A production-shaped restore, 10x launch-load run, 48-hour soak,
+canary hold, failover drill, secret rotation, queue-backlog drill, and
+rollback rehearsal are not yet evidenced.</li>
+<li>No final evidence ledger or release-owner GO signature exists for an
+immutable candidate.</li>
+</ul>
+</section>
+</section>
+<section id="release-rule" class="level2">
+<h2>Release rule</h2>
+<p>Do not turn public availability on until every item in
+<code>docs/guides/meerkat-production-activation-runbook-2026-07-15.html</code>
+is complete and linked to evidence for one immutable release SHA and
+artifact set.</p>
+<p>Automatic NO-GO conditions include any red remote check, unsigned or
+mutable artifact, missing restore proof, missing provider/device matrix,
+absent safety or legal operation, unproven billing or deletion flow,
+active SLO or safety alert, failed load or soak budget, untested
+rollback target, or claim that exceeds recorded evidence.</p>
+</section>
+<section id="final-assessment" class="level2">
+<h2>Final assessment</h2>
+<p>Meerkat&#39;s reviewed code candidate is locally code-ready. Every
+codable blocker stated in the superseded readiness report is resolved
+and regression-tested. The production launch remains
+<strong>NO-GO</strong> because live deployment, provider, device,
+safety, legal, billing, store, and operational evidence cannot be
+produced by source changes alone.</p>
+</section>
+</section>
+</body>
+</html>

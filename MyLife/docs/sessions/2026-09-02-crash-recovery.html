@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026-09-02 crash recovery</title>
+<style>
+  :root {
+    --bg: #faf7f2; --panel: #fffdfa; --ink: #23201c; --muted: #6b645b;
+    --line: #e5ded3; --accent: #2f7d6b; --warn: #b4531f; --code: #f3efe8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #171614; --panel: #1e1d1a; --ink: #ece7df; --muted: #a09889;
+      --line: #322f2a; --accent: #6fb9a5; --warn: #e08a56; --code: #262421;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    padding: 40px 20px 80px;
+  }
+  main { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 30px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 34px; }
+  h2 {
+    font-size: 20px; margin: 42px 0 14px; padding-top: 18px;
+    border-top: 1px solid var(--line); letter-spacing: -0.01em;
+  }
+  h3 { font-size: 16px; margin: 26px 0 10px; }
+  p, li { color: var(--ink); }
+  li { margin: 5px 0; }
+  code {
+    background: var(--code); padding: 1px 5px; border-radius: 4px;
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  table {
+    width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;
+    display: block; overflow-x: auto;
+  }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px 22px; margin: 20px 0;
+  }
+  .cause { border-left: 3px solid var(--warn); }
+  .ok { border-left: 3px solid var(--accent); }
+  .big { font-size: 15px; }
+  .stat { display: flex; flex-wrap: wrap; gap: 26px; margin: 6px 0 2px; }
+  .stat div { min-width: 120px; }
+  .stat .n { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; }
+  .stat .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .tag {
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    background: var(--code); color: var(--muted); letter-spacing: 0.04em;
+  }
+  strong { font-weight: 650; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>2026-09-02 crash recovery</h1>
+<p class="sub">What the kernel panic cost, and closing the hole that caused it &middot;
+branches <code>fix/meerkat-orphan-watchdog</code>,
+<code>feature/meerkat-plan59-for-everyone</code>,
+<code>feature/meerkat-review-followthrough</code></p>
+
+<h2>What happened</h2>
+<p>The machine kernel-panicked at 18:20:12 with
+<code>watchdog timeout: no checkins from watchdogd in 90 seconds</code>, the signature of
+total memory and swap starvation. Ghostty and Chrome were the visible symptom, not the
+cause: they were the processes competing for the last of the memory.</p>
+
+<div class="panel cause">
+  <div class="stat">
+    <div><div class="n">536</div><div class="l">orphaned bins</div></div>
+    <div><div class="n">~10 GB</div><div class="l">resident</div></div>
+    <div><div class="n">56/57 GB</div><div class="l">swap used</div></div>
+    <div><div class="n">9</div><div class="l">worktrees</div></div>
+    <div><div class="n">24 d</div><div class="l">oldest orphan</div></div>
+  </div>
+  <p class="big" style="margin-bottom:0">402 <code>meerkat-public-directory-node</code>,
+  134 <code>meerkat-verification-service</code>, 2 <code>meerkat-relay-server</code>, all
+  re-parented to init.</p>
+</div>
+
+<p>The relay suite spawns real bins as child processes
+(<code>src/__tests__/service-health-bin.test.ts</code> and siblings). Their
+<code>afterEach</code> reaps those children, but <code>afterEach</code> only runs on a
+<em>normal</em> exit. Every OOM kill, <code>pkill</code>, closed terminal, or agent session
+ending mid-run left the children alive with nothing to send the SIGINT or SIGTERM a bin
+needs in order to stop. The population only ever grew.</p>
+
+<p>The session that died had already diagnosed this and written the reaper. The panic beat
+it: the reaper never ran, and the reboot cleared the processes instead.</p>
+
+<h2>What was actually lost</h2>
+<p><strong>Nothing in git.</strong> Every commit on every branch survived, and every
+uncommitted edit was still on disk. The real loss was about fifteen minutes of in-flight
+work plus the fix that would have prevented the crash.</p>
+
+<table>
+<thead><tr><th>Item</th><th>State found</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td>The orphan watchdog (the actual fix)</td><td>never written</td><td>rebuilt, <code>05d6d2bf</code></td></tr>
+<tr><td>Reaper <code>--kill</code> run</td><td>never executed</td><td>reboot did it; script committed <code>518bab5a</code></td></tr>
+<tr><td>Review Set 5 web hardening</td><td>25 files uncommitted, web suite green</td><td>verified + committed <code>8fa61644</code></td></tr>
+<tr><td>Mobile gate on Set 5</td><td>interrupted mid-run, likely the run that tipped the machine</td><td>completed, 2015 passed</td></tr>
+<tr><td>Plan 59 S7 copy sweep</td><td>half done: window selectable, copy still said 48 hours</td><td>finished, <code>d8ab14b6</code></td></tr>
+<tr><td>Plan 59 S5 log paragraph + error row</td><td>uncommitted</td><td>recovered as written, <code>61dc725d</code></td></tr>
+<tr><td><code>errors_log.md</code> incident row</td><td>missing</td><td>added</td></tr>
+</tbody>
+</table>
+
+<p>Sessions in MMO, FlashCards, TrainWithRyan, and the Apps-root job kit had all reached
+clean stopping points hours earlier; their dirty files date to August and are unrelated.</p>
+
+<h2>The fix</h2>
+<p><code>packages/meerkat-relay/src/orphan-watchdog.ts</code>. A bin records its
+<code>ppid</code> at startup and polls. A <strong>changed</strong> ppid is the orphaning event
+itself (POSIX re-parents an orphan to init), so the bin raises SIGTERM on its own process and
+its existing <code>shutdown()</code> path runs: clean server close, store flush, exit 0. A hard
+exit backstops a shutdown that hangs.</p>
+
+<div class="panel ok">
+<h3 style="margin-top:0">Why it cannot kill a production service</h3>
+<p>It arms only when the initial ppid is greater than 1, so every production shape is either
+unarmed or correct to stop:</p>
+<ul>
+<li>container with the service as PID 1 (Fly, plain Docker): ppid 0, <strong>never arms</strong></li>
+<li>systemd unit, or a container under an init shim: ppid 1, <strong>never arms</strong></li>
+<li>Compose or a supervisor: arms, and there a dead supervisor means the service genuinely
+    <em>is</em> orphaned</li>
+</ul>
+<p style="margin-bottom:0"><code>MEERKAT_DISABLE_ORPHAN_WATCHDOG=1</code> opts out entirely.</p>
+</div>
+
+<p>Wired into all 15 long-running bins. The 9 one-shot CLIs exit on their own and are
+deliberately left alone. A wiring lock enforces the rule by <em>shape</em> ("every bin with a
+SIGTERM handler installs the watchdog"), so a service bin written later is covered the day it
+exists rather than depending on a remembered file count.</p>
+
+<h2>Two real defects found while doing this</h2>
+
+<h3>1. The naive wiring broke the production container image</h3>
+<p><code>bin/meerkat-relay-server.mjs</code> is the only bin that runs under plain
+<code>node</code> against compiled CommonJS; the image build rewrites exactly <strong>one</strong>
+import line with <code>sed</code>. A second local import survived unrewritten, so the relay
+booted, failed to resolve a <code>.ts</code> path, and died before its first log line. Three
+tests went red and caught it. The watchdog now rides the same single import (re-exported from
+<code>server.ts</code>, deliberately <em>not</em> the <code>index.ts</code> barrel, which would drag
+<code>@mylife/sync</code> into the slim image), and a new lock asserts the bin, the Dockerfile
+sed, and the smoke harness all agree on that string.</p>
+
+<h3>2. The reaper was looser than its own documented safety contract</h3>
+<p>Its header claimed it only matches a bin "from a checkout of this repo", but the matcher
+accepted a bare <code>bin/meerkat-*.mjs</code> anywhere on the filesystem, so an installed or
+containerised service was a candidate. It now requires the full
+<code>packages/meerkat-relay/bin/</code> workspace path. <code>--json --kill</code> also emitted a
+JSON document followed by a prose line, which no parser can read.</p>
+
+<p>A third, smaller one: the first version of my own end-to-end test leaked two 72 MB
+<code>tsx</code> wrapper processes per run, which is precisely the bug class under test. Cleanup
+now reaps by process group.</p>
+
+<h2>Verification</h2>
+<p>Everything below was run, not inferred.</p>
+<ul>
+<li>The real <code>meerkat-public-directory-node</code> bin, booted under an intermediate parent,
+    <strong>self-reaps about 400 ms</strong> after that parent is SIGKILLed.</li>
+<li>Full relay suite <strong>1653 passed / 189 skipped</strong>, and <strong>leaves zero
+    orphans</strong>.</li>
+<li>The reaper, against a genuine orphan created by double-fork: seen by the dry run, reaped by
+    <code>--kill</code> via SIGTERM.</li>
+<li>Set 5 claims checked independently rather than taken from its report: deleting
+    <code>public/_headers</code> really does fail parity closed
+    (<code>FAIL apps/meerkat-web/public/_headers is missing</code>), and a live dev server really
+    does return all four anti-framing headers.</li>
+<li>Mobile 2081 / 2015 (plan59 / review worktrees), web 1418 / 1341, all typechecks,
+    <code>check-meerkat-parity</code>, and <code>gate:function:changed</code> green.</li>
+</ul>
+
+<h2>The honesty bug in plan 59 S7</h2>
+<p>Worth calling out separately because it was user-facing. <code>cd0ec581</code> made an
+invite's validity window selectable and wired the picker into both surfaces' <em>display</em>
+copy correctly. What it never reached was <code>buildCommunityInviteEnvelope</code>, the message
+a founder actually texts to someone, which still hardcoded "The invite expires in 48 hours."</p>
+<p>So choosing 90 days produced a genuinely signed 90-day link wrapped in a message promising
+48 hours: <strong>the link outlives its own instructions.</strong> Fixed, with a test asserting
+exactly one window is ever named per message, so a future option cannot be added and quietly
+left unstated.</p>
+
+<h2>Open items</h2>
+<ul>
+<li><strong>S6 (glossary and copy pass) never ran.</strong> No agent, no commits; S7 was
+    dispatched ahead of it. <strong>S8</strong> (stranger test, battery, docs) is untouched. Plan
+    59 has two sections outstanding, not one.</li>
+<li><strong>The watchdog is on <code>main</code>'s line only.</strong> The plan59 and
+    review-followthrough branches predate it and carry their own divergent R4 guard
+    implementation, so relay tests run in those worktrees still orphan until they merge
+    <code>main</code>. Mobile and web suites there are safe (they spawn no bins); this was checked
+    after every run in this session.</li>
+<li><span class="tag">FOUNDER ACTION</span> <strong>from Set 5:</strong> if Meerkat web is deployed
+    to a host that reads neither <code>public/_headers</code> nor the Vite config, the anti-framing
+    headers must be set there. Exact per-host config and the <code>curl -sI</code> check are in
+    <code>apps/meerkat-web/README.md</code> under "Serving the built app".</li>
+<li>Three unused-import warnings in <code>MeerkatProvider.tsx</code> are pre-existing at HEAD and
+    left for the Set 11 hygiene pass.</li>
+<li>Untracked strays still in the main checkout: <code>apps/meerkat/.claude/</code> and
+    <code>apps/meerkat/errors_log.md</code>, both of which Set 11 says to delete.</li>
+</ul>
+
+<h2>Commits</h2>
+<table>
+<thead><tr><th>SHA</th><th>Branch</th><th>What</th></tr></thead>
+<tbody>
+<tr><td><code>05d6d2bf</code></td><td><code>fix/meerkat-orphan-watchdog</code></td><td>the watchdog, wired into 15 bins</td></tr>
+<tr><td><code>518bab5a</code></td><td><code>fix/meerkat-orphan-watchdog</code></td><td>reaper hardened + tested, errors_log rows</td></tr>
+<tr><td><code>d8ab14b6</code></td><td><code>feature/meerkat-plan59-for-everyone</code></td><td>S7 invite-window copy sweep</td></tr>
+<tr><td><code>61dc725d</code></td><td><code>feature/meerkat-plan59-for-everyone</code></td><td>recovered S5 log paragraph + error row</td></tr>
+<tr><td><code>8fa61644</code></td><td><code>feature/meerkat-review-followthrough</code></td><td>review Set 5 web hardening</td></tr>
+</tbody>
+</table>
+
+</main>
+</body>
+</html>

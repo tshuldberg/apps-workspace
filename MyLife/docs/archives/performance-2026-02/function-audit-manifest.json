@@ -1,0 +1,272 @@
+{
+  "generatedAt": "2026-03-01T07:17:33.027Z",
+  "files": {
+    "json": "docs/performance/function-inventory.json",
+    "csv": "docs/performance/function-inventory.csv",
+    "inventory": "docs/performance/function-inventory.md",
+    "worst": "docs/performance/worst-performing-functions.md",
+    "remediationPlan": "docs/performance/performance-remediation-plan.md"
+  },
+  "summary": {
+    "generatedAt": "2026-03-01T07:17:33.030Z",
+    "analyzedFileCount": 1658,
+    "totalFunctions": 12968,
+    "totalUiBindings": 1627,
+    "applications": [
+      {
+        "appKey": "apps/mobile",
+        "appDisplay": "MyLife Hub Mobile",
+        "functionCount": 1463
+      },
+      {
+        "appKey": "apps/web",
+        "appDisplay": "MyLife Hub Web",
+        "functionCount": 1164
+      },
+      {
+        "appKey": "modules/books",
+        "appDisplay": "Hub Module books",
+        "functionCount": 241
+      },
+      {
+        "appKey": "modules/budget",
+        "appDisplay": "Hub Module budget",
+        "functionCount": 336
+      },
+      {
+        "appKey": "modules/car",
+        "appDisplay": "Hub Module car",
+        "functionCount": 39
+      },
+      {
+        "appKey": "modules/fast",
+        "appDisplay": "Hub Module fast",
+        "functionCount": 70
+      },
+      {
+        "appKey": "modules/habits",
+        "appDisplay": "Hub Module habits",
+        "functionCount": 39
+      },
+      {
+        "appKey": "modules/homes",
+        "appDisplay": "Hub Module homes",
+        "functionCount": 12
+      },
+      {
+        "appKey": "modules/meds",
+        "appDisplay": "Hub Module meds",
+        "functionCount": 41
+      },
+      {
+        "appKey": "modules/recipes",
+        "appDisplay": "Hub Module recipes",
+        "functionCount": 43
+      },
+      {
+        "appKey": "modules/rsvp",
+        "appDisplay": "Hub Module rsvp",
+        "functionCount": 65
+      },
+      {
+        "appKey": "modules/surf",
+        "appDisplay": "Hub Module surf",
+        "functionCount": 14
+      },
+      {
+        "appKey": "modules/words",
+        "appDisplay": "Hub Module words",
+        "functionCount": 123
+      },
+      {
+        "appKey": "modules/workouts",
+        "appDisplay": "Hub Module workouts",
+        "functionCount": 48
+      },
+      {
+        "appKey": "MyBooks",
+        "appDisplay": "MyBooks",
+        "functionCount": 915
+      },
+      {
+        "appKey": "MyBudget",
+        "appDisplay": "MyBudget",
+        "functionCount": 2307
+      },
+      {
+        "appKey": "MyCar",
+        "appDisplay": "MyCar",
+        "functionCount": 1000
+      },
+      {
+        "appKey": "MyCloset",
+        "appDisplay": "MyCloset",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyCycle",
+        "appDisplay": "MyCycle",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyFast",
+        "appDisplay": "MyFast",
+        "functionCount": 402
+      },
+      {
+        "appKey": "MyFlash",
+        "appDisplay": "MyFlash",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyGarden",
+        "appDisplay": "MyGarden",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyHabits",
+        "appDisplay": "MyHabits",
+        "functionCount": 79
+      },
+      {
+        "appKey": "MyHomes",
+        "appDisplay": "MyHomes",
+        "functionCount": 285
+      },
+      {
+        "appKey": "MyJournal",
+        "appDisplay": "MyJournal",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyMeds",
+        "appDisplay": "MyMeds",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyMood",
+        "appDisplay": "MyMood",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyNotes",
+        "appDisplay": "MyNotes",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyPets",
+        "appDisplay": "MyPets",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyRecipes",
+        "appDisplay": "MyRecipes",
+        "functionCount": 1059
+      },
+      {
+        "appKey": "MyRSVP",
+        "appDisplay": "MyRSVP",
+        "functionCount": 161
+      },
+      {
+        "appKey": "MyStars",
+        "appDisplay": "MyStars",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MySubs",
+        "appDisplay": "MySubs",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MySurf",
+        "appDisplay": "MySurf",
+        "functionCount": 1075
+      },
+      {
+        "appKey": "MyTrails",
+        "appDisplay": "MyTrails",
+        "functionCount": 0
+      },
+      {
+        "appKey": "MyVoice",
+        "appDisplay": "MyVoice",
+        "functionCount": 321
+      },
+      {
+        "appKey": "MyWords",
+        "appDisplay": "MyWords",
+        "functionCount": 192
+      },
+      {
+        "appKey": "MyWorkouts",
+        "appDisplay": "MyWorkouts",
+        "functionCount": 1190
+      },
+      {
+        "appKey": "packages/auth",
+        "appDisplay": "Shared Package auth",
+        "functionCount": 0
+      },
+      {
+        "appKey": "packages/billing-config",
+        "appDisplay": "Shared Package billing-config",
+        "functionCount": 0
+      },
+      {
+        "appKey": "packages/db",
+        "appDisplay": "Shared Package db",
+        "functionCount": 154
+      },
+      {
+        "appKey": "packages/entitlements",
+        "appDisplay": "Shared Package entitlements",
+        "functionCount": 32
+      },
+      {
+        "appKey": "packages/eslint-config",
+        "appDisplay": "Shared Package eslint-config",
+        "functionCount": 0
+      },
+      {
+        "appKey": "packages/migration",
+        "appDisplay": "Shared Package migration",
+        "functionCount": 2
+      },
+      {
+        "appKey": "packages/module-registry",
+        "appDisplay": "Shared Package module-registry",
+        "functionCount": 80
+      },
+      {
+        "appKey": "packages/subscription",
+        "appDisplay": "Shared Package subscription",
+        "functionCount": 0
+      },
+      {
+        "appKey": "packages/typescript-config",
+        "appDisplay": "Shared Package typescript-config",
+        "functionCount": 0
+      },
+      {
+        "appKey": "packages/ui",
+        "appDisplay": "Shared Package ui",
+        "functionCount": 16
+      }
+    ],
+    "riskDistribution": {
+      "critical": 133,
+      "high": 145,
+      "low": 12323,
+      "medium": 367
+    },
+    "timeComplexityDistribution": {
+      "O(1) (estimated)": 11432,
+      "O(2^n) (estimated)": 2,
+      "O(n) (estimated)": 1347,
+      "O(n^2 log n) (estimated)": 113,
+      "O(n^2) (estimated)": 68,
+      "O(n^3) (estimated)": 6
+    }
+  }
+}

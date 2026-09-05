@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat Release Evidence: meerkat-2026-07-17-rc1</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#131318; color:#E4E1E9; font:16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin:0; padding:2.5rem 1.5rem; }
+  main { max-width: 880px; margin: 0 auto; }
+  h1 { font-size:1.6rem; color:#FFB877; margin:0 0 .25rem; }
+  h2 { font-size:1.15rem; color:#FFB877; margin:2rem 0 .5rem; }
+  .sub { color:#D6C3B5; margin-bottom:1.5rem; }
+  .card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:1rem 1.25rem; margin:.75rem 0; }
+  code { background:#2A292F; border-radius:4px; padding:.1rem .35rem; font-size:.9em; }
+  table { border-collapse:collapse; width:100%; font-size:.95rem; }
+  th, td { text-align:left; padding:.45rem .6rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+  th { color:#D6C3B5; font-weight:600; }
+  .nogo { color:#FFB4AB; font-weight:700; }
+  .open { color:#9F8E81; }
+  .prog { color:#8BCFF0; }
+  ul { margin:.4rem 0 .4rem 1.2rem; padding:0; }
+  li { margin:.25rem 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Meerkat Release Evidence Ledger</h1>
+  <div class="sub">Release <code>meerkat-2026-07-17-rc1</code> · created 2026-07-17 · launch state <span class="nogo">NO-GO</span></div>
+
+  <div class="card">
+    <strong>Immutable release SHA</strong><br>
+    <code>10aaaf142c7451bf67dd561ca91192a7adaf8a2c</code> on <code>main</code>, pushed to origin.<br>
+    Lineage: code-ready candidate <code>25c38e51</code> → audited branch tip <code>118346ae</code> (<code>fix/meerkat-plan41-audit-findings</code>, pushed non-force 2026-07-17) → integration merges <code>d73e9828</code>/<code>10dd78d9</code>/<code>8f6b8017</code>/<code>739eef31</code> → review fixes <code>eaac9de8</code> → close-out <code>10aaaf14</code>.
+  </div>
+
+  <h2>Step 1: select the immutable release candidate — <span class="prog">IN_PROGRESS</span></h2>
+  <div class="card">
+    <strong>Done</strong>
+    <ul>
+      <li>Working tree clean; release SHA recorded from <code>git rev-parse HEAD</code>.</li>
+      <li><code>fix/meerkat-plan41-audit-findings</code> pushed to origin without force.</li>
+      <li>Release id created and this ledger bound to the SHA.</li>
+      <li>Reviewed: Fable-led conflict resolution + independent opus review of the integration surface; local gates green on the release SHA (133/133 typecheck, 133/133 tests, parity, artifacts).</li>
+    </ul>
+    <strong>Open before PASS</strong>
+    <ul>
+      <li>No protected release branch or PR workflow exists; configure branch protection or record a founder-signed exception.</li>
+      <li>No remote CI runs to link; add CI or record a founder-signed exception.</li>
+    </ul>
+  </div>
+
+  <h2>Remaining steps</h2>
+  <div class="card">
+    <table>
+      <tr><th>Step</th><th>Title</th><th>Status</th></tr>
+      <tr><td>2</td><td>Assign accountable owners and freeze launch changes</td><td class="open">OPEN</td></tr>
+      <tr><td>3</td><td>Approve and publish legal and safety policy</td><td class="open">OPEN</td></tr>
+      <tr><td>4</td><td>Create production accounts and secure access</td><td class="open">OPEN</td></tr>
+      <tr><td>5</td><td>Provision the production data and network plane</td><td class="open">OPEN</td></tr>
+      <tr><td>6</td><td>Register external providers and load secrets</td><td class="open">OPEN</td></tr>
+      <tr><td>7</td><td>Deploy the complete topology by immutable digest</td><td class="open">OPEN</td></tr>
+      <tr><td>8</td><td>Run migrations and prove least privilege</td><td class="open">OPEN</td></tr>
+      <tr><td>9</td><td>Activate malware, abuse, NCMEC, DMCA, and moderation operations</td><td class="open">OPEN</td></tr>
+      <tr><td>10</td><td>Prove billing, entitlement, refund, and deletion behavior</td><td class="open">OPEN</td></tr>
+      <tr><td>11</td><td>Execute the complete Plan 41 provider matrix</td><td class="open">OPEN</td></tr>
+      <tr><td>12</td><td>Execute calls, rooms, push, mesh, and background device matrices</td><td class="open">OPEN</td></tr>
+      <tr><td>13</td><td>Prove backup, PITR, restore, failover, and regional recovery</td><td class="open">OPEN</td></tr>
+      <tr><td>14</td><td>Verify supply chain and signed artifacts</td><td class="open">OPEN</td></tr>
+      <tr><td>15</td><td>Run production-shaped browser, load, soak, canary, and rollback</td><td class="open">OPEN</td></tr>
+      <tr><td>16</td><td>Complete store compliance and submit exact builds</td><td class="open">OPEN</td></tr>
+      <tr><td>17</td><td>Assemble the immutable evidence ledger and rerun the final audit</td><td class="open">OPEN</td></tr>
+      <tr><td>18</td><td>Sign GO and activate public availability</td><td class="open">OPEN</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    Source of truth: <code>docs/releases/meerkat/meerkat-2026-07-17-rc1/evidence.json</code> ·
+    Runbook: <code>docs/guides/meerkat-production-activation-runbook-2026-07-15.md</code><br>
+    Never store secrets, tokens, private user content, or abuse material in this ledger.
+  </div>
+</main>
+</body>
+</html>

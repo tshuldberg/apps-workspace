@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLife Commit and Push Safety Report - 2026-07-12</title>
+<style>
+  :root {
+    --bg: #131318; --surface: #1B1B20; --surface2: #1F1F25; --elevated: #2A292F;
+    --text: #E4E1E9; --text2: #D6C3B5; --border: rgba(255,255,255,0.06);
+    --primary: #FFB877; --primary2: #C9894D; --info: #8BCFF0;
+    --glass: rgba(255,255,255,0.03); --glassBorder: rgba(255,255,255,0.10);
+    --danger: #FFB4AB; --success: #30D158; --warn: #FFD60A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; padding: 40px 20px; }
+  .container { max-width: 960px; margin: 0 auto; }
+  header { border-bottom: 1px solid var(--glassBorder); padding-bottom: 24px; margin-bottom: 32px; }
+  h1 { font-size: 28px; color: var(--primary); font-weight: 700; }
+  .meta { color: var(--text2); font-size: 14px; margin-top: 8px; }
+  .verdict { background: linear-gradient(135deg, rgba(48,209,88,0.12), rgba(48,209,88,0.04)); border: 1px solid rgba(48,209,88,0.35); border-radius: 12px; padding: 20px 24px; margin: 24px 0; }
+  .verdict h2 { color: var(--success); font-size: 18px; margin-bottom: 8px; }
+  h2 { font-size: 20px; color: var(--primary); margin: 36px 0 14px; }
+  h3 { font-size: 16px; color: var(--info); margin: 22px 0 10px; }
+  p { margin-bottom: 12px; color: var(--text); }
+  .card { background: var(--glass); border: 1px solid var(--glassBorder); border-radius: 12px; padding: 18px 22px; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: 14px; }
+  .table-wrap { overflow-x: auto; }
+  th { text-align: left; color: var(--primary2); font-weight: 600; padding: 10px 12px; border-bottom: 2px solid var(--glassBorder); white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: var(--glass); }
+  code { background: var(--elevated); border-radius: 5px; padding: 2px 7px; font-family: "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--info); }
+  .pill { display: inline-block; border-radius: 999px; padding: 2px 11px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .ok { background: rgba(48,209,88,0.15); color: var(--success); border: 1px solid rgba(48,209,88,0.4); }
+  .flag { background: rgba(255,214,10,0.12); color: var(--warn); border: 1px solid rgba(255,214,10,0.35); }
+  ul { margin: 0 0 14px 22px; }
+  li { margin-bottom: 8px; }
+  .stat-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 20px 0; }
+  .stat { flex: 1 1 140px; background: var(--surface2); border: 1px solid var(--glassBorder); border-radius: 12px; padding: 16px; text-align: center; }
+  .stat .n { font-size: 30px; font-weight: 700; color: var(--primary); }
+  .stat .l { font-size: 12.5px; color: var(--text2); margin-top: 4px; }
+  footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--glassBorder); color: var(--text2); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>MyLife Commit and Push Safety Report</h1>
+  <div class="meta">2026-07-12 &middot; Snapshot at <code>feature/meerkat-plan43</code> &middot; Markdown twin: <code>REPORT-mylife-commit-push-safety-2026-07-12.md</code></div>
+</header>
+
+<div class="verdict">
+  <h2>Verdict: everything is committed and pushed</h2>
+  <p>Zero unique unpushed commits remain across all 28 local branches, all 9 registered worktrees, and both external worktrees. Every commit made in this sweep was test-verified first and passed the repo pre-commit function gate. Two items were deliberately left uncommitted and are flagged below.</p>
+</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="n">10</div><div class="l">branches pushed</div></div>
+  <div class="stat"><div class="n">5</div><div class="l">new commits created</div></div>
+  <div class="stat"><div class="n">~7,300</div><div class="l">lines safeguarded</div></div>
+  <div class="stat"><div class="n">1,023</div><div class="l">tests run, all green</div></div>
+  <div class="stat"><div class="n">0</div><div class="l">unpushed commits left</div></div>
+</div>
+
+<h2>What was at risk before this sweep</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>Surface</th><th>Exposure</th><th>Outcome</th></tr>
+  <tr><td><code>main</code></td><td>5 commits ahead of origin: integration-merge tail, hub state review, React Native 0.81.5 unification, workouts calculator retirement, repo hygiene W8</td><td><span class="pill ok">Pushed</span></td></tr>
+  <tr><td><code>feature/meerkat-plan43</code></td><td>6 commits (Plan 43 packets A-D) with no upstream branch at all</td><td><span class="pill ok">Pushed, upstream set</span></td></tr>
+  <tr><td>Plan 43 WP-43E, archive intake</td><td>Fully uncommitted in the main repo: 644-line <code>/api/archive/*</code> route module, 708-line test file, community-node mount</td><td><span class="pill ok">Committed 9eab3d8b</span></td></tr>
+  <tr><td>Plan 43 WP-43G, history-host announce</td><td>Fully uncommitted in the wp43g worktree: 815 lines including two test suites</td><td><span class="pill ok">Committed 3af4ba99</span></td></tr>
+  <tr><td>Yearn plan 47 worktree</td><td>Uncommitted boost-integrity migration hardening plus a 1,249-line moderation migration</td><td><span class="pill ok">Committed d86e223c + 8879c795</span></td></tr>
+  <tr><td>MyNews plan 48 worktree</td><td>~4,050 uncommitted insertions across 85 files: DMCA workflow, RevenueCat subscriptions, support rails, payments webhook, release manifest</td><td><span class="pill ok">Committed c792cb38</span></td></tr>
+  <tr><td>8 more branches</td><td>Unique commits existing on no remote: dowork app-state report, mynews plan-48 history, two yearn branches, two fix branches, hygiene branch, wp43g</td><td><span class="pill ok">All pushed</span></td></tr>
+  <tr><td>Report artifacts</td><td>Meerkat state-of-the-app and DoWork app-state reports untracked in the working tree</td><td><span class="pill ok">Committed on plan43</span></td></tr>
+</table>
+</div>
+
+<h2>Verification performed before each commit</h2>
+<div class="card">
+<ul>
+  <li><strong>WP-43E:</strong> meerkat-relay <code>tsc --noEmit</code> clean; archive-intake-http 26/26; archive-lifecycle-store-conformance 18/18. Six auto-logged errors_log failures against these files were mid-development snapshots; re-verified fixed and upgraded to Resolved.</li>
+  <li><strong>WP-43G:</strong> worktree typecheck clean; announce and announce-e2e suites 15/15.</li>
+  <li><strong>Yearn:</strong> migration reviewed line by line. It is the security-review ordering fix: tombstone the client RPC, expire pre-cutover boosts, deduplicate legacy rows before building the unique index.</li>
+  <li><strong>MyNews:</strong> all four suites run in the worktree: 675 module, 191 mobile, 67 web, 31 console tests, all green. Release manifest checked for secrets: placeholders only.</li>
+  <li><strong>Gates:</strong> every commit passed the pre-commit function gate (lint, typecheck, tests, web barrel check).</li>
+</ul>
+</div>
+
+<h2>The recent work wave, now safe on origin</h2>
+<h3>Meerkat</h3>
+<div class="card"><ul>
+  <li><strong>Plan 43 (in flight):</strong> packets A-D landed on the branch: scanner durability fixes (NCMEC crash-window, scanning reclaim, scan-memory cap), pin reconcile, takedown, announce, seeder quota, NCMEC filing, DMCA config, operator alerts, and automatic verify-then-commit history sync. This sweep added WP-43E archive intake and WP-43G history-host announce.</li>
+  <li><strong>Plan 44:</strong> codeable scope complete and merged: PostgreSQL adapter, file-to-PostgreSQL state import with cutover and rollback proofs, observability, signed image pipeline, load and soak harness.</li>
+  <li><strong>Plan 42:</strong> native transports and push complete through <code>635f4949</code>; hardware and credential evidence remains founder-operated.</li>
+  <li>Production verdict unchanged: Blackglass NO-GO stands pending founder-operated evidence.</li>
+</ul></div>
+<h3>Everything else</h3>
+<div class="card"><ul>
+  <li><strong>Integration (2026-07-11):</strong> all six production-readiness branches merged to main after a 5-reviewer adversarial fleet pass, full parity and typecheck gates green.</li>
+  <li><strong>BestChef plan 45:</strong> all Tier 0-4 code items closed; founder-ops F1-F9 remain.</li>
+  <li><strong>DoWork plan 46:</strong> remediation merged and unified with the trainer-launch wave; the 52-screen app-state report is now pushed.</li>
+  <li><strong>Yearn plan 47:</strong> boost self-grant revenue leak closed with Apple StoreKit chain-policy enforcement (a critical verifier bypass was caught in dual review), photo access scoping, rate limits, and now the moderation migration. Boost stays disabled until the verifier deploys.</li>
+  <li><strong>MyNews plan 48:</strong> DMCA workflow console, RevenueCat monetization, support rails, payments webhook, and release-manifest governance in flight and snapshotted green.</li>
+</ul></div>
+
+<h2>Deliberately not committed (both resolved later on 2026-07-12)</h2>
+<div class="table-wrap">
+<table>
+  <tr><th>Item</th><th>Why</th><th>Resolution</th></tr>
+  <tr><td><span class="pill flag">Superseded draft</span> 4 staged files (787 insertions) in the <code>meerkat-production-readiness-2026-07-09</code> worktree</td><td>An older, parallel 411-line draft of Plan 43 WP-43D. Plan43 landed the reviewed split version in <code>e3a73774</code> with opus review fixes logged. Committing the draft would push a competing implementation onto an already-merged branch.</td><td><span class="pill ok">Discarded</span> after founder approval; worktree clean.</td></tr>
+  <tr><td><span class="pill flag">Orphaned directory</span> <code>.claude/worktrees/plan19-public-social/</code></td><td>Its <code>.git</code> file pointed at a pruned worktree registration. Verified to contain no unique work: newest code was an older intermediate state of the pushed <code>be43462f</code> lineage; its memory.md added zero lines over the committed version.</td><td><span class="pill ok">Removed</span> after founder approval (parked in session scratchpad).</td></tr>
+</table>
+</div>
+
+<h2>Follow-ups</h2>
+<div class="card"><ul>
+  <li>Merge <code>feature/meerkat-plan43</code> (and <code>worktree-wp43g</code>) to main when Plan 43 execution closes.</li>
+  <li>Merge <code>docs/dowork-app-state-report</code> to main: <strong>done</strong> later on 2026-07-12, squash commit <code>2607ca5c</code>, pushed.</li>
+  <li>Resume MyNews plan 48 and Yearn plan 47 phases from their now-safe worktrees. Plan 25 (calls) Phase 0 has since started on <code>feature/meerkat-plan25-calls</code>.</li>
+  <li>Product verdicts unchanged: Meerkat NO-GO stands; founder-ops ladders remain for BestChef, DoWork, Yearn, and MyNews.</li>
+</ul></div>
+
+<footer>Generated 2026-07-12 &middot; MyLife commit and push safety sweep &middot; Session log: <code>docs/sessions/2026-07-12-commit-push-safety-sweep.md</code></footer>
+</div>
+</body>
+</html>

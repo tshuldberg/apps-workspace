@@ -1,0 +1,109 @@
+{
+  "descriptor": {
+    "descriptor": {
+      "version": 1,
+      "communityId": "214c9aa3ec90fb248dd1bd78bd59fe43",
+      "revision": 1,
+      "previousHash": null,
+      "genesisNonce": "489588a8a519f7037c89ecea3c5e9ddc",
+      "forkedFrom": null,
+      "name": "Fixture Burrow",
+      "ownerDeviceId": "c650cb803e83dfe7a42a4db5ca1a81586e6e7dcaad2b334bfa92722e23f17d3e",
+      "hosts": [],
+      "catalogCid": null,
+      "joinPolicy": "invite_only",
+      "quotas": {
+        "maxMembers": 64,
+        "maxStorageBytes": 10737418240
+      },
+      "channels": [
+        {
+          "id": "general",
+          "name": "general"
+        }
+      ],
+      "members": [
+        {
+          "deviceId": "c650cb803e83dfe7a42a4db5ca1a81586e6e7dcaad2b334bfa92722e23f17d3e",
+          "role": "owner",
+          "displayName": "Fixture Owner",
+          "dhPublicKey": "9ab133829754c1c6589a129e936be3d736943f0fc7a058e08968f46658200e26"
+        },
+        {
+          "deviceId": "7b6b515ac982e17380ebf315053c4c3321d2286f87462621f559c70756802b88",
+          "role": "member"
+        }
+      ],
+      "createdAt": "2026-08-29T12:00:00.000Z",
+      "updatedAt": "2026-08-29T12:00:00.000Z",
+      "historyScope": "full",
+      "feedPollIntervalMs": "manual"
+    },
+    "signature": "74f1bb93675027e662451262051a32bd83a74aea19bd3693971e42aa6f0c033bbdc01b8a2bf2b37c25e3179b7e530ca6b61b449f0d9b60f2ec7116bf306c1007"
+  },
+  "canvas": {
+    "version": 1,
+    "id": "1234567890abcdef1234567890abcdef",
+    "communityId": "214c9aa3ec90fb248dd1bd78bd59fe43",
+    "kind": "commons",
+    "subjectId": "general",
+    "policyJson": "{\"layers\":{\"background\":\"owner\",\"structure\":\"curator\",\"open\":\"member\"},\"memberBuild\":true,\"layout\":\"free\"}",
+    "revision": 2,
+    "tombstone": false,
+    "updatedAt": "2026-08-29T12:01:00.000Z",
+    "signedBy": "c650cb803e83dfe7a42a4db5ca1a81586e6e7dcaad2b334bfa92722e23f17d3e",
+    "signature": "53d07aef4870cdcc162d80c5bf41bf8b0bcd63c8d6cbf981295a3bb6944e93b4b4b5d49a264e152c5e869ba42d507e180a27ce6c8b84618471008a8225a47305"
+  },
+  "node": {
+    "version": 1,
+    "id": "fedcba0987654321fedcba0987654321",
+    "canvasId": "1234567890abcdef1234567890abcdef",
+    "communityId": "214c9aa3ec90fb248dd1bd78bd59fe43",
+    "authorDevice": "7b6b515ac982e17380ebf315053c4c3321d2286f87462621f559c70756802b88",
+    "nodeType": "text",
+    "schemaVersion": 1,
+    "propsJson": "{\"text\":\"frozen\"}",
+    "layer": "open",
+    "x": 12,
+    "y": 34,
+    "w": 200,
+    "h": 80,
+    "rotation": 15,
+    "z": 3,
+    "parentId": null,
+    "nodeVersion": 2,
+    "versionNonce": 77,
+    "asset": null,
+    "tombstone": false,
+    "createdAt": "2026-08-29T12:02:00.000Z",
+    "updatedAt": "2026-08-29T12:03:00.000Z",
+    "signedBy": "7b6b515ac982e17380ebf315053c4c3321d2286f87462621f559c70756802b88",
+    "signature": "4400bd9bb50df27bdf7d9ac67a1e968f7641ef3b0f3ec89f8858a38fd6b42f97d9bdc0565b54fa451b543d4eef22a775f6f195aed852a4d09f085044d655ef0c"
+  },
+  "stroke": {
+    "version": 1,
+    "canvasId": "1234567890abcdef1234567890abcdef",
+    "communityId": "214c9aa3ec90fb248dd1bd78bd59fe43",
+    "authorDevice": "7b6b515ac982e17380ebf315053c4c3321d2286f87462621f559c70756802b88",
+    "strokeJson": "{\"points\":[[0,0],[10,10]],\"brush\":\"pen\",\"colorToken\":\"accent\",\"width\":2}",
+    "erasesId": null,
+    "createdAt": "2026-08-29T12:04:00.000Z",
+    "signedBy": "7b6b515ac982e17380ebf315053c4c3321d2286f87462621f559c70756802b88",
+    "signature": "ba9442a5d4c33ddcee30800922816de65713eeffbc14331d2a2942cc57a1a1f0a456c84aca36f13696c521da3dce191ca8510772a94642f979e238e7affa210b",
+    "id": "f9a90b1e716ff23efe39711f426b724e"
+  },
+  "mark": {
+    "version": 1,
+    "canvasId": "1234567890abcdef1234567890abcdef",
+    "communityId": "214c9aa3ec90fb248dd1bd78bd59fe43",
+    "nodeId": "fedcba0987654321fedcba0987654321",
+    "kind": "note",
+    "option": null,
+    "note": "frozen visit",
+    "authorDevice": "7b6b515ac982e17380ebf315053c4c3321d2286f87462621f559c70756802b88",
+    "createdAt": "2026-08-29T12:05:00.000Z",
+    "signedBy": "7b6b515ac982e17380ebf315053c4c3321d2286f87462621f559c70756802b88",
+    "signature": "d5d4ed4106ecb645b55f1eab69a4c0eef9c96c715f0350daadb276287341d2089aa77ce6345465d180efe4c5abf543cbb022cbac53ac2b9751ce523a2490ea0d",
+    "id": "994054047b14c4ce1bb0ff29e81ab520"
+  }
+}

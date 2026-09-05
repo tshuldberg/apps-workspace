@@ -1,0 +1,316 @@
+<div id="fiscal-comparison-viz-0830">
+  <style>
+    #fiscal-comparison-viz-0830 {
+      position: relative;
+      width: 100%;
+      color: var(--foreground);
+      font-family: var(--font-sans);
+    }
+    #fiscal-comparison-viz-0830 .viz-title {
+      margin: 0 0 14px;
+      font-size: 18px;
+      font-weight: 760;
+      letter-spacing: -0.015em;
+    }
+    #fiscal-comparison-viz-0830 .viz-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px 26px;
+    }
+    #fiscal-comparison-viz-0830 .viz-plot {
+      min-width: 0;
+    }
+    #fiscal-comparison-viz-0830 .viz-plot-wide {
+      grid-column: 1 / -1;
+    }
+    #fiscal-comparison-viz-0830 h3 {
+      margin: 0 0 3px;
+      color: var(--foreground);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    #fiscal-comparison-viz-0830 .viz-subtitle {
+      min-height: 30px;
+      margin: 0 0 5px;
+      color: var(--muted-foreground);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+    #fiscal-comparison-viz-0830 .viz-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 14px;
+      min-height: 24px;
+      align-items: center;
+    }
+    #fiscal-comparison-viz-0830 .viz-legend button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 1px 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--foreground);
+      font: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    #fiscal-comparison-viz-0830 .viz-legend button[aria-pressed="false"] {
+      opacity: .42;
+    }
+    #fiscal-comparison-viz-0830 .viz-swatch {
+      width: 10px;
+      height: 10px;
+      background: var(--swatch);
+    }
+    #fiscal-comparison-viz-0830 .viz-canvas {
+      width: 100%;
+      min-height: 250px;
+    }
+    #fiscal-comparison-viz-0830 svg {
+      display: block;
+      width: 100%;
+      overflow: visible;
+    }
+    #fiscal-comparison-viz-0830 svg text {
+      fill: var(--foreground);
+      font-size: 12px;
+    }
+    #fiscal-comparison-viz-0830 svg .tick line,
+    #fiscal-comparison-viz-0830 svg .domain {
+      stroke: var(--border);
+    }
+    #fiscal-comparison-viz-0830 svg .grid line {
+      stroke: var(--border);
+      stroke-opacity: .7;
+    }
+    #fiscal-comparison-viz-0830 svg .grid .domain {
+      display: none;
+    }
+    #fiscal-comparison-viz-0830 svg .axis-title {
+      fill: var(--foreground);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    #fiscal-comparison-viz-0830 .tooltip {
+      position: absolute;
+      z-index: 8;
+      display: none;
+      max-width: 245px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      background: var(--popover);
+      color: var(--popover-foreground);
+      font-size: 11px;
+      line-height: 1.45;
+      pointer-events: none;
+    }
+    #fiscal-comparison-viz-0830 .tooltip strong {
+      color: var(--popover-foreground);
+    }
+    @media (max-width: 820px) {
+      #fiscal-comparison-viz-0830 .viz-grid { grid-template-columns: 1fr; }
+      #fiscal-comparison-viz-0830 .viz-plot-wide { grid-column: auto; }
+    }
+  </style>
+
+  <div class="viz-title">Fiscal scale, measured honestly</div>
+  <div class="viz-grid">
+    <section class="viz-plot">
+      <h3>U.S. health spending</h3>
+      <p class="viz-subtitle">All-payer national health expenditure, current dollars</p>
+      <div class="viz-canvas" id="fiscal-viz-health-line"></div>
+    </section>
+
+    <section class="viz-plot">
+      <h3>Health spending around the world</h3>
+      <p class="viz-subtitle">Current health expenditure, 2023</p>
+      <div class="viz-canvas" id="fiscal-viz-health-world"></div>
+    </section>
+
+    <section class="viz-plot">
+      <h3>Foreign-born net fiscal effect</h3>
+      <p class="viz-subtitle">OECD 2006-2018 average; no legal or unauthorized split</p>
+      <div class="viz-legend" id="fiscal-viz-immigration-legend"></div>
+      <div class="viz-canvas" id="fiscal-viz-immigration"></div>
+    </section>
+
+    <section class="viz-plot">
+      <h3>Returns with AGI above $5 million</h3>
+      <p class="viz-subtitle">Illustrative realized capital-income rate preference</p>
+      <div class="viz-canvas" id="fiscal-viz-wealth"></div>
+    </section>
+
+    <section class="viz-plot viz-plot-wide">
+      <h3>Selected U.S. rescues</h3>
+      <p class="viz-subtitle">Gross financing or peak exposure versus final cost, gain, or forgiven principal</p>
+      <div class="viz-legend" id="fiscal-viz-rescue-legend"></div>
+      <div class="viz-canvas" id="fiscal-viz-rescue"></div>
+    </section>
+  </div>
+  <div class="tooltip" role="tooltip"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script>
+    (() => {
+      const root = document.getElementById('fiscal-comparison-viz-0830');
+      const tip = root.querySelector('.tooltip');
+      const seriesColors = ['var(--viz-series-1)', 'var(--viz-series-2)', 'var(--viz-series-3)', 'var(--viz-series-4)'];
+      const health = [
+        {x:2012,y:2.784},{x:2013,y:2.859},{x:2014,y:3.010},{x:2015,y:3.177},{x:2016,y:3.324},{x:2017,y:3.464},{x:2018,y:3.638},{x:2019,y:3.805},{x:2020,y:4.204},{x:2021,y:4.377},{x:2022,y:4.587},{x:2023,y:4.925},{x:2024,y:5.279}
+      ];
+      const healthWorld = [
+        {name:'United States',value:16.69},{name:'Germany',value:11.74},{name:'Switzerland',value:11.69},{name:'France',value:11.52},{name:'Canada',value:11.19},{name:'United Kingdom',value:10.99},{name:'Japan',value:10.74},{name:'Australia',value:10.40},{name:'Norway',value:9.43},{name:'Italy',value:8.41},{name:'Mexico',value:5.50},{name:'India',value:3.34}
+      ];
+      const immigration = [
+        {name:'Luxembourg',a:7.64,c2:2.89},{name:'Switzerland',a:3.18,c2:.84},{name:'United Kingdom',a:2.02,c2:.23},{name:'Portugal',a:1.79,c2:.89},{name:'Italy',a:1.87,c2:.57},{name:'Norway',a:1.34,c2:1.22},{name:'United States',a:1.00,c2:-.68},{name:'France',a:1.02,c2:-.85},{name:'Belgium',a:1.38,c2:-1.28},{name:'Latvia',a:.28,c2:-1.58}
+      ];
+      const wealth = [
+        {x:2012,y:75.97},{x:2013,y:41.89},{x:2014,y:65.15},{x:2015,y:70.73},{x:2016,y:62.19},{x:2017,y:80.13},{x:2018,y:76.56},{x:2019,y:68.75},{x:2020,y:92.98},{x:2021,y:180.12},{x:2022,y:116.89},{x:2023,y:87.13}
+      ];
+      const rescues = [
+        {name:'Fed 2008',gross:1500,net:null,note:'Peak credit; loans repaid'},
+        {name:'PPP',gross:799,net:760,note:'Forgiven principal, not final net cost'},
+        {name:'TARP',gross:443.5,net:31.1,note:'Lifetime net fiscal cost'},
+        {name:'2020 Fed',gross:114,net:-.749,note:'Net gain'},
+        {name:'Airlines',gross:59,net:52,note:'Booked cost across accounting bases'}
+      ];
+      const immigrationSeries = [
+        {key:'a',label:'Individualized services',color:seriesColors[0],active:true},
+        {key:'c2',label:'All public goods allocated',color:seriesColors[1],active:true}
+      ];
+      const rescueSeries = [
+        {key:'gross',label:'Gross or peak',color:seriesColors[2],active:true},
+        {key:'net',label:'Net cost / forgiven; negative is gain',color:seriesColors[3],active:true}
+      ];
+
+      function showTip(event, html) {
+        const box = root.getBoundingClientRect();
+        tip.innerHTML = html;
+        tip.style.display = 'block';
+        const left = Math.min(event.clientX - box.left + 12, box.width - tip.offsetWidth - 4);
+        const top = Math.max(0, event.clientY - box.top - tip.offsetHeight - 10);
+        tip.style.left = `${left}px`;
+        tip.style.top = `${top}px`;
+      }
+      function hideTip() { tip.style.display = 'none'; }
+      function svgFor(container, height) {
+        const width = Math.max(300, Math.round(container.getBoundingClientRect().width));
+        d3.select(container).selectAll('*').remove();
+        return {width, svg:d3.select(container).append('svg').attr('viewBox', `0 0 ${width} ${height}`).attr('height', height)};
+      }
+      function frame(svg, m, width, height) {
+        svg.append('rect').attr('data-chart-frame','').attr('x',m.left).attr('y',m.top).attr('width',width-m.left-m.right).attr('height',height-m.top-m.bottom).attr('fill','transparent').attr('stroke','var(--border)');
+      }
+      function gridY(g, scale, width, ticks) {
+        g.attr('class','grid').call(d3.axisLeft(scale).ticks(ticks).tickSize(-width).tickFormat(''));
+      }
+      function axisTitles(svg, m, width, height, xText, yText) {
+        svg.append('text').attr('class','axis-title').attr('data-axis','x').attr('x',(m.left+width-m.right)/2).attr('y',height-5).attr('text-anchor','middle').text(xText);
+        svg.append('text').attr('class','axis-title').attr('data-axis','y').attr('transform','rotate(-90)').attr('x',-(m.top+height-m.bottom)/2).attr('y',13).attr('text-anchor','middle').text(yText);
+      }
+      function responsiveTicks(scale, width) {
+        if (width >= 500) return scale.ticks(6);
+        const domain = scale.domain();
+        return d3.range(4).map(i => domain[0] + (domain[1] - domain[0]) * i / 3);
+      }
+      function renderLine(containerId, data, config) {
+        const container = root.querySelector(`#${containerId}`);
+        const height = 280;
+        const {width,svg} = svgFor(container,height);
+        const m = {top:16,right:18,bottom:50,left:68};
+        const xExtent = d3.extent(data,d=>d.x);
+        const yExtent = d3.extent(data,d=>d.y);
+        const yPad = (yExtent[1]-yExtent[0])*.12;
+        const x = d3.scaleLinear().domain(xExtent).range([m.left,width-m.right]);
+        const y = d3.scaleLinear().domain([Math.max(0,yExtent[0]-yPad),yExtent[1]+yPad]).nice().range([height-m.bottom,m.top]);
+        frame(svg,m,width,height);
+        gridY(svg.append('g').attr('transform',`translate(${m.left},0)`),y,width-m.left-m.right,5);
+        svg.append('g').attr('data-axis-group','x').attr('transform',`translate(0,${height-m.bottom})`).call(d3.axisBottom(x).tickValues(responsiveTicks(x,width)).tickFormat(d3.format('d')));
+        svg.append('g').attr('data-axis-group','y').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(config.tick));
+        axisTitles(svg,m,width,height,'Year',config.yTitle);
+        const line = d3.line().x(d=>x(d.x)).y(d=>y(d.y));
+        svg.append('path').datum(data).attr('fill','none').attr('stroke',config.color).attr('stroke-width',3).attr('d',line);
+        svg.selectAll('circle.observation').data(data).join('circle').attr('class','observation').attr('cx',d=>x(d.x)).attr('cy',d=>y(d.y)).attr('r',3.5).attr('fill',config.color);
+        svg.selectAll('circle.hit').data(data).join('circle').attr('class','hit').attr('data-chart-hit','').attr('cx',d=>x(d.x)).attr('cy',d=>y(d.y)).attr('r',16).attr('fill','transparent').on('pointermove',(event,d)=>showTip(event,`<strong>${d.x}</strong><br>${config.value(d.y)}`)).on('pointerleave',hideTip);
+        const last = data[data.length-1];
+        svg.append('text').attr('x',x(last.x)-4).attr('y',y(last.y)-10).attr('text-anchor','end').attr('font-weight',700).text(config.value(last.y));
+      }
+      function renderSingleBars(containerId, data, config) {
+        const container = root.querySelector(`#${containerId}`);
+        const height = 330;
+        const {width,svg} = svgFor(container,height);
+        const m = {top:14,right:42,bottom:50,left:112};
+        const max = d3.max(data,d=>d.value);
+        const x = d3.scaleLinear().domain([0,max*1.08]).nice().range([m.left,width-m.right]);
+        const y = d3.scaleBand().domain(data.map(d=>d.name)).range([m.top,height-m.bottom]).padding(.25);
+        frame(svg,m,width,height);
+        const tickValues = responsiveTicks(x,width);
+        svg.append('g').attr('class','grid').attr('transform',`translate(0,${height-m.bottom})`).call(d3.axisBottom(x).tickValues(tickValues).tickSize(-(height-m.top-m.bottom)).tickFormat(''));
+        svg.append('g').attr('data-axis-group','x').attr('transform',`translate(0,${height-m.bottom})`).call(d3.axisBottom(x).tickValues(tickValues).tickFormat(d=>`${d3.format('.2~f')(d)}%`));
+        svg.append('g').attr('data-axis-group','y').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y));
+        axisTitles(svg,m,width,height,'Share of GDP','Country');
+        svg.selectAll('rect.bar').data(data).join('rect').attr('class','bar').attr('x',m.left).attr('y',d=>y(d.name)).attr('width',d=>x(d.value)-m.left).attr('height',y.bandwidth()).attr('fill',seriesColors[1]);
+        svg.selectAll('rect.hit').data(data).join('rect').attr('data-chart-hit','').attr('x',m.left).attr('y',d=>y(d.name)-(32-y.bandwidth())/2).attr('width',width-m.left-m.right).attr('height',Math.max(32,y.bandwidth())).attr('fill','transparent').on('pointermove',(event,d)=>showTip(event,`<strong>${d.name}</strong><br>${d.value.toFixed(2)}% of GDP`)).on('pointerleave',hideTip);
+        svg.selectAll('text.value').data(data).join('text').attr('class','value').attr('x',d=>Math.min(width-m.right-2,x(d.value)+5)).attr('y',d=>y(d.name)+y.bandwidth()/2+4).attr('text-anchor',d=>x(d.value)>width-m.right-34?'end':'start').text(d=>`${d.value.toFixed(1)}%`);
+      }
+      function makeLegend(id, series, render) {
+        const holder = root.querySelector(`#${id}`);
+        holder.innerHTML = '';
+        series.forEach(s => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.setAttribute('aria-pressed',String(s.active));
+          button.innerHTML = `<span class="viz-swatch" style="--swatch:${s.color}"></span>${s.label}`;
+          button.addEventListener('click',()=>{s.active=!s.active;button.setAttribute('aria-pressed',String(s.active));render();});
+          holder.appendChild(button);
+        });
+      }
+      function renderGroupedBars(containerId, data, series, config) {
+        const container = root.querySelector(`#${containerId}`);
+        const height = config.height;
+        const {width,svg} = svgFor(container,height);
+        const m = {top:14,right:30,bottom:50,left:config.left};
+        const values = data.flatMap(d=>series.map(s=>d[s.key])).filter(v=>v!==null);
+        const extent = d3.extent(values);
+        const pad = (extent[1]-extent[0])*.06;
+        const x = d3.scaleLinear().domain([Math.min(0,extent[0]-pad),Math.max(0,extent[1]+pad)]).nice().range([m.left,width-m.right]);
+        const y = d3.scaleBand().domain(data.map(d=>d.name)).range([m.top,height-m.bottom]).padding(.2);
+        const zero = x(0);
+        frame(svg,m,width,height);
+        const tickValues = responsiveTicks(x,width);
+        svg.append('g').attr('class','grid').attr('transform',`translate(0,${height-m.bottom})`).call(d3.axisBottom(x).tickValues(tickValues).tickSize(-(height-m.top-m.bottom)).tickFormat(''));
+        svg.append('g').attr('data-axis-group','x').attr('transform',`translate(0,${height-m.bottom})`).call(d3.axisBottom(x).tickValues(tickValues).tickFormat(config.tick));
+        svg.append('g').attr('data-axis-group','y').attr('transform',`translate(${m.left},0)`).call(d3.axisLeft(y));
+        svg.append('line').attr('x1',zero).attr('x2',zero).attr('y1',m.top).attr('y2',height-m.bottom).attr('stroke','var(--foreground)').attr('stroke-width',1);
+        axisTitles(svg,m,width,height,config.xTitle,config.yTitle);
+        const active = series.filter(s=>s.active);
+        const band = y.bandwidth()/Math.max(1,active.length);
+        active.forEach((s,j)=>{
+          svg.selectAll(`rect.mark-${s.key}`).data(data.filter(d=>d[s.key]!==null)).join('rect').attr('class',`mark-${s.key}`).attr('x',d=>Math.min(zero,x(d[s.key]))).attr('y',d=>y(d.name)+j*band+1).attr('width',d=>Math.max(1,Math.abs(x(d[s.key])-zero))).attr('height',Math.max(2,band-2)).attr('fill',s.color);
+        });
+        svg.selectAll('rect.row-hit').data(data).join('rect').attr('class','row-hit').attr('data-chart-hit','').attr('x',m.left).attr('y',d=>y(d.name)-(32-y.bandwidth())/2).attr('width',width-m.left-m.right).attr('height',Math.max(32,y.bandwidth())).attr('fill','transparent').on('pointermove',(event,d)=>{
+          const rows = series.filter(s=>s.active).map(s=>`${s.label}: ${d[s.key]===null?'not comparable':config.value(d[s.key])}`).join('<br>');
+          showTip(event,`<strong>${d.name}</strong><br>${rows}${d.note?`<br>${d.note}`:''}`);
+        }).on('pointerleave',hideTip);
+      }
+
+      const renderImmigration = () => renderGroupedBars('fiscal-viz-immigration',immigration,immigrationSeries,{height:340,left:108,xTitle:'Net fiscal effect, percent of GDP',yTitle:'Country',tick:d=>`${d}%`,value:d=>`${d.toFixed(2)}% GDP`});
+      const renderRescues = () => renderGroupedBars('fiscal-viz-rescue',rescues,rescueSeries,{height:280,left:90,xTitle:'Billions of current dollars',yTitle:'Program',tick:d=>`$${d}B`,value:d=>`${d<0?'gain ':''}$${Math.abs(d).toFixed(d<10?2:1)}B`});
+      const renderAll = () => {
+        renderLine('fiscal-viz-health-line',health,{color:seriesColors[0],tick:d=>`$${d}T`,yTitle:'Trillions of dollars',value:d=>`$${d.toFixed(3)}T`});
+        renderSingleBars('fiscal-viz-health-world',healthWorld,{});
+        renderImmigration();
+        renderLine('fiscal-viz-wealth',wealth,{color:seriesColors[3],tick:d=>`$${d}B`,yTitle:'Billions of dollars',value:d=>`$${d.toFixed(1)}B`});
+        renderRescues();
+      };
+      makeLegend('fiscal-viz-immigration-legend',immigrationSeries,renderImmigration);
+      makeLegend('fiscal-viz-rescue-legend',rescueSeries,renderRescues);
+      renderAll();
+      let timer;
+      const observer = new ResizeObserver(()=>{clearTimeout(timer);timer=setTimeout(renderAll,80);});
+      observer.observe(root);
+    })();
+  </script>
+</div>

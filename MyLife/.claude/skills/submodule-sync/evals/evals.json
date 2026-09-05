@@ -1,0 +1,41 @@
+{
+  "skill_name": "submodule-sync",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if any submodules are out of date and sync them.",
+      "expected_output": "Runs git submodule status, identifies drifted submodules, reports commit counts behind, and offers to update pointers.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "runs-submodule-status",
+          "assertion": "Output includes execution of git submodule status or equivalent command to check all submodule pointers"
+        },
+        {
+          "name": "reports-drift-per-submodule",
+          "assertion": "Each submodule is reported as either clean or drifted with the number of commits behind"
+        },
+        {
+          "name": "validates-after-update",
+          "assertion": "After updating pointers, output shows a validation step confirming the updates were applied"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I just pushed changes to MyBooks standalone. Update the parent pointer.",
+      "expected_output": "Checks MyBooks submodule specifically, confirms it's behind, updates the pointer, and validates.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "scopes-to-mybooks",
+          "assertion": "Analysis focuses on the MyBooks submodule rather than checking all submodules"
+        },
+        {
+          "name": "stages-pointer-update",
+          "assertion": "Output shows git add MyBooks or equivalent command to stage the updated submodule pointer"
+        }
+      ]
+    }
+  ]
+}

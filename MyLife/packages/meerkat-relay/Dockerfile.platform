@@ -1,0 +1,29 @@
+# Production runtime shared by the stateful Meerkat services. Build from the
+# monorepo root. The root .dockerignore admits only workspace manifests and
+# packages, so app secrets, Git history, reports, and developer artifacts cannot
+# enter the build context.
+# Base pinned by manifest-list digest for supply-chain reproducibility; the
+# comment records the human-readable tag (node:22.17.1-alpine3.22).
+FROM node:22.17.1-alpine3.22@sha256:5539840ce9d013fa13e3b9814c9353024be7ac75aca5db6d039504a56c04ea59
+
+ENV NODE_ENV=production
+WORKDIR /repo
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages ./packages
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts --filter @mylife/meerkat-relay... \
+  && ./packages/meerkat-relay/node_modules/.bin/tsx -e "const ready: boolean = true" \
+  && pnpm store prune
+
+WORKDIR /repo/packages/meerkat-relay
+RUN mkdir -p /data && chown -R node:node /data /repo
+USER node
+EXPOSE 8890 8892 8893 8894
+# Plan 44 WP-4A: the stateful services gate on /readyz (honest dependency readiness:
+# a live PostgreSQL pool, object store, and writable data dir for the service's mode),
+# not the bounded /healthz liveness. The relay image is separate and keeps /healthz.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8890)+'/readyz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+# Compose or the deployment platform selects the concrete bin explicitly.
+CMD ["./node_modules/.bin/tsx", "bin/meerkat-community-node.mjs"]

@@ -1,0 +1,37 @@
+{
+  "name": "@mylife/meerkat-icloud-storage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Owned Expo native module for Meerkat iCloud Drive storage and iOS security-scoped file-provider bookmarks.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "react-native": "./src/index.ts",
+  "sideEffects": false,
+  "expo": {
+    "platforms": ["ios"]
+  },
+  "files": [
+    "src",
+    "ios",
+    "app.plugin.js",
+    "expo-module.config.json"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run --passWithNoTests"
+  },
+  "peerDependencies": {
+    "expo": "~54.0.35",
+    "react-native": "~0.81.5"
+  },
+  "peerDependenciesMeta": {
+    "expo": { "optional": true },
+    "react-native": { "optional": true }
+  },
+  "devDependencies": {
+    "@mylife/typescript-config": "workspace:*",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6"
+  }
+}

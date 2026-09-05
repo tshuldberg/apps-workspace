@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DoWork Trainer-Pilot Readiness, 2026-07-04</title>
+<style>
+  :root {
+    --bg: #0B0B0E; --surface: #15151A; --surface-2: #1F1F25;
+    --text: #F5F4F8; --text-2: rgba(245,244,248,0.72); --text-3: rgba(245,244,248,0.5);
+    --accent: #FF6B00; --accent-light: #FF8B33; --green: #30D158; --red: #FF6B6B; --amber: #FFD60A;
+    --border: rgba(255,255,255,0.10);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 28px; letter-spacing: -0.5px; margin: 0 0 4px; }
+  h2 { font-size: 20px; color: var(--accent-light); margin: 40px 0 12px; }
+  h3 { font-size: 16px; margin: 24px 0 8px; }
+  .meta { color: var(--text-3); font-size: 13px; margin-bottom: 28px; }
+  .verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 24px 0; }
+  @media (max-width: 640px) { .verdict { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; }
+  .card .big { font-size: 22px; font-weight: 800; }
+  .good { color: var(--green); } .bad { color: var(--red); } .warn { color: var(--amber); }
+  .card p { margin: 8px 0 0; color: var(--text-2); font-size: 14px; }
+  ul { padding-left: 22px; margin: 8px 0; } li { margin: 6px 0; color: var(--text-2); }
+  li strong { color: var(--text); }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  th { text-align: left; color: var(--text-3); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  td { padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-2); vertical-align: top; }
+  td:first-child { color: var(--text-3); }
+  .pill { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+  .pill.yes { background: rgba(255,107,107,0.15); color: var(--red); }
+  .pill.no { background: rgba(48,209,88,0.14); color: var(--green); }
+  .pill.push { background: rgba(255,214,10,0.14); color: var(--amber); }
+  code { background: var(--surface-2); border-radius: 6px; padding: 1px 6px; font-size: 13px; color: var(--accent-light); }
+  .steps li { margin: 10px 0; }
+  .tablewrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DoWork trainer-pilot readiness</h1>
+  <div class="meta">2026-07-04, post-remediation · branch <code>feature/dowork-trainer-launch</code> @ <code>9ce76ef3</code> · prior audit 6.8/10 with 22 findings, all closed</div>
+
+  <div class="verdict">
+    <div class="card">
+      <div class="big good">Code-side: 9/10, pilot-ready</div>
+      <p>All 22 audit findings fixed plus the 2 remaining codeable deferred items. 402 tests, typechecks, parity green. Server-side fixes are LIVE on production Supabase (2 migrations applied + verified, 4 functions redeployed + probed).</p>
+    </div>
+    <div class="card">
+      <div class="big bad">Hand to a trainer today: not yet</div>
+      <p>Not a code problem: no installable build exists. No EAS/TestFlight build has ever been made, push credentials are absent, and voice/camera/GPS/push/purchases have never run on real hardware. About one founder day + one QA session away.</p>
+    </div>
+  </div>
+
+  <h2>What is done and verified</h2>
+  <h3>Product surface</h3>
+  <ul>
+    <li><strong>Trainer platform:</strong> invite-only creation, directory, public profiles with free/premium libraries, Trainer Studio (upload queue, manage grid, profile editor), earnings.</li>
+    <li><strong>Coaching loop:</strong> client invites (QR / deep link / code), My Trainer space, form-check video exchange with timestamped feedback and video replies, read-only ended relationships, offline-safe feedback with honest state copy.</li>
+    <li><strong>Playback:</strong> voice-controlled player over 60-min signed URLs, offline downloads with honest entitlement re-check, hands-free voice that survives normal Android silence.</li>
+    <li><strong>Safety:</strong> report + block on every UGC surface including private form checks; blocked trainers filtered from all discovery; moderation deactivation stops uploads AND serving, server-side.</li>
+    <li><strong>Account lifecycle:</strong> anonymous-first, email+password, magic link + password recovery that really establish a session (PKCE), full deletion with purchase-ledger anonymization.</li>
+    <li><strong>Monetization:</strong> RevenueCat paywall with store-price truth (fail-closed without a localized store price), server-truth entitlement, paid-through cancellation.</li>
+  </ul>
+  <h3>Server truth, deployed today</h3>
+  <ul>
+    <li>Migrations <code>20260704000002</code> + <code>20260704000003</code> applied to prod <code>tgyxkoblbiacjsbmiuyn</code> via Management API; policies + constraint inspected.</li>
+    <li>Redeployed and live-probed: <code>delete-account</code>, <code>playback-url</code>, <code>upload-finalize</code> (v3, JWT-gated, 401 without JWT) and <code>rc-webhook</code> (v3, shared-secret auth).</li>
+    <li>Expo SDK graph from <code>apps/dowork</code> is a clean SDK-54 set; the feared 55.x hoist skew does not leak into DoWork.</li>
+  </ul>
+
+  <h2>What blocks a real trainer + clients</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>#</th><th>Item</th><th>Owner</th><th>Blocks pilot?</th></tr>
+    <tr><td>1</td><td>ASC app record ($4.99) + <code>ascAppId</code> into eas.json (F2 second half)</td><td>Founder (dashboard)</td><td><span class="pill yes">YES</span></td></tr>
+    <tr><td>2</td><td>App icon + splash art (F8)</td><td>Founder</td><td><span class="pill yes">YES</span></td></tr>
+    <tr><td>3</td><td>First EAS build + TestFlight internal testing (founder terminal; eas-cli broken in this sandbox)</td><td>Founder</td><td><span class="pill yes">YES</span></td></tr>
+    <tr><td>4</td><td>APNs key via <code>eas credentials</code> (F6)</td><td>Founder</td><td><span class="pill push">PUSH ONLY</span></td></tr>
+    <tr><td>5</td><td>White-glove device QA with the trainer (checklist in Tickets/), incl. gym voice + 2-device coaching loop</td><td>Founder + trainer</td><td><span class="pill yes">YES</span></td></tr>
+    <tr><td>6</td><td>RevenueCat products + webhook + API keys (F3), split decision (F4)</td><td>Founder</td><td><span class="pill no">NO for comped pilot</span></td></tr>
+    <tr><td>7</td><td>Legal pages hosted at dowork.app + counsel (F5)</td><td>Founder</td><td><span class="pill no">NO for TestFlight</span></td></tr>
+    <tr><td>8</td><td>Supabase free tier pauses after 7 idle days: keep warm or upgrade</td><td>Founder</td><td><span class="pill yes">YES</span></td></tr>
+  </table>
+  </div>
+  <p style="color:var(--text-2);font-size:14px;">Demo coach, subscriber, and invite codes are already seeded through real pipelines (F7 done; see <code>app-review-notes.md</code>, passwords in the founder keychain). Coaching clients are entitled through their client link, so a comped pilot needs no payments at all.</p>
+
+  <h2>Known remaining non-blockers</h2>
+  <ul>
+    <li>Two-brand visual seams + thin a11y on the ported solo-lifter half (builder, calculators, history). The trainer/coaching surfaces are polished.</li>
+    <li>Builder-first first-workout funnel (solo onboarding nicety).</li>
+  </ul>
+
+  <h2>Recommended pilot path</h2>
+  <ol class="steps">
+    <li><strong>Founder, ~1 day:</strong> ASC record, icon, <code>eas build --profile production</code> → TestFlight, APNs key.</li>
+    <li><strong>QA session:</strong> run the white-glove checklist with the trainer (invite redemption, 3 uploads, client invite to a second device, form-check round trip, voice in a gym).</li>
+    <li><strong>Pilot:</strong> onboard 2-3 real clients via client invites; no payments involved.</li>
+    <li><strong>Before public paid subs:</strong> F3 RevenueCat + sandbox matrix, F5 legal hosting, App Store submission with the prepared review notes.</li>
+  </ol>
+</div>
+</body>
+</html>

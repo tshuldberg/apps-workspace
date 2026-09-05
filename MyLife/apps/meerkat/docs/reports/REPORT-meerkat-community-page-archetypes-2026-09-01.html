@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat · Community Page Archetypes · 2026-09-01</title>
+<style>
+  :root{
+    --paper:#F6F4EF; --surface:#FFFFFF; --elev:#FBFAF7; --high:#E9F1ED;
+    --accent:#0E7C66; --accent-dim:#0A5D4D;
+    --ink:#20302B; --ink2:#51635C; --ink3:#6E7D77;
+    --danger:#B3413E; --warn:#8F660D; --info:#3566B0;
+    --radius:16px;
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:#111816;color:#E6EDE9;
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding-bottom:120px;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+  header.page{padding:56px 0 10px}
+  header.page h1{font-size:30px;letter-spacing:-.02em;line-height:1.2}
+  header.page h1 em{color:#58C5A5;font-style:normal}
+  header.page p{color:#A4B3AC;max-width:820px;margin-top:12px}
+  .concept{
+    margin-top:20px;background:#19211E;border:1px solid #2A3531;border-radius:var(--radius);
+    padding:16px 20px;color:#A4B3AC;font-size:13.5px;
+  }
+  .concept b{color:#58C5A5}
+
+  /* switcher */
+  nav.switch{
+    position:sticky;top:0;z-index:100;background:rgba(17,24,22,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid #2A3531;margin-top:26px;
+  }
+  nav.switch .wrap{display:flex;gap:6px;overflow-x:auto;padding-top:10px;padding-bottom:10px}
+  nav.switch button{
+    flex:none;border:1px solid #2A3531;background:#19211E;color:#A4B3AC;
+    border-radius:99px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;
+    transition:all .2s;font-family:inherit;
+  }
+  nav.switch button.on{background:#58C5A5;border-color:#58C5A5;color:#0B2620}
+
+  /* archetype scaffolding */
+  section.arch{display:none;padding-top:34px}
+  section.arch.on{display:block;animation:archin .4s ease}
+  @keyframes archin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .arch-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:8px}
+  .arch-head h2{font-size:22px;letter-spacing:-.01em}
+  .arch-head .kind{font-size:11.5px;color:#0B2620;background:#58C5A5;border-radius:99px;padding:3px 11px;font-weight:700}
+  .arch-desc{color:#A4B3AC;max-width:860px;font-size:14px}
+  .built-from{
+    margin:14px 0 20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+    font-size:11.5px;color:#75847C;
+  }
+  .built-from span.b{
+    border:1px solid #2A3531;border-radius:8px;padding:3px 9px;color:#A4B3AC;background:#19211E;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;
+  }
+
+  /* the page canvas: each archetype renders inside its own themed page */
+  .page-mock{
+    border-radius:20px;overflow:hidden;border:1px solid #2A3531;
+    box-shadow:0 30px 80px rgba(0,0,0,.45);
+    background:var(--pm-bg,#F6F4EF);color:var(--pm-ink,#20302B);
+  }
+  .pm-nav{
+    display:flex;align-items:center;gap:14px;padding:14px 26px;
+    background:var(--pm-nav-bg,#FFFFFF);border-bottom:1px solid var(--pm-line,#E8E4DB);
+  }
+  .pm-nav .logo{width:34px;height:34px;border-radius:10px;background:var(--pm-accent,#0E7C66);
+    color:var(--pm-onaccent,#fff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+  .pm-nav .name{font-weight:800;font-size:16px;letter-spacing:-.01em}
+  .pm-nav .tag{font-size:11px;color:var(--pm-ink3,#6E7D77)}
+  .pm-nav .links{margin-left:auto;display:flex;gap:4px;font-size:12.5px;color:var(--pm-ink2,#51635C)}
+  .pm-nav .links span{padding:6px 11px;border-radius:9px}
+  .pm-nav .links span.on{background:var(--pm-high,#E9F1ED);color:var(--pm-accent-dim,#0A5D4D);font-weight:700}
+  .pm-body{padding:26px}
+  .joinbtn{
+    border:0;background:var(--pm-accent,#0E7C66);color:var(--pm-onaccent,#fff);
+    border-radius:11px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;
+  }
+  .ghostbtn{
+    border:1px solid var(--pm-line,#E0DCD2);background:transparent;color:var(--pm-ink,#20302B);
+    border-radius:11px;padding:9px 16px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;
+  }
+  .pm-card{background:var(--pm-surface,#fff);border:1px solid var(--pm-line,#E8E4DB);border-radius:16px}
+  .kicker{font-size:10.5px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--pm-accent-dim,#0A5D4D)}
+  .meta{font-size:11.5px;color:var(--pm-ink3,#6E7D77)}
+  .sig{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--pm-accent-dim,#0A5D4D);font-weight:700}
+  .sig:before{content:"✓";display:inline-flex;width:13px;height:13px;border-radius:50%;
+    background:var(--pm-accent,#0E7C66);color:var(--pm-onaccent,#fff);font-size:9px;align-items:center;justify-content:center}
+  .avatar{border-radius:50%;background:var(--pm-accent,#0E7C66);color:var(--pm-onaccent,#fff);
+    display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+
+  /* =============== 1. CREATOR STUDIO =============== */
+  #a-creator .page-mock{
+    --pm-bg:#FAF6F1; --pm-surface:#fff; --pm-high:#F6E8DC; --pm-line:#EBE1D5;
+    --pm-accent:#B05A2E; --pm-accent-dim:#8A4523; --pm-onaccent:#fff;
+    --pm-ink:#33261D; --pm-ink2:#6B584A; --pm-ink3:#93826F; --pm-nav-bg:#fff;
+  }
+  .creator-hero{position:relative;height:230px;background:
+    radial-gradient(120% 160% at 15% 0%, #E7A876 0%, transparent 55%),
+    radial-gradient(110% 150% at 90% 20%, #B05A2E 0%, transparent 60%),
+    linear-gradient(160deg,#8A4523,#33261D);}
+  .creator-hero .grain{position:absolute;inset:0;opacity:.25;
+    background-image:radial-gradient(rgba(255,255,255,.28) 1px, transparent 1.4px);background-size:26px 26px}
+  .creator-id{display:flex;gap:20px;align-items:flex-end;margin-top:-56px;position:relative;padding:0 26px}
+  .creator-id .avatar{width:112px;height:112px;font-size:40px;border:5px solid #FAF6F1;flex:none}
+  .creator-id .who{padding-bottom:8px}
+  .creator-id h3{font-size:26px;letter-spacing:-.02em}
+  .creator-id .who p{font-size:13px;color:var(--pm-ink2);max-width:520px;margin-top:3px}
+  .creator-id .actions{margin-left:auto;display:flex;gap:10px;padding-bottom:12px}
+  .creator-cols{display:grid;grid-template-columns:1fr 320px;gap:22px;margin-top:26px}
+  .shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+  .shelf .item{border-radius:13px;overflow:hidden;background:var(--pm-surface);border:1px solid var(--pm-line)}
+  .shelf .thumb{height:96px}
+  .shelf .item b{display:block;font-size:12px;padding:8px 10px 2px}
+  .shelf .item .meta{padding:0 10px 9px;display:block}
+  .t1{background:linear-gradient(135deg,#E7A876,#B05A2E)}
+  .t2{background:linear-gradient(135deg,#7A9E7E,#3D5C42)}
+  .t3{background:linear-gradient(135deg,#C6B4E3,#6D5A96)}
+  .t4{background:linear-gradient(135deg,#E3B4B4,#96455A)}
+  .post{padding:18px 20px;margin-top:14px}
+  .post .phead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .post .phead .avatar{width:34px;height:34px;font-size:14px}
+  .post h4{font-size:16px;margin-bottom:6px;letter-spacing:-.01em}
+  .post p{font-size:13.5px;color:var(--pm-ink2)}
+  .post .pimg{height:190px;border-radius:12px;margin:12px 0 8px;
+    background:linear-gradient(120deg,#E7A876 0%,#B05A2E 45%,#5C3018 100%);position:relative;overflow:hidden}
+  .post .pimg:after{content:"process shot · inks on paper";position:absolute;left:12px;bottom:10px;
+    color:#fff;font-size:11px;font-weight:600;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+  .pfoot{display:flex;gap:8px;margin-top:10px}
+  .chip{border:1px solid var(--pm-line);background:var(--pm-bg);border-radius:12px;padding:3px 10px;font-size:11.5px;color:var(--pm-ink2)}
+  .chip.mine{border-color:var(--pm-accent);background:var(--pm-high);color:var(--pm-accent-dim);font-weight:700}
+  .milestone{padding:16px 18px;background:linear-gradient(135deg,var(--pm-high),#fff);border:1px solid var(--pm-line);border-radius:16px}
+  .milestone .big{font-size:30px;font-weight:800;color:var(--pm-accent-dim);letter-spacing:-.02em}
+  .side-block{padding:16px 18px;margin-top:14px}
+  .side-block h5{font-size:13px;margin-bottom:8px}
+  .side-block ul{list-style:none}
+  .side-block li{display:flex;justify-content:space-between;font-size:12.5px;color:var(--pm-ink2);padding:5px 0;border-bottom:1px dashed var(--pm-line)}
+  .side-block li:last-child{border-bottom:0}
+  .support{padding:18px;margin-top:14px;background:#33261D;color:#F3E7DA;border-radius:16px}
+  .support b{display:block;font-size:14px;margin-bottom:5px}
+  .support p{font-size:12px;color:#CBB59D;line-height:1.55}
+  .support .joinbtn{margin-top:12px;background:#E7A876;color:#33261D;width:100%}
+
+  /* =============== 2. NEWSROOM =============== */
+  #a-news .page-mock{
+    --pm-bg:#F7F5EF; --pm-surface:#FDFCF8; --pm-high:#ECE7DA; --pm-line:#DDD6C4;
+    --pm-accent:#1E2A32; --pm-accent-dim:#1E2A32; --pm-onaccent:#F7F5EF;
+    --pm-ink:#191F24; --pm-ink2:#4A5258; --pm-ink3:#7C848A; --pm-nav-bg:#FDFCF8;
+  }
+  .masthead{padding:26px 26px 14px;text-align:center;border-bottom:3px double var(--pm-line);background:var(--pm-surface)}
+  .masthead h3{font-family:var(--serif);font-size:40px;letter-spacing:.01em;font-weight:700}
+  .masthead .dateline{display:flex;justify-content:center;gap:18px;font-size:11px;color:var(--pm-ink3);
+    text-transform:uppercase;letter-spacing:.12em;margin-top:8px}
+  .sections{display:flex;justify-content:center;gap:2px;border-bottom:1px solid var(--pm-line);background:var(--pm-surface);font-size:12.5px}
+  .sections span{padding:10px 16px;color:var(--pm-ink2)}
+  .sections span.on{font-weight:800;color:var(--pm-ink);box-shadow:inset 0 -3px 0 var(--pm-ink)}
+  .news-grid{display:grid;grid-template-columns:1.7fr 1fr 1fr;gap:0;background:var(--pm-bg)}
+  .news-lead{padding:24px 26px;border-right:1px solid var(--pm-line)}
+  .news-lead .photo{height:250px;border-radius:6px;position:relative;overflow:hidden;
+    background:linear-gradient(180deg,#8FA6B5 0%,#5E7686 55%,#33434E 100%)}
+  .news-lead .photo:before{content:"";position:absolute;left:0;right:0;bottom:0;height:44%;
+    background:linear-gradient(180deg,transparent,rgba(20,28,34,.55))}
+  .news-lead .photo:after{content:"The old ferry terminal at dawn, before the council vote. Photo: R. Okafor (signed)";
+    position:absolute;left:14px;bottom:10px;right:14px;color:#fff;font-size:11px;font-style:italic}
+  .news-lead h4{font-family:var(--serif);font-size:31px;line-height:1.15;margin:16px 0 8px;letter-spacing:-.01em}
+  .news-lead .standfirst{font-family:var(--serif);font-size:16px;color:var(--pm-ink2);line-height:1.5}
+  .byline{display:flex;align-items:center;gap:8px;margin:12px 0;font-size:12px;color:var(--pm-ink2)}
+  .byline .avatar{width:26px;height:26px;font-size:11px;background:#33434E}
+  .news-lead .body{font-family:var(--serif);font-size:14.5px;line-height:1.7;color:var(--pm-ink);column-count:2;column-gap:22px;margin-top:8px}
+  .news-lead .body p{margin-bottom:10px}
+  .news-lead .body p:first-child:first-letter{font-size:42px;float:left;line-height:.9;padding:4px 8px 0 0;font-weight:700}
+  .news-col{padding:24px 20px;border-right:1px solid var(--pm-line);display:flex;flex-direction:column;gap:0}
+  .news-col:last-child{border-right:0}
+  .news-item{padding:14px 0;border-bottom:1px solid var(--pm-line)}
+  .news-item:first-child{padding-top:0}
+  .news-item h5{font-family:var(--serif);font-size:17px;line-height:1.25;margin:5px 0 6px}
+  .news-item p{font-size:12.5px;color:var(--pm-ink2);line-height:1.55}
+  .opinion{background:var(--pm-high);border-radius:10px;padding:16px;margin-top:14px}
+  .opinion .kicker{color:#7A4A21}
+  .opinion h5{font-family:var(--serif);font-style:italic;font-size:18px;margin:5px 0 6px}
+  .corrections{margin:0 26px 24px;border:1px solid var(--pm-line);border-left:4px solid #7A4A21;
+    background:var(--pm-surface);border-radius:0 10px 10px 0;padding:12px 16px;font-size:12px;color:var(--pm-ink2)}
+  .corrections b{color:var(--pm-ink)}
+  .news-foot{display:flex;gap:18px;align-items:center;padding:14px 26px;background:#1E2A32;color:#B9C4CC;font-size:11.5px}
+  .news-foot .sig{color:#9FD9C8}
+  .news-foot .sig:before{background:#2E4A42}
+
+  /* =============== 3. ART WALL =============== */
+  #a-wall .page-mock{
+    --pm-bg:#151218; --pm-surface:#1E1A23; --pm-high:#2A2433; --pm-line:#332C3E;
+    --pm-accent:#B9A0E8; --pm-accent-dim:#CBB8F0; --pm-onaccent:#1A1420;
+    --pm-ink:#EFEAF7; --pm-ink2:#B6ACC6; --pm-ink3:#847A94; --pm-nav-bg:#1E1A23;
+  }
+  .wall-filters{display:flex;gap:8px;padding:16px 26px 4px;flex-wrap:wrap}
+  .wall-filters .chip{background:var(--pm-surface);border-color:var(--pm-line);color:var(--pm-ink2)}
+  .wall-filters .chip.mine{background:var(--pm-accent);border-color:var(--pm-accent);color:var(--pm-onaccent)}
+  .masonry{columns:4 200px;column-gap:14px;padding:18px 26px 26px}
+  .pin{break-inside:avoid;margin-bottom:14px;border-radius:14px;overflow:hidden;position:relative;
+    border:1px solid var(--pm-line);background:var(--pm-surface)}
+  .pin .art{width:100%;display:block}
+  .pin .cap{display:flex;align-items:center;gap:8px;padding:9px 11px}
+  .pin .cap .avatar{width:22px;height:22px;font-size:10px}
+  .pin .cap b{font-size:11.5px;font-weight:600;color:var(--pm-ink)}
+  .pin .cap .meta{margin-left:auto}
+  .pin .save{position:absolute;top:10px;right:10px;background:var(--pm-accent);color:var(--pm-onaccent);
+    border:0;border-radius:9px;font-size:11px;font-weight:800;padding:6px 12px;opacity:0;transition:opacity .2s;cursor:pointer;font-family:inherit}
+  .pin:hover .save{opacity:1}
+  .h120{height:120px}.h160{height:160px}.h200{height:200px}.h240{height:240px}.h280{height:280px}
+  .g-a{background:linear-gradient(150deg,#E8B4C8,#8E4A6B)}
+  .g-b{background:linear-gradient(150deg,#A0C8E8,#3A5E80)}
+  .g-c{background:linear-gradient(150deg,#E8DCA0,#807030)}
+  .g-d{background:linear-gradient(150deg,#A0E8C0,#2F6E52)}
+  .g-e{background:linear-gradient(150deg,#C0A0E8,#5A3A80)}
+  .g-f{background:linear-gradient(150deg,#E8A9A0,#7E3A30)}
+  .g-g{background:conic-gradient(from 40deg,#B9A0E8,#E8B4C8,#A0C8E8,#B9A0E8)}
+  .g-h{background:repeating-linear-gradient(45deg,#2A2433 0 12px,#3B3450 12px 24px)}
+  .collections{display:flex;gap:12px;padding:0 26px 26px;overflow-x:auto}
+  .coll{flex:none;width:190px;border-radius:14px;border:1px solid var(--pm-line);background:var(--pm-surface);overflow:hidden}
+  .coll .strip{display:grid;grid-template-columns:2fr 1fr;grid-template-rows:34px 34px;gap:2px}
+  .coll .strip i{display:block}
+  .coll .strip i:first-child{grid-row:1/3}
+  .coll b{display:block;font-size:12px;padding:9px 12px 2px;color:var(--pm-ink)}
+  .coll .meta{display:block;padding:0 12px 10px}
+
+  /* =============== 4. DIGEST =============== */
+  #a-digest .page-mock{
+    --pm-bg:#F2F5F8; --pm-surface:#fff; --pm-high:#E1EAF3; --pm-line:#DCE4EC;
+    --pm-accent:#3566B0; --pm-accent-dim:#274E89; --pm-onaccent:#fff;
+    --pm-ink:#1C2733; --pm-ink2:#4E5D6C; --pm-ink3:#8494A4; --pm-nav-bg:#fff;
+  }
+  .issue-head{padding:30px 26px 22px;background:linear-gradient(135deg,#274E89,#3566B0);color:#fff}
+  .issue-head .kicker{color:#B9D2F5}
+  .issue-head h3{font-size:28px;letter-spacing:-.02em;margin:6px 0 4px}
+  .issue-head p{color:#C9DAF3;font-size:13.5px;max-width:640px}
+  .digest-cols{display:grid;grid-template-columns:220px 1fr;gap:22px;padding:22px 26px 28px}
+  .digest-rail{display:flex;flex-direction:column;gap:6px}
+  .digest-rail .r{padding:9px 13px;border-radius:10px;font-size:13px;color:var(--pm-ink2);display:flex;justify-content:space-between}
+  .digest-rail .r.on{background:var(--pm-high);color:var(--pm-accent-dim);font-weight:700}
+  .digest-rail .r i{font-style:normal;font-size:11px;color:var(--pm-ink3)}
+  .ditem{display:flex;gap:16px;padding:16px 18px;margin-bottom:12px}
+  .ditem .rank{font-size:22px;font-weight:800;color:var(--pm-high);-webkit-text-stroke:1.4px var(--pm-accent);min-width:34px;line-height:1.1}
+  .ditem h4{font-size:15.5px;letter-spacing:-.01em;margin-bottom:4px}
+  .ditem p{font-size:13px;color:var(--pm-ink2)}
+  .ditem .why{margin-top:8px;font-size:11.5px;color:var(--pm-ink3);background:var(--pm-bg);
+    border-radius:8px;padding:5px 10px;display:inline-block}
+  .ditem .src{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .ditem .src .avatar{width:20px;height:20px;font-size:9px}
+  .ditem .src{font-size:11.5px;color:var(--pm-ink3)}
+
+  /* =============== 5. THE SCENE =============== */
+  #a-scene .page-mock{
+    --pm-bg:#101312; --pm-surface:#181D1B; --pm-high:#232B27; --pm-line:#2B3530;
+    --pm-accent:#C6F04A; --pm-accent-dim:#D7F87A; --pm-onaccent:#141A10;
+    --pm-ink:#EAF2E9; --pm-ink2:#A9B6AB; --pm-ink3:#75837A; --pm-nav-bg:#181D1B;
+  }
+  .scene-hero{padding:34px 26px 24px;background:
+    radial-gradient(90% 140% at 85% 0%, rgba(198,240,74,.22) 0%, transparent 55%), #101312;
+    border-bottom:1px solid var(--pm-line)}
+  .scene-hero h3{font-size:34px;letter-spacing:-.03em;text-transform:uppercase;font-weight:800}
+  .scene-hero h3 span{color:var(--pm-accent)}
+  .scene-hero p{color:var(--pm-ink2);font-size:13.5px;margin-top:6px;max-width:560px}
+  .scene-cols{display:grid;grid-template-columns:1.5fr 1fr;gap:22px;padding:22px 26px 28px}
+  .set-row{display:flex;align-items:center;gap:14px;padding:12px 14px;margin-bottom:10px}
+  .set-row .play{width:40px;height:40px;border-radius:50%;background:var(--pm-accent);color:var(--pm-onaccent);
+    display:flex;align-items:center;justify-content:center;font-size:15px;flex:none;cursor:pointer}
+  .set-row .info{flex:1;min-width:0}
+  .set-row b{display:block;font-size:13.5px}
+  .set-row .waves{display:flex;align-items:flex-end;gap:2px;height:22px;margin-top:6px}
+  .set-row .waves i{width:3px;background:var(--pm-high);border-radius:2px;display:block}
+  .set-row .waves i.lit{background:var(--pm-accent)}
+  .show{display:flex;gap:14px;padding:13px 15px;margin-bottom:10px;align-items:center}
+  .show .date{flex:none;width:52px;text-align:center;background:var(--pm-high);border-radius:11px;padding:8px 0}
+  .show .date b{display:block;font-size:17px;color:var(--pm-accent)}
+  .show .date span{font-size:9.5px;letter-spacing:.1em;color:var(--pm-ink3);text-transform:uppercase}
+  .show h5{font-size:13.5px}
+  .show p{font-size:11.5px;color:var(--pm-ink3);margin-top:2px}
+  .flyers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .flyer{aspect-ratio:3/4;border-radius:10px;position:relative;overflow:hidden;border:1px solid var(--pm-line);
+    display:flex;align-items:flex-end;padding:10px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+  .f1{background:repeating-linear-gradient(-35deg,#C6F04A 0 8px,#141A10 8px 26px);color:#141A10}
+  .f1 span{background:#C6F04A;padding:2px 6px;border-radius:4px}
+  .f2{background:radial-gradient(circle at 50% 30%,#5A3A80,#1A1024);color:#E8DCFF}
+  .f3{background:linear-gradient(160deg,#7E3A30,#1A0E0C);color:#F5D9C9}
+
+  /* =============== 6. COMMONS PAGE =============== */
+  #a-commons .page-mock{
+    --pm-bg:#F6F4EF; --pm-surface:#fff; --pm-high:#E9F1ED; --pm-line:#E5E1D8;
+    --pm-accent:#0E7C66; --pm-accent-dim:#0A5D4D; --pm-onaccent:#fff;
+    --pm-ink:#20302B; --pm-ink2:#51635C; --pm-ink3:#6E7D77; --pm-nav-bg:#fff;
+  }
+  .commons-cols{display:grid;grid-template-columns:1fr 330px;gap:22px;padding:24px 26px 28px}
+  .notice{padding:15px 18px;margin-bottom:12px;border-left:4px solid var(--pm-accent);border-radius:0 14px 14px 0}
+  .notice h5{font-size:13.5px;margin-bottom:3px}
+  .notice p{font-size:12.5px;color:var(--pm-ink2)}
+  .plaza{padding:16px 18px}
+  .plaza h5{font-size:13px;margin-bottom:4px}
+  .plaza .meta{display:block;margin-bottom:10px}
+  .plaza-grid{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;background:var(--pm-high);
+    border-radius:10px;padding:6px}
+  .plaza-grid i{aspect-ratio:1;border-radius:2px;background:var(--pm-surface);display:block}
+  .photo-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .photo-strip i{display:block;height:74px;border-radius:9px}
+  .p1{background:linear-gradient(140deg,#9BC49A,#4C7A50)}
+  .p2{background:linear-gradient(140deg,#E0C98F,#8F660D)}
+  .p3{background:linear-gradient(140deg,#8FB7E0,#3566B0)}
+  .p4{background:linear-gradient(140deg,#E09F8F,#B3413E)}
+  .badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .badge{display:flex;gap:8px;align-items:center;border:1px solid var(--pm-line);border-radius:12px;
+    padding:7px 11px;font-size:12px;background:var(--pm-surface)}
+  .badge i{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;
+    font-style:normal;font-size:12px;background:var(--pm-high)}
+
+  /* =============== 7. MEMBERSHIP =============== */
+  #a-member .page-mock{
+    --pm-bg:#F8F3F5; --pm-surface:#fff; --pm-high:#F3E1E9; --pm-line:#EBD9E1;
+    --pm-accent:#8E3A62; --pm-accent-dim:#71294C; --pm-onaccent:#fff;
+    --pm-ink:#2E1F27; --pm-ink2:#63505A; --pm-ink3:#93808A; --pm-nav-bg:#fff;
+  }
+  .member-hero{padding:34px 26px 26px;background:
+    radial-gradient(110% 160% at 88% 0%, rgba(142,58,98,.16) 0%, transparent 55%), var(--pm-surface);
+    border-bottom:1px solid var(--pm-line);display:flex;gap:22px;align-items:center}
+  .member-hero .avatar{width:88px;height:88px;font-size:32px;flex:none;background:var(--pm-accent)}
+  .member-hero h3{font-size:26px;letter-spacing:-.02em}
+  .member-hero p{font-size:13.5px;color:var(--pm-ink2);max-width:560px;margin-top:4px}
+  .cadence{display:flex;align-items:center;gap:12px;padding:20px 26px 0}
+  .cadence .label{font-size:12px;color:var(--pm-ink3)}
+  .cadence .seg2{display:flex;background:var(--pm-high);border-radius:11px;padding:3px;font-size:12px}
+  .cadence .seg2 button{border:0;background:transparent;color:var(--pm-ink2);border-radius:8px;
+    padding:6px 14px;font-weight:700;cursor:pointer;font-family:inherit;font-size:12px}
+  .cadence .seg2 button.on{background:var(--pm-accent);color:var(--pm-onaccent)}
+  .cadence .save-note{font-size:11px;color:var(--pm-accent-dim);font-weight:700}
+  .tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:16px 26px 6px}
+  .tier .once-tag{display:inline-block;background:var(--pm-high);color:var(--pm-accent-dim);
+    font-size:9.5px;font-weight:800;letter-spacing:.06em;border-radius:99px;padding:2px 9px;margin-bottom:6px}
+  .shapes{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 26px 4px;font-size:11.5px;color:var(--pm-ink3)}
+  .shapes .shape{border:1px dashed var(--pm-line);border-radius:11px;padding:6px 12px;color:var(--pm-ink2);background:var(--pm-surface)}
+  .shapes .shape b{color:var(--pm-accent-dim)}
+  .tier{padding:18px;position:relative}
+  .tier.hot{border-color:var(--pm-accent);box-shadow:0 8px 30px rgba(142,58,98,.14)}
+  .tier .pop{position:absolute;top:-10px;right:14px;background:var(--pm-accent);color:var(--pm-onaccent);
+    font-size:10px;font-weight:800;border-radius:99px;padding:3px 10px;letter-spacing:.05em}
+  .tier h5{font-size:14px}
+  .tier .price{font-size:24px;font-weight:800;color:var(--pm-accent-dim);margin:4px 0 2px;letter-spacing:-.02em}
+  .tier .price span{font-size:11px;font-weight:600;color:var(--pm-ink3)}
+  .tier .price .amt{font-size:24px;font-weight:800;color:var(--pm-accent-dim)}
+  .tier ul{list-style:none;margin:10px 0 14px;font-size:12px;color:var(--pm-ink2)}
+  .tier li{padding:4px 0 4px 18px;position:relative}
+  .tier li:before{content:"✓";position:absolute;left:0;color:var(--pm-accent);font-weight:800}
+  .tier .joinbtn{width:100%}
+  .tier.hot .joinbtn{background:var(--pm-accent)}
+  .tier:not(.hot) .joinbtn{background:var(--pm-high);color:var(--pm-accent-dim)}
+  .member-cols{display:grid;grid-template-columns:1fr 300px;gap:22px;padding:20px 26px 28px}
+  .locked{position:relative;overflow:hidden}
+  .locked .blur{height:150px;border-radius:12px;margin:12px 0 8px;position:relative;overflow:hidden;
+    background:linear-gradient(120deg,#E3B4C9 0%,#8E3A62 60%,#4A1B33 100%);filter:blur(0px)}
+  .locked .blur:before{content:"";position:absolute;inset:0;backdrop-filter:blur(14px);
+    background:rgba(255,255,255,.12)}
+  .locked .lockbadge{position:absolute;inset:0;margin:auto;width:max-content;height:max-content;
+    background:rgba(46,31,39,.85);color:#fff;border-radius:12px;padding:10px 16px;font-size:12px;font-weight:700;
+    display:flex;gap:8px;align-items:center}
+  .own-note{padding:16px 18px;background:#2E1F27;color:#F0DFE8;border-radius:16px;margin-top:14px}
+  .own-note b{display:block;font-size:13.5px;margin-bottom:5px;color:#E9AECB}
+  .own-note p{font-size:12px;color:#C4A8B5;line-height:1.6}
+  .member-side .side-block li{border-bottom-style:solid}
+
+  /* =============== 8. PERSONAL SITE =============== */
+  #a-personal .page-mock{
+    --pm-bg:#FCFBF8; --pm-surface:#fff; --pm-high:#EFEDE6; --pm-line:#E6E3DA;
+    --pm-accent:#1C1A17; --pm-accent-dim:#1C1A17; --pm-onaccent:#FCFBF8;
+    --pm-ink:#1C1A17; --pm-ink2:#5B5750; --pm-ink3:#8F8A80; --pm-nav-bg:#FCFBF8;
+  }
+  .personal-wrap{max-width:680px;margin:0 auto;padding:52px 26px 40px}
+  .personal-wrap .avatar{width:76px;height:76px;font-size:28px;background:#1C1A17}
+  .personal-wrap h3{font-family:var(--serif);font-size:36px;letter-spacing:-.01em;margin-top:18px}
+  .personal-wrap .role{font-size:14px;color:var(--pm-ink2);margin-top:4px}
+  .personal-wrap .bio{font-family:var(--serif);font-size:16px;line-height:1.65;color:var(--pm-ink2);margin-top:16px}
+  .linkrow{display:flex;flex-direction:column;gap:9px;margin-top:22px}
+  .linkrow a{display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--pm-ink);
+    border-radius:12px;padding:12px 16px;font-size:13.5px;font-weight:700;transition:all .15s}
+  .linkrow a:hover{background:var(--pm-ink);color:var(--pm-onaccent)}
+  .linkrow a span{font-weight:400;font-size:11.5px;color:var(--pm-ink3)}
+  .linkrow a:hover span{color:#B9B4AA}
+  .worklist{margin-top:30px}
+  .worklist h5,.essaylist h5,.nowblock h5{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--pm-ink3);margin-bottom:12px}
+  .workgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .work{border:1px solid var(--pm-line);border-radius:12px;overflow:hidden;background:var(--pm-surface)}
+  .work i{display:block;height:90px}
+  .work b{display:block;font-size:12px;padding:9px 11px 2px}
+  .work .meta{display:block;padding:0 11px 9px}
+  .w1{background:linear-gradient(140deg,#D9D2C5,#8F8A80)}
+  .w2{background:linear-gradient(140deg,#C8CFC2,#5E6B58)}
+  .w3{background:repeating-linear-gradient(90deg,#1C1A17 0 3px,#FCFBF8 3px 14px)}
+  .essaylist{margin-top:28px}
+  .essaylist a{display:flex;justify-content:space-between;padding:10px 2px;border-bottom:1px solid var(--pm-line);
+    font-family:var(--serif);font-size:15.5px}
+  .essaylist a span{font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:11px;color:var(--pm-ink3);align-self:center}
+  .nowblock{margin-top:28px;background:var(--pm-high);border-radius:12px;padding:16px 18px}
+  .nowblock p{font-size:13.5px;color:var(--pm-ink2);font-family:var(--serif)}
+
+  /* =============== 9. STOREFRONT =============== */
+  #a-store .page-mock{
+    --pm-bg:#F4F1EA; --pm-surface:#fff; --pm-high:#E7EBDD; --pm-line:#E0DCCE;
+    --pm-accent:#3F6212; --pm-accent-dim:#2F4A0D; --pm-onaccent:#fff;
+    --pm-ink:#23281A; --pm-ink2:#565E48; --pm-ink3:#878E77; --pm-nav-bg:#fff;
+  }
+  .store-hero{display:grid;grid-template-columns:1.1fr 1fr;border-bottom:1px solid var(--pm-line)}
+  .store-hero .copy{padding:34px 26px}
+  .store-hero .copy .kicker{color:var(--pm-accent-dim)}
+  .store-hero h3{font-size:28px;letter-spacing:-.02em;margin:8px 0 8px}
+  .store-hero p{font-size:13.5px;color:var(--pm-ink2);max-width:420px}
+  .store-hero .featured{background:linear-gradient(140deg,#B9C98A,#3F6212);position:relative;min-height:220px}
+  .store-hero .featured:after{content:"Featured: The Ochre Coast, plate IV · signed print run of 50";
+    position:absolute;left:18px;bottom:14px;color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+  .products{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:22px 26px}
+  .product{overflow:hidden}
+  .product i{display:block;height:120px}
+  .product .pinfo{padding:11px 13px 13px}
+  .product b{font-size:13px;display:block}
+  .product .ptype{font-size:10.5px;color:var(--pm-ink3);margin-top:2px;display:flex;gap:6px;align-items:center}
+  .product .ptype .pd{background:var(--pm-high);color:var(--pm-accent-dim);border-radius:6px;padding:1px 7px;font-weight:700}
+  .product .prow{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .product .price{font-size:15px;font-weight:800;color:var(--pm-ink)}
+  .product .joinbtn{padding:7px 14px;font-size:12px}
+  .pr1{background:linear-gradient(140deg,#E7A876,#8A4523)}
+  .pr2{background:linear-gradient(140deg,#B9C98A,#556B2F)}
+  .pr3{background:linear-gradient(140deg,#C6B4E3,#6D5A96)}
+  .pr4{background:repeating-linear-gradient(-40deg,#E7EBDD 0 10px,#B9C98A 10px 20px)}
+  .pr5{background:linear-gradient(140deg,#8FB7E0,#33434E)}
+  .pr6{background:linear-gradient(140deg,#E3B4B4,#7E3A30)}
+  .howbuy{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:6px 26px 24px}
+  .step{padding:15px 17px}
+  .step .n{width:26px;height:26px;border-radius:50%;background:var(--pm-accent);color:var(--pm-onaccent);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;margin-bottom:9px}
+  .step b{font-size:13px;display:block;margin-bottom:3px}
+  .step p{font-size:12px;color:var(--pm-ink2);line-height:1.55}
+
+  /* =============== 10. EDITOR =============== */
+  #a-editor .page-mock{
+    --pm-bg:#14171B; --pm-surface:#1C2026; --pm-high:#272D35; --pm-line:#303844;
+    --pm-accent:#5EB0EF; --pm-accent-dim:#8AC8F5; --pm-onaccent:#0D1A24;
+    --pm-ink:#E8EDF2; --pm-ink2:#A6B0BC; --pm-ink3:#727E8C; --pm-nav-bg:#1C2026;
+  }
+  .editor-top{display:flex;align-items:center;gap:12px;padding:12px 18px;background:var(--pm-nav-bg);
+    border-bottom:1px solid var(--pm-line);font-size:12.5px;color:var(--pm-ink2)}
+  .editor-top b{color:var(--pm-ink)}
+  .editor-top .draft{background:var(--pm-high);border-radius:8px;padding:4px 10px;font-size:11px}
+  .editor-top .publish{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .editor-body{display:grid;grid-template-columns:200px 1fr 240px;min-height:520px}
+  .palette{border-right:1px solid var(--pm-line);padding:14px;background:var(--pm-nav-bg)}
+  .palette h6,.inspector h6{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--pm-ink3);margin:0 0 10px}
+  .block-item{display:flex;gap:9px;align-items:center;padding:8px 10px;border:1px solid var(--pm-line);
+    border-radius:10px;margin-bottom:7px;font-size:12px;color:var(--pm-ink2);cursor:grab;background:var(--pm-surface)}
+  .block-item i{font-style:normal;font-size:13px;width:18px;text-align:center}
+  .block-item.dragging{border-color:var(--pm-accent);color:var(--pm-ink);border-style:dashed}
+  .canvas{padding:22px;background:
+    linear-gradient(var(--pm-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pm-line) 1px, transparent 1px);
+    background-size:24px 24px;background-color:var(--pm-bg)}
+  .canvas .minipage{max-width:520px;margin:0 auto;background:#F4F1EA;border-radius:14px;overflow:hidden;
+    color:#23281A;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+  .mini-block{position:relative;border:2px solid transparent;margin:0}
+  .mini-block:hover{border-color:rgba(94,176,239,.5)}
+  .mini-block.sel{border-color:var(--pm-accent)}
+  .mini-block.sel:before{content:attr(data-label);position:absolute;top:-11px;left:10px;background:var(--pm-accent);
+    color:var(--pm-onaccent);font-size:9.5px;font-weight:800;border-radius:6px;padding:2px 8px;z-index:5;
+    font-family:-apple-system,sans-serif}
+  .mini-block.sel:after{content:"⠿";position:absolute;top:4px;right:8px;color:var(--pm-accent);font-size:14px}
+  .mini-hero{padding:18px;background:linear-gradient(140deg,#B9C98A,#3F6212);color:#fff}
+  .mini-hero b{font-size:16px;display:block}
+  .mini-hero span{font-size:10.5px;opacity:.85}
+  .mini-products{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+  .mini-products div{border:1px solid #E0DCCE;border-radius:8px;overflow:hidden;background:#fff}
+  .mini-products i{display:block;height:44px}
+  .mini-products b{display:block;font-size:8.5px;padding:5px 6px 1px}
+  .mini-products span{display:block;font-size:8px;color:#878E77;padding:0 6px 5px}
+  .mini-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 12px 12px}
+  .mini-steps div{background:#fff;border:1px solid #E0DCCE;border-radius:8px;padding:8px;font-size:8px;color:#565E48}
+  .mini-steps b{display:block;font-size:9px;color:#23281A;margin-bottom:2px}
+  .mini-posts{padding:0 12px 14px}
+  .mini-posts div{background:#fff;border:1px solid #E0DCCE;border-radius:8px;padding:9px;font-size:8.5px;color:#565E48;margin-bottom:6px}
+  .inspector{border-left:1px solid var(--pm-line);padding:14px;background:var(--pm-nav-bg)}
+  .insp-group{margin-bottom:16px}
+  .insp-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--pm-ink2);padding:6px 0}
+  .swatches{display:flex;gap:6px}
+  .sw{width:20px;height:20px;border-radius:7px;border:2px solid transparent;cursor:pointer}
+  .sw.on{border-color:var(--pm-ink)}
+  .seg{display:flex;background:var(--pm-high);border-radius:9px;padding:2px;font-size:10.5px}
+  .seg span{padding:4px 9px;border-radius:7px;color:var(--pm-ink3)}
+  .seg span.on{background:var(--pm-accent);color:var(--pm-onaccent);font-weight:700}
+  .insp-note{font-size:10.5px;color:var(--pm-ink3);line-height:1.5;margin-top:6px}
+
+  /* honest footers on every mock */
+  .pm-honest{
+    padding:11px 26px;background:var(--pm-surface);border-top:1px solid var(--pm-line);
+    font-size:11px;color:var(--pm-ink3);display:flex;gap:14px;flex-wrap:wrap;
+  }
+
+  footer.page{margin-top:44px;color:#75847C;font-size:12.5px}
+
+  @media (max-width:900px){
+    .creator-cols,.digest-cols,.scene-cols,.commons-cols,.member-cols,.store-hero{grid-template-columns:1fr}
+    .tiers,.products,.howbuy{grid-template-columns:1fr 1fr}
+    .editor-body{grid-template-columns:1fr}
+    .palette,.inspector{border:0;border-top:1px solid var(--pm-line)}
+    .news-grid{grid-template-columns:1fr}
+    .news-lead{border-right:0}
+    .news-lead .body{column-count:1}
+    .shelf{grid-template-columns:repeat(2,1fr)}
+    .pm-nav .links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="page">
+    <h1>Meerkat <em>·</em> community page archetypes</h1>
+    <p>Six sample community front pages, each a different product shape a community owner can build: a creator's home, a newsroom, an art wall, a curated digest, a music scene, and a civic commons. Everything shown maps to primitives that already exist in the codebase; nothing is a fantasy widget.</p>
+    <div class="concept">
+      <b>The idea.</b> A Meerkat community is not just channels: Plan 56 shipped the composition platform (Canvas blocks, Pages, layouts, milestone cards, page templates, themes, badges, the Plaza) and Plan 38 shipped sealed libraries. These archetypes are what page templates should ship in the create-community gallery, so "make a fan hub / newsroom / gallery / zine" is a one-tap starting point, the same move as Discord's server templates. Owner-signed theming restyles each page; the tab bar and the rest of the app never retheme.
+    </div>
+    <div class="concept" style="margin-top:12px">
+      <b>The bigger claim: the Meerkat editor replaces creator platforms.</b> Archetypes 7-10 push past community pages into the platforms creators currently rent: Patreon and OnlyFans-class membership (tier-gated content for any legal work, mature creators included behind the universal 18+ gate), personal websites, and webstores. The architectural difference from every incumbent: <b>membership IS the read capability</b> (a paying member holds keys on their device; no paywall server decides), payments run on the creator's OWN processor so Meerkat takes 0% and never touches the money, digital goods deliver as sealed library grants, and the page lives on the creator's own community server, so no platform can deplatform, reprice, or algorithm it. Archetype 10 is the editor itself.
+    </div>
+  </header>
+</div>
+
+<nav class="switch"><div class="wrap">
+  <button class="on" data-t="a-creator">1 · Creator Studio</button>
+  <button data-t="a-news">2 · The Newsroom</button>
+  <button data-t="a-wall">3 · The Art Wall</button>
+  <button data-t="a-digest">4 · The Digest</button>
+  <button data-t="a-scene">5 · The Scene</button>
+  <button data-t="a-commons">6 · The Commons Page</button>
+  <button data-t="a-member">7 · The Membership</button>
+  <button data-t="a-personal">8 · The Personal Site</button>
+  <button data-t="a-store">9 · The Storefront</button>
+  <button data-t="a-editor">10 · The Meerkat Editor</button>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ============ 1. CREATOR STUDIO ============ -->
+<section class="arch on" id="a-creator">
+  <div class="arch-head"><h2>Creator Studio</h2><span class="kind">public publication + members community</span></div>
+  <p class="arch-desc">A content creator's front door: public face for anyone, a paid-nothing-extra members community behind the Join button. The public half is a Plan 19 publication (anonymous reading); the members half is a private community with channels, library drops, and posts.</p>
+  <div class="built-from">Built from:
+    <span class="b">publication (public read)</span><span class="b">cm_ posts channel</span><span class="b">sealed library items</span>
+    <span class="b">milestone card (Plan 56 C2)</span><span class="b">community identity + theme</span><span class="b">Q&amp;A channel</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="pm-nav">
+      <div class="logo">M</div>
+      <div><div class="name">Mara Quill · Illustration</div><div class="tag">t/maraquill · public page</div></div>
+      <div class="links"><span class="on">Home</span><span>Posts</span><span>Library</span><span>Q&amp;A</span><span>About</span></div>
+      <button class="joinbtn">Join the studio</button>
+    </div>
+
+    <div class="creator-hero"><div class="grain"></div></div>
+    <div class="creator-id">
+      <span class="avatar">MQ</span>
+      <div class="who">
+        <h3>Mara Quill</h3>
+        <p>Maps of places that don't exist. Weekly inked worlds, process posts, and the occasional field guide to imaginary birds.</p>
+      </div>
+      <div class="actions"><button class="ghostbtn">Share page</button><button class="joinbtn">Join the studio</button></div>
+    </div>
+
+    <div class="pm-body creator-cols">
+      <div>
+        <div class="kicker">Latest drops</div>
+        <div class="shelf">
+          <div class="item"><i class="thumb t1"></i><b>The Ochre Coast, plate IV</b><span class="meta">map · 14 MB · sealed</span></div>
+          <div class="item"><i class="thumb t2"></i><b>Fen &amp; Fern field guide</b><span class="meta">zine · 22 pages</span></div>
+          <div class="item"><i class="thumb t3"></i><b>Inking the marshes (video)</b><span class="meta">38 min process</span></div>
+          <div class="item"><i class="thumb t4"></i><b>Brush pack v3</b><span class="meta">asset pack · members</span></div>
+        </div>
+
+        <div class="kicker" style="margin-top:24px">From the posts channel</div>
+        <div class="pm-card post">
+          <div class="phead"><span class="avatar">MQ</span><div><b style="font-size:13px">Mara Quill</b>
+            <div class="meta">Tuesday · #studio-log · <span class="sig">signed</span></div></div></div>
+          <h4>Why every map needs one lie</h4>
+          <p>Cartographers used to hide a fake street in every map to catch copyists. I hide a fake bird. This week's post is about trap streets, paper towns, and why fiction inside fact makes a world feel real.</p>
+          <div class="pimg"></div>
+          <div class="pfoot"><span class="chip mine">🪶 41</span><span class="chip">🗺️ 18</span><span class="chip">23 replies</span></div>
+        </div>
+        <div class="pm-card post">
+          <div class="phead"><span class="avatar" style="background:#6B584A">MQ</span><div><b style="font-size:13px">Mara Quill</b>
+            <div class="meta">Last Friday · #studio-log · <span class="sig">signed</span></div></div></div>
+          <h4>Members vote: which coastline gets the plate V treatment?</h4>
+          <p>Three sketches are up in the members library. The poll runs in #vote until Sunday. Majority takes the full four-week treatment, inks to final print.</p>
+          <div class="pfoot"><span class="chip">⚓ 29</span><span class="chip">51 replies</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="milestone">
+          <div class="kicker">Milestone</div>
+          <div class="big">Plate 100</div>
+          <p style="font-size:12.5px;color:var(--pm-ink2);margin-top:4px">One hundred inked maps since the studio opened. The retrospective zine ships to members this month.</p>
+        </div>
+        <div class="pm-card side-block">
+          <h5>Studio channels</h5>
+          <ul>
+            <li><span># studio-log</span><span class="meta">weekly</span></li>
+            <li><span># works-in-progress</span><span class="meta">members</span></li>
+            <li><span># q-and-a</span><span class="meta">open</span></li>
+            <li><span># vote</span><span class="meta">members</span></li>
+          </ul>
+        </div>
+        <div class="support">
+          <b>Support the studio</b>
+          <p>Membership is the support. Members get the full library, process videos, brush packs, and a say in what gets made next. Hosted on the studio's own community server.</p>
+          <button class="joinbtn">Become a member</button>
+        </div>
+      </div>
+    </div>
+    <div class="pm-honest">
+      <span>Reading this page is anonymous.</span>
+      <span>Every post is author-signed and verified before it renders.</span>
+      <span>Member content is sealed; the server hosting it cannot read it.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. NEWSROOM ============ -->
+<section class="arch" id="a-news">
+  <div class="arch-head"><h2>The Newsroom</h2><span class="kind">public publication · signed journalism</span></div>
+  <p class="arch-desc">A local paper that no platform can shadow-ban or paywall away from its town. Front page is a public publication; every story is Ed25519-signed by its author, corrections are first-class, and the reporters' private community sits behind it for tips and drafts.</p>
+  <div class="built-from">Built from:
+    <span class="b">publication + page route</span><span class="b">signed posts as articles</span><span class="b">author personas</span>
+    <span class="b">corrections = supersede events</span><span class="b">page template: front page</span><span class="b">private tips community</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="masthead">
+      <h3>The Harbor Ledger</h3>
+      <div class="dateline"><span>Founded 2026</span><span>·</span><span>Monday, September 1</span><span>·</span><span>Reader-funded, reader-hosted</span></div>
+    </div>
+    <div class="sections">
+      <span class="on">Front page</span><span>Council</span><span>Tides &amp; Weather</span><span>Schools</span><span>Sport</span><span>Letters</span>
+    </div>
+
+    <div class="news-grid">
+      <div class="news-lead">
+        <div class="photo"></div>
+        <h4>Council to decide the ferry terminal's fate after 40 years of salt and neglect</h4>
+        <div class="standfirst">Engineers say the pilings have a decade left. The vote on Thursday chooses between a $2.1M restoration and a demolition that would end the harbor's oldest crossing.</div>
+        <div class="byline"><span class="avatar">RO</span><b>Rosa Okafor</b><span class="sig">author-signed</span><span>· 9 min read</span></div>
+        <div class="body">
+          <p>The terminal has outlived four councils, two fires, and one hurricane that took the roof but left the clock. What it may not outlive is Thursday.</p>
+          <p>Documents released this week show the restoration bid came in under the March estimate, complicating the demolition case that rested on cost. Three councillors who voted to study demolition now say they are undecided.</p>
+          <p>"The numbers changed, so my mind can change," said councillor Ada Reyes on the record.</p>
+        </div>
+      </div>
+
+      <div class="news-col">
+        <div class="news-item">
+          <div class="kicker">Council</div>
+          <h5>School crossing budget passes, 6 to 1</h5>
+          <p>Four new guarded crossings by winter; the holdout vote wanted six.</p>
+          <div class="byline" style="margin:8px 0 0"><span class="avatar" style="width:22px;height:22px;font-size:9px">JT</span><b>J. Tan</b><span class="sig">signed</span></div>
+        </div>
+        <div class="news-item">
+          <div class="kicker">Tides</div>
+          <h5>King tide expected Friday; sandbags at the depot</h5>
+          <p>Public works opens the depot Thursday 7am. Bring proof of a ground-floor address.</p>
+          <div class="byline" style="margin:8px 0 0"><span class="avatar" style="width:22px;height:22px;font-size:9px">RO</span><b>R. Okafor</b><span class="sig">signed</span></div>
+        </div>
+        <div class="news-item">
+          <div class="kicker">Schools</div>
+          <h5>Robotics team qualifies for state on a rebuilt kit</h5>
+          <p>The drivetrain came from a scrapped vacuum. The trophy is real.</p>
+          <div class="byline" style="margin:8px 0 0"><span class="avatar" style="width:22px;height:22px;font-size:9px">MB</span><b>M. Bode</b><span class="sig">signed</span></div>
+        </div>
+      </div>
+
+      <div class="news-col">
+        <div class="opinion">
+          <div class="kicker">Opinion</div>
+          <h5>"A town that sells its ferry sells its patience"</h5>
+          <p style="font-size:12.5px;color:var(--pm-ink2)">Guest column by harbormaster (ret.) E. Silva. Opinions are the author's, signed as such.</p>
+        </div>
+        <div class="news-item">
+          <div class="kicker">Sport</div>
+          <h5>Rowing club sweeps the regatta; oldest crew averages 61</h5>
+          <p>Photos from the water in the club's community library.</p>
+        </div>
+        <div class="news-item">
+          <div class="kicker">From the tip line</div>
+          <h5>What's digging up Elm Street at 3am?</h5>
+          <p>We are on it. Tips go to the sealed #tips channel; only the desk can open them.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="corrections">
+      <b>Corrections.</b> Aug 28 story "Marina fees to double" misstated the start date; fees change January 1, not October 1. The original stands struck-through; this correction is a signed supersede event linked to it. We do not silently edit.
+    </div>
+
+    <div class="news-foot">
+      <span class="sig">Every article verifies against its author's key</span>
+      <span>Hosted on the Ledger's own community server</span>
+      <span>Read anonymously · reply with one human check</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. ART WALL ============ -->
+<section class="arch" id="a-wall">
+  <div class="arch-head"><h2>The Art Wall</h2><span class="kind">private community · sealed gallery</span></div>
+  <p class="arch-desc">A Pinterest-style wall for a closed circle of artists: masonry grid over the community's sealed library, save-to-collection, filter by medium. Blobs are encrypted at rest; only members render the images. "Save" pins locally, honest about storage.</p>
+  <div class="built-from">Built from:
+    <span class="b">cm_ library items (sealed blobs)</span><span class="b">library grid layout</span><span class="b">pin classes (save)</span>
+    <span class="b">curator-signed metadata</span><span class="b">member avatars (signed)</span><span class="b">community theme (dark violet)</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="pm-nav">
+      <div class="logo" style="color:var(--pm-onaccent)">OS</div>
+      <div><div class="name">Open Sketchbook</div><div class="tag">private community · 47 members</div></div>
+      <div class="links"><span class="on">Wall</span><span>Collections</span><span>Prompts</span><span>Crit</span></div>
+      <button class="joinbtn">Post to the wall</button>
+    </div>
+
+    <div class="wall-filters">
+      <span class="chip mine">All</span><span class="chip">Ink</span><span class="chip">Oil</span><span class="chip">Digital</span>
+      <span class="chip">Ceramics</span><span class="chip">Photo</span><span class="chip">This week's prompt: "low tide"</span>
+    </div>
+
+    <div class="masonry">
+      <div class="pin"><i class="art g-a h240"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#8E4A6B">N</span><b>Nadia</b><span class="meta">ink</span></div></div>
+      <div class="pin"><i class="art g-b h160"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#3A5E80">K</span><b>Kofi</b><span class="meta">oil</span></div></div>
+      <div class="pin"><i class="art g-d h280"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#2F6E52">S</span><b>Sena</b><span class="meta">digital</span></div></div>
+      <div class="pin"><i class="art g-c h120"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#807030">A</span><b>Ari</b><span class="meta">photo</span></div></div>
+      <div class="pin"><i class="art g-g h200"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#5A3A80">P</span><b>Priya</b><span class="meta">digital</span></div></div>
+      <div class="pin"><i class="art g-f h240"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#7E3A30">D</span><b>Dario</b><span class="meta">ceramics</span></div></div>
+      <div class="pin"><i class="art g-h h160"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#3B3450">M</span><b>Mo</b><span class="meta">ink</span></div></div>
+      <div class="pin"><i class="art g-e h200"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#5A3A80">L</span><b>Lena</b><span class="meta">oil</span></div></div>
+      <div class="pin"><i class="art g-b h120"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#3A5E80">T</span><b>Theo</b><span class="meta">photo</span></div></div>
+      <div class="pin"><i class="art g-a h160"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#8E4A6B">R</span><b>Rio</b><span class="meta">ink</span></div></div>
+      <div class="pin"><i class="art g-d h200"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#2F6E52">J</span><b>Jun</b><span class="meta">digital</span></div></div>
+      <div class="pin"><i class="art g-c h240"></i><button class="save">Save</button>
+        <div class="cap"><span class="avatar" style="background:#807030">E</span><b>Esi</b><span class="meta">oil</span></div></div>
+    </div>
+
+    <div class="kicker" style="padding:0 26px 10px">Collections</div>
+    <div class="collections">
+      <div class="coll"><div class="strip"><i class="g-a"></i><i class="g-g"></i><i class="g-e"></i></div><b>Low tide (prompt 34)</b><span class="meta">18 pieces · curated by Nadia</span></div>
+      <div class="coll"><div class="strip"><i class="g-b"></i><i class="g-d"></i><i class="g-c"></i></div><b>Figure Fridays</b><span class="meta">61 pieces</span></div>
+      <div class="coll"><div class="strip"><i class="g-f"></i><i class="g-h"></i><i class="g-a"></i></div><b>Kiln disasters we love</b><span class="meta">9 pieces</span></div>
+      <div class="coll"><div class="strip"><i class="g-e"></i><i class="g-b"></i><i class="g-g"></i></div><b>Zine 03 shortlist</b><span class="meta">voting in #crit</span></div>
+    </div>
+
+    <div class="pm-honest">
+      <span>Images are sealed blobs; the community's server stores them without being able to view them.</span>
+      <span>"Save" pins a copy on this device against your storage budget.</span>
+      <span>New pieces arrive when a sync connects.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. DIGEST ============ -->
+<section class="arch" id="a-digest">
+  <div class="arch-head"><h2>The Digest</h2><span class="kind">curated custom feed · weekly issue</span></div>
+  <p class="arch-desc">A human-curated feed as a community: an editor (or small crew) publishes a ranked weekly issue assembled from posts across communities and the public layer. Every entry credits and links its signed source, and says why it was picked. The anti-algorithm: curation you can see.</p>
+  <div class="built-from">Built from:
+    <span class="b">posts channel as issues</span><span class="b">feed cards + link previews (sender-generated)</span>
+    <span class="b">"Why am I seeing this?" (exists in Feed)</span><span class="b">topic categories</span><span class="b">publication for public issues</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="pm-nav">
+      <div class="logo" style="background:var(--pm-accent)">S</div>
+      <div><div class="name">Signal &amp; Noise</div><div class="tag">weekly digest · issue 82</div></div>
+      <div class="links"><span class="on">This issue</span><span>Archive</span><span>Suggest a link</span></div>
+      <button class="joinbtn">Follow</button>
+    </div>
+
+    <div class="issue-head">
+      <div class="kicker">Issue 82 · Week of September 1</div>
+      <h3>Small tools, big rooms</h3>
+      <p>Seven things worth your attention this week, picked by two humans reading so you don't have to. Every pick says why it's here. No engagement loops were consulted.</p>
+    </div>
+
+    <div class="digest-cols">
+      <div class="digest-rail">
+        <div class="r on"><span>This week</span><i>7</i></div>
+        <div class="r"><span>Tools</span><i>2</i></div>
+        <div class="r"><span>Reads</span><i>3</i></div>
+        <div class="r"><span>Listens</span><i>1</i></div>
+        <div class="r"><span>From our communities</span><i>1</i></div>
+        <div class="r" style="margin-top:14px;border-top:1px solid var(--pm-line);border-radius:0;padding-top:14px"><span>Past issues</span><i>81</i></div>
+      </div>
+
+      <div>
+        <div class="pm-card ditem">
+          <div class="rank">1</div>
+          <div>
+            <h4>The case for tools that do one thing slowly</h4>
+            <p>An essay on why "instant" flattened our sense of craft, and what the pushback looks like in small software.</p>
+            <div class="src"><span class="avatar" style="background:#274E89">t</span> via t/slow-tools · author-signed · 14 min</div>
+            <div class="why">Why it's here: the best articulation yet of a thing we keep circling in #reading-club.</div>
+          </div>
+        </div>
+        <div class="pm-card ditem">
+          <div class="rank">2</div>
+          <div>
+            <h4>Field recording kit under $80, tested in a rainstorm</h4>
+            <p>A member of the Basement Tapes crew tore down four budget recorders. The rain won twice.</p>
+            <div class="src"><span class="avatar" style="background:#2F6E52">B</span> from Basement Tapes Collective · shared with permission</div>
+            <div class="why">Why it's here: real testing, real audio samples, zero affiliate links.</div>
+          </div>
+        </div>
+        <div class="pm-card ditem">
+          <div class="rank">3</div>
+          <div>
+            <h4>What the harbor vote teaches about civic memory</h4>
+            <p>The Harbor Ledger's ferry-terminal coverage, and why forty years of maintenance minutes turned the debate.</p>
+            <div class="src"><span class="avatar" style="background:#1E2A32">H</span> The Harbor Ledger · signed by R. Okafor</div>
+            <div class="why">Why it's here: local journalism doing what national coverage can't.</div>
+          </div>
+        </div>
+        <div class="pm-card ditem">
+          <div class="rank">4</div>
+          <div>
+            <h4>Listen: an hour of tape loops recorded in a stairwell</h4>
+            <p>Side B is the stairwell itself. Headphones, honestly.</p>
+            <div class="src"><span class="avatar" style="background:#5A3A80">◍</span> t/tape-music · sealed audio, plays from your library after sync</div>
+            <div class="why">Why it's here: the editor has played it eleven times this week.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pm-honest">
+      <span>Curated by named humans; every pick links its signed source.</span>
+      <span>Link previews are sender-generated; nothing here fetches on your device.</span>
+      <span>Issues arrive as posts; no read tracking exists.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. THE SCENE ============ -->
+<section class="arch" id="a-scene">
+  <div class="arch-head"><h2>The Scene</h2><span class="kind">private community · music collective</span></div>
+  <p class="arch-desc">A DIY music scene's home: recorded sets in the sealed library with a real player, an upcoming-shows board, and a flyer wall. Audio streams from the on-device decrypting range server; nothing claims to stream from a cloud that isn't there.</p>
+  <div class="built-from">Built from:
+    <span class="b">sealed A/V library + loopback player (Plan 38)</span><span class="b">event cards = posts with a date field</span>
+    <span class="b">flyer wall = image library grid</span><span class="b">per-channel theme override (Plan 56 C2)</span><span class="b">asset-pack reactions</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="pm-nav">
+      <div class="logo" style="background:var(--pm-accent);color:var(--pm-onaccent)">BT</div>
+      <div><div class="name">Basement Tapes Collective</div><div class="tag">private community · 5 crews, one basement</div></div>
+      <div class="links"><span class="on">Sets</span><span>Shows</span><span>Flyers</span><span>Gear</span><span>Tapes</span></div>
+      <button class="joinbtn">Book the room</button>
+    </div>
+
+    <div class="scene-hero">
+      <h3>Loud things, <span>quietly hosted.</span></h3>
+      <p>Every set recorded in the basement lands here, sealed. Members stream them locally after sync. The mixing desk complains but consents.</p>
+    </div>
+
+    <div class="scene-cols">
+      <div>
+        <div class="kicker" style="color:var(--pm-accent)">Latest sets</div>
+        <div style="height:10px"></div>
+        <div class="pm-card set-row">
+          <div class="play">▶</div>
+          <div class="info"><b>Wren + The Statics · live 08/29</b>
+            <div class="waves"><i style="height:30%" class="lit"></i><i style="height:60%" class="lit"></i><i style="height:90%" class="lit"></i><i style="height:45%" class="lit"></i><i style="height:75%"></i><i style="height:35%"></i><i style="height:85%"></i><i style="height:55%"></i><i style="height:95%"></i><i style="height:40%"></i><i style="height:65%"></i><i style="height:30%"></i><i style="height:80%"></i><i style="height:50%"></i><i style="height:70%"></i><i style="height:35%"></i></div>
+          </div>
+          <span class="meta">47:12 · sealed · on this device</span>
+        </div>
+        <div class="pm-card set-row">
+          <div class="play" style="background:var(--pm-high);color:var(--pm-ink2)">▶</div>
+          <div class="info"><b>Tape loop night, side A</b>
+            <div class="waves"><i style="height:20%"></i><i style="height:35%"></i><i style="height:50%"></i><i style="height:30%"></i><i style="height:45%"></i><i style="height:60%"></i><i style="height:40%"></i><i style="height:25%"></i><i style="height:55%"></i><i style="height:35%"></i><i style="height:45%"></i><i style="height:30%"></i><i style="height:50%"></i><i style="height:20%"></i><i style="height:40%"></i><i style="height:30%"></i></div>
+          </div>
+          <span class="meta">61:03 · fetches on next sync</span>
+        </div>
+        <div class="pm-card set-row">
+          <div class="play" style="background:var(--pm-high);color:var(--pm-ink2)">▶</div>
+          <div class="info"><b>Esi's modular breakfast set</b>
+            <div class="waves"><i style="height:45%"></i><i style="height:70%"></i><i style="height:35%"></i><i style="height:85%"></i><i style="height:50%"></i><i style="height:30%"></i><i style="height:65%"></i><i style="height:90%"></i><i style="height:40%"></i><i style="height:55%"></i><i style="height:75%"></i><i style="height:35%"></i><i style="height:60%"></i><i style="height:45%"></i><i style="height:25%"></i><i style="height:50%"></i></div>
+          </div>
+          <span class="meta">28:44 · sealed · on this device</span>
+        </div>
+
+        <div class="kicker" style="color:var(--pm-accent);margin-top:20px">Flyer wall</div>
+        <div class="flyers">
+          <div class="flyer f1"><span>EQUINOX NOISE · 9/21</span></div>
+          <div class="flyer f2">DRONE BRUNCH · 10/05</div>
+          <div class="flyer f3">TAPE SWAP IV · 10/19</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="kicker" style="color:var(--pm-accent)">Upcoming shows</div>
+        <div style="height:10px"></div>
+        <div class="pm-card show">
+          <div class="date"><b>21</b><span>Sep</span></div>
+          <div><h5>Equinox Noise Night</h5><p>Doors 8pm · the basement · byo earplugs · 3 crews</p></div>
+        </div>
+        <div class="pm-card show">
+          <div class="date"><b>05</b><span>Oct</span></div>
+          <div><h5>Drone Brunch</h5><p>11am, yes really · pancakes and 40 minutes of C</p></div>
+        </div>
+        <div class="pm-card show">
+          <div class="date"><b>19</b><span>Oct</span></div>
+          <div><h5>Tape Swap IV</h5><p>Bring a tape, leave with a stranger's. Blank tapes shamed.</p></div>
+        </div>
+        <div class="pm-card" style="padding:15px 17px;margin-top:14px">
+          <h5 style="font-size:13px;margin-bottom:6px">House rules</h5>
+          <p style="font-size:12px;color:var(--pm-ink2);line-height:1.6">Recordings stay in the collective unless the artist posts them out. The signed post IS the permission. No set is public without its performer's key on it.</p>
+        </div>
+      </div>
+    </div>
+    <div class="pm-honest">
+      <span>Sets play through the on-device decrypting player; no plaintext at rest.</span>
+      <span>"Fetches on next sync" means exactly that; nothing pretends to stream.</span>
+      <span>Show listings are member-posted events, not scraped.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. COMMONS PAGE ============ -->
+<section class="arch" id="a-commons">
+  <div class="arch-head"><h2>The Commons Page</h2><span class="kind">private community · civic / neighborhood</span></div>
+  <p class="arch-desc">A neighborhood's shared front page: an announcements board every member sees, the Plaza pixel board the whole street doodles on, a photo strip from the garden library, and member badges. The archetype for HOAs, clubs, co-ops, and street WhatsApp groups that deserve better.</p>
+  <div class="built-from">Built from:
+    <span class="b">announcement channel</span><span class="b">the Plaza pixel board (Plan 56 C3)</span><span class="b">photo library strip</span>
+    <span class="b">badges (Plan 56 C2)</span><span class="b">default Open Burrow theme</span><span class="b">community server (Plan 57)</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="pm-nav">
+      <div class="logo">MS</div>
+      <div><div class="name">Maple Street Commons</div><div class="tag">private community · 62 households</div></div>
+      <div class="links"><span class="on">Commons</span><span>Board</span><span>Garden</span><span>Tools</span><span>Plaza</span></div>
+      <button class="joinbtn">Post a notice</button>
+    </div>
+
+    <div class="pm-body commons-cols">
+      <div>
+        <div class="kicker">Notice board</div>
+        <div style="height:10px"></div>
+        <div class="pm-card notice">
+          <h5>Street sweep moved to Thursday this week</h5>
+          <p>City schedule change for the holiday. Move cars by 8am. Posted by the block captain · <span class="sig">signed</span></p>
+        </div>
+        <div class="pm-card notice" style="border-left-color:var(--pm-ink3)">
+          <h5>Ladder returned to the tool shed (thank you, mystery neighbor)</h5>
+          <p>The 12-footer is back. The shed log has been updated in #tools.</p>
+        </div>
+        <div class="pm-card notice" style="border-left-color:#8F660D">
+          <h5>Harvest weekend: the tomatoes won</h5>
+          <p>Saturday 10am at the garden. Bring boxes. Surplus goes to the pantry on Elm.</p>
+        </div>
+
+        <div class="kicker" style="margin-top:20px">From the garden library</div>
+        <div class="photo-strip"><i class="p1"></i><i class="p2"></i><i class="p3"></i><i class="p4"></i></div>
+
+        <div class="kicker" style="margin-top:20px">Badges on this street</div>
+        <div class="badges">
+          <div class="badge"><i>🔧</i> Tool librarian · Sam</div>
+          <div class="badge"><i>🌱</i> Compost marshal · Ines</div>
+          <div class="badge"><i>🪜</i> Ladder finder · anonymous hero</div>
+          <div class="badge"><i>📯</i> Block captain · Ruth</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="pm-card plaza">
+          <h5>The Plaza · street pixel board</h5>
+          <span class="meta">One pixel per member per day. Currently: a debated tomato.</span>
+          <div class="plaza-grid" id="plaza"></div>
+          <p style="font-size:11.5px;color:var(--pm-ink3);margin-top:9px">Every pixel is a signed event; the rate limit is enforced at read time, so nobody can speed-paint over the mural.</p>
+        </div>
+        <div class="pm-card" style="padding:15px 17px;margin-top:14px">
+          <h5 style="font-size:13px;margin-bottom:6px">This community's server</h5>
+          <p style="font-size:12px;color:var(--pm-ink2);line-height:1.6">Always available via this community's server, paid for by the street fund. It stores only sealed data it cannot read. Anyone can leave with everything, any time.</p>
+        </div>
+      </div>
+    </div>
+    <div class="pm-honest">
+      <span>Notices render only when their author's signature verifies.</span>
+      <span>The pixel board shows recorded events, never optimistic paint.</span>
+      <span>No member list is visible outside the community.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7. MEMBERSHIP ============ -->
+<section class="arch" id="a-member">
+  <div class="arch-head"><h2>The Membership</h2><span class="kind">Patreon / OnlyFans-class replacement</span></div>
+  <p class="arch-desc">Tier-gated support for any legal creative work, mature creators included: every reader passed the universal 18+ age gate, and the community is private by default. Tiers are the CREATOR'S schema, not Meerkat's: any number of tiers (one is fine), any price, any cadence -- monthly, annual, one-time-forever, or all of them side by side with the creator's own yearly discount. The structural difference from every incumbent: a paying member holds the tier's keys on their own device, payment runs on the creator's own processor, and Meerkat takes 0%.</p>
+  <div class="built-from">Built from:
+    <span class="b">tier schema: any count · any price · monthly / annual / one-time</span><span class="b">tiers = nested communities / channel roles</span>
+    <span class="b">join grant gated on creator checkout</span><span class="b">sealed posts + library per tier</span>
+    <span class="b">age gate (universal floor)</span><span class="b">community server (Plan 57)</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="pm-nav">
+      <div class="logo">LW</div>
+      <div><div class="name">The Long Way Round</div><div class="tag">Anouk Verhoeven · travel writing + photography</div></div>
+      <div class="links"><span class="on">Join</span><span>Posts</span><span>Archive</span><span>About</span></div>
+      <button class="joinbtn">Become a member</button>
+    </div>
+
+    <div class="member-hero">
+      <span class="avatar">AV</span>
+      <div>
+        <h3>Two wheels, forty countries, one letter a week</h3>
+        <p>I ride slowly and write it down. Members keep the fuel tank full and get everything: the letters, the full photo library, and the voice notes I'm too embarrassed to make public.</p>
+      </div>
+    </div>
+
+    <div class="cadence">
+      <span class="label">Billing</span>
+      <div class="seg2">
+        <button class="on" data-cad="m">Monthly</button>
+        <button data-cad="y">Yearly</button>
+      </div>
+      <span class="save-note" id="cadNote">Anouk's yearly prices include two months free</span>
+    </div>
+
+    <div class="tiers">
+      <div class="pm-card tier">
+        <h5>Postcard</h5>
+        <div class="price"><span class="amt" data-m="€3" data-y="€30">€3</span> <span class="per" data-m="/ month" data-y="/ year">/ month</span></div>
+        <ul><li>Weekly letter, in full</li><li>#route-talk channel</li><li>Monthly photo drop</li></ul>
+        <button class="joinbtn">Join on Anouk's checkout</button>
+      </div>
+      <div class="pm-card tier hot">
+        <span class="pop">MOST CHOSEN</span>
+        <h5>Companion</h5>
+        <div class="price"><span class="amt" data-m="€8" data-y="€80">€8</span> <span class="per" data-m="/ month" data-y="/ year">/ month</span></div>
+        <ul><li>Everything in Postcard</li><li>Full sealed photo library</li><li>Voice notes from the road</li><li>#ask-anouk, answered weekly</li></ul>
+        <button class="joinbtn">Join on Anouk's checkout</button>
+      </div>
+      <div class="pm-card tier">
+        <h5>Patron</h5>
+        <div class="price"><span class="amt" data-m="€20" data-y="€200">€20</span> <span class="per" data-m="/ month" data-y="/ year">/ month</span></div>
+        <ul><li>Everything in Companion</li><li>Yearly print, shipped</li><li>Name in the book's thanks</li></ul>
+        <button class="joinbtn">Join on Anouk's checkout</button>
+      </div>
+      <div class="pm-card tier">
+        <span class="once-tag">ONE-TIME · FOREVER</span>
+        <h5>The Shoebox</h5>
+        <div class="price">€45 <span>once</span></div>
+        <ul><li>The complete year-one archive</li><li>All 140 letters + photo drops</li><li>Keys never expire</li></ul>
+        <button class="joinbtn">Buy once on Anouk's checkout</button>
+      </div>
+    </div>
+
+    <div class="shapes">
+      Other shapes creators use, all the same machinery:
+      <span class="shape"><b>Single tier</b> · €5/mo, that's it</span>
+      <span class="shape"><b>One-time only</b> · €25 unlocks everything, forever</span>
+      <span class="shape"><b>Annual only</b> · €60/yr for slow publishers</span>
+      <span class="shape"><b>Free + tip jar</b> · open community, optional support link</span>
+    </div>
+
+    <div class="member-cols">
+      <div>
+        <div class="pm-card post">
+          <div class="phead"><span class="avatar" style="width:34px;height:34px;font-size:14px">AV</span>
+            <div><b style="font-size:13px">Anouk</b><div class="meta">Public post · <span class="sig">signed</span></div></div></div>
+          <h4>Letter 141: the mechanic in Mardin who fixed everything but the bike</h4>
+          <p>Free preview: the first thousand words of this week's letter, because the tea he made deserves a public record. The rest, and the forty photos, are for members.</p>
+          <div class="pfoot"><span class="chip">🫖 87</span><span class="chip">31 replies</span></div>
+        </div>
+
+        <div class="pm-card post locked">
+          <div class="phead"><span class="avatar" style="width:34px;height:34px;font-size:14px">AV</span>
+            <div><b style="font-size:13px">Anouk</b><div class="meta">Companion tier · Thursday</div></div></div>
+          <h4>Voice note: crossing the pass at 4am (23 min)</h4>
+          <div class="blur"><div class="lockbadge">🔒 Unlocks with Companion · your device holds the key</div></div>
+          <p class="meta">This preview card is all a non-member's device ever receives; the sealed content never arrives without the tier key.</p>
+        </div>
+      </div>
+
+      <div class="member-side">
+        <div class="pm-card side-block" style="margin-top:0">
+          <h5>How the money works</h5>
+          <ul>
+            <li><span>Payment</span><span class="meta">Anouk's own processor</span></li>
+            <li><span>Platform cut</span><span class="meta">0%</span></li>
+            <li><span>Tiers &amp; cadence</span><span class="meta">her design: 3 recurring + 1 one-time</span></li>
+            <li><span>Access</span><span class="meta">tier keys, on your device</span></li>
+            <li><span>Cancel</span><span class="meta">anytime; recurring keys stop renewing</span></li>
+            <li><span>One-time keys</span><span class="meta">never expire</span></li>
+          </ul>
+        </div>
+        <div class="own-note">
+          <b>Why this beats renting a platform</b>
+          <p>Anouk owns the page, the member list, and the archive; they live on her community server. No platform can demonetize the page, change the fee, or hide the letters behind someone else's algorithm. Members can export everything they've received; it's already on their devices.</p>
+        </div>
+      </div>
+    </div>
+    <div class="pm-honest">
+      <span>Every reader passed the 18+ age gate; mature-content tiers stay private by default.</span>
+      <span>Meerkat never sees or touches payments; joining links out to the creator's checkout, and the paid grant follows.</span>
+      <span>Locked cards are honest: sealed bytes are not delivered without the tier key.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. PERSONAL SITE ============ -->
+<section class="arch" id="a-personal">
+  <div class="arch-head"><h2>The Personal Site</h2><span class="kind">personal website replacement</span></div>
+  <p class="arch-desc">One person's page: bio, links, selected work, writing, and a "now" note. Replaces Linktree, Carrd, and the neglected portfolio site. Published as a public page from the person's community server; readers need no account, and "contact" is a friend code away.</p>
+  <div class="built-from">Built from:
+    <span class="b">publication (public page)</span><span class="b">links block (Canvas)</span><span class="b">library as portfolio</span>
+    <span class="b">posts as essays</span><span class="b">friend code contact</span><span class="b">web rendering from the community server (proposed W6)</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="personal-wrap">
+      <span class="avatar">IV</span>
+      <h3>Iris Vale</h3>
+      <div class="role">Design researcher · maps, museums, and public information</div>
+      <p class="bio">I study how people find their way through complicated places, then design the signs, screens, and booklets that help. Previously at two museums and one very confusing airport.</p>
+
+      <div class="linkrow">
+        <a>Read the wayfinding field notes <span>weekly essay</span></a>
+        <a>Hire me for a project <span>2 slots this winter</span></a>
+        <a>Message me on Meerkat <span>friend code: IRIS-VALE-…</span></a>
+      </div>
+
+      <div class="worklist">
+        <h5>Selected work</h5>
+        <div class="workgrid">
+          <div class="work"><i class="w1"></i><b>Museum of Tides rehang</b><span class="meta">wayfinding · 2025</span></div>
+          <div class="work"><i class="w2"></i><b>Transit map, simplified</b><span class="meta">civic · 2024</span></div>
+          <div class="work"><i class="w3"></i><b>Forms people finish</b><span class="meta">research · ongoing</span></div>
+        </div>
+      </div>
+
+      <div class="essaylist">
+        <h5>Writing</h5>
+        <a>Every lost visitor is a design review <span>Aug 2026</span></a>
+        <a>The case against clever icons <span>Jun 2026</span></a>
+        <a>What hospitals know about arrows <span>Mar 2026</span></a>
+      </div>
+
+      <div class="nowblock">
+        <h5>Now</h5>
+        <p>In Lisbon until November, drawing the tile patterns and answering mail slowly. Open for one commission that involves a boat.</p>
+      </div>
+    </div>
+    <div class="pm-honest">
+      <span>This page is a publication served from Iris's own server; reading needs no account.</span>
+      <span>The essays are signed posts; the portfolio is her sealed library, published piece by piece.</span>
+      <span>"Message me" opens the real friend-code flow; no contact-form middleman.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9. STOREFRONT ============ -->
+<section class="arch" id="a-store">
+  <div class="arch-head"><h2>The Storefront</h2><span class="kind">webstore · digital + physical goods</span></div>
+  <p class="arch-desc">A shop page for the same creators: digital goods deliver as sealed library grants the moment payment clears on the shop's own checkout, physical goods ship with updates over DM. Replaces Gumroad for digital and a Shopify-lite for small physical runs, with no marketplace between the maker and the buyer.</p>
+  <div class="built-from">Built from:
+    <span class="b">product grid block (Canvas)</span><span class="b">digital delivery = sealed library grant</span>
+    <span class="b">checkout link = creator's own processor</span><span class="b">order thread = DM</span><span class="b">publication (public page)</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="pm-nav">
+      <div class="logo">Q</div>
+      <div><div class="name">Quill &amp; Co. Print Shop</div><div class="tag">the Mara Quill studio store</div></div>
+      <div class="links"><span class="on">Shop</span><span>Prints</span><span>Digital</span><span>Zines</span><span>FAQ</span></div>
+      <button class="joinbtn">Follow the studio</button>
+    </div>
+
+    <div class="store-hero">
+      <div class="copy">
+        <div class="kicker">New this month</div>
+        <h3>The Ochre Coast, plate IV</h3>
+        <p>A2 giclée print, signed run of 50, each with its hidden bird marked in pencil on the back. Ships flat, worldwide, wrapped like it matters.</p>
+        <div style="display:flex;gap:12px;align-items:center;margin-top:16px">
+          <span style="font-size:22px;font-weight:800">€65</span>
+          <button class="joinbtn">Buy on the shop's checkout</button>
+          <span class="meta">41 of 50 remaining · honest count</span>
+        </div>
+      </div>
+      <div class="featured"></div>
+    </div>
+
+    <div class="products">
+      <div class="pm-card product"><i class="pr1"></i><div class="pinfo">
+        <b>Fen &amp; Fern field guide (PDF + CBZ)</b>
+        <div class="ptype"><span class="pd">DIGITAL</span> delivered sealed to your library</div>
+        <div class="prow"><span class="price">€9</span><button class="joinbtn">Buy</button></div></div></div>
+      <div class="pm-card product"><i class="pr3"></i><div class="pinfo">
+        <b>Brush pack v3 (Procreate + PSD)</b>
+        <div class="ptype"><span class="pd">DIGITAL</span> delivered sealed to your library</div>
+        <div class="prow"><span class="price">€14</span><button class="joinbtn">Buy</button></div></div></div>
+      <div class="pm-card product"><i class="pr2"></i><div class="pinfo">
+        <b>Marsh king sticker sheet</b>
+        <div class="ptype"><span class="pd">SHIPS</span> tracked letter, worldwide</div>
+        <div class="prow"><span class="price">€6</span><button class="joinbtn">Buy</button></div></div></div>
+      <div class="pm-card product"><i class="pr4"></i><div class="pinfo">
+        <b>Zine 03: Trap Streets</b>
+        <div class="ptype"><span class="pd">SHIPS</span> or <span class="pd">DIGITAL</span> your pick at checkout</div>
+        <div class="prow"><span class="price">€12</span><button class="joinbtn">Buy</button></div></div></div>
+      <div class="pm-card product"><i class="pr5"></i><div class="pinfo">
+        <b>Process video: inking the marshes</b>
+        <div class="ptype"><span class="pd">DIGITAL</span> 38 min, plays sealed on-device</div>
+        <div class="prow"><span class="price">€7</span><button class="joinbtn">Buy</button></div></div></div>
+      <div class="pm-card product"><i class="pr6"></i><div class="pinfo">
+        <b>Commission slot: your town, imagined</b>
+        <div class="ptype"><span class="pd">CUSTOM</span> starts with a DM thread</div>
+        <div class="prow"><span class="price">from €220</span><button class="joinbtn">Ask</button></div></div></div>
+    </div>
+
+    <div class="howbuy">
+      <div class="pm-card step"><div class="n">1</div><b>Pay on the shop's own checkout</b>
+        <p>The buy button links out to the processor the shop chose. Meerkat never sees the card and takes nothing.</p></div>
+      <div class="pm-card step"><div class="n">2</div><b>The grant lands in your Meerkat</b>
+        <p>Payment confirmed, the shop's device (or its server acting on a signed rule) grants your key. It waits for you even if you're offline.</p></div>
+      <div class="pm-card step"><div class="n">3</div><b>Digital goods appear sealed in your library</b>
+        <p>Files arrive encrypted, verified against the shop's signature, and they're yours: no DRM server to shut down later. Physical orders get a DM thread with real updates.</p></div>
+    </div>
+    <div class="pm-honest">
+      <span>Prices and stock counts are the shop's signed rows; "41 of 50" is a real count, not urgency theater.</span>
+      <span>Digital purchases are sealed library grants; once delivered, no one can revoke your copy.</span>
+      <span>Order conversations are end-to-end encrypted DMs with the shop.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. THE MEERKAT EDITOR ============ -->
+<section class="arch" id="a-editor">
+  <div class="arch-head"><h2>The Meerkat Editor</h2><span class="kind">the builder behind all nine pages</span></div>
+  <p class="arch-desc">The one tool that makes the rest real: a block editor over the Plan 56 composition platform. Drag blocks from the palette, set each block's audience (public, members, or a paid tier), theme the page, and Publish signs one revision that members verify before rendering. Shown here mid-edit on the Quill &amp; Co. storefront.</p>
+  <div class="built-from">Built from:
+    <span class="b">cm_layout + block registry (Plan 56 C0)</span><span class="b">Canvas node types (C1)</span><span class="b">page templates + theme tokens (C2)</span>
+    <span class="b">audience = channel/tier scope per block</span><span class="b">publish = one signed revision</span>
+  </div>
+
+  <div class="page-mock">
+    <div class="editor-top">
+      <span>Editing</span><b>Quill &amp; Co. Print Shop · Shop page</b>
+      <span class="draft">Draft · unsaved block: Product grid</span>
+      <div class="publish"><button class="ghostbtn" style="color:var(--pm-ink2);border-color:var(--pm-line)">Preview as visitor</button>
+        <button class="joinbtn">Publish (signs revision 12)</button></div>
+    </div>
+    <div class="editor-body">
+      <div class="palette">
+        <h6>Blocks</h6>
+        <div class="block-item"><i>🖼</i> Hero</div>
+        <div class="block-item dragging"><i>🛍</i> Product grid</div>
+        <div class="block-item"><i>📚</i> Library shelf</div>
+        <div class="block-item"><i>📰</i> Post feed</div>
+        <div class="block-item"><i>💳</i> Tier cards</div>
+        <div class="block-item"><i>🔗</i> Links</div>
+        <div class="block-item"><i>🏁</i> Milestone</div>
+        <div class="block-item"><i>🧱</i> The Plaza</div>
+        <div class="block-item"><i>🖋</i> Text</div>
+        <div class="block-item"><i>🗓</i> Events</div>
+      </div>
+
+      <div class="canvas">
+        <div class="minipage">
+          <div class="mini-block" data-label="Hero"><div class="mini-hero"><b>The Ochre Coast, plate IV</b><span>Signed run of 50 · €65 · 41 remaining</span></div></div>
+          <div class="mini-block sel" data-label="Product grid · Public">
+            <div class="mini-products">
+              <div><i class="pr1"></i><b>Field guide</b><span>€9 · digital</span></div>
+              <div><i class="pr3"></i><b>Brush pack v3</b><span>€14 · digital</span></div>
+              <div><i class="pr2"></i><b>Stickers</b><span>€6 · ships</span></div>
+            </div>
+          </div>
+          <div class="mini-block" data-label="How buying works">
+            <div class="mini-steps">
+              <div><b>1 · Pay</b>on the shop's checkout</div>
+              <div><b>2 · Grant</b>lands in your Meerkat</div>
+              <div><b>3 · Sealed</b>delivery to your library</div>
+            </div>
+          </div>
+          <div class="mini-block" data-label="Post feed · Members">
+            <div class="mini-posts">
+              <div><b style="font-size:9px">Studio log: plate V voting opens</b>Members-only preview of three coastlines…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inspector">
+        <h6>Block · Product grid</h6>
+        <div class="insp-group">
+          <div class="insp-row"><span>Audience</span>
+            <div class="seg"><span class="on">Public</span><span>Members</span><span>Tier…</span></div>
+          </div>
+          <div class="insp-row"><span>Columns</span>
+            <div class="seg"><span>2</span><span class="on">3</span><span>4</span></div>
+          </div>
+          <div class="insp-row"><span>Show stock counts</span>
+            <div class="seg"><span class="on">Real</span><span>Hidden</span></div>
+          </div>
+          <div class="insp-note">Stock can be real or hidden, never invented. "Real" renders the signed inventory row.</div>
+        </div>
+        <div class="insp-group">
+          <h6>Page theme</h6>
+          <div class="insp-row"><span>Accent</span>
+            <div class="swatches">
+              <span class="sw on" style="background:#3F6212"></span>
+              <span class="sw" style="background:#8E3A62"></span>
+              <span class="sw" style="background:#3566B0"></span>
+              <span class="sw" style="background:#B05A2E"></span>
+              <span class="sw" style="background:#1C1A17"></span>
+            </div>
+          </div>
+          <div class="insp-row"><span>Corners</span>
+            <div class="seg"><span>Sharp</span><span class="on">Soft</span></div>
+          </div>
+          <div class="insp-row"><span>High contrast</span>
+            <div class="seg"><span class="on">Respect reader</span></div>
+          </div>
+          <div class="insp-note">Themes restyle only this community's pages. A reader's high-contrast setting always wins.</div>
+        </div>
+        <div class="insp-group">
+          <h6>Publish to</h6>
+          <div class="insp-row"><span>Meerkat page</span><div class="seg"><span class="on">On</span></div></div>
+          <div class="insp-row"><span>Open web (your server)</span><div class="seg"><span class="on">On</span></div></div>
+          <div class="insp-note">The community server renders public blocks as a plain web page at your own domain; members-only blocks never leave the sealed path.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pm-honest">
+      <span>Publish signs ONE revision; members verify it before rendering, so a tampered layout renders nothing.</span>
+      <span>Per-block audience maps to real channel and tier scopes; the editor cannot create a state the crypto doesn't enforce.</span>
+      <span>Open-web rendering serves only the blocks marked Public.</span>
+    </div>
+  </div>
+</section>
+
+<footer class="page wrap">
+  <p>Generated 2026-09-01 on branch worktree-meerkat-community-servers. Sample people, communities, content, and creator-set prices are illustrative; Meerkat's own pricing is unchanged and Meerkat takes no cut of creator revenue. Archetypes 1-6 map to shipped primitives (Plan 19 publications, Plan 38 sealed libraries and players, Plan 56 composition platform, Plan 57 community servers). Archetypes 7-10 additionally propose: paid-tier join grants gated on the creator's own checkout, sealed-grant digital-goods delivery, per-block audiences in the editor, and open-web rendering of public blocks from the community server. Proposed productization: ship all of these as page templates in the create-community gallery, with the Meerkat editor as the one builder over them.</p>
+</footer>
+
+</div>
+
+<script>
+  // membership cadence toggle (creator-defined prices per cadence; the one-time
+  // tier is untouched by billing cadence, by design)
+  const cadButtons = document.querySelectorAll('.cadence .seg2 button');
+  cadButtons.forEach((btn) => btn.addEventListener('click', () => {
+    cadButtons.forEach((b) => b.classList.toggle('on', b === btn));
+    const cad = btn.dataset.cad;
+    document.querySelectorAll('.tier .amt').forEach((el) => { el.textContent = el.dataset[cad] ?? el.textContent; });
+    document.querySelectorAll('.tier .per').forEach((el) => { el.textContent = el.dataset[cad] ?? el.textContent; });
+    document.getElementById('cadNote').textContent = cad === 'y'
+      ? 'Two months free on yearly, set by Anouk'
+      : "Anouk's yearly prices include two months free";
+  }));
+
+  // archetype switcher
+  const buttons = document.querySelectorAll('nav.switch button');
+  buttons.forEach((btn) => btn.addEventListener('click', () => {
+    buttons.forEach((b) => b.classList.toggle('on', b === btn));
+    document.querySelectorAll('section.arch').forEach((s) => s.classList.toggle('on', s.id === btn.dataset.t));
+    window.scrollTo({ top: 0 });
+  }));
+
+  // deterministic Plaza mural: a little tomato on a 16x12 grid
+  const plaza = document.getElementById('plaza');
+  const W = 16, H = 12;
+  const tomato = new Set([
+    '7,2','8,2','6,3','7,3','8,3','9,3',
+    '5,4','6,4','7,4','8,4','9,4','10,4',
+    '4,5','5,5','6,5','7,5','8,5','9,5','10,5','11,5',
+    '4,6','5,6','6,6','7,6','8,6','9,6','10,6','11,6',
+    '5,7','6,7','7,7','8,7','9,7','10,7',
+    '6,8','7,8','8,8','9,8',
+  ]);
+  const stem = new Set(['7,1','8,1','7,0']);
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      const cell = document.createElement('i');
+      const key = `${x},${y}`;
+      if (tomato.has(key)) cell.style.background = ((x + y) % 5 === 0) ? '#C4524E' : '#B3413E';
+      else if (stem.has(key)) cell.style.background = '#4C7A50';
+      else if ((x * 7 + y * 13) % 29 === 0) cell.style.background = '#E9F1ED';
+      plaza.appendChild(cell);
+    }
+  }
+</script>
+</body>
+</html>

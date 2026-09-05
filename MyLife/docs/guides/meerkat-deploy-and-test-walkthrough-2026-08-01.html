@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meerkat — Deploy &amp; Test Walkthrough (You + a Friend)</title>
+<style>
+  :root {
+    --paper:#F6F4EF; --surface:#FFFFFF; --surface-el:#FBFAF7; --tint:#E9F1ED;
+    --accent:#0E7C66; --accent-dim:#0A5D4D; --ink:#20302B; --ink-2:#51635C; --ink-3:#6E7D77;
+    --danger:#B3413E; --warning:#8F660D; --info:#3566B0;
+    --danger-soft:rgba(179,65,62,0.08); --warning-soft:rgba(143,102,13,0.08); --info-soft:rgba(53,102,176,0.08);
+    --border:rgba(32,48,43,0.10); --border-strong:rgba(32,48,43,0.18);
+    --glass:rgba(14,124,102,0.05); --glass-border:rgba(14,124,102,0.14);
+    --mono:"SF Mono",Menlo,Consolas,monospace; --radius:14px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:99;}
+  .layout{max-width:1760px;margin:0 auto;display:grid;grid-template-columns:250px minmax(0,1fr);}
+  nav.toc{position:sticky;top:0;height:100vh;overflow-y:auto;padding:34px 18px 34px 24px;border-right:1px solid var(--border);font-size:13.5px;}
+  nav.toc .navtitle{font-weight:800;letter-spacing:.14em;font-size:12px;color:var(--accent-dim);margin-bottom:16px;}
+  nav.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:7px 10px;border-radius:8px;margin-bottom:2px;line-height:1.35;}
+  nav.toc a:hover{background:var(--glass);}
+  nav.toc a.active{background:var(--tint);color:var(--accent-dim);font-weight:650;}
+  nav.toc a.step-current{background:var(--accent);color:#fff;font-weight:700;}
+  nav.toc a.step-current:hover{background:var(--accent-dim);}
+  nav.toc a.step-done::after{content:"✓";float:right;color:var(--accent);font-weight:800;}
+  nav.toc .done-count{margin-top:18px;padding:10px 12px;background:var(--tint);border-radius:10px;color:var(--accent-dim);font-weight:650;font-size:12.5px;}
+  main{padding:40px 52px 120px;min-width:0;}
+  @media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr);}nav.toc{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);}main{padding:28px 20px 80px;}}
+  h1{font-size:clamp(30px,4.5vw,44px);line-height:1.1;letter-spacing:-0.02em;font-weight:800;margin-bottom:14px;}
+  h2{font-size:26px;font-weight:760;letter-spacing:-0.01em;margin:0 0 6px;scroll-margin-top:24px;}
+  h3{font-size:17.5px;font-weight:720;margin:26px 0 8px;}
+  section.part{margin-top:44px;padding-top:22px;border-top:1px solid var(--border);}
+  section.part.is-current h2{color:var(--accent-dim);}
+  .partmeta{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;}
+  .chip{display:inline-block;padding:3px 11px;border-radius:99px;font-size:12px;font-weight:700;letter-spacing:.03em;}
+  .chip.time{background:var(--info-soft);color:var(--info);}
+  .chip.who{background:var(--tint);color:var(--accent-dim);}
+  .chip.claude{background:var(--info-soft);color:var(--info);}
+  .chip.cost{background:var(--warning-soft);color:var(--warning);}
+  .chip.once{background:var(--glass);color:var(--accent-dim);border:1px solid var(--glass-border);}
+  .chip.here{background:var(--accent);color:#fff;}
+  p.lead{color:var(--ink-2);font-size:15.5px;max-width:1050px;}
+  p.lead strong{color:var(--ink);}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin:16px 0;}
+  .card.tint{background:var(--tint);border-color:var(--glass-border);}
+  .callout{border-left:4px solid;border-radius:10px;padding:14px 18px;margin:16px 0;font-size:14.5px;}
+  .callout.warn{border-color:var(--warning);background:var(--warning-soft);}
+  .callout.danger{border-color:var(--danger);background:var(--danger-soft);}
+  .callout.info{border-color:var(--info);background:var(--info-soft);}
+  .callout.ok{border-color:var(--accent);background:var(--glass);}
+  .callout .t{font-weight:750;margin-bottom:4px;}
+  /* STEPS: flex, never grid. A grid put the counter, a spacer and the body into
+     two columns, which squeezed the text into the 44px gutter. */
+  ol.steps{list-style:none;counter-reset:st;margin:18px 0;}
+  ol.steps > li.step{display:flex;gap:16px;align-items:flex-start;padding:15px 0;border-bottom:1px dashed var(--border);}
+  /* Wide screens: instructions read left-to-right, with the confirmation and
+     gotcha boxes parked in a right-hand column instead of stacking underneath.
+     Steps that have no side boxes stay full width (:has guard) so a lone
+     paragraph never wraps into a narrow ribbon. */
+  @media (min-width:1180px){
+    li.step > .body:has(> .expect, > .gotcha, > .tw){
+      display:grid;
+      grid-template-columns:minmax(0,1.25fr) minmax(300px,0.9fr);
+      column-gap:26px;
+      grid-auto-flow:row dense;
+      align-items:start;
+    }
+    li.step > .body:has(> .expect, > .gotcha, > .tw) > h4{grid-column:1 / -1;}
+    li.step > .body:has(> .expect, > .gotcha, > .tw) > p,
+    li.step > .body:has(> .expect, > .gotcha, > .tw) > ul,
+    li.step > .body:has(> .expect, > .gotcha, > .tw) > pre{grid-column:1;}
+    li.step > .body:has(> .expect, > .gotcha, > .tw) > .expect,
+    li.step > .body:has(> .expect, > .gotcha, > .tw) > .gotcha,
+    li.step > .body:has(> .expect, > .gotcha, > .tw) > .tw{grid-column:2;margin-top:0;margin-bottom:8px;}
+  }
+  ol.steps > li.step:last-child{border-bottom:none;}
+  li.step > .num{counter-increment:st;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  li.step > .num::before{content:counter(st);}
+  li.step > .body{flex:1 1 auto;min-width:0;font-size:14.5px;color:var(--ink-2);}
+  li.step > .body h4{font-size:16px;color:var(--ink);margin:0 0 6px;font-weight:720;line-height:1.35;}
+  li.step > .body p{margin:0 0 8px;}
+  li.step > .body p:last-child{margin-bottom:0;}
+  li.step > .body b,li.step > .body strong{color:var(--ink);}
+  li.step ul{margin:8px 0 8px 20px;}
+  li.step li{margin-bottom:5px;}
+  .expect{background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:9px 13px;margin-top:10px;font-size:13.5px;color:var(--accent-dim);}
+  .expect b{color:var(--accent-dim);}
+  .gotcha{background:var(--warning-soft);border-radius:10px;padding:9px 13px;margin-top:8px;font-size:13.5px;color:var(--ink-2);}
+  .gotcha b{color:var(--warning);}
+  /* Checklists run across the page instead of one tall stack. */
+  .checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:8px;margin:14px 0;}
+  .check{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border-radius:10px;margin:0;background:var(--surface);border:1px solid var(--border);cursor:pointer;font-size:14px;color:var(--ink-2);}
+  .check input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px;flex:none;}
+  .check.checked{background:var(--glass);border-color:var(--glass-border);color:var(--ink-3);}
+  .check.checked .lbl{text-decoration:line-through;}
+  .check b{color:var(--ink);}
+  pre.cmd{position:relative;background:#20302B;color:#DCE7E2;border-radius:12px;padding:14px 52px 14px 16px;font-family:var(--mono);font-size:12.8px;line-height:1.65;overflow-x:auto;margin:10px 0;white-space:pre;}
+  pre.cmd .cm{color:#8AA79E;}
+  pre.cmd button.copy{position:absolute;top:8px;right:8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:#DCE7E2;font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px;cursor:pointer;}
+  pre.cmd button.copy:hover{background:rgba(255,255,255,0.24);}
+  code{font-family:var(--mono);font-size:0.92em;background:var(--tint);color:var(--accent-dim);padding:1px 6px;border-radius:6px;word-break:break-word;}
+  .tw{overflow-x:auto;border:1px solid var(--border);border-radius:12px;margin:16px 0;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--surface);}
+  .tw table{min-width:620px;}
+  th,td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{background:var(--tint);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);}
+  td{color:var(--ink-2);}
+  td:first-child{font-weight:650;color:var(--ink);}
+  tr:last-child td{border-bottom:none;}
+  .ok-txt{color:var(--accent-dim);font-weight:700;}
+  .bad-txt{color:var(--danger);font-weight:700;}
+  .warn-txt{color:var(--warning);font-weight:700;}
+  .pathgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin:16px 0;}
+  .path{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:18px;}
+  .path.rec{border-color:var(--accent);}
+  .path .tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-dim);}
+  .path h4{margin:4px 0 6px;font-size:16px;}
+  .path p{font-size:13.5px;color:var(--ink-2);}
+  .diagram-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:18px 0;overflow-x:auto;}
+  svg text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}
+  .file{font-family:var(--mono);font-size:12px;color:var(--ink-3);word-break:break-all;}
+  .verified{font-size:11.5px;color:var(--ink-3);}
+  details.acc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin:8px 0;}
+  details.acc summary{font-weight:700;cursor:pointer;font-size:14.5px;}
+  details.acc > *:not(summary){margin-top:10px;font-size:14px;color:var(--ink-2);}
+  .youarehere{background:linear-gradient(180deg,var(--tint),var(--surface));border:2px solid var(--accent);border-radius:var(--radius);padding:22px 24px;margin:26px 0 8px;}
+  .youarehere .tag{display:inline-block;background:var(--accent);color:#fff;font-size:11.5px;font-weight:800;letter-spacing:.12em;padding:4px 12px;border-radius:99px;}
+  .youarehere h3{margin:12px 0 6px;font-size:22px;}
+  .youarehere p{font-size:14.5px;color:var(--ink-2);max-width:800px;}
+  .youarehere .nowlist{display:grid;gap:10px;margin-top:16px;}
+  .youarehere .now{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--glass-border);border-radius:12px;padding:14px 16px;}
+  .youarehere .now .n{flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+  .youarehere .now a{color:var(--accent-dim);font-weight:700;text-decoration:none;}
+  .youarehere .now a:hover{text-decoration:underline;}
+  .youarehere .now .sub{font-size:13.5px;color:var(--ink-2);margin-top:3px;}
+  .youarehere .doneline{font-size:13px;color:var(--ink-3);margin-top:14px;}
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1);}
+  .reveal.on{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none;}}
+  .who-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:99px;margin-right:8px;vertical-align:1px;}
+  .who-badge.you{background:var(--tint);color:var(--accent-dim);}
+  .who-badge.claude{background:var(--info-soft);color:var(--info);}
+  .who-badge.friend{background:var(--warning-soft);color:var(--warning);}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div class="layout">
+<nav class="toc" id="toc">
+  <div class="navtitle">MEERKAT · DEPLOY &amp; TEST</div>
+  <a href="#model">0 · The mental model</a>
+  <a href="#status">1 · Where things stand</a>
+  <a href="#relay">2 · Deploy the relay</a>
+  <a href="#apple">3 · Apple + RevenueCat</a>
+  <a href="#repo">4 · Bake the values in</a>
+  <a href="#build">5 · Build → TestFlight</a>
+  <a href="#web">6 · Web on Macs &amp; PCs</a>
+  <a href="#firstrun">7 · First run (each device)</a>
+  <a href="#linking">8 · Link your devices</a>
+  <a href="#friend">9 · Add your friend</a>
+  <a href="#community">10 · Build the community</a>
+  <a href="#smoketest">11 · The test script</a>
+  <a href="#caveats">12 · Honest limitations</a>
+  <a href="#appendix">13 · Appendix</a>
+  <div class="done-count" id="doneCount">0 checklist items done</div>
+</nav>
+<main>
+
+<div class="hero reveal">
+  <h1>Get Meerkat live for you + a friend<br>on iPhone, Mac, and PC</h1>
+  <p class="lead">Every step, spelled out: from today's repo to both of you on TestFlight, both computers on the web app, all your devices linked as one person, and a shared community where you talk between New York and California. Every technical claim was verified directly in source or against live EAS state. Checkboxes save in this browser, so you can stop and resume.</p>
+
+  <div class="youarehere">
+    <span class="tag">YOU ARE HERE · verified 2026-08-09</span>
+    <h3>Two founder tasks are blocking everything else.</h3>
+    <p>Build <code>06cc1435</code> (2026-08-02) is <b>green and still the newest</b> — the toolchain is proven and the app compiles. But no EAS environment variables exist, nothing has been submitted to TestFlight, and no relay is deployed. <b>Steps 2 and 3 are independent — do them in either order, or in parallel.</b></p>
+    <div class="nowlist">
+      <div class="now"><div class="n">2</div><div><a href="#relay">Deploy the relay →</a><div class="sub">~15 min, ~$7/mo, one-click blueprint. New York ↔ California share no Wi-Fi, so this server is the only path between your phones. Mandatory.</div></div></div>
+      <div class="now"><div class="n">3</div><div><a href="#apple">App Store Connect + RevenueCat →</a><div class="sub">~1 h of account setup. Produces the <code>appl_</code> key. Without it the app installs but stays locked forever, with no sync engine at all.</div></div></div>
+      <div class="now"><div class="n">→</div><div>Then send Claude two values<div class="sub">The RevenueCat <code>appl_</code> key and your relay <code>wss://</code> URL. Claude bakes them in, rebuilds, and submits. You invite testers and run steps 7-11 with your friend.</div></div></div>
+    </div>
+    <p class="doneline"><b>Already handled:</b> app icon + splash + adaptive assets (and the gitignore trap that would have dropped them from the archive), call-native and MapLibre config plugins, three owned Swift modules fixed and compiling, Xcode image pinned to the SDK-54 pairing, share envelopes on both surfaces, 24-hour relay mailbox preset into the deploy templates. Five build failures burned down to a green build.</p>
+  </div>
+
+  <div class="partmeta">
+    <span class="chip who">YOU = your hands</span>
+    <span class="chip claude">CLAUDE = ask me, I do it</span>
+    <span class="chip time">~2 h of your time + waiting</span>
+    <span class="chip cost">~$7/mo + your existing Apple dev account</span>
+  </div>
+</div>
+
+<!-- ============ 0 MODEL ============ -->
+<section class="part" id="model">
+  <h2>0 · The mental model (read once — it prevents every confusion later)</h2>
+  <p class="lead">You asked to connect your devices to "your account." Meerkat deliberately <strong>has no accounts</strong>. Five facts, and everything downstream follows:</p>
+  <div class="card">
+    <ul style="margin-left:18px;font-size:14.5px;color:var(--ink-2);display:grid;gap:10px;">
+      <li><b style="color:var(--ink);">Every device is its own identity.</b> Your iPhone, your MacBook browser, and your PC browser each generate their own keypair on first launch. There is no username, no password, nothing to log into.</li>
+      <li><b style="color:var(--ink);">"You" = your devices, linked.</b> You pair your devices to each other, then link them into a <em>person group</em>. After that, member lists show one row: "Trey · 3 devices". Your friend does the same.</li>
+      <li><b style="color:var(--ink);">The unlock is per store rail.</b> $4.99 once, bought through Apple on iOS (free for you both in TestFlight's sandbox). The web has a separate rail; for this private test the web testbed grants it honestly.</li>
+      <li><b style="color:var(--ink);">The relay is a blind mailbox.</b> One small server that forwards and briefly holds <em>sealed envelopes</em>. It has no database, no keys, no user list, and reads exactly two settings. Every device of yours and your friend's points at the same one.</li>
+      <li><b style="color:var(--ink);">Communities are joined per device.</b> Membership does not auto-copy to your other devices: each device joins with the invite link, then person-linking collapses them into one member row. This surprises everyone exactly once.</li>
+    </ul>
+  </div>
+  <div class="diagram-card">
+    <svg viewBox="0 0 960 300" width="100%" role="img" aria-label="Two person groups of devices communicating through a blind relay">
+      <rect x="20" y="26" width="300" height="230" rx="16" fill="rgba(14,124,102,0.05)" stroke="rgba(14,124,102,0.25)" stroke-width="2"/>
+      <text x="170" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#0A5D4D">You · New York</text>
+      <g font-size="13" fill="#51635C">
+        <rect x="45" y="72" width="115" height="52" rx="10" fill="#fff" stroke="rgba(32,48,43,0.14)"/><text x="102" y="95" text-anchor="middle">iPhone</text><text x="102" y="112" text-anchor="middle" font-size="10.5" fill="#6E7D77">TestFlight app</text>
+        <rect x="180" y="72" width="115" height="52" rx="10" fill="#fff" stroke="rgba(32,48,43,0.14)"/><text x="237" y="95" text-anchor="middle">MacBook</text><text x="237" y="112" text-anchor="middle" font-size="10.5" fill="#6E7D77">web app</text>
+        <rect x="110" y="146" width="115" height="52" rx="10" fill="#fff" stroke="rgba(32,48,43,0.14)"/><text x="167" y="169" text-anchor="middle">Desktop PC</text><text x="167" y="186" text-anchor="middle" font-size="10.5" fill="#6E7D77">web app</text>
+        <text x="170" y="228" text-anchor="middle" font-size="11.5" fill="#0A5D4D" font-weight="600">paired + linked = one member row</text>
+      </g>
+      <rect x="640" y="26" width="300" height="230" rx="16" fill="rgba(53,102,176,0.05)" stroke="rgba(53,102,176,0.25)" stroke-width="2"/>
+      <text x="790" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="#3566B0">Your friend · California</text>
+      <g font-size="13" fill="#51635C">
+        <rect x="665" y="72" width="115" height="52" rx="10" fill="#fff" stroke="rgba(32,48,43,0.14)"/><text x="722" y="95" text-anchor="middle">iPhone</text><text x="722" y="112" text-anchor="middle" font-size="10.5" fill="#6E7D77">TestFlight app</text>
+        <rect x="800" y="72" width="115" height="52" rx="10" fill="#fff" stroke="rgba(32,48,43,0.14)"/><text x="857" y="95" text-anchor="middle">Computer</text><text x="857" y="112" text-anchor="middle" font-size="10.5" fill="#6E7D77">web app</text>
+        <text x="790" y="228" text-anchor="middle" font-size="11.5" fill="#3566B0" font-weight="600">paired + linked = one member row</text>
+      </g>
+      <rect x="400" y="96" width="160" height="86" rx="14" fill="rgba(143,102,13,0.08)" stroke="rgba(143,102,13,0.35)" stroke-width="2"/>
+      <text x="480" y="126" text-anchor="middle" font-size="14" font-weight="700" fill="#8F660D">Your relay</text>
+      <text x="480" y="146" text-anchor="middle" font-size="11" fill="#6E7D77">sealed envelopes only</text>
+      <text x="480" y="162" text-anchor="middle" font-size="11" fill="#6E7D77">wss://…onrender.com</text>
+      <line x1="322" y1="139" x2="398" y2="139" stroke="#8F660D" stroke-width="2" stroke-dasharray="6 5"/>
+      <line x1="562" y1="139" x2="638" y2="139" stroke="#8F660D" stroke-width="2" stroke-dasharray="6 5"/>
+      <text x="480" y="212" text-anchor="middle" font-size="11.5" fill="#6E7D77">Same Wi-Fi or in person? Phones talk directly.</text>
+      <text x="480" y="232" text-anchor="middle" font-size="11.5" fill="#6E7D77">Coast to coast, the relay is the only road.</text>
+      <text x="480" y="282" text-anchor="middle" font-size="12" fill="#51635C" font-weight="600">Encrypted on your device → sealed envelope → decrypted only on theirs</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ 1 STATUS ============ -->
+<section class="part" id="status">
+  <h2>1 · Where things stand (verified 2026-08-09)</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Thing</th><th>State</th><th>What that means for you</th></tr></thead>
+    <tbody>
+      <tr><td>App code</td><td class="ok-txt">Complete</td><td>Communities, DMs, encryption, pairing, person-linking all merged and tested (6,600+ automated tests)</td></tr>
+      <tr><td>iOS build</td><td class="ok-txt">Green</td><td>Build <code>06cc1435</code> compiled successfully, including all three native modules. The hard part is done</td></tr>
+      <tr><td>App icon, plugins, Swift fixes</td><td class="ok-txt">Done</td><td>Handled in the 08-02 session; nothing for you to do</td></tr>
+      <tr><td>Relay server</td><td class="bad-txt">Not deployed</td><td><b>Step 2.</b> Without it your phones cannot reach each other at all across the country</td></tr>
+      <tr><td>App Store Connect record + $4.99 IAP</td><td class="bad-txt">Not created</td><td><b>Step 3.</b> Required before TestFlight and before the unlock can work</td></tr>
+      <tr><td>RevenueCat key in the build</td><td class="bad-txt">Not set</td><td><b>Step 3 → 4.</b> Without it the app is permanently locked past public browsing</td></tr>
+      <tr><td>TestFlight submission</td><td class="bad-txt">Never run</td><td><b>Step 5.</b> Claude runs this once the values above exist</td></tr>
+      <tr><td>Native radio features (tap-to-add, LAN)</td><td class="warn-txt">Compiled, never device-tested</td><td>Your test session is the first real proof. Step 11 covers it</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ 2 RELAY ============ -->
+<section class="part" id="relay">
+  <h2>2 · Deploy the relay</h2>
+  <div class="partmeta"><span class="chip here">DO THIS NOW</span><span class="chip who">YOU</span><span class="chip time">~15 min</span><span class="chip cost">~$7/mo</span><span class="chip once">One time</span></div>
+  <p class="lead">One small container. It needs <strong>no database, no secrets, no API keys</strong> — it reads only a port, a host, and a message-retention setting. Browsers refuse plain <code>ws://</code> from an <code>https://</code> page, so you need a host that provides HTTPS automatically. Render does, with a one-click blueprint already committed to your repo.</p>
+
+  <div class="pathgrid">
+    <div class="path rec"><div class="tag">Recommended</div><h4>A · Render</h4><p>One-click blueprint at the repo root. Auto-TLS, health-checked, 24-hour message retention already preset. <b>~$7/mo starter plan</b> — the free tier sleeps and stalls the first sync.</p></div>
+    <div class="path"><div class="tag">Alternative</div><h4>B · Fly.io</h4><p>Same container, CLI-driven. <span class="file">deploy/fly.toml</span> is ready and now carries the 24-hour setting too.</p></div>
+    <div class="path"><div class="tag">If you own a VPS</div><h4>C · Docker + Caddy</h4><p><span class="file">deploy/docker-compose.yml</span> has a Caddy TLS edge commented out. Uncomment, set your domain, point DNS, bring it up.</p></div>
+  </div>
+
+  <h3>Path A · Render, click by click</h3>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Open the one-click deploy link</h4>
+      <p>Go to <a href="https://render.com/deploy?repo=https://github.com/tshuldberg/MyLife" style="color:var(--accent-dim);font-weight:700;">render.com/deploy?repo=https://github.com/tshuldberg/MyLife</a> — this is the button from your own repo's relay guide. Sign in with GitHub if prompted and authorize Render to read the <code>MyLife</code> repository.</p>
+      <p>Render reads <span class="file">render.yaml</span> from the repository root and pre-fills the whole service for you: Docker runtime, the relay Dockerfile, the health check, and the environment values.</p>
+      <div class="expect"><b>You should see:</b> a "Blueprint" / "New Blueprint Instance" screen listing one web service named <b>meerkat-relay</b>.</div>
+    </div></li>
+
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Name it and pick the paid starter plan</h4>
+      <p>Give the blueprint instance any name (for example <code>meerkat</code>). Confirm the service plan reads <b>Starter</b> (about $7/month), not Free.</p>
+      <div class="gotcha"><b>Why not free:</b> Render's free tier sleeps after inactivity. A sleeping relay stalls your friend's first sync and drops parked messages when it restarts.</div>
+    </div></li>
+
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Click Apply / Create and wait for the build</h4>
+      <p>Render pulls the repo, builds the Docker image, and starts the service. The first build takes a few minutes. Watch the <b>Logs</b> tab until you see the relay start and the health check go green.</p>
+      <div class="expect"><b>You should see:</b> the service status turn <b>Live</b> in the Render dashboard.</div>
+    </div></li>
+
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Confirm the retention setting actually landed</h4>
+      <p>Open the service → <b>Environment</b> tab. You should see two variables, both set by the blueprint:</p>
+      <ul>
+        <li><code>HOST</code> = <code>0.0.0.0</code></li>
+        <li><code>RELAY_MAILBOX_TTL_MS</code> = <code>86400000</code></li>
+      </ul>
+      <p>If <code>RELAY_MAILBOX_TTL_MS</code> is missing, add it manually with that exact value and redeploy.</p>
+      <div class="gotcha"><b>This is the single most important setting on the page.</b> The relay's built-in default is <b>5 minutes</b>. A message you send while your friend's app is closed would evaporate before they ever open it. 86400000 ms is 24 hours, the maximum the relay allows.</div>
+    </div></li>
+
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Test it in a browser</h4>
+      <p>Copy your service URL from the top of the Render page. It looks like <code>https://meerkat-relay-xxxx.onrender.com</code>. Open that URL with <code>/healthz</code> on the end:</p>
+      <pre class="cmd">https://YOUR-SERVICE.onrender.com/healthz</pre>
+      <div class="expect"><b>You should see exactly:</b> <code>{"ok":true,"connections":0}</code> — nothing else. That two-field answer is deliberate: the relay knows nothing else to tell you.</div>
+    </div></li>
+
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Write down your relay address</h4>
+      <p>Take the same URL, swap <code>https</code> for <code>wss</code>, and drop any trailing slash. That is the address every device uses and the value Claude bakes into the build:</p>
+      <pre class="cmd">wss://YOUR-SERVICE.onrender.com</pre>
+      <p>No path, no port, nothing after the hostname.</p>
+    </div></li>
+  </ol>
+
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="relay-deployed"><span class="lbl"><b>Relay live:</b> status Live, <code>/healthz</code> returns ok, TTL shows 86400000, <code>wss://</code> address saved</span></label>
+  </div>
+
+  <details class="acc"><summary>Path B · Fly.io instead (CLI)</summary>
+    <pre class="cmd">cd /Users/trey/Desktop/Apps/MyLife/packages/meerkat-relay
+fly launch --copy-config --config deploy/fly.toml   <span class="cm"># first time only</span>
+fly deploy</pre>
+    <p>Run these from the relay package root, not the deploy folder — that directory is the Docker build context the Dockerfile expects. The 24-hour retention is already in <span class="file">fly.toml</span>. Your address is <code>wss://your-app.fly.dev</code>.</p>
+  </details>
+  <details class="acc"><summary>Why not the full 15-service production stack?</summary>
+    <p>That topology (Caddy, Postgres, ClamAV, LiveKit, NCMEC filer, and eleven subdomains) is for a <em>public launch</em>. For two friends, every one of those is optional — verified service by service. The account service only gates public publishing; LiveKit only powers the channel "Room" button (1:1 calls are peer-to-peer); the push gateway only wakes closed apps. The small relay alone carries communities, DMs, pairing, and file sync.</p>
+  </details>
+</section>
+
+<!-- ============ 3 APPLE ============ -->
+<section class="part" id="apple">
+  <h2>3 · App Store Connect + RevenueCat</h2>
+  <div class="partmeta"><span class="chip here">DO THIS NOW</span><span class="chip who">YOU</span><span class="chip time">~1 hour</span><span class="chip once">One time</span></div>
+  <p class="lead">This is account paperwork, not engineering — but it is unavoidable. The app checks with RevenueCat on every launch to confirm the $4.99 unlock, and if it cannot reach a configured purchase system it locks itself. There is <strong>no developer bypass anywhere in the code</strong>; that was a deliberate honesty decision. In TestFlight, purchases run in Apple's sandbox, so <strong>neither you nor your friend is charged anything</strong>.</p>
+
+  <h3>Part 1 · Apple Developer portal (identifiers)</h3>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Check the main App ID has Push enabled</h4>
+      <p>Go to <b>developer.apple.com</b> → Account → <b>Certificates, Identifiers &amp; Profiles</b> → <b>Identifiers</b>. Find <code>com.mylife.meerkat</code> (EAS created it during your interactive build).</p>
+      <p>Click it and confirm these capabilities are checked: <b>Push Notifications</b>, <b>App Groups</b>. Save if you change anything.</p>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Create the App Group</h4>
+      <p>Identifiers → the <b>+</b> button → <b>App Groups</b> → Continue. Description: <code>Meerkat</code>. Identifier: <code>group.com.mylife.meerkat</code> exactly. Register.</p>
+      <p>Then go back into the <code>com.mylife.meerkat</code> App ID, edit the <b>App Groups</b> capability, and tick the group you just made.</p>
+      <div class="gotcha"><b>Why:</b> the iOS share sheet ("Save to Meerkat") is a second mini-app inside your app, and the two halves talk through this shared group.</div>
+    </div></li>
+  </ol>
+
+  <h3>Part 2 · App Store Connect (the app record and the $4.99 product)</h3>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Confirm the Paid Apps agreement is active</h4>
+      <p>At <b>appstoreconnect.apple.com</b> → <b>Business</b> (or Agreements, Tax, and Banking). The <b>Paid Applications</b> agreement must show <b>Active</b>, with banking and tax details filled in.</p>
+      <div class="gotcha"><b>Do this first.</b> Until this agreement is active, in-app purchases do not work even in the sandbox, and the symptom is a purchase sheet that silently fails. It is the most common cause of "the unlock button does nothing."</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Create the app record</h4>
+      <p><b>Apps</b> → the <b>+</b> → <b>New App</b>. Fill in:</p>
+      <ul>
+        <li>Platforms: <b>iOS</b></li>
+        <li>Name: <b>Meerkat</b> (if taken, any unique name works for testing)</li>
+        <li>Primary language: English (U.S.)</li>
+        <li>Bundle ID: <b><code>com.mylife.meerkat</code></b> from the dropdown</li>
+        <li>SKU: <code>meerkat-ios</code> (internal only, any string)</li>
+        <li>User Access: Full Access</li>
+      </ul>
+      <p>Create it. Then open <b>App Information</b> and note the <b>Apple ID</b> — a long number. Send that to Claude for the submit configuration.</p>
+      <div class="expect"><b>You should see:</b> the app in your Apps list, state "Prepare for Submission".</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Create the one in-app purchase</h4>
+      <p>Inside the app record → <b>Monetization</b> → <b>In-App Purchases</b> → <b>+</b>. Then:</p>
+      <ul>
+        <li>Type: <b>Non-Consumable</b> (a one-time permanent unlock)</li>
+        <li>Reference Name: <code>Meerkat App Unlock</code></li>
+        <li>Product ID: <b><code>meerkat_app_unlock</code></b> — must match exactly, character for character</li>
+        <li>Price: <b>$4.99</b> (US tier)</li>
+        <li>Localization: add English (U.S.), Display Name <code>Unlock Meerkat</code>, Description e.g. <em>"One-time unlock for full private use."</em></li>
+        <li>Review screenshot: any 640×920+ image is fine for now</li>
+      </ul>
+      <p>Save.</p>
+      <div class="gotcha"><b>The product ID is hardcoded and price-locked in the app.</b> If you type anything other than <code>meerkat_app_unlock</code>, the app will not find the product and the unlock stays unavailable.</div>
+    </div></li>
+  </ol>
+
+  <h3>Part 3 · RevenueCat (produces the key Claude needs)</h3>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Create the project and app</h4>
+      <p>At <b>app.revenuecat.com</b>, sign up or sign in. Create a <b>new project</b> called <code>Meerkat</code>. Inside it: <b>Apps</b> → <b>+ New</b> → <b>App Store</b>. Set the bundle ID to <code>com.mylife.meerkat</code>.</p>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Connect it to App Store Connect — two different keys</h4>
+      <p>App Store Connect issues <b>two kinds of <code>.p8</code> key</b> and RevenueCat asks for both, in different fields. Uploading the wrong one gives the error "Invalid file name, it should be SubscriptionKey_XXXXXXXXXX.p8".</p>
+      <p>Both live under <b>Users and Access</b> → <b>Integrations</b>, in the left sidebar:</p>
+      <ul>
+        <li><b>App Store Connect API</b> → generates <code>AuthKey_XXXX.p8</code>. Grant <b>App Manager</b> access. Used for reading app and product metadata — and by <code>eas submit</code>. Keep this one.</li>
+        <li><b>In-App Purchase</b> → generates <code>SubscriptionKey_XXXX.p8</code>. Used to validate purchases server-side. <b>This is the one the purchase-key upload field wants.</b></li>
+      </ul>
+      <p>Each key downloads <b>exactly once</b>, so save both before uploading. Note the Key ID beside each, and the Issuer ID for the API key.</p>
+      <div class="gotcha"><b>These are private keys.</b> Keep them out of the repository and out of chat. Nothing in this project ever needs their contents — only the public <code>appl_</code> key from the next step gets shipped.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Register the product</h4>
+      <p>In RevenueCat → <b>Product catalog</b> → <b>Products</b> → <b>+ New</b>. Product identifier: <code>meerkat_app_unlock</code>, attached to your App Store app.</p>
+      <p>Optional but tidy: create an <b>Entitlement</b> and attach the product to it. The app reads the customer's entitlements to decide "unlocked".</p>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Copy the public API key</h4>
+      <p>Project settings → <b>API keys</b> → the <b>Public app-specific API key</b> for your Apple app. It begins with <code>appl_</code>.</p>
+      <p>Send that string to Claude along with your <code>wss://</code> relay address.</p>
+      <div class="gotcha"><b>Only the public <code>appl_</code> key.</b> Never the secret key that starts with <code>sk_</code> — the public key is the one designed to ship inside an app binary.</div>
+    </div></li>
+  </ol>
+
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="asc-agreement"><span class="lbl"><b>Paid Apps agreement</b> shows Active</span></label>
+  <label class="check"><input type="checkbox" data-k="asc-record"><span class="lbl"><b>App record</b> created; Apple ID number noted</span></label>
+  <label class="check"><input type="checkbox" data-k="asc-iap"><span class="lbl"><b>IAP</b> <code>meerkat_app_unlock</code> non-consumable at $4.99, with localization</span></label>
+  <label class="check"><input type="checkbox" data-k="rc-key"><span class="lbl"><b>RevenueCat</b> connected, product added, <code>appl_</code> key copied</span></label>
+  </div>
+</section>
+
+<!-- ============ 4 REPO ============ -->
+<section class="part" id="repo">
+  <h2>4 · Bake the values in</h2>
+  <div class="partmeta"><span class="chip claude">CLAUDE</span><span class="chip time">~5 min</span></div>
+  <p class="lead">Nothing for you to type here. Send Claude the two values and this happens automatically.</p>
+  <div class="card tint">
+    <h3 style="margin-top:0;">Message Claude something like:</h3>
+    <pre class="cmd">Relay: wss://meerkat-relay-xxxx.onrender.com
+RevenueCat iOS key: appl_XXXXXXXXXXXXXXXXXXXX
+ASC Apple ID: 1234567890
+Bake these in and build.</pre>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>What Claude does</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Adds <code>EXPO_PUBLIC_MEERKAT_RC_KEY_IOS</code> to the build profile</td><td>The unlock is impossible without it; the app locks itself fail-closed</td></tr>
+      <tr><td>Adds <code>MEERKAT_DEFAULT_RELAY_URL</code></td><td>Every device connects automatically instead of each person pasting the address by hand</td></tr>
+      <tr><td>Adds <code>MEERKAT_INSTALL_URL</code> once TestFlight gives you a public link</td><td>Makes shared invites include install instructions for people who do not have the app</td></tr>
+      <tr><td>Adds the submit block with your Apple ID number</td><td>Makes <code>eas submit</code> repeatable instead of interactive</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout warn"><div class="t">One quirk worth knowing</div>The TestFlight build profile deliberately skips the strict production environment guard, which is what lets you build a beta without the full public-launch service list. The trade-off: nothing warns you if a value is missing. The checklist here is the guard.</div>
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="repo-icon"><span class="lbl"><b>Icon + splash assets</b> wired</span></label>
+  <label class="check"><input type="checkbox" data-k="repo-callnative"><span class="lbl"><b>Config plugins</b> (call-native, MapLibre) applied</span></label>
+  <label class="check"><input type="checkbox" data-k="repo-env"><span class="lbl"><b>RevenueCat key + relay URL</b> baked into the build profile</span></label>
+  <label class="check"><input type="checkbox" data-k="repo-submit"><span class="lbl"><b>Submit block</b> added with your ASC Apple ID</span></label>
+  </div>
+</section>
+
+<!-- ============ 5 BUILD ============ -->
+<section class="part" id="build">
+  <h2>5 · Build → TestFlight → your friend's phone</h2>
+  <div class="partmeta"><span class="chip claude">CLAUDE builds</span><span class="chip who">YOU invite</span><span class="chip time">~30 min active, 1-2 h waiting</span></div>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge claude">CLAUDE</span>Run the build</h4>
+      <pre class="cmd">cd /Users/trey/Desktop/Apps/MyLife/apps/meerkat
+npx eas-cli build --profile testflight --platform ios</pre>
+      <p>The toolchain is already proven by build <code>06cc1435</code>, so this should be one clean pass. Takes roughly 20-40 minutes on Expo's builders.</p>
+      <div class="expect"><b>Success looks like:</b> status <b>finished</b> and a downloadable <code>.ipa</code> artifact.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge claude">CLAUDE</span>Submit it to App Store Connect</h4>
+      <pre class="cmd">npx eas-cli submit --platform ios --latest</pre>
+      <p>Apple then processes the build for 10-30 minutes before it appears in TestFlight. You may get an email about missing export-compliance info; Meerkat already declares its encryption usage in the build, so normally there is nothing to answer.</p>
+      <div class="expect"><b>You should see:</b> the build appear under your app → <b>TestFlight</b> → <b>iOS builds</b>, state "Ready to Submit" or "Processing" then ready.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Add yourself and your friend as testers</h4>
+      <p>In App Store Connect → your app → <b>TestFlight</b> tab:</p>
+      <ul>
+        <li>Left sidebar → <b>Internal Testing</b> → <b>+</b> next to Testers → create a group, e.g. <b>Founders</b>.</li>
+        <li>Add testers by Apple ID email. Internal testers must first exist under <b>Users and Access</b> → <b>+</b> (role Developer or App Manager is fine for someone you trust).</li>
+        <li>Attach the processed build to the group if it is not automatic.</li>
+      </ul>
+      <div class="gotcha"><b>If you would rather not give your friend an account role:</b> use <b>External Testing</b> instead. External groups need a one-time Beta App Review (usually under 24 hours) but let you invite anyone by email or public link.</div>
+      <div class="expect"><b>You should see:</b> both of you receive a TestFlight invitation email.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span><span class="who-badge friend">FRIEND</span>Install on both phones</h4>
+      <p>Each person: install <b>TestFlight</b> from the App Store → open the invitation email on the phone → <b>View in TestFlight</b> → <b>Accept</b> → <b>Install</b>.</p>
+      <div class="expect"><b>You should see:</b> the Meerkat icon (dark navy eye) on the home screen.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Check the unlock immediately, before going further</h4>
+      <p>Open the app, run through first launch (step 7), and stop at the unlock screen. It must show <b>Unlock for $4.99</b> and open Apple's purchase sheet marked as a Sandbox purchase.</p>
+      <div class="tw"><table>
+        <thead><tr><th>What you see</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td>"The in-app purchase is not available in this build"</td><td>The RevenueCat key was not baked in — step 4 was skipped or the build predates it</td></tr>
+          <tr><td>Sheet opens then errors</td><td>Apple side: check the Paid Apps agreement and that the IAP has complete metadata</td></tr>
+          <tr><td>Sheet completes, no charge, new tabs appear</td><td class="ok-txt">Correct. Sandbox purchase, and you are unlocked</td></tr>
+        </tbody>
+      </table></div>
+    </div></li>
+  </ol>
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="build-green"><span class="lbl"><b>Build green</b> on EAS</span></label>
+  <label class="check"><input type="checkbox" data-k="build-submitted"><span class="lbl"><b>Submitted</b> and processed in App Store Connect</span></label>
+  <label class="check"><input type="checkbox" data-k="build-testers"><span class="lbl"><b>Both testers</b> invited and installed</span></label>
+  <label class="check"><input type="checkbox" data-k="build-unlock"><span class="lbl"><b>Sandbox unlock works</b> on both phones</span></label>
+  </div>
+</section>
+
+<!-- ============ 6 WEB ============ -->
+<section class="part" id="web">
+  <h2>6 · Web app on your MacBooks and PCs</h2>
+  <div class="partmeta"><span class="chip who">YOU</span><span class="chip time">~10 min</span><span class="chip once">Optional — phones work without it</span></div>
+  <p class="lead">The web app is a static site with no hosting configured yet. For this private test, the repo already contains the right tool: a testbed that serves a real production web build over a public HTTPS tunnel. Exactly one thing is simulated, and it says so on screen: the web unlock check, because the web payment rail is not deployed. Identity, encryption, pairing, sync, and communities are all the real shipped code.</p>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Install the tunnel tool once</h4>
+      <pre class="cmd">brew install cloudflared</pre>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Start the testbed</h4>
+      <pre class="cmd">cd /Users/trey/Desktop/Apps/MyLife
+./artifacts/meerkat-testbed/start.sh tunnel</pre>
+      <p>Leave this terminal open — closing it takes the site down.</p>
+      <div class="expect"><b>You should see:</b> a printed <code>https://…trycloudflare.com</code> web address and a <code>wss://</code> relay address.</div>
+      <div class="gotcha"><b>The web address changes every restart.</b> Send your friend the new link whenever you restart it.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span><span class="who-badge friend">FRIEND</span>Open it on each computer</h4>
+      <p>Chrome or Edge → paste the link. Optionally click the install icon in the address bar to run it as its own window.</p>
+      <div class="gotcha"><b>It must be the https link.</b> On a plain <code>http://</code> address the app hangs forever at "Booting Meerkat…" with no error, because browsers withhold the cryptography it needs outside a secure context.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span><span class="who-badge friend">FRIEND</span>Point each computer at your Render relay</h4>
+      <p>In the web app: <b>Sync</b> → connection server → paste your <code>wss://…onrender.com</code> address → <b>Save</b>.</p>
+      <p>The testbed bakes in its own temporary relay; overriding it puts all four devices on one permanent server and one shared mailbox.</p>
+    </div></li>
+  </ol>
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="web-tunnel"><span class="lbl"><b>Web app open</b> on your computers, pointed at the Render relay</span></label>
+  </div>
+  <details class="acc"><summary>Later: permanent web hosting instead of a tunnel</summary>
+    <pre class="cmd">cd /Users/trey/Desktop/Apps/MyLife/apps/meerkat-web
+VITE_MEERKAT_DEFAULT_RELAY_URL=wss://YOUR-RELAY pnpm build   <span class="cm"># emits dist/</span></pre>
+    <p>Upload <code>dist/</code> to any static host (Cloudflare Pages, Netlify, Vercel). Caveat: a permanent deployment has no unlock stub, so the web unlock would need the hosted payment rail. Ask Claude when you want that wired.</p>
+  </details>
+</section>
+
+<!-- ============ 7 FIRST RUN ============ -->
+<section class="part" id="firstrun">
+  <h2>7 · First run — on every device, both people</h2>
+  <div class="partmeta"><span class="chip who">YOU</span><span class="chip who">FRIEND</span><span class="chip time">~3 min per device</span></div>
+  <p class="lead">Do this separately on each device. Remember: until you link them in step 8, each device is its own identity.</p>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Answer the age question</h4>
+      <p>"When were you born?" with month, day, and year fields, then <b>Continue</b>. It is checked on the device and never stored or transmitted — only the yes/no outcome is kept.</p>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Pick your name and save your safety code</h4>
+      <p>Enter a display name. The screen shows your <b>safety code</b> — <b>screenshot it</b>. You will read it aloud when pairing devices and verifying your friend.</p>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Choose "Just look around"</h4>
+      <p>You are offered four choices: create a community, join with an invite, add a friend, or just look around. <b>Pick "Just look around."</b></p>
+      <div class="gotcha"><b>Why:</b> the other three require the unlock, and on a fresh device they simply bounce you to the purchase screen. Unlock first, then do them from the normal interface.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Unlock</h4>
+      <p><b>On iPhone:</b> tap <b>Unlock for $4.99</b> → Apple's sandbox sheet → confirm. No money changes hands on a TestFlight build.</p>
+      <p><b>On a computer (web):</b> Settings → <b>Unlock Meerkat</b> → <b>Restore purchase</b>. The testbed grants it and says so plainly.</p>
+      <div class="expect"><b>You should see:</b> more tabs and icons appear immediately — Communities, Messages, and the rest.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Confirm the connection server</h4>
+      <p>If Claude baked the relay into the build, the phones are already connected — check <b>Settings</b> shows the connection server as reachable.</p>
+      <p>If not, or on the web: <b>Settings</b> → <b>Connection server</b> → <b>I have a server URL</b> → paste <code>wss://YOUR-SERVICE.onrender.com</code> → <b>Save</b>.</p>
+      <div class="expect"><b>You should see:</b> a status line saying the server is reachable. If it says otherwise, the app is telling you the truth — recheck the address and that Render shows Live.</div>
+    </div></li>
+  </ol>
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="fr-you"><span class="lbl"><b>Your devices</b> through first run, unlocked, server reachable</span></label>
+  <label class="check"><input type="checkbox" data-k="fr-friend"><span class="lbl"><b>Friend's devices</b> through first run, unlocked, server reachable</span></label>
+  </div>
+</section>
+
+<!-- ============ 8 LINKING ============ -->
+<section class="part" id="linking">
+  <h2>8 · Link your own devices into one "you"</h2>
+  <div class="partmeta"><span class="chip who">Each person separately</span><span class="chip time">~10 min</span></div>
+  <p class="lead">Two stages in order: <strong>pair</strong> (the devices establish cryptographic trust) then <strong>link</strong> (you declare the paired device is also yours, forming your person group). The link button stays disabled until you confirm safety codes — that is enforced in code, not a suggestion.</p>
+
+  <h3>iPhone to iPhone, sitting together</h3>
+  <div class="card">
+    <p style="font-size:14.5px;color:var(--ink-2);margin:0;">On both phones: <b>Sync</b> → <b>Pair in person</b> → hold the phones near each other → both show the same five emoji → <b>compare them out loud</b> → both confirm. No server involved at all. (This is also the feature your test will prove on real hardware for the first time.)</p>
+  </div>
+
+  <h3>iPhone to MacBook or PC (the copy-paste path)</h3>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Get the computer's pairing code</h4>
+      <p>In the web app: <b>Sync</b> → <b>Pairing</b> section → copy the code beginning with <code>MKPAIR1-</code>.</p>
+      <div class="gotcha"><b>Why copy-paste here:</b> browsers have no radio access, so the in-person ceremony is impossible on the web by design. The app says so rather than offering a button that cannot work.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Paste it into the phone, and send the phone's code back</h4>
+      <p>On the phone: <b>Sync</b> → paste the computer's code → <b>Pair device</b>. Then copy the phone's own <code>MKPAIR1-</code> code and paste it into the computer → <b>Pair device</b> there too. Both sides must do it.</p>
+      <div class="expect"><b>You should see:</b> "Paired devices: 1" (or higher) on both.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Compare safety codes and mark them verified</h4>
+      <p>Look at the safety code on each device and confirm they match what each shows for the other. Mark verified.</p>
+      <div class="gotcha"><b>Until you do this the link button is greyed out</b>, with the message "Check this device safety code before linking it as your own device."</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Link it as your own device</h4>
+      <p>On either device: <b>Messages</b> (or Settings) → <b>Own devices</b> panel → <b>Link this second device</b> → confirm on the other device when prompted.</p>
+      <p>Repeat the whole sequence for each additional device (your PC, a second phone).</p>
+      <div class="expect"><b>You should see:</b> in a community member list, one row for you with a device count rather than separate rows per device.</div>
+    </div></li>
+  </ol>
+
+  <div class="callout warn"><div class="t">What actually travels between your own devices today</div>Your person identity, display name, channel read positions, and library progress replicate. <b>These do not:</b> settings, the unlock (each device restores its own), community membership (each device joins with the invite link — step 10), and <b>incoming direct messages</b>. Your outgoing DMs reach your own devices, but a friend's messages only arrive on devices that friend has paired with. Practical advice: <b>do your direct messaging on the phone</b>, and treat computers as community and file surfaces. This is listed in the limitations section too.</div>
+
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="link-you"><span class="lbl"><b>Your devices linked</b> into one person</span></label>
+  <label class="check"><input type="checkbox" data-k="link-friend"><span class="lbl"><b>Friend's devices linked</b> the same way</span></label>
+  </div>
+</section>
+
+<!-- ============ 9 FRIEND ============ -->
+<section class="part" id="friend">
+  <h2>9 · Add each other as friends</h2>
+  <div class="partmeta"><span class="chip who">Both of you</span><span class="chip time">~5 min</span></div>
+  <p class="lead">You are on opposite coasts, so use the friend-code path. (The in-person tap path exists and is genuinely serverless, but requires being in the same room.)</p>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Open Add friend and publish your code</h4>
+      <p><b>Messages</b> → <b>+</b> (or People) → <b>Add friend</b>. You will see your code in the form <code>MEER-XXXX-XXXX-XXXX</code> plus a QR image.</p>
+      <p>Tap <b>Publish my code</b>. This places a short-lived encrypted record on your relay so your friend's app can resolve it. The server cannot read it; the half that decrypts it travels inside the code you send.</p>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Send it with <b>Share my contact</b></h4>
+      <p>Tap <b>Share my contact</b> and pick Messages/iMessage. This sends a complete, readable invitation rather than a bare code: what Meerkat is, how to install it, exactly where to type the code, and an honest note that the code needs publishing to resolve.</p>
+      <div class="gotcha"><b>Plain "Copy code" also exists</b> and hands over just the raw code — useful when your friend already has the app open.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge friend">FRIEND</span>Enter the code</h4>
+      <p><b>Messages</b> → <b>Add friend</b> → type or paste the <code>MEER-</code> code into the friend-code field → <b>Add friend</b>. On a phone they can also scan the QR you sent.</p>
+      <div class="expect"><b>You should see:</b> a success line naming you, and a prompt to compare safety codes before sharing anything sensitive.</div>
+      <div class="gotcha"><b>"Code not found"</b> almost always means the publish step expired or was skipped. Publish again and retry — the record is deliberately short-lived.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Both: compare safety codes, then send a first message</h4>
+      <p>Read your safety codes to each other over a phone call, then open the conversation and send a message. This is your first coast-to-coast test.</p>
+      <div class="expect"><b>You should see:</b> the message arrive on the other phone within seconds while both apps are open.</div>
+    </div></li>
+  </ol>
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="friends"><span class="lbl"><b>Friends added</b> both directions; first DM delivered NYC ↔ CA</span></label>
+  </div>
+</section>
+
+<!-- ============ 10 COMMUNITY ============ -->
+<section class="part" id="community">
+  <h2>10 · Create the community and talk</h2>
+  <div class="partmeta"><span class="chip who">You create</span><span class="chip who">Everyone joins</span><span class="chip time">~10 min</span></div>
+  <ol class="steps">
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Create it on your iPhone</h4>
+      <p><b>Communities</b> tab → <b>+</b> → <b>Create a community</b> → type a name → pick a template (<b>Blank</b> gives one general channel) → <b>Create community</b>.</p>
+      <div class="expect"><b>You should see:</b> the community in your list with you as owner.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Create the invite</h4>
+      <p>Open the community → gear icon → <b>Invite people</b> → <b>Share an invite</b>.</p>
+      <p>Use <b>Share invite</b> to send a full ready-to-read message (install steps plus the link). Use <b>Copy link</b> if the other person already has the app open.</p>
+      <div class="gotcha"><b>The invite expires in 48 hours.</b> If someone joins late, just create a fresh one.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge friend">FRIEND</span><span class="who-badge you">+ YOUR OTHER DEVICES</span>Join</h4>
+      <p>Everyone who should be in the community — your friend <em>and each of your own computers</em> — opens the invite and joins.</p>
+      <p>On each device: paste the link (or tap it) → a preview appears showing the name, member and channel counts, who invited you, the expiry, and your name in this community → <b>Join community</b>.</p>
+      <div class="gotcha"><b>Yes, your own laptop joins separately.</b> Community membership does not copy across your devices; after step 8's linking they will still show as a single person in the member list.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4><span class="who-badge you">YOU</span>Keep your phone open until everyone is admitted</h4>
+      <p>A new member shows as <b>pending</b> until your device (the owner's) processes their join and hands over the community key. This is automatic — there is no approve button — but your phone has to come online while the request is waiting on the relay. With the 24-hour retention from step 2 there is no rush.</p>
+      <div class="gotcha"><b>Important:</b> a pending member can type a message that appears on their own screen but is rejected by everyone else. Wait for their role to stop saying "pending" before concluding something is broken.</div>
+    </div></li>
+    <li class="step"><div class="num"></div><div class="body">
+      <h4>Everyone: talk</h4>
+      <p>Post in the channel. While both apps are open, messages arrive within seconds. If an app is closed, its messages arrive the next time it opens.</p>
+      <p>You can also try a 1:1 voice or video call with both apps in the foreground.</p>
+      <div class="gotcha"><b>Expected, not bugs:</b> a closed app stays completely silent (no push notifications yet), and the channel <b>Room</b> button does nothing (it needs a media server you deliberately did not deploy).</div>
+    </div></li>
+  </ol>
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="community"><span class="lbl"><b>Community live:</b> everyone joined, roles past pending, messages flowing both ways</span></label>
+  </div>
+</section>
+
+<!-- ============ 11 SMOKE TEST ============ -->
+<section class="part" id="smoketest">
+  <h2>11 · The test script</h2>
+  <p class="lead">Run these once you are both set up. The starred rows are genuinely new evidence: those features have never run on physical hardware, so your session is the first real proof they work.</p>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Test</th><th>Passing looks like</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Both phones open; send a channel message NYC → CA</td><td>Arrives within seconds, no manual action</td></tr>
+      <tr><td>2</td><td>Friend force-quits the app; you send; they reopen 10+ minutes later</td><td>Message is waiting. This proves the 24-hour retention setting took effect</td></tr>
+      <tr><td>3 ★</td><td>Sit together (when you can): both phones in Airplane Mode with Wi-Fi off → <b>Add in person</b> → send a message</td><td>Works with zero internet. This is the mesh claim, proven on hardware</td></tr>
+      <tr><td>4 ★</td><td>Run two in-person ceremonies back to back; cancel one halfway</td><td>Each is a fresh session; the cancelled one leaves nothing behind</td></tr>
+      <tr><td>5 ★</td><td>After a ceremony ends, confirm normal same-Wi-Fi sync resumes</td><td>Syncing works again within about a minute</td></tr>
+      <tr><td>6</td><td>Post from your MacBook web app into the community</td><td>Friend's phone receives it; member list still shows you as one person</td></tr>
+      <tr><td>7</td><td>1:1 call with both apps in the foreground</td><td>Audio and video connect; the call appears in the log afterwards</td></tr>
+      <tr><td>8</td><td>Share a photo into the community from the phone share sheet</td><td>It opens on the other person's device</td></tr>
+      <tr><td>9</td><td>Suspend the Render service, then try to send</td><td>The app says it is waiting or unavailable — it never falsely claims "delivered"</td></tr>
+    </tbody>
+  </table></div>
+  <div class="checks">
+  <label class="check"><input type="checkbox" data-k="smoke"><span class="lbl"><b>Test script run;</b> results (especially ★) reported back to Claude</span></label>
+  </div>
+</section>
+
+<!-- ============ 12 CAVEATS ============ -->
+<section class="part" id="caveats">
+  <h2>12 · Honest limitations — things to expect, not report</h2>
+  <div class="tw"><table>
+    <thead><tr><th>What you will notice</th><th>Why</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>A closed app is completely silent</td><td>No push notification service deployed; the app reports this honestly rather than pretending</td><td>Expected this phase</td></tr>
+      <tr><td>Friend's DMs do not reach your computer</td><td>A sender only addresses devices it has paired with directly</td><td class="warn-txt">Real gap, logged. DM on phones</td></tr>
+      <tr><td>Channel "Room" button does nothing</td><td>Needs a media server you deliberately did not deploy</td><td>Expected this phase</td></tr>
+      <tr><td>Messages typed while "pending" vanish for others</td><td>Peers reject non-members; there is no local block on typing yet</td><td class="warn-txt">Real quirk, logged</td></tr>
+      <tr><td>"New library" on the phone does nothing</td><td>Mobile never creates the personal workspace the web app does</td><td class="warn-txt">Real bug, logged</td></tr>
+      <tr><td>The web link changes on every restart</td><td>Temporary tunnel; permanent hosting is a later step</td><td>Expected</td></tr>
+      <tr><td>Relay restart loses undelivered messages</td><td>Mailboxes are memory-only by design — the relay stores nothing permanently</td><td>Deliberate trade-off</td></tr>
+      <tr><td>Radio features behave oddly</td><td>That Swift code compiled for the first time on 2026-08-02 and has never run on a phone</td><td>That is what tests 3-5 are for. Report everything</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ 13 APPENDIX ============ -->
+<section class="part" id="appendix">
+  <h2>13 · Appendix</h2>
+
+  <h3>What to send your friend</h3>
+  <div class="card tint"><ol style="margin-left:18px;font-size:14.5px;color:var(--ink-2);display:grid;gap:6px;">
+    <li>The TestFlight invitation (from App Store Connect)</li>
+    <li>The web link, if they want it on a computer</li>
+    <li>The relay address <code>wss://…</code> — unless it is baked into the build, in which case skip this</li>
+    <li>Your community invite (48-hour expiry)</li>
+  </ol>
+  <p style="margin-top:10px;font-size:13.5px;color:var(--ink-3);">There is a plain-language guide written for them: <span class="file">docs/guides/meerkat-friend-guide-2026-08-01.html</span></p></div>
+
+  <h3>Every command in one place</h3>
+  <pre class="cmd"><span class="cm"># Build and ship</span>
+cd /Users/trey/Desktop/Apps/MyLife/apps/meerkat
+npx eas-cli build --profile testflight --platform ios
+npx eas-cli submit --platform ios --latest
+npx eas-cli build:list --platform ios --limit 3
+
+<span class="cm"># Web app for computers (leave running)</span>
+cd /Users/trey/Desktop/Apps/MyLife
+./artifacts/meerkat-testbed/start.sh tunnel
+
+<span class="cm"># Check the relay is alive</span>
+curl https://YOUR-SERVICE.onrender.com/healthz</pre>
+
+  <h3>Settings reference</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Setting</th><th>Where</th><th>If it is missing</th></tr></thead>
+    <tbody>
+      <tr><td><code>RELAY_MAILBOX_TTL_MS</code> = 86400000</td><td>Render environment</td><td class="bad-txt">Messages die after 5 minutes</td></tr>
+      <tr><td><code>EXPO_PUBLIC_MEERKAT_RC_KEY_IOS</code></td><td>Build profile (Claude)</td><td class="bad-txt">App locked forever</td></tr>
+      <tr><td><code>MEERKAT_DEFAULT_RELAY_URL</code></td><td>Build profile (Claude)</td><td>Everyone pastes the address by hand</td></tr>
+      <tr><td><code>MEERKAT_INSTALL_URL</code></td><td>Build profile (Claude)</td><td>Shared invites omit install instructions</td></tr>
+      <tr><td>Push, LiveKit, account service URLs</td><td>Unset on purpose</td><td>Those features report unavailable honestly</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Troubleshooting</h3>
+  <details class="acc"><summary>The web page is stuck on "Booting Meerkat…"</summary><p>You opened it over plain <code>http://</code>. Browsers withhold the cryptography the app needs outside a secure context, and this failure has no error screen yet. Use the <code>https://</code> tunnel link or <code>localhost</code>.</p></details>
+  <details class="acc"><summary>"No connection server configured" even though I set one</summary><p>A stale health check. Open <code>/healthz</code> in a browser to confirm the relay answers, then re-save the address in the app.</p></details>
+  <details class="acc"><summary>The purchase sheet never appears</summary><p>In order: is the RevenueCat key in <em>this</em> build? Does the IAP exist with complete metadata? Is the Paid Apps agreement Active? Is the product registered in RevenueCat? The app's own wording tells you which layer failed — "not available in this build" means the key is missing, whereas a sheet that opens then errors is the Apple side.</p></details>
+  <details class="acc"><summary>An EAS build fails</summary><p>Send Claude the build ID. Claude can pull the full logs directly and read the exact compiler error — that is how the five previous failures were diagnosed and fixed.</p></details>
+  <details class="acc"><summary>My friend cannot find my friend code</summary><p>Published codes are deliberately short-lived. Tap <b>Publish my code</b> again and have them retry immediately.</p></details>
+
+  <h3>Deliberately not covered here</h3>
+  <p style="font-size:14px;color:var(--ink-2);max-width:840px;">Everything required for a <em>public</em> launch: legal review and published policies, child-safety reporting operations, the full multi-service production stack, managed databases, signed release artifacts, load testing, public App Store review, the web payment rail, push notifications, and community voice rooms. All of it is tracked in the 18-step launch guide for when you take Meerkat public. None of it is needed for you and one friend.</p>
+
+  <p class="verified" style="margin-top:22px;">Verified against the repository and live EAS state on 2026-08-09. Pricing is founder-locked at $4.99 one-time and $4.99/month hosted. Steps 3-5 of the test script correspond to open acceptance criteria in the release ledger, which is why your results are worth reporting.</p>
+</section>
+
+</main>
+</div>
+<script>
+(function(){
+  var prog=document.getElementById('progress');
+  addEventListener('scroll',function(){var h=document.documentElement;prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';},{passive:true});
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}});},{threshold:0.05});
+  document.querySelectorAll('.part, .hero').forEach(function(el){el.classList.add('reveal');io.observe(el);});
+
+  var links=[].slice.call(document.querySelectorAll('nav.toc a'));
+  var sio=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id);});}
+    });
+  },{rootMargin:'-20% 0px -70% 0px'});
+  links.forEach(function(a){var s=document.querySelector(a.getAttribute('href'));if(s)sio.observe(s);});
+
+  // Progress state, verified against the repo + live EAS on 2026-08-09.
+  var STEP_STATE={relay:'current',apple:'current'};
+  Object.keys(STEP_STATE).forEach(function(id){
+    var sec=document.getElementById(id);
+    var link=document.querySelector('nav.toc a[href="#'+id+'"]');
+    if(sec)sec.classList.add('is-current');
+    if(link)link.classList.add('step-current');
+  });
+  // Items the repo/EAS state already proves complete.
+  var VERIFIED_DONE={'repo-icon':true,'repo-callnative':true,'build-green':true};
+
+  var KEY='meerkat-deploy-walkthrough-2026-08-01';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){}
+  Object.keys(VERIFIED_DONE).forEach(function(k){if(!(k in state))state[k]=true;});
+
+  var boxes=[].slice.call(document.querySelectorAll('.check input'));
+  function renderCount(){
+    var done=boxes.filter(function(b){return b.checked;}).length;
+    document.getElementById('doneCount').textContent=done+' / '+boxes.length+' checklist items done';
+  }
+  boxes.forEach(function(b){
+    var k=b.dataset.k;
+    b.checked=!!state[k];
+    b.parentElement.classList.toggle('checked',b.checked);
+    b.addEventListener('change',function(){
+      state[k]=b.checked;
+      b.parentElement.classList.toggle('checked',b.checked);
+      try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+      renderCount();
+    });
+  });
+  renderCount();
+
+  document.querySelectorAll('pre.cmd').forEach(function(pre){
+    var btn=document.createElement('button');
+    btn.className='copy';btn.textContent='Copy';
+    btn.addEventListener('click',function(){
+      var clone=pre.cloneNode(true);
+      var b=clone.querySelector('button.copy');if(b)b.remove();
+      clone.querySelectorAll('.cm').forEach(function(c){c.remove();});
+      var txt=clone.textContent.split('\n').map(function(l){return l.trimEnd();}).filter(function(l){return l.length;}).join('\n');
+      navigator.clipboard.writeText(txt).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy';},1400);});
+    });
+    pre.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

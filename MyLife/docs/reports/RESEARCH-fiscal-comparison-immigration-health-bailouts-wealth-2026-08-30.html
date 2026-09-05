@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>U.S. Fiscal Comparison: Immigration, Health Care, Bailouts, and High-Income Tax Preferences</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d0d10;
+      --panel: #17171c;
+      --panel-2: #202027;
+      --ink: #f5f1e8;
+      --muted: #b9b2a7;
+      --line: #35343c;
+      --amber: #f0b45a;
+      --cyan: #79c9cb;
+      --violet: #b9a0f5;
+      --rose: #ec8d9d;
+      --green: #8ccf9b;
+      --red: #ef7d72;
+      --max: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(121,201,203,.10), transparent 30rem),
+        radial-gradient(circle at 88% 10%, rgba(240,180,90,.09), transparent 34rem),
+        var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    a { color: var(--cyan); }
+    header, main, footer { width: min(var(--max), calc(100% - 32px)); margin-inline: auto; }
+    header { padding: 72px 0 34px; }
+    .eyebrow { color: var(--amber); text-transform: uppercase; letter-spacing: .13em; font-size: .76rem; font-weight: 800; }
+    h1 { font-size: clamp(2.15rem, 5vw, 4.8rem); line-height: .98; max-width: 1050px; margin: 14px 0 22px; letter-spacing: -.045em; }
+    h2 { margin: 0 0 18px; font-size: clamp(1.55rem, 3vw, 2.45rem); letter-spacing: -.03em; }
+    h3 { margin: 28px 0 10px; font-size: 1.1rem; }
+    p { max-width: 82ch; }
+    .lede { color: var(--muted); font-size: 1.13rem; max-width: 84ch; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px 22px; color: var(--muted); font-size: .86rem; margin-top: 26px; }
+    nav { position: sticky; top: 0; z-index: 10; border-block: 1px solid var(--line); background: rgba(13,13,16,.92); backdrop-filter: blur(14px); }
+    nav .inner { width: min(var(--max), calc(100% - 32px)); margin: auto; display: flex; gap: 22px; overflow-x: auto; padding: 12px 0; }
+    nav a { white-space: nowrap; color: var(--muted); text-decoration: none; font-size: .82rem; font-weight: 700; }
+    nav a:hover { color: var(--ink); }
+    main { padding: 36px 0 80px; }
+    section { padding: 42px 0; border-bottom: 1px solid var(--line); }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .card { grid-column: span 3; background: linear-gradient(160deg, var(--panel-2), var(--panel)); border: 1px solid var(--line); padding: 20px; min-height: 150px; }
+    .card strong { display: block; font-size: 1.78rem; line-height: 1.05; margin: 12px 0 10px; color: var(--amber); }
+    .card small { color: var(--muted); }
+    .callout { border-left: 3px solid var(--amber); background: rgba(240,180,90,.07); padding: 18px 20px; color: var(--ink); margin: 24px 0; max-width: 100%; }
+    .warning { border-left-color: var(--rose); background: rgba(236,141,157,.07); }
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 24px; }
+    .chart-wrap { min-width: 0; }
+    .chart-wrap.full { grid-column: 1 / -1; }
+    .chart-title { font-weight: 800; margin-bottom: 4px; }
+    .chart-note { color: var(--muted); font-size: .8rem; margin: 0 0 12px; }
+    .chart { width: 100%; min-height: 280px; border: 1px solid var(--line); background: rgba(23,23,28,.42); overflow: hidden; }
+    svg { display: block; width: 100%; height: auto; }
+    svg text { fill: var(--muted); font-family: inherit; font-size: 11px; }
+    .axis { stroke: var(--line); stroke-width: 1; }
+    .gridline { stroke: var(--line); stroke-width: .7; opacity: .7; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); margin: 18px 0; }
+    table { width: 100%; border-collapse: collapse; min-width: 680px; }
+    th, td { padding: 11px 13px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--amber); font-size: .76rem; text-transform: uppercase; letter-spacing: .05em; background: var(--panel); }
+    td { font-size: .88rem; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: .8rem; margin: 10px 0 16px; }
+    .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 7px; background: var(--swatch); }
+    .two-col { columns: 2 340px; column-gap: 40px; }
+    .two-col li { break-inside: avoid; margin-bottom: 9px; }
+    ol.sources { padding-left: 22px; }
+    ol.sources li { margin: 8px 0; color: var(--muted); }
+    code { color: var(--cyan); }
+    footer { border-top: 1px solid var(--line); padding: 28px 0 54px; color: var(--muted); font-size: .82rem; }
+    @media (max-width: 900px) {
+      .card { grid-column: span 6; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .chart-wrap.full { grid-column: auto; }
+    }
+    @media (max-width: 560px) {
+      header { padding-top: 48px; }
+      .card { grid-column: 1 / -1; }
+      .chart { min-height: 240px; overflow-x: auto; }
+      .chart svg { min-width: 760px; }
+    }
+    @media print {
+      :root { color-scheme: light; --bg: #fff; --panel: #f7f6f2; --panel-2: #f2f0eb; --ink: #171717; --muted: #555; --line: #ccc; }
+      body { background: #fff; }
+      nav { display: none; }
+      section { break-inside: avoid; }
+      a { color: #165f73; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">Graduate research review</div>
+    <h1>Immigration, health care, bailouts, and tax preferences</h1>
+    <p class="lede">A source-graded comparison of U.S. annual flows, period totals, international benchmarks, and program-lifetime costs. The core rule is simple: spending, loans, guarantees, tax expenditures, and net fiscal effects are not added as if they were the same thing.</p>
+    <div class="meta">
+      <span>Evidence cutoff: 2026-08-30</span>
+      <span>Current U.S. dollars unless stated</span>
+      <span>2020 appears in both requested windows</span>
+      <span>Primary public sources</span>
+    </div>
+  </header>
+
+  <nav aria-label="Report sections"><div class="inner">
+    <a href="#rules">Measurement</a><a href="#immigration">Immigration</a><a href="#health">Health</a><a href="#rescues">Rescues</a><a href="#corporate">Corporate tax</a><a href="#wealth">Above $5M</a><a href="#synthesis">Synthesis</a><a href="#sources">Sources</a>
+  </div></nav>
+
+  <main>
+    <section aria-labelledby="headline-title">
+      <h2 id="headline-title">What the strongest evidence says</h2>
+      <div class="grid">
+        <article class="card"><small>U.S. health spending, 2024</small><strong>$5.279T</strong><small>18.0% of GDP and $15,474 per person.</small></article>
+        <article class="card"><small>Recent immigration surge, federal 2024-2034</small><strong>$0.9T gain</strong><small>$1.2T revenue less $0.3T mandatory spending and interest.</small></article>
+        <article class="card"><small>TARP, program lifetime</small><strong>$31.1B cost</strong><small>After $443.5B was disbursed and most financing was recovered.</small></article>
+        <article class="card"><small>AGI above $5M, 2023</small><strong>$87.1B</strong><small>Illustrative realized capital-income rate preference, not an official score.</small></article>
+      </div>
+      <p class="callout warning"><strong>No valid grand total exists.</strong> Immigration status is not consistently recorded across taxes and services. Health tax exclusions finance care already counted in health spending. Bailout credit exposure is not loss. Tax expenditures depend on a counterfactual baseline. A single sum would be precise-looking but economically false.</p>
+    </section>
+
+    <section id="rules">
+      <h2>1. Measurement before comparison</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Measure</th><th>What it means</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>Gross expenditure or transfer</td><td>Cash paid without subtracting receipts</td><td>National health expenditure; forgiven PPP principal</td></tr>
+          <tr><td>Credit exposure</td><td>Maximum loans, guarantees, or asset purchases at risk</td><td>Federal Reserve emergency lending</td></tr>
+          <tr><td>Net fiscal cost</td><td>Outlays and subsidy costs less recoveries, fees, and dividends</td><td>Final TARP cost</td></tr>
+          <tr><td>Tax expenditure</td><td>Estimated revenue loss relative to a stated tax baseline</td><td>Employer health-premium exclusion</td></tr>
+          <tr><td>Net fiscal effect</td><td>Taxes and contributions less benefits and services</td><td>OECD immigrant fiscal estimates</td></tr>
+        </tbody>
+      </table></div>
+      <p>The review uses administrative data and official estimates from CBO, CMS, IRS, Treasury, the Federal Reserve, FDIC, GAO, JCT, OECD, WHO, IMF, World Bank, and Eurostat. Advocacy estimates are excluded from the quantitative core because status definitions and incidence rules are not consistently comparable.</p>
+    </section>
+
+    <section id="immigration">
+      <h2>2. Immigration: the requested status split is not observable</h2>
+      <p>There is no federal ledger that assigns every tax receipt, school cost, hospital payment, public good, or citizen child's benefit to a legal or unauthorized adult. Naturalized citizens, permanent residents, humanitarian entrants, temporary visa holders, pending applicants, and mixed-status families also prevent a clean binary. CBO's recent "other foreign nationals" category includes people with and without lawful status.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Official estimate</th><th>Spending</th><th>Revenue</th><th>Net</th><th>Scope</th></tr></thead>
+        <tbody>
+          <tr><td>Federal surge, 2024-2034</td><td class="num">$0.3T</td><td class="num">$1.2T</td><td class="num">$0.9T gain</td><td>Above-baseline 2021-2026 immigration surge, not all immigrants</td></tr>
+          <tr><td>State-local surge, 2023 direct</td><td class="num">$19.3B</td><td class="num">$10.1B</td><td class="num">$9.2B cost</td><td>Incremental surge population</td></tr>
+          <tr><td>State-local surge, 2023 broader</td><td class="num">$28.6B</td><td class="num">$18.8B</td><td class="num">$9.8B cost</td><td>Includes possible secondary effects</td></tr>
+          <tr><td>Immigration-specific federal discretionary funding, 2024</td><td class="num">$37B</td><td class="num">Not paired</td><td class="num">Not net</td><td>Agencies and immigration functions</td></tr>
+          <tr><td>Unauthorized work and Social Security, 2010</td><td class="num">$1B</td><td class="num">$13B</td><td class="num">$12B gain</td><td>Old, narrow Social Security cash-flow estimate</td></tr>
+        </tbody>
+      </table></div>
+      <p class="callout">The federal and state-local findings can both be true. Federal finances receive income and payroll taxes and bear limited near-term benefit costs for many recent arrivals. State and local governments bear immediate education, shelter, and emergency-service costs.</p>
+
+      <div class="chart-grid">
+        <div class="chart-wrap full">
+          <div class="chart-title">Foreign-born net fiscal effect across OECD countries, 2006-2018 average</div>
+          <p class="chart-note">Percent of GDP. Specification A includes individualized items. C2 allocates all public goods per person. These are foreign-born estimates, not legal-versus-unauthorized estimates.</p>
+          <div class="legend"><span style="--swatch:var(--cyan)">Individualized items</span><span style="--swatch:var(--amber)">All public goods allocated</span></div>
+          <div class="chart" id="immigration-chart" role="img" aria-label="Grouped horizontal bar chart of OECD immigrant net fiscal effects"></div>
+        </div>
+      </div>
+
+      <div class="table-wrap"><table>
+        <thead><tr><th>Requested window</th><th>Legal total</th><th>Unauthorized total</th><th>Finding</th></tr></thead>
+        <tbody>
+          <tr><td>Annual</td><td>Unavailable</td><td>Unavailable</td><td>Use bounded 2023 and 2024 anchors, not a national status split.</td></tr>
+          <tr><td>2012-2020</td><td>Unavailable</td><td>Unavailable</td><td>No comprehensive official status ledger.</td></tr>
+          <tr><td>2020-present</td><td>Unavailable</td><td>Unavailable</td><td>CBO's surge estimates are strongest, but the population is not unauthorized-only.</td></tr>
+          <tr><td>All time</td><td>Not estimable</td><td>Not estimable</td><td>A precise total would depend on arbitrary descendant, public-good, and status rules.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="health">
+      <h2>3. Medical expenditure: the largest recurring flow</h2>
+      <div class="chart-grid">
+        <div class="chart-wrap full">
+          <div class="chart-title">U.S. national health expenditure, 2012-2024</div>
+          <p class="chart-note">Trillions of current dollars. All payers, not the federal government alone.</p>
+          <div class="chart" id="health-line" role="img" aria-label="Line chart of U.S. national health expenditure"></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">Health spending share, 2023</div>
+          <p class="chart-note">Current health expenditure as percent of GDP.</p>
+          <div class="chart" id="health-gdp" role="img" aria-label="Health spending as percent of GDP by country"></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-title">Health spending per person, 2023</div>
+          <p class="chart-note">Purchasing-power-parity dollars per person.</p>
+          <div class="chart" id="health-ppp" role="img" aria-label="Health spending in PPP dollars per person by country"></div>
+        </div>
+      </div>
+
+      <h3>Period totals</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Window</th><th>U.S. nominal</th><th>U.S. real</th><th>World nominal</th><th>Coverage</th></tr></thead>
+        <tbody>
+          <tr><td>2012-2020</td><td class="num">$30.266T</td><td class="num">$35.641T</td><td class="num">$70.950T</td><td>Real U.S. value uses 2024 health-price dollars.</td></tr>
+          <tr><td>2020-present</td><td class="num">$23.372T</td><td class="num">$24.569T</td><td class="num">$40.542T</td><td>U.S. through 2024; world through 2023.</td></tr>
+          <tr><td>Full source series</td><td class="num">$90.213T</td><td class="num">Not summed</td><td class="num">$158.922T</td><td>U.S. 1960-2024; world 2000-2023.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Nominal cumulative amounts are arithmetic ledger totals. They are not good welfare comparisons across decades because inflation and exchange rates change. The world totals are derived from the WHO-sourced World Bank health share of world GDP multiplied by World Bank world GDP.</p>
+
+      <h3>Health tax preference</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Employer medical-insurance exclusion</th><th>FY2026</th><th>FY2026-2035</th></tr></thead>
+        <tbody>
+          <tr><td>Income-tax effect</td><td class="num">$295.66B</td><td class="num">$3.813T</td></tr>
+          <tr><td>Payroll-tax effect</td><td class="num">$182.58B</td><td class="num">$2.282T</td></tr>
+          <tr><td><strong>Combined effect for the same exclusion</strong></td><td class="num"><strong>$478.24B</strong></td><td class="num"><strong>$6.095T</strong></td></tr>
+        </tbody>
+      </table></div>
+      <p class="callout warning">Do not add the $478.24B tax preference to health spending. The exclusion subsidizes compensation used to buy coverage already included in national health expenditure.</p>
+    </section>
+
+    <section id="rescues">
+      <h2>4. Corporate and bank rescues: exposure is not loss</h2>
+      <div class="chart-grid">
+        <div class="chart-wrap full">
+          <div class="chart-title">Selected U.S. rescue scale, gross financing versus final or booked result</div>
+          <p class="chart-note">Billions of dollars. Gross figures are not a common concept: some are peak credit, some are disbursements, and PPP is a forgivable loan program. Net gains appear below zero.</p>
+          <div class="legend"><span style="--swatch:var(--violet)">Gross support or peak exposure</span><span style="--swatch:var(--rose)">Net cost or forgiven principal</span><span style="--swatch:var(--green)">Net gain</span></div>
+          <div class="chart" id="rescue-chart" role="img" aria-label="Gross support and net fiscal outcomes for selected U.S. rescue programs"></div>
+        </div>
+      </div>
+
+      <div class="table-wrap"><table>
+        <thead><tr><th>Program</th><th>Gross or peak</th><th>Net result</th><th>Correct reading</th></tr></thead>
+        <tbody>
+          <tr><td>Federal Reserve 2008 facilities</td><td class="num">About $1.5T peak</td><td>Loans repaid; no comparable portfolio loss</td><td>Peak outstanding credit, not a cumulative cost</td></tr>
+          <tr><td>TARP lifetime</td><td class="num">$443.5B disbursed</td><td class="num">$31.1B cost</td><td>Bank capital component earned $16.3B</td></tr>
+          <tr><td>PPP</td><td class="num">More than $799B</td><td class="num">About $760B forgiven</td><td>Broad payroll and business transfer, not a bank equity rescue</td></tr>
+          <tr><td>Airline payroll support</td><td class="num">$59B distributed</td><td class="num">About $52B booked cost</td><td>Treasury received $15B in notes plus warrants; notes remain</td></tr>
+          <tr><td>2020 Fed facilities</td><td class="num">$114B Treasury invested</td><td class="num">$0.749B gain</td><td>Backstop returned funds and earned net income</td></tr>
+          <tr><td>SVB and Signature</td><td class="num">$16.7B DIF cost estimate</td><td class="num">$0 general-fund cost</td><td>Recovered through a bank-industry special assessment</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>International bank-rescue evidence</h3>
+      <p>Eurostat's 2007-2025 series reports cumulative bank-rescue deficit effects above 10% of 2025 GDP in Cyprus and Greece, 5% to 10% in Ireland, Portugal, and Slovenia, and 1% to 5% in Spain, Latvia, Austria, and Germany. Luxembourg, Denmark, Belgium, Sweden, and France recorded cumulative net gains after fees, interest, dividends, and asset sales. At the end of 2025, bank-rescue-related government debt stood at EUR383.4B, or 2.0% of EU GDP, with EUR54.4B of contingent liabilities.</p>
+
+      <div class="chart-grid">
+        <div class="chart-wrap full">
+          <div class="chart-title">International pandemic fiscal response by instrument, IMF September 2021 snapshot</div>
+          <p class="chart-note">Percent of 2020 GDP. This includes people, health, and firms. It is a rescue-policy comparison, not a corporate-only cost table.</p>
+          <div class="legend"><span style="--swatch:var(--amber)">Additional spending and forgone revenue</span><span style="--swatch:var(--cyan)">Liquidity support</span></div>
+          <div class="chart" id="pandemic-chart" role="img" aria-label="International pandemic fiscal response by instrument"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="corporate">
+      <h2>5. Corporate tax preferences</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Policy</th><th>Estimate</th><th>Interpretation</th></tr></thead>
+        <tbody>
+          <tr><td>2017 Act 21% corporate rate, FY2018-2020</td><td class="num">$357.1B revenue reduction</td><td>Original JCT score for the part inside the first requested window</td></tr>
+          <tr><td>Same rate provision, FY2018-2027</td><td class="num">$1.349T revenue reduction</td><td>Ten-year legislative estimate, not observed cash</td></tr>
+          <tr><td>Business-tax-reform section, FY2018-2020</td><td class="num">$376.0B reduction</td><td>Partly offset by $137.5B of international-tax revenue increases</td></tr>
+          <tr><td>Qualified business income deduction, FY2018-2020</td><td class="num">$124.7B reduction</td><td>Pass-through owners; overlaps high-income policy conceptually</td></tr>
+          <tr><td>2025 Act business-tax changes, FY2025-2034</td><td class="num">Nearly $1T deficit increase</td><td>JCT conventional estimate summarized by CBO</td></tr>
+        </tbody>
+      </table></div>
+      <p>The 2017 corporate rate cut is not normally classified as a tax expenditure because it changed the statutory baseline. JCT's legislative score is the proper measure. It cannot be added to later annual tax-expenditure estimates without overlap.</p>
+      <h3>Current annual tax-expenditure anchors</h3>
+      <div class="grid">
+        <article class="card"><small>Accelerated depreciation</small><strong>$81.65B</strong><small>FY2026; $707.07B projected for 2026-2035.</small></article>
+        <article class="card"><small>Qualified business income deduction</small><strong>$68.12B</strong><small>FY2026; $850.85B projected for 2026-2035.</small></article>
+        <article class="card"><small>Research expensing</small><strong>$47.26B</strong><small>FY2026; $129.76B projected for 2026-2035.</small></article>
+      </div>
+    </section>
+
+    <section id="wealth">
+      <h2>6. Returns with adjusted gross income above $5 million</h2>
+      <p>The IRS reports returns, not unique people. This review combines the $5M-under-$10M and $10M-or-more bins. Adjusted gross income excludes unrealized appreciation, so it is not a measure of annual wealth growth.</p>
+      <div class="chart-grid">
+        <div class="chart-wrap full">
+          <div class="chart-title">Illustrative preferential-rate value on realized capital income, AGI above $5M</div>
+          <p class="chart-note">Billions of dollars. Author estimate using the top ordinary-rate minus top long-term-gain-rate gap applied to qualified dividends plus net long-term capital gains.</p>
+          <div class="chart" id="wealth-line" role="img" aria-label="Annual illustrative realized capital-income rate preference for returns above five million dollars"></div>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Window</th><th>Return-years</th><th>AGI</th><th>Income tax before credits</th><th>Preferential income</th><th>Illustrative preference</th></tr></thead>
+        <tbody>
+          <tr><td>2012-2020</td><td class="num">443,378</td><td class="num">$7.016T</td><td class="num">$1.780T</td><td class="num">$3.415T</td><td class="num"><strong>$634.3B</strong></td></tr>
+          <tr><td>2020-2023</td><td class="num">343,195</td><td class="num">$5.674T</td><td class="num">$1.442T</td><td class="num">$2.807T</td><td class="num"><strong>$477.1B</strong></td></tr>
+          <tr><td>Full IRS series, 2012-2023</td><td class="num">719,430</td><td class="num">$11.587T</td><td class="num">$2.943T</td><td class="num">$5.674T</td><td class="num"><strong>$1.019T</strong></td></tr>
+        </tbody>
+      </table></div>
+      <p>The estimate uses a 20-point rate gap in 2012, 19.6 points in 2013-2017, and 17 points in 2018-2023. It is not an IRS, Treasury, or JCT tax-expenditure estimate. It ignores behavior, timing, loss netting, unrealized gains, deferral, step-up at death, and interactions. Raw itemized deductions are not tax savings and are not added.</p>
+    </section>
+
+    <section id="synthesis">
+      <h2>7. Synthesis</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Item</th><th>Amount</th><th>Time basis</th><th>Can it be compared as annual spending?</th></tr></thead>
+        <tbody>
+          <tr><td>U.S. national health expenditure</td><td class="num">$5.279T</td><td>2024</td><td>Yes</td></tr>
+          <tr><td>Employer health tax exclusion</td><td class="num">$478.2B</td><td>FY2026 estimate</td><td>No. It subsidizes underlying health spending.</td></tr>
+          <tr><td>Immigration-specific federal funding</td><td class="num">$37B</td><td>2024</td><td>Yes, but not the total fiscal effect of immigration.</td></tr>
+          <tr><td>State-local surge net cost</td><td class="num">$9.2B-$9.8B</td><td>2023</td><td>Yes, for the defined surge only.</td></tr>
+          <tr><td>Illustrative AGI-above-$5M preference</td><td class="num">$87.1B</td><td>2023</td><td>Yes as a counterfactual estimate, not an official expenditure.</td></tr>
+          <tr><td>TARP net cost</td><td class="num">$31.1B</td><td>Program lifetime</td><td>No</td></tr>
+          <tr><td>PPP principal forgiven</td><td class="num">About $760B</td><td>2020-2024 cumulative</td><td>No</td></tr>
+        </tbody>
+      </table></div>
+      <p class="callout"><strong>Scale conclusion:</strong> The annual U.S. health-care system is roughly two orders of magnitude larger than the strongest annual state-local immigration net-cost estimate and far larger than the final lifetime cost of TARP. This is a statement about scale, not a judgment about policy value.</p>
+      <ol>
+        <li>Immigration cannot be split into a defensible national legal-versus-unauthorized total. Recent federal and local effects differ in sign because they cover different taxes and services.</li>
+        <li>Health care is the dominant recurring flow and the U.S. is the high-income-country outlier.</li>
+        <li>Bailout headlines overstate cost when they substitute gross credit for net fiscal loss.</li>
+        <li>Corporate legislative scores and annual tax expenditures use different baselines and overlap.</li>
+        <li>Above-$5M IRS data support a reproducible realized-income estimate, but not a complete valuation of tax advantages or unrealized wealth.</li>
+      </ol>
+    </section>
+
+    <section id="sources">
+      <h2>8. Primary sources</h2>
+      <ol class="sources two-col">
+        <li><a href="https://www.cbo.gov/publication/60165">CBO: Effects of the Immigration Surge on the Federal Budget and Economy</a></li>
+        <li><a href="https://www.cbo.gov/publication/60569">CBO: Budgetary Effects of the Immigration Surge</a></li>
+        <li><a href="https://www.cbo.gov/publication/61464">CBO: State and Local Effects in 2023</a></li>
+        <li><a href="https://www.cbo.gov/publication/41645">CBO: Unauthorized Immigrants and State-Local Budgets</a></li>
+        <li><a href="https://www.ssa.gov/oact/NOTES/pdf_notes/note151.pdf">SSA: Unauthorized Immigration and Social Security</a></li>
+        <li><a href="https://www.oecd.org/en/publications/international-migration-outlook-2021_29f23e9d-en/full-report/component-8.html">OECD: Fiscal Impact of Immigration, 2006-2018</a></li>
+        <li><a href="https://www.cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data/historical">CMS: National Health Expenditure Data</a></li>
+        <li><a href="https://apps.who.int/nha/database/Home/Index/en/">WHO: Global Health Expenditure Database</a></li>
+        <li><a href="https://databank.worldbank.org/metadataglossary/world-development-indicators/series/SH.XPD.CHEX.GD.ZS">World Bank: Current Health Expenditure Metadata</a></li>
+        <li><a href="https://www.oecd.org/en/publications/health-at-a-glance-2025_8f9e3f98-en/full-report/health-expenditure-in-relation-to-gdp_6e4c2773.html">OECD: Health Spending Relative to GDP</a></li>
+        <li><a href="https://www.whitehouse.gov/wp-content/uploads/2026/04/ap_10_expenditures_fy2027.pdf">OMB and Treasury: FY2027 Tax Expenditures</a></li>
+        <li><a href="https://home.treasury.gov/data/troubled-asset-relief-program/">Treasury: TARP Final Data</a></li>
+        <li><a href="https://www.cbo.gov/publication/59919">CBO: Final TARP Cost</a></li>
+        <li><a href="https://www.federalreserve.gov/foia/files/emergency-lending-financial-crisis-20111206.pdf">Federal Reserve: 2008 Emergency Lending</a></li>
+        <li><a href="https://www.cbo.gov/publication/62547">CBO: 2020 Federal Reserve Facilities</a></li>
+        <li><a href="https://files.gao.gov/reports/GAO-25-106199/index.html">GAO: PPP Oversight and Forgiveness</a></li>
+        <li><a href="https://www.fdic.gov/deposit/insurance/assessments/specialassessment-psrd.html">FDIC: Systemic-Risk Special Assessment</a></li>
+        <li><a href="https://ec.europa.eu/eurostat/documents/d/government-finance-statistics/edp-notif-2026-apr-fincr">Eurostat: Financial-Institution Support, 2007-2025</a></li>
+        <li><a href="https://www.imf.org/en/topics/imf-and-covid19/fiscal-policies-database-in-response-to-covid-19">IMF: COVID-19 Fiscal Policies Database</a></li>
+        <li><a href="https://www.jct.gov/publications/2017/jcx-67-17/">JCT: 2017 Tax Act Budget Effects</a></li>
+        <li><a href="https://www.cbo.gov/publication/62105">CBO: 2026 Outlook, 2025 Act Appendix</a></li>
+        <li><a href="https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns-complete-report-publication-1304-basic-tables-part-1">IRS: Individual Income Tax Returns, Tables 1.4 and 1.4A</a></li>
+      </ol>
+      <p>Full source notes, formulas, annual tables, and limitations are preserved in the same-basename Markdown report.</p>
+    </section>
+  </main>
+
+  <footer>
+    Research snapshot prepared 2026-08-30. Figures may be revised by source agencies. Negative cost means a fiscal gain or deficit reduction.
+  </footer>
+
+  <script>
+    const C = {
+      amber: getComputedStyle(document.documentElement).getPropertyValue('--amber').trim(),
+      cyan: getComputedStyle(document.documentElement).getPropertyValue('--cyan').trim(),
+      violet: getComputedStyle(document.documentElement).getPropertyValue('--violet').trim(),
+      rose: getComputedStyle(document.documentElement).getPropertyValue('--rose').trim(),
+      green: getComputedStyle(document.documentElement).getPropertyValue('--green').trim(),
+      red: getComputedStyle(document.documentElement).getPropertyValue('--red').trim(),
+      line: getComputedStyle(document.documentElement).getPropertyValue('--line').trim(),
+      muted: getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(),
+      ink: getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()
+    };
+    const esc = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const fmt = (value, digits = 1) => Number(value).toLocaleString(undefined, { maximumFractionDigits: digits });
+
+    function lineChart(id, data, opts) {
+      const el = document.getElementById(id);
+      const W = 980, H = opts.height || 320, m = {t: 24, r: 34, b: 48, l: 64};
+      const x0 = Math.min(...data.map(d => d.x)), x1 = Math.max(...data.map(d => d.x));
+      const y0 = opts.min ?? 0, y1 = opts.max ?? Math.max(...data.map(d => d.y)) * 1.08;
+      const x = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+      const y = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
+      const yTicks = Array.from({length: 6}, (_, i) => y0 + (y1-y0)*i/5);
+      const xTicks = data.filter((_, i) => i % Math.ceil(data.length / 7) === 0 || i === data.length - 1);
+      const path = data.map((d,i) => `${i?'L':'M'}${x(d.x).toFixed(1)},${y(d.y).toFixed(1)}`).join(' ');
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
+        ${yTicks.map(v => `<line class="gridline" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-10}" y="${y(v)+4}" text-anchor="end">${esc(opts.yFormat(v))}</text>`).join('')}
+        <line class="axis" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/>
+        ${xTicks.map(d => `<text x="${x(d.x)}" y="${H-20}" text-anchor="middle">${d.x}</text>`).join('')}
+        <path d="${path}" fill="none" stroke="${opts.color}" stroke-width="4"/>
+        ${data.map(d => `<circle cx="${x(d.x)}" cy="${y(d.y)}" r="4" fill="${opts.color}"><title>${d.x}: ${esc(opts.valueFormat(d.y))}</title></circle>`).join('')}
+        <text x="${W-m.r}" y="${y(data[data.length-1].y)-12}" text-anchor="end" fill="${C.ink}" style="font-weight:800">${esc(opts.valueFormat(data[data.length-1].y))}</text>
+      </svg>`;
+    }
+
+    function horizontalBars(id, data, opts) {
+      const el = document.getElementById(id);
+      const series = opts.series;
+      const W = 980, row = opts.row || 29, H = 46 + data.length * row + 34, m = {t: 22, r: 58, b: 36, l: opts.left || 150};
+      const values = data.flatMap(d => series.map(s => Number(d[s.key] || 0)));
+      const min = opts.min ?? Math.min(0, ...values), max = opts.max ?? Math.max(0, ...values);
+      const x = v => m.l + (v-min)/(max-min)*(W-m.l-m.r);
+      const zero = x(0);
+      const ticks = Array.from({length: 6}, (_,i) => min + (max-min)*i/5);
+      const band = Math.max(5, Math.min(10, (row-7)/series.length));
+      let bars = '';
+      data.forEach((d, i) => {
+        const cy = m.t + i*row + row/2;
+        bars += `<text x="${m.l-10}" y="${cy+4}" text-anchor="end">${esc(d.name)}</text>`;
+        series.forEach((s, j) => {
+          const v = Number(d[s.key] || 0), yy = cy - (series.length*band)/2 + j*band;
+          const xx = Math.min(zero,x(v)), ww = Math.max(1, Math.abs(x(v)-zero));
+          bars += `<rect x="${xx}" y="${yy}" width="${ww}" height="${band-2}" fill="${s.color}"><title>${esc(d.name)}: ${esc(s.label)} ${esc(opts.valueFormat(v))}</title></rect>`;
+        });
+      });
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
+        ${ticks.map(v => `<line class="gridline" x1="${x(v)}" x2="${x(v)}" y1="${m.t}" y2="${H-m.b}"/><text x="${x(v)}" y="${H-12}" text-anchor="middle">${esc(opts.tickFormat(v))}</text>`).join('')}
+        <line x1="${zero}" x2="${zero}" y1="${m.t}" y2="${H-m.b}" stroke="${C.ink}" stroke-width="1.5"/>
+        ${bars}
+      </svg>`;
+    }
+
+    const immigration = [
+      ['Luxembourg',7.64,2.89],['Australia',3.46,-.41],['Switzerland',3.18,.84],['Canada',2.16,-1.19],['United Kingdom',2.02,.23],['Italy',1.87,.57],['Portugal',1.79,.89],['Spain',1.70,-.15],['Austria',1.67,-.50],['Ireland',1.57,-.21],['Germany',1.54,-.28],['Belgium',1.38,-1.28],['Norway',1.34,1.22],['Greece',1.24,.04],['France',1.02,-.85],['United States',1.00,-.68],['Sweden',1.00,-.83],['Denmark',.87,-.08],['Netherlands',.85,-.36],['Slovenia',.68,-.43],['Czechia',.37,-.04],['Latvia',.28,-1.58],['Lithuania',.23,-.31],['Finland',.13,-.18],['Estonia',.05,-1.53]
+    ].map(d => ({name:d[0], a:d[1], c2:d[2]}));
+    horizontalBars('immigration-chart', immigration, {left:130,row:25,min:-2,max:8,series:[{key:'a',label:'Individualized',color:C.cyan},{key:'c2',label:'All public goods',color:C.amber}],tickFormat:v=>`${fmt(v,1)}%`,valueFormat:v=>`${fmt(v,2)}% GDP`});
+
+    const nhe = [[2012,2.7843],[2013,2.8591],[2014,3.0103],[2015,3.1772],[2016,3.3241],[2017,3.4642],[2018,3.6377],[2019,3.8051],[2020,4.2043],[2021,4.3769],[2022,4.5866],[2023,4.9253],[2024,5.2786]].map(d=>({x:d[0],y:d[1]}));
+    lineChart('health-line', nhe, {min:2.5,max:5.5,color:C.amber,yFormat:v=>`$${fmt(v,1)}T`,valueFormat:v=>`$${fmt(v,3)}T`});
+
+    const health = [
+      ['United States',16.69,13473],['Germany',11.74,8306],['Switzerland',11.69,10602],['France',11.52,6719],['Canada',11.19,7355],['United Kingdom',10.99,6365],['Japan',10.74,5365],['Australia',10.40,7691],['Norway',9.43,9523],['Italy',8.41,4866],['Mexico',5.50,1368],['India',3.34,346]
+    ].map(d=>({name:d[0],gdp:d[1],ppp:d[2]}));
+    horizontalBars('health-gdp', health, {left:145,row:25,min:0,max:18,series:[{key:'gdp',label:'Share',color:C.amber}],tickFormat:v=>`${fmt(v,0)}%`,valueFormat:v=>`${fmt(v,2)}% GDP`});
+    horizontalBars('health-ppp', health, {left:145,row:25,min:0,max:15000,series:[{key:'ppp',label:'Per person',color:C.cyan}],tickFormat:v=>`$${fmt(v/1000,0)}k`,valueFormat:v=>`$${fmt(v,0)} PPP`});
+
+    const rescue = [
+      {name:'Fed 2008 peak',gross:1500,cost:0,gain:0},
+      {name:'PPP',gross:799,cost:760,gain:0},
+      {name:'TARP',gross:443.5,cost:31.1,gain:0},
+      {name:'2020 Fed Treasury',gross:114,cost:0,gain:-.749},
+      {name:'Airline support',gross:59,cost:52,gain:0},
+      {name:'SVB + Signature DIF',gross:16.7,cost:0,gain:0}
+    ];
+    horizontalBars('rescue-chart', rescue, {left:170,row:38,min:-100,max:1600,series:[{key:'gross',label:'Gross or peak',color:C.violet},{key:'cost',label:'Net cost or forgiven principal',color:C.rose},{key:'gain',label:'Net gain',color:C.green}],tickFormat:v=>`$${fmt(v,0)}B`,valueFormat:v=>`${v<0?'gain ':''}$${fmt(Math.abs(v),1)}B`});
+
+    const pandemic = [
+      ['United States',25.50,2.44],['United Kingdom',19.27,16.72],['Australia',18.37,1.78],['Japan',16.73,28.33],['Canada',15.92,3.95],['Germany',15.32,27.79],['Italy',10.90,35.25],['France',9.64,15.21],['Spain',8.39,14.37],['Mexico',.65,1.25]
+    ].map(d=>({name:d[0],fiscal:d[1],liquidity:d[2]}));
+    horizontalBars('pandemic-chart', pandemic, {left:155,row:31,min:0,max:38,series:[{key:'fiscal',label:'Spending and forgone revenue',color:C.amber},{key:'liquidity',label:'Liquidity',color:C.cyan}],tickFormat:v=>`${fmt(v,0)}%`,valueFormat:v=>`${fmt(v,2)}% GDP`});
+
+    const wealth = [[2012,75.968],[2013,41.887],[2014,65.145],[2015,70.732],[2016,62.189],[2017,80.125],[2018,76.556],[2019,68.748],[2020,92.980],[2021,180.119],[2022,116.894],[2023,87.126]].map(d=>({x:d[0],y:d[1]}));
+    lineChart('wealth-line', wealth, {min:0,max:200,color:C.rose,yFormat:v=>`$${fmt(v,0)}B`,valueFormat:v=>`$${fmt(v,1)}B`});
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+appId: com.mylife.mynews
+name: MyNews suggest an edit
+tags:
+  - mynews
+  - editing
+env:
+  MAESTRO_MYNEWS_ALLOW_WRITES: "0"
+  MYNEWS_FLOW_SUGGESTION: "Corrected wording proposed by the suggest flow."
+  MYNEWS_FLOW_CITATION: "https://example.org/source"
+  MYNEWS_FLOW_RATIONALE: "The original sentence misstated the date."
+---
+# Suggest: Today feed -> an article -> "Suggest edit" -> the suggestion composer.
+#
+# Reaching this screen needs a configured backend with at least one PUBLISHED
+# article, because "Suggest edit" only renders on a published article and the
+# Today feed is the only in-app way to reach one. On an unconfigured build the
+# Today screen renders its not-connected copy and this flow asserts that state
+# and stops, rather than tapping a card that is not there.
+#
+# NOT COVERED: submitting. "Submit suggestion" writes a real suggestion row and
+# consumes the editor's open-suggestion cap, so it is gated on
+# MAESTRO_MYNEWS_ALLOW_WRITES.
+
+- launchApp
+- assertVisible: "Today"
+
+# Honest stop for an unconfigured build. The copy comes from the app's own
+# not-connected state, so this branch proves the app is honest rather than
+# hiding a missing backend.
+- runFlow:
+    when:
+      visible: "Try again"
+    commands:
+      - assertVisible: "Today"
+
+- runFlow:
+    when:
+      notVisible: "Try again"
+    commands:
+      # The first feed card. Article cards carry no stable label, so the flow
+      # taps by position within the feed list rather than by invented text.
+      - tapOn:
+          point: "50%,45%"
+      - assertVisible: "Report this article"
+
+      - runFlow:
+          when:
+            visible: "Suggest edit"
+          commands:
+            - tapOn: "Suggest edit"
+            - assertVisible: "Suggest an edit"
+            - assertVisible: "Pick a paragraph"
+            - assertVisible: "Tap a paragraph to edit it or insert after it."
+
+            - tapOn: "Suggested text"
+            - inputText: ${MYNEWS_FLOW_SUGGESTION}
+            - hideKeyboard
+            - assertVisible: "Change preview"
+
+            # Corrections and context suggestions REQUIRE at least one https
+            # citation (module invariant), so the flow adds one.
+            - tapOn: "Add citation"
+            - tapOn: "https://..."
+            - inputText: ${MYNEWS_FLOW_CITATION}
+            - hideKeyboard
+
+            - tapOn: "Rationale"
+            - inputText: ${MYNEWS_FLOW_RATIONALE}
+            - hideKeyboard
+
+            - assertVisible: "Submit suggestion"
+            - runFlow:
+                when:
+                  true: ${MAESTRO_MYNEWS_ALLOW_WRITES == "1"}
+                commands:
+                  - tapOn: "Submit suggestion"
+                  - assertVisible: "Suggestion sent"
+                  - tapOn: "Done"
+
+      # A reader with no profile sees the registration route instead of the
+      # suggestion composer. That is the honest reachable state.
+      - runFlow:
+          when:
+            visible: "Register to publish or suggest"
+          commands:
+            - assertVisible: "Register to publish or suggest"

@@ -1,0 +1,46 @@
+# ─── Environment & Secrets ──────────────────────────────────────────────────
+.env
+*.pem
+*.key
+!.env.example
+
+# ─── DKIM Keys (generated, contain secrets) ────────────────────────────────
+stalwart/config/dkim/private.key
+stalwart/config/dkim/rsa-private.key
+
+# ─── Docker Volumes (if local bind mounts used) ────────────────────────────
+data/
+volumes/
+
+# ─── Logs ───────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ─── Backup Temp Files ─────────────────────────────────────────────────────
+*.bak
+*.backup
+*.tmp
+
+# ─── OS Files ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── IDE / Editor ──────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Node (admin-ui) ───────────────────────────────────────────────────────
+admin-ui/node_modules/
+admin-ui/.svelte-kit/
+admin-ui/build/
+admin-ui/.env
+admin-ui/.env.local
+
+# ─── Python (if any scripts use it) ────────────────────────────────────────
+__pycache__/
+*.pyc
+.venv/

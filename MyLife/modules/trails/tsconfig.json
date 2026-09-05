@@ -1,0 +1,9 @@
+{
+  "extends": "@mylife/typescript-config/react.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["react-native"]
+  },
+  "include": ["src"]
+}

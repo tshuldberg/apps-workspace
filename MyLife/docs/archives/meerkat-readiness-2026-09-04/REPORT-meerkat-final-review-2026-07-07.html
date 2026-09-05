@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mylife-artifact-status" content="historical-snapshot">
+<title>Meerkat Final Review &amp; Pilot Launch Runbook - 2026-07-07</title>
+<style>
+  :root {
+    --bg: #F6F4EF; --surface: #FFFFFF; --surface-high: #E9F1ED;
+    --accent: #0E7C66; --accent-dim: #0A5D4D;
+    --text: #20302B; --text-2: #51635C;
+    --danger: #B3413E; --warning: #8F660D; --info: #3566B0; --success: #19805F;
+    --border: rgba(32,48,43,0.12);
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; padding-bottom: 80px; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+  header.hero { background: linear-gradient(135deg, #0A5D4D 0%, #0E7C66 55%, #17967d 100%); color: #F0F7F4; padding: 46px 0 38px; margin-bottom: 34px; }
+  header.hero h1 { font-size: 29px; font-weight: 800; letter-spacing: -0.5px; }
+  header.hero p.sub { margin-top: 10px; font-size: 15px; max-width: 840px; color: #D7EAE3; }
+  header.hero .stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  header.hero .stat { background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 8px 16px; font-size: 12.5px; }
+  header.hero .stat b { display: block; font-size: 17px; }
+  h2 { font-size: 22px; font-weight: 800; margin: 46px 0 6px; letter-spacing: -0.3px; }
+  h2 .num { color: var(--accent); margin-right: 8px; }
+  h3 { font-size: 16.5px; font-weight: 800; margin: 26px 0 8px; color: var(--accent-dim); }
+  p.lede { color: var(--text-2); font-size: 14.5px; margin-bottom: 18px; max-width: 860px; }
+  .note { background: var(--surface-high); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; font-size: 13.5px; color: var(--text-2); margin: 14px 0 22px; }
+  .note.warn { border-left-color: var(--warning); background: #F7F0E2; }
+  code { font-family: var(--mono); font-size: 12.5px; background: var(--surface-high); padding: 1px 6px; border-radius: 5px; }
+  pre { font-family: var(--mono); font-size: 12.5px; background: #182420; color: #CFE8DE; border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 10px 0 14px; line-height: 1.6; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; font-size: 13px; margin: 12px 0 10px; }
+  th { background: var(--surface-high); text-align: left; padding: 9px 13px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--accent-dim); }
+  td { padding: 9px 13px; border-top: 1px solid var(--border); vertical-align: top; }
+  .table-scroll { overflow-x: auto; }
+  /* Launch steps */
+  .phase { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 14px; padding: 18px 22px; position: relative; }
+  .phase .ph-head { display: flex; align-items: center; gap: 14px; }
+  .phase .ph-n { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #fff; font-weight: 800; font-size: 15px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .phase .ph-n.opt { background: #9F8E81; }
+  .phase h4 { font-size: 15.5px; font-weight: 800; }
+  .phase .ph-tag { margin-left: auto; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .tag-req { background: #E4F2ED; color: #0A5D4D; }
+  .tag-opt { background: #F1EDE6; color: #6b5d51; }
+  .tag-skip { background: #E3EEFA; color: #3566B0; }
+  .phase ol { margin: 10px 0 0 48px; font-size: 13.5px; }
+  .phase ol li { margin-bottom: 7px; }
+  .phase .dep { margin: 8px 0 0 48px; font-size: 12px; color: var(--text-2); }
+  /* status pills */
+  .pill { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; padding: 2px 9px; border-radius: 999px; }
+  .pill.done { background: #E4F2ED; color: #0A5D4D; }
+  .pill.ops { background: #F7F0E2; color: #8F660D; }
+  .pill.open { background: #F4E4E3; color: #B3413E; }
+  .pill.era { background: #EDEAF5; color: #56499a; }
+  /* screen cards */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; margin: 14px 0; }
+  .scr { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; font-size: 13px; }
+  .scr .r { font-family: var(--mono); font-size: 10.5px; color: var(--text-2); }
+  .scr h5 { font-size: 14px; font-weight: 800; margin: 2px 0 5px; }
+  .scr p { color: var(--text-2); font-size: 12.5px; }
+  .scr .acts { margin-top: 7px; font-size: 12px; }
+  .scr .acts b { color: var(--accent-dim); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; }
+  /* workflows */
+  .flow { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px; margin-bottom: 14px; }
+  .flow h4 { font-size: 15px; font-weight: 800; margin-bottom: 8px; }
+  .flow ol { margin-left: 22px; font-size: 13.5px; }
+  .flow ol li { margin-bottom: 5px; }
+  .flow .chip { font-family: var(--mono); font-size: 10.5px; background: var(--surface-high); color: var(--accent-dim); padding: 1px 7px; border-radius: 5px; white-space: nowrap; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+  .callout { background: linear-gradient(135deg, #0A5D4D, #0E7C66); color: #F0F7F4; border-radius: 14px; padding: 22px 26px; margin: 18px 0; }
+  .callout h3 { color: #fff; margin-top: 0; }
+  .callout ul { margin-left: 20px; font-size: 13.5px; }
+  .callout li { margin-bottom: 7px; }
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; font-size: 13.5px; display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  .toc a { color: var(--accent-dim); text-decoration: none; font-weight: 600; }
+  footer { margin-top: 50px; color: var(--text-2); font-size: 12.5px; text-align: center; }
+  .superseded { max-width: 1100px; margin: 18px auto; padding: 14px 18px; border: 1px solid #B3413E; border-radius: 10px; background: #F4E4E3; color: #6F2B29; font-size: 13.5px; }
+  .superseded a { color: #0A5D4D; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="superseded"><strong>Historical snapshot.</strong> The 2026-07-09 Blackglass audit supersedes this document's launch verdict and found codeable critical blockers that this 2026-07-07 review missed. Retain this file for its workflow inventory and pilot-operations outline only. Use <a href="REPORT-meerkat-blackglass-production-adversarial-audit-2026-07-09.html">the Blackglass audit</a> for the current launch decision.</div>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Meerkat: Final Review &amp; Pilot Launch Runbook</h1>
+    <p class="sub">A workflow and pilot-operations snapshot of the application as of 2026-07-07, covering the private mesh, the Plan 39 public Commons layer, user-facing screens, and key workflows. Launch-readiness claims are superseded by the 2026-07-09 Blackglass audit.</p>
+    <div class="stats">
+      <div class="stat"><b>4,240</b>tests green (5 suites)</div>
+      <div class="stat"><b>~50+</b>user-facing screens</div>
+      <div class="stat"><b>15</b>core user workflows</div>
+      <div class="stat"><b>98</b>commits ahead of main (unpushed)</div>
+      <div class="stat"><b>Superseded</b>see the 2026-07-09 audit for current blockers</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="toc">
+  <a href="#launch">1. Pilot launch steps</a>
+  <a href="#state">2. Current state</a>
+  <a href="#screens-mobile">3. Mobile screens</a>
+  <a href="#screens-web">4. Web screens</a>
+  <a href="#workflows">5. User workflows</a>
+  <a href="#honesty">6. Honesty boundaries</a>
+  <a href="#docs">7. Related docs</a>
+</div>
+
+<!-- ==================================================== LAUNCH ==================================================== -->
+<h2 id="launch"><span class="num">1.</span> Step-by-step: launching the Meerkat pilot</h2>
+<p class="lede">This section records the launch view held on 2026-07-07. The 2026-07-09 audit found additional codeable and critical blockers, so its verdict governs launch decisions. The ordered deploy, secrets, vendor, store, and device-QA steps below remain useful as an operations reference.</p>
+
+<div class="note warn"><strong>Step 0 before anything:</strong> the entire pilot lives on <code>feature/meerkat-public-base-feed</code>, which is 98 commits ahead of main and UNPUSHED. Push the branch, merge to main (squash per repo convention), and push main. Everything below assumes the merged tree.</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">1</div><h4>Deploy the five services</h4><span class="ph-tag tag-req">Required (relay at minimum)</span></div>
+  <ol>
+    <li><strong>Relay</strong> (WebSocket, zero-knowledge): three documented options: Render one-click, Fly.io multi-region, or Docker + Caddy. Fly path:
+      <pre>cd packages/meerkat-relay
+fly launch --copy-config --config deploy/fly.toml
+fly deploy</pre></li>
+    <li><strong>Community node</strong> (port 8890, persists Commons snapshots, serves gated public reads): <code>PORT=8890 pnpm --filter @mylife/meerkat-relay start:community-node</code></li>
+    <li><strong>Public directory node</strong> (port 8891, discovery): <code>PORT=8891 pnpm --filter @mylife/meerkat-relay start:public-directory-node</code></li>
+    <li><strong>Verification service</strong> (port 8892, humanity anti-sybil): <code>PORT=8892 pnpm --filter @mylife/meerkat-relay start:verification-service</code></li>
+    <li><strong>Persona service</strong> (port 8894, alias registry + session tokens; critical for the public layer): <code>PORT=8894 pnpm --filter @mylife/meerkat-relay start:persona-service</code></li>
+    <li>Health-check each service (the relay's <code>GET /healthz</code> is what the in-app health gate probes before ever dialing the free default).</li>
+  </ol>
+  <div class="dep">Private pilot: deploy the relay only; community/directory/persona/verification nodes are needed only for the public Commons tier. Guide: <code>docs/guides/deploy-a-meerkat-relay.md</code></div>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">2</div><h4>Secrets and key custody</h4><span class="ph-tag tag-req">Required for public tier</span></div>
+  <ol>
+    <li>Generate the 9 service secrets (session HMAC, admin auth, unlock proof, operator authority, etc.): <code>openssl rand -hex 32</code> each; set as env vars on the respective services.</li>
+    <li><strong>Commons operator key (break-glass authority, includes the network-kill seed):</strong> generate offline, store offline (hardware key or sealed paper), never in code or CI. It rotates only if compromised.</li>
+  </ol>
+  <div class="dep">Private pilot: skip; use dev/test credentials.</div>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">3</div><h4>Provision The Commons</h4><span class="ph-tag tag-req">Required for public tier</span></div>
+  <ol>
+    <li>Run the one-time offline provisioning: generate the operator-signed topic descriptors and serialize to the provision JSON (seal nonces make it non-reproducible, so provision once and keep the file).</li>
+    <li>Deploy the file to the community node via <code>COMMONS_PROVISION_FILE</code>; the node fail-closes (fatal) on a tampered or invalid file.</li>
+    <li>Wire the session verifier so gated reads enforce verify-to-view server-side.</li>
+  </ol>
+  <div class="dep">Runbook: <code>docs/guides/the-commons-provisioning-runbook.md</code>. Private pilot: skip.</div>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">4</div><h4>Humanity verification vendors</h4><span class="ph-tag tag-req">Required for public writes</span></div>
+  <ol>
+    <li>Cloudflare Turnstile: create site + secret key, set on the verification service.</li>
+    <li>Apple App Attest: developer credentials + key material for iOS builds.</li>
+    <li>Google Play Integrity: service account JSON for Android builds.</li>
+  </ol>
+  <div class="dep">Private pilot: skip (leave humanity env vars empty; the app fails closed and you verify participants manually).</div>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">5</div><h4>Builds: mobile + web</h4><span class="ph-tag tag-req">Required</span></div>
+  <ol>
+    <li>Set the mobile env matrix (in EAS env / <code>app.config.ts</code> extras): <code>MEERKAT_DEFAULT_RELAY_URL</code>, <code>MEERKAT_PERSONA_SERVICE_URL</code>, <code>MEERKAT_HUMANITY_SERVICE_URL</code> + <code>_PUBLIC_KEY</code>, <code>MEERKAT_COMMONS_NODE_URL</code>, <code>MEERKAT_COMMONS_TOPICS</code>, optional TURN trio, <code>EXPO_PUBLIC_MEERKAT_RC_KEY_IOS/_ANDROID</code>. All default to <code>''</code> = honest fail-closed state.</li>
+    <li>Build (dev/preview first; LAN, WebRTC, Nearby, BLE, share-intake all need a dev/EAS build, not Expo Go):
+      <pre>cd apps/meerkat
+eas build --platform ios --profile development
+eas build --platform android --profile development
+# later:
+eas build --platform ios --profile production
+eas build --platform android --profile production</pre></li>
+    <li>Web: set the <code>VITE_MEERKAT_*</code> twins, then <code>pnpm build</code> in <code>apps/meerkat-web</code> and deploy <code>dist/</code> (Vercel or self-host).</li>
+    <li>Pre-build sanity: <code>node apps/meerkat/scripts/check-build-env.mjs</code>, <code>pnpm typecheck</code>, <code>pnpm test</code>, <code>pnpm check:parity --quiet</code>.</li>
+  </ol>
+  <div class="dep">Private pilot: development/preview profiles only; distribute via TestFlight internal or EAS internal distribution.</div>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">6</div><h4>Store setup + the $4.99 unlock</h4><span class="ph-tag tag-req">Required for public writes</span></div>
+  <ol>
+    <li>Create App Store Connect + Play Console app records.</li>
+    <li>Create the one-time IAP <code>meerkat_app_unlock</code> at <strong>$4.99</strong> (founder-locked; wired in <code>packages/entitlements/src/meerkat-app.ts</code> and <code>packages/billing-config</code>).</li>
+    <li>Set store UGC + 17+ content flags (required because the public tier is user-generated content).</li>
+    <li>Publish privacy policy + data deletion page (GDPR endpoints are already implemented app-side).</li>
+  </ol>
+  <div class="dep">Private pilot: sandbox IAP with TestFlight internal testers is enough; no production store listing needed.</div>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">7</div><h4>Legal + trust-and-safety operations</h4><span class="ph-tag tag-req">Required before public launch</span></div>
+  <ol>
+    <li>NCMEC reporting vendor onboarding (the CSAM scan + report queue pipeline is built; it needs the vendor account + hash DB).</li>
+    <li>DMCA registered agent filing; connect the built DMCA intake.</li>
+    <li>Content moderation policy published; operator console (Plan 39 P12: triage, tombstone, suspend, freeze, kill, append-only audit) staffed.</li>
+    <li>ECCN 5D992.c encryption self-classification for store export compliance.</li>
+  </ol>
+  <div class="dep">Private pilot: skip (known participants, no public UGC surface).</div>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n opt">8</div><h4>Hosted subscription (optional at pilot)</h4><span class="ph-tag tag-opt">Optional</span></div>
+  <ol>
+    <li>Create <code>meerkat_hosted_monthly</code> at <strong>$4.99/mo</strong> (the only other SKU; storage included) and link RevenueCat.</li>
+  </ol>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">9</div><h4>Two-device QA (the gate before inviting anyone)</h4><span class="ph-tag tag-req">Required</span></div>
+  <ol>
+    <li>Verify-to-view: locked Public tab &rarr; humanity verify &rarr; Commons feed loads real provisioned topics.</li>
+    <li>App unlock: $4.99 sandbox purchase flips the composer gate.</li>
+    <li>Public post: compose on device A, dual-signature verify + appear on device B (no optimistic injection).</li>
+    <li>Private path: pair devices, manual relay session, LAN session (dev build), DM 1:1 + group, file share verify-then-pin, library ingest + sealed playback.</li>
+    <li>Moderation: report a post, act on it in the operator console, see the tombstone propagate.</li>
+    <li>GDPR: delete a persona; alias gone, 30-day cooldown enforced.</li>
+  </ol>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">10</div><h4>Submit + onboard pilot users</h4><span class="ph-tag tag-req">Required</span></div>
+  <ol>
+    <li>App Store review (24-48h; UGC flags + moderation policy ready from Phase 7), Play review (2-4h), web already live.</li>
+    <li>Onboard each pilot user: install &rarr; onboarding (device identity) &rarr; add friend via QR &rarr; join your pilot community via invite link &rarr; optionally verify + unlock for the public tier.</li>
+  </ol>
+</div>
+
+<div class="phase">
+  <div class="ph-head"><div class="ph-n">11</div><h4>Monitor + operate</h4><span class="ph-tag tag-req">Ongoing</span></div>
+  <ol>
+    <li>Health checks on all 5 services; daily moderation sweep; weekly CSAM queue review.</li>
+    <li>Known graceful degradation: relay down &rarr; LAN/Nearby private mesh still works; persona service down &rarr; existing sessions fine, new registrations honestly fail; Commons down &rarr; Public tab shows not-available; humanity service down &rarr; posting blocked, verified users keep posting.</li>
+  </ol>
+</div>
+
+<div class="callout">
+  <h3>The private friends-and-family fast path (15-30h)</h3>
+  <ul>
+    <li><strong>Do:</strong> Step 0 (merge), Phase 1 relay only, Phase 5 dev/preview builds + TestFlight internal + web deploy, Phase 9 flows for the private path, Phase 10 onboarding.</li>
+    <li><strong>Skip:</strong> Phases 2-4 and 6-8 entirely (no Commons, no humanity vendors, no store listing, no legal ops). The app stays honest: the Public tab simply shows its real "not connected in this build" state.</li>
+    <li>This path gets 5-20 real people syncing communities, DMs, and libraries across their devices with one deployed relay.</li>
+  </ul>
+</div>
+
+<!-- ==================================================== STATE ==================================================== -->
+<h2 id="state"><span class="num">2.</span> Current state of the application</h2>
+<p class="lede">Meerkat is a standalone Expo app (<code>apps/meerkat</code>) + web twin (<code>apps/meerkat-web</code>) over the <code>@mylife/sync</code> crypto/node layer and the <code>@mylife/meerkat-relay</code> service package. It is a private, encrypted, device-resident network: communities, channel chat, posts, DMs, sealed file libraries, and (new in Plan 39) a verified public tier. As of 2026-07-07 there is <strong>no codeable work left on the launch path</strong>; every open plan is blocked exclusively on founder-ops.</p>
+
+<div class="table-scroll">
+<table>
+  <tr><th>Fact</th><th>Value</th></tr>
+  <tr><td>Branch</td><td><code>feature/meerkat-public-base-feed</code>, merge tip <code>aa9d8412</code>, latest commit <code>69742ea5</code> (2026-07-07). 98 commits ahead of main, 0 behind, <strong>unpushed</strong>.</td></tr>
+  <tr><td>Test suites (all green)</td><td>sync 1,802 &middot; relay 574 &middot; entitlements 77 &middot; app 1,075 &middot; web 712 = <strong>4,240 tests</strong>; 5 typechecks clean; <code>check:parity</code> + <code>check:generated-artifacts</code> exit 0.</td></tr>
+  <tr><td>Pricing (founder-locked)</td><td>Exactly two prices: <strong>$4.99 one-time app unlock</strong> (gates all public writes incl. replies) + <strong>$4.99/mo hosted</strong> (storage included). No other SKUs anywhere.</td></tr>
+  <tr><td>Scale of the push</td><td>166 commits touching Meerkat surfaces since 2026-06-28 across Plans 19-39.</td></tr>
+</table>
+</div>
+
+<h3>Plan ledger</h3>
+<div class="table-scroll">
+<table>
+  <tr><th>Plan</th><th>Scope</th><th>Status</th><th>What blocks it</th></tr>
+  <tr><td>28 Member removal + epoch rotation</td><td>Signed removal, key rotation, owner UI</td><td><span class="pill done">Done</span></td><td>Nothing; in done/</td></tr>
+  <tr><td>30 Chat experience</td><td>Shared chat kit, reactions, mentions, live loop</td><td><span class="pill done">Done</span></td><td>Nothing; in done/</td></tr>
+  <tr><td>31 Navigation IA + join</td><td>5-tab shell, one join pipeline, onboarding v2</td><td><span class="pill done">Done</span></td><td>Nothing; in done/</td></tr>
+  <tr><td>32 Content-first feed</td><td>Feed cards, signed avatars, link previews</td><td><span class="pill done">Done</span></td><td>Nothing; in done/</td></tr>
+  <tr><td>19 Public social layer</td><td>Publications, directory, publish, moderation</td><td><span class="pill ops">Code-complete</span></td><td>Relay/directory/node deploys, 2-device QA</td></tr>
+  <tr><td>20 Connectivity + self-hosting</td><td>Health-gated relay choke point, desktop companion, share intake, WebRTC/Nearby/BLE</td><td><span class="pill ops">Code-complete</span></td><td>Deploys, EAS builds, App Group provisioning</td></tr>
+  <tr><td>21 Direct messages</td><td>1:1 + group DMs, shred, attachments, receipts</td><td><span class="pill ops">Code-complete</span></td><td>Deployed relay + devices; one code item left (link-device UI, AC-13)</td></tr>
+  <tr><td>38 Data hub + theming + organization</td><td>Sealed libraries, playback, community identity/retheme, channel manager</td><td><span class="pill ops">Code-complete</span></td><td>Dev/EAS builds, seeding deploy</td></tr>
+  <tr><td>39 Public base feed (this branch)</td><td>Personas, aliases, humanity gates, The Commons, composer + $4.99 gate, operator console, CSAM/NCMEC/DMCA/GDPR, red-team</td><td><span class="pill ops">Code-complete</span></td><td>P15 founder-ops only (Phases 1-7 above)</td></tr>
+  <tr><td>24 Humanity verification</td><td>Verification service + enforcement</td><td><span class="pill ops">Mostly landed</span></td><td>Service deploy (P3 folded into Plan 39)</td></tr>
+  <tr><td>27 Transport policies</td><td>Signed per-community transport caps</td><td><span class="pill open">P0-P2 landed</span></td><td>P3-P5 proximity communities still open</td></tr>
+  <tr><td>29 Seamless auto-connect</td><td>Opt-in foreground auto rounds</td><td><span class="pill open">Partial</span></td><td>Deployed relay + push-wake graduation</td></tr>
+  <tr><td>22 Monetization</td><td>IAP rails</td><td><span class="pill open">Stage 0</span></td><td>Decision-gated; unlock SKU already wired via entitlements</td></tr>
+  <tr><td>25 Calls and rooms</td><td>WebRTC calls, SFU</td><td><span class="pill open">Open</span></td><td>SFU deploy + own build phase; sequenced last</td></tr>
+  <tr><td>23 / 37 Launch readiness + mission control</td><td>Final QA, store submission sequencing</td><td><span class="pill open">Sequenced last</span></td><td>Everything above landing first</td></tr>
+</table>
+</div>
+
+<h3>What the product is, in one paragraph</h3>
+<p class="lede">A user installs Meerkat and gets a device identity in the OS keychain (no account, no phone number). They add friends by QR/code with TOFU pinning and optional SAS verification, create or join encrypted communities (channels, posts, reactions, files, sealed media libraries with resume-across-devices), and DM 1:1 or in groups with honest signed receipts. Data syncs device-to-device over a transport ladder (relay, LAN, WebRTC, Nearby; BLE wake-only) where the relay only ever sees ciphertext sizes and timing. New in Plan 39: a verified public tier called The Commons, where viewing requires humanity verification (founder NC-2 reversal) and posting requires a registered alias persona (a fresh keypair, never the device key) plus the $4.99 unlock, with dual-signed posts, an operator moderation console, and full CSAM/NCMEC/DMCA/GDPR pipelines behind it. Every claim the UI makes is backed by a real recorded row; the app never fakes connectivity, delivery, or counts.</p>
+
+<!-- ==================================================== MOBILE SCREENS ==================================================== -->
+<h2 id="screens-mobile"><span class="num">3.</span> Mobile screens (Expo app)</h2>
+<p class="lede">Five visible tabs plus ~25 hidden routes reached by navigation. Era chips mark which plan shipped each surface.</p>
+
+<h3>The five tabs</h3>
+<div class="grid">
+  <div class="scr"><div class="r">/(tabs)/ &middot; index.tsx</div><h5>Feed</h5><span class="pill era">Plan 32/39</span>
+    <p>Content-first cards from all joined communities: signed photo avatar, author, first media, body, engagement row with real reply/reaction counts. Deterministic local ranking with filter and "why am I seeing this" sheets. No fake metrics, no optimistic anything.</p>
+    <div class="acts"><b>Actions</b> open thread, react (real row only), filter sources, pull to refresh, public-share when gated in.</div></div>
+  <div class="scr"><div class="r">/(tabs)/communities</div><h5>Communities</h5><span class="pill era">Plan 31/38</span>
+    <p>Community cards with role chip, unread totals, muted dim. Device-local pin/order (never replicates). Header "+" opens the single Create/Join sheet; joins run through the invite preview.</p>
+    <div class="acts"><b>Actions</b> create, join, open, mute, reorder/star.</div></div>
+  <div class="scr"><div class="r">/(tabs)/public</div><h5>Public (The Commons)</h5><span class="pill era">Plan 39</span>
+    <p>The public tier front door, driven by real verify-to-view state: not-configured / locked / needs-session / verified. Locked shows the humanity-verify path and $4.99 line; verified shows the topic-segmented Commons feed of dual-signed posts with author aliases.</p>
+    <div class="acts"><b>Actions</b> verify, browse topics, open threads, compose (gated).</div></div>
+  <div class="scr"><div class="r">/(tabs)/messages</div><h5>Messages</h5><span class="pill era">Plan 21/31</span>
+    <p>Two segments: Chats (live 1:1 + group DM conversations with unread counts) and People (friend rows with verified badges). Person sheet: SAS verify, block, Message. Header "+" opens Add friend.</p>
+    <div class="acts"><b>Actions</b> open DM thread, add friend, verify SAS, block.</div></div>
+  <div class="scr"><div class="r">/(tabs)/me</div><h5>Me</h5><span class="pill era">Plan 20/29/38/39</span>
+    <p>Identity card (editable name, fingerprint, share code/QR), Advanced connection (relay/LAN/nearby status), Appearance, Storage, Settings, capability status, persona link. Background sync toggle defaults off.</p>
+    <div class="acts"><b>Actions</b> edit name, share identity, open every settings surface.</div></div>
+</div>
+
+<h3>Community + chat routes (hidden, reached by navigation)</h3>
+<div class="grid">
+  <div class="scr"><div class="r">community/[communityId]</div><h5>Community home</h5><span class="pill era">Plan 31/38</span><p>Channel list ordered by the owner-signed descriptor (chat/library kinds, archived read-only at bottom), Files row, Members row, gear to settings.</p></div>
+  <div class="scr"><div class="r">channel/[communityId]/[channelId]</div><h5>Channel: Chat | Posts</h5><span class="pill era">Plan 30</span><p>Segmented surface on the shared chat kit. Chat: grouped bubbles, reactions (verified v2 rows only), file-request card. Posts: composer + post cards with reaction chips. One always-visible audience label in the header.</p><div class="acts"><b>Actions</b> send, @mention, long-press for reactions/reply/copy/edit/delete/report.</div></div>
+  <div class="scr"><div class="r">post/[communityId]/[channelId]/[postId]</div><h5>Post thread</h5><span class="pill era">Plan 30</span><p>Root card with full metadata + audience label, reply bubbles below on the chat kit, reactions on root and replies, tombstones for deletions.</p></div>
+  <div class="scr"><div class="r">files/[communityId]</div><h5>Community Files</h5><span class="pill era">Plan 30/38</span><p>Aggregated index of real blob-provider transfers only (link previews are decoration and never indexed). Open decrypts sandboxed; request/re-send runs over the pair-private mailbox.</p></div>
+  <div class="scr"><div class="r">community/[communityId]/settings</div><h5>Community settings (admin)</h5><span class="pill era">Plan 31/38/39</span><p>Owner flow: profile (name, accent, sealed banner, theme), members + block + owner remove, sync policy, owner review queue, public toggle, invite share, history import, mute, leave.</p></div>
+  <div class="scr"><div class="r">community/join + InvitePreviewSheet</div><h5>Join / invite preview</h5><span class="pill era">Plan 31</span><p>Deep-link collision guard; the sheet previews name/member count and offers Join (open) or Request to join (closed, honest pending state until owner approves).</p></div>
+</div>
+
+<h3>DM, sync + identity routes</h3>
+<div class="grid">
+  <div class="scr"><div class="r">dm/[conversationId]</div><h5>DM thread</h5><span class="pill era">Plan 21/30</span><p>1:1 and group threads on the same chat kit. Delivery/read lines come only from verified receipts; attachments verify-then-pin; disappearing messages via the author-signed shred protocol. dm_ tables never replicate.</p></div>
+  <div class="scr"><div class="r">add-friend</div><h5>Add friend</h5><span class="pill era">Plan 15/16/20</span><p>Your code + QR, scan/paste a peer's, relay dialed only through the health-gated choke point, TOFU pin + 16-hex SAS comparison. ConnectionStatusCard shows the honest relay state when no server is configured.</p></div>
+  <div class="scr"><div class="r">sync</div><h5>Sync</h5><span class="pill era">MK-007/8, Plan 20/29</span><p>Manual sessions: phrase pad, Listen / Sync now over relay, LAN listen + mDNS-discovered peers (dev build), pairing management, and a history of real recorded sessions with actual byte/message counts. Auto-connect is an opt-in toggle, off by default.</p></div>
+  <div class="scr"><div class="r">identity</div><h5>Identity</h5><span class="pill era">MK-001</span><p>Fingerprint, public key, device name, friend code. Keys live in the OS keychain via the enforced PRNG/secret-store boot order.</p></div>
+  <div class="scr"><div class="r">settings</div><h5>Settings</h5><span class="pill era">Plan 20/29</span><p>Storage stats, relay URL override, background sync toggle (dev-build, default off), run-background-sync-now (real drain), clear node with confirm.</p></div>
+  <div class="scr"><div class="r">about-status</div><h5>What works today</h5><span class="pill era">Plan 31</span><p>The capability-honesty ledger: every transport and feature marked live / partial / pending in this exact build. Nothing pending is hidden.</p></div>
+  <div class="scr"><div class="r">share-inbox</div><h5>Share Inbox</h5><span class="pill era">Plan 20/21</span><p>OS-share and file-pick staging. Items are "Staged" until a real cm_messages row exists, then "Sent"; the staging tables never replicate.</p></div>
+  <div class="scr"><div class="r">pinned/[id]</div><h5>Pinned detail</h5><span class="pill era">Node core/38</span><p>Sealed-share decrypt round-trip: fetch manifest + blocks, verify author + link key, then pin. Fail-closed on any verification miss.</p></div>
+</div>
+
+<h3>Library routes (Plan 38)</h3>
+<div class="grid">
+  <div class="scr"><div class="r">library</div><h5>My Library hub</h5><span class="pill era">Plan 38</span><p>Personal-first: works with zero communities. Poster grid of library channels with device-local pin/order and pin policy (pin_all vs fetch_on_demand).</p></div>
+  <div class="scr"><div class="r">library/[channelId]</div><h5>Collection view</h5><span class="pill era">Plan 38</span><p>Grid / List / Timeline (photos + optional map, GPS stripped by default) / Collections tabs; curator-signed collections and fail-safe smart rules render as pinned tabs.</p></div>
+  <div class="scr"><div class="r">library/item/[itemId]</div><h5>Item detail</h5><span class="pill era">Plan 38</span><p>Cover, extracted metadata (EXIF/NFO/ISBN), tags, and personal resume position (cm_library_progress is personal-replica: a community can never learn what you watched).</p></div>
+  <div class="scr"><div class="r">library/play/[itemId]</div><h5>Sealed playback</h5><span class="pill era">Plan 38</span><p>Dev build: loopback 127.0.0.1 range server with token-in-path, per-chunk verified streaming decrypt; no A/V plaintext at rest. Expo Go: OS open-in behind the explicit "exports a decrypted copy" warning.</p></div>
+  <div class="scr"><div class="r">library/reader/[itemId]</div><h5>Sealed reader</h5><span class="pill era">Plan 38</span><p>CBZ/EPUB rendering of attacker-controlled bytes fully sandboxed: no scripts, no network. Night mode, zoom, in-doc search.</p></div>
+  <div class="scr"><div class="r">appearance + theme-editor</div><h5>Appearance / theme editor</h5><span class="pill era">Plan 38</span><p>Light/dark, presets, multi-axis custom editor. Community themes apply only inside community subtrees; high contrast always wins; malformed theme blobs fail safe.</p></div>
+</div>
+
+<h3>Public-tier routes (Plan 39)</h3>
+<div class="grid">
+  <div class="scr"><div class="r">persona/create</div><h5>Persona creation</h5><span class="pill era">Plan 39</span><p>Three steps: humanity verification, alias pick (3-20 chars, live availability, homoglyph defense), confirm. Generates a fresh Ed25519 persona key locally; the device key is never uploaded. Honest notice when no persona service is configured.</p></div>
+  <div class="scr"><div class="r">persona/settings</div><h5>Persona settings</h5><span class="pill era">Plan 39</span><p>Alias + persona fingerprint, display name edit, GDPR export/delete with 30-day cooldown, identity-separation explainer.</p></div>
+  <div class="scr"><div class="r">public/compose</div><h5>Public composer</h5><span class="pill era">Plan 39</span><p>Behind three real gates: session + humanity + $4.99 unlock. Topic picker, text/media, persona-signed submit. No optimistic injection: the post appears when it actually propagates.</p></div>
+  <div class="scr"><div class="r">public/post/[postId]</div><h5>Public thread</h5><span class="pill era">Plan 39</span><p>Dual-signature-verified root + replies, alias + verified badge, report sheet wired into the thread (S12).</p></div>
+  <div class="scr"><div class="r">public/persona/[persona]</div><h5>Public profile</h5><span class="pill era">Plan 39</span><p>Alias profile with all of that persona's public posts, follow (device-local) and block. Reverse alias resolve from pubkeys.</p></div>
+  <div class="scr"><div class="r">public/topic/[channel] + public/explore</div><h5>Topics + Explore</h5><span class="pill era">Plan 39</span><p>Topic-filtered verified feeds and the topic browser; Discover re-homed beneath the Public tab.</p></div>
+</div>
+
+<!-- ==================================================== WEB ==================================================== -->
+<h2 id="screens-web"><span class="num">4.</span> Web app (meerkat-web)</h2>
+<p class="lede">A single-origin SPA (Vite + React) with the same five-pane shell, kept string-for-string honest with mobile by the parity guard (<code>check-meerkat-parity.mjs</code>). Browser adapters (sql.js, WebCrypto/IndexedDB, OPFS) let it run the identical <code>@mylife/sync</code> engine; the web surface is relay-only by design (no LAN/BLE/Nearby).</p>
+
+<div class="grid">
+  <div class="scr"><h5>Feed pane</h5><span class="pill era">Plan 32/39</span><p>Twin of the mobile feed: content-first cards, deterministic ranking, filter + why sheets, real counts.</p></div>
+  <div class="scr"><h5>Public pane</h5><span class="pill era">Plan 39</span><p>Verify-to-view gate then The Commons: topic tabs, verified posts, aliases, composer overlay behind the same three gates. Honest "connecting" and "not configured" states.</p></div>
+  <div class="scr"><h5>Discover pane</h5><span class="pill era">Plan 31</span><p>Public community browser with in-pane reader preview and the same invite-preview join flow.</p></div>
+  <div class="scr"><h5>Messages pane</h5><span class="pill era">Plan 21/31</span><p>Two-column DM hub: thread list + open conversation on the chat kit, People panel with SAS/block, verified receipts only.</p></div>
+  <div class="scr"><h5>Library pane</h5><span class="pill era">Plan 38</span><p>LibraryHome grid, collection view, item detail, and sealed playback: MSE streaming for fragmented MP4/WebM, object URLs for small/audio, honest export warning otherwise; sandboxed CBZ/EPUB readers.</p></div>
+  <div class="scr"><h5>Overlays (12)</h5><span class="pill era">All eras</span><p>Onboarding, Settings (identity/relay/transport/hosted/recovery/persona/storage/danger), Create community, Join community, Invite, Add channel, Public compose, Sync, Share inbox, Community settings, Organize communities, Add friend.</p></div>
+</div>
+
+<!-- ==================================================== WORKFLOWS ==================================================== -->
+<h2 id="workflows"><span class="num">5.</span> User workflows, step by step</h2>
+<p class="lede">The fifteen journeys that constitute the product, with the screen each step happens on.</p>
+
+<div class="two-col">
+<div class="flow"><h4>1. First run</h4><ol>
+  <li>Launch &rarr; onboarding gate <span class="chip">onboarding</span></li>
+  <li>Pick a device name; privacy statement (zero analytics, E2E, offline-first)</li>
+  <li>Keys generated into the OS keychain (MK-001 boot order), SQLite created</li>
+  <li>Land on <span class="chip">Feed</span>, empty state pointing to Communities and Messages</li>
+</ol></div>
+
+<div class="flow"><h4>2. Add a friend</h4><ol>
+  <li><span class="chip">Messages &gt; +</span> shows your code + QR</li>
+  <li>Peer scans or pastes the code out-of-band</li>
+  <li>Both dial the health-gated relay (honest state card if none configured)</li>
+  <li>Signed identity bundle resolves; TOFU pin</li>
+  <li>Compare the 16-hex SAS on both screens; confirm &rarr; verified friend in <span class="chip">People</span></li>
+</ol></div>
+
+<div class="flow"><h4>3. Create a community</h4><ol>
+  <li><span class="chip">Communities &gt; +</span> &rarr; Create: name, icon, accent, open/closed template</li>
+  <li>Owner-signed descriptor written; you are owner; "general" channel auto-created</li>
+  <li>Gear &rarr; Invite &rarr; share code/QR/link</li>
+</ol></div>
+
+<div class="flow"><h4>4. Join via invite</h4><ol>
+  <li>Tap invite link (or paste in Join) &rarr; <span class="chip">InvitePreviewSheet</span></li>
+  <li>Open community: Join immediately. Closed: Request to join, honest pending state</li>
+  <li>On approval the descriptor + key handoff sync; channels appear</li>
+</ol></div>
+
+<div class="flow"><h4>5. Manual relay sync</h4><ol>
+  <li>Both devices on <span class="chip">Sync</span>; same phrase entered</li>
+  <li>A taps Listen, B taps Sync now; Ed25519 handshake, encrypted session</li>
+  <li>All in-scope rows exchange; relay sees only ciphertext sizes/timing</li>
+  <li>Real session lands in history with actual counts</li>
+</ol></div>
+
+<div class="flow"><h4>6. LAN sync (dev build)</h4><ol>
+  <li>A: <span class="chip">Sync</span> &gt; LAN Listen (advertises via mDNS)</li>
+  <li>B discovers A, taps it (or types IP:port)</li>
+  <li>Same handshake over local TCP; session recorded. Expo Go: honest failure, no crash</li>
+</ol></div>
+
+<div class="flow"><h4>7. Channel chat, posts, reactions</h4><ol>
+  <li><span class="chip">Community &gt; Channel</span>, Chat | Posts segments</li>
+  <li>Send text/file/@mention; rows are signed events</li>
+  <li>Long-press &rarr; react / reply / copy / edit / delete (mine) / report (others)</li>
+  <li>Reaction chips render only verified rows; the local echo is the real recorded row</li>
+</ol></div>
+
+<div class="flow"><h4>8. DMs (1:1 and group)</h4><ol>
+  <li><span class="chip">Messages</span> &gt; person &gt; Message, or + for a group</li>
+  <li>Thread on the chat kit; recipients from the signed group descriptor</li>
+  <li>Offline peers get sealed mailbox parcels; opened fail-closed on their device</li>
+  <li>Delivered/read lines only from verified receipts; shred = author-signed delete-for-everyone</li>
+</ol></div>
+
+<div class="flow"><h4>9. Share / seal a file + open a link</h4><ol>
+  <li><span class="chip">Share</span> seal &rarr; encrypt, Merkle contentId, signed manifest, pin</li>
+  <li>Share link carries the key; recipient's <span class="chip">Open a link</span> checks local pins first</li>
+  <li>Not local &rarr; fetch from pasted hosts + zero-knowledge host discovery, verify-then-pin, fail-closed</li>
+</ol></div>
+
+<div class="flow"><h4>10. OS share &rarr; Share Inbox &rarr; send</h4><ol>
+  <li>OS share sheet &rarr; Meerkat stages into device-local intake tables</li>
+  <li><span class="chip">Share Inbox</span>: pick destination (channel or DM) + caption</li>
+  <li>Send creates the real message row; label flips Staged &rarr; Sent only on the real row</li>
+</ol></div>
+
+<div class="flow"><h4>11. Library ingest &rarr; playback</h4><ol>
+  <li>Ingest via picker, OS share ("Save to library"), or promote-channel-file</li>
+  <li>Metadata extracted locally; GPS stripped by default</li>
+  <li>Sealed under the workspace epoch key; item row curator-signed</li>
+  <li><span class="chip">Library</span> grid &rarr; item &rarr; <span class="chip">Play/Reader</span>, resume position personal-only</li>
+</ol></div>
+
+<div class="flow"><h4>12. Public tier: verify &rarr; alias &rarr; browse &rarr; unlock &rarr; post</h4><ol>
+  <li><span class="chip">Public</span> shows the real locked state + $4.99 line</li>
+  <li>Verify humanity (Turnstile/App Attest) &rarr; session issued (spends a humanity token)</li>
+  <li><span class="chip">persona/create</span>: pick an alias; fresh persona key generated locally</li>
+  <li>Commons feed unlocks: topics, threads, profiles, all dual-signature verified</li>
+  <li>Compose passes three real gates (session + humanity + $4.99 unlock); post appears when it propagates</li>
+</ol></div>
+
+<div class="flow"><h4>13. Safety: block, report, review, mute</h4><ol>
+  <li>Block from the person sheet or member list (local revocation, send-side filter)</li>
+  <li>Report any message/post/file &rarr; owner review queue <span class="chip">Community settings</span></li>
+  <li>Public content also reaches the operator console (tombstone/suspend/freeze, audited)</li>
+  <li>Mute dims a community and silences its unreads</li>
+</ol></div>
+
+<div class="flow"><h4>14. Self-hosting / connection server</h4><ol>
+  <li><span class="chip">Me &gt; Advanced connection</span>: the 5-state honest connection card</li>
+  <li>Enter your own relay URL; all dialing goes through the single health-gated choke point</li>
+  <li>Free default (if the build ships one) dials only after a real /healthz probe; opt-out honored</li>
+  <li>Persona/Commons service URLs configure the public tier; unset = honest "not configured"</li>
+</ol></div>
+
+<div class="flow"><h4>15. Theming + community identity</h4><ol>
+  <li><span class="chip">Appearance</span>: light/dark, presets, custom axes</li>
+  <li>Owners set community identity (accent, banner, theme blob), owner-signed and verified at apply</li>
+  <li>Community themes render only inside that community's screens; high contrast always wins</li>
+</ol></div>
+</div>
+
+<!-- ==================================================== HONESTY ==================================================== -->
+<h2 id="honesty"><span class="num">6.</span> The honesty boundary (the product's spine)</h2>
+<p class="lede">Every surface obeys one rule: no claim without a real recorded row. This is enforced by tests and the cross-surface parity guard, and it is the core differentiator against every competitor's marketing (see the sibling competitor-ads report).</p>
+<div class="table-scroll">
+<table>
+  <tr><th>Boundary</th><th>Rule</th></tr>
+  <tr><td>Staged &ne; Sent</td><td>Share Inbox shows Sent only when a real message row exists; staging tables never replicate.</td></tr>
+  <tr><td>No fake presence</td><td>No online dots, no peer counts, no "connected to {friend}". Only recorded sessions appear in history.</td></tr>
+  <tr><td>Out-of-box connectivity</td><td><code>DEFAULT_RELAY_URL</code> defaults to <code>''</code>; the free default dials only after a real health probe; copy never implies otherwise.</td></tr>
+  <tr><td>Verify-to-view</td><td>The public gate is enforced server-side; the client mirrors real state (not-configured / locked / needs-session / verified).</td></tr>
+  <tr><td>No optimistic public posts</td><td>The composer never injects into the feed; posts appear when they actually propagate.</td></tr>
+  <tr><td>Relay blindness</td><td>Every frame crosses in a pairwise envelope; the relay sees sizes and timing only. Dropped negotiation fails the session rather than downgrading.</td></tr>
+  <tr><td>Delivery truth</td><td>DM delivered/read lines come only from verified receipts; mailbox opens are fail-closed.</td></tr>
+  <tr><td>Real counts only</td><td>Feed engagement numbers are counts of verified rows, never client-incremented.</td></tr>
+  <tr><td>Missing services</td><td>Unconfigured persona/humanity/Commons services produce honest "needs a connection server / not available in this build" copy, parity-locked across surfaces.</td></tr>
+  <tr><td>Decrypted-export warnings</td><td>Any playback path that exports plaintext says so explicitly before doing it.</td></tr>
+</table>
+</div>
+
+<!-- ==================================================== DOCS ==================================================== -->
+<h2 id="docs"><span class="num">7.</span> Related documents</h2>
+<div class="table-scroll">
+<table>
+  <tr><th>Doc</th><th>What it holds</th></tr>
+  <tr><td><code>docs/reports/REPORT-meerkat-competitor-ads-2026-07-07.html</code></td><td>Sibling deliverable: 20 competitors' ad language recreated + the unclaimed lanes analysis.</td></tr>
+  <tr><td><code>docs/reports/REPORT-meerkat-blackglass-production-adversarial-audit-2026-07-09.html</code></td><td>Current production launch verdict and code-verified critical, high, and medium findings. This file supersedes the launch status in the July 7 review.</td></tr>
+  <tr><td><code>docs/reports/REPORT-meerkat-investor-technical-review-2026-07-04-fable.html</code> (+ 07-05 gpt twin)</td><td>Market, pricing, storage economics, diligence checklist.</td></tr>
+  <tr><td><code>docs/guides/meerkat-founder-ops-runbook.md</code></td><td>The founder-ops master runbook this launch section condenses.</td></tr>
+  <tr><td><code>docs/guides/the-commons-provisioning-runbook.md</code></td><td>Exact Commons provisioning procedure (Phase 3).</td></tr>
+  <tr><td><code>docs/guides/deploy-a-meerkat-relay.md</code></td><td>Relay deployment options in detail (Phase 1).</td></tr>
+  <tr><td><code>docs/sessions/2026-07-07-plan39-execution-close.md</code></td><td>Plan 39 close log with the authoritative P15 founder-ops list.</td></tr>
+</table>
+</div>
+
+<footer>Historical Meerkat workflow and pilot-operations snapshot &middot; 2026-07-07 &middot; branch feature/meerkat-public-base-feed @ 69742ea5 &middot; launch verdict superseded 2026-07-09</footer>
+</div>
+</body>
+</html>

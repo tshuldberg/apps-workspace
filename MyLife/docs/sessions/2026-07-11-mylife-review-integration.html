@@ -1,0 +1,67 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><title>MyLife Review + Integration Session 2026-07-11</title><style>
+    body { background:#131318; color:#E4E1E9; font: 15px/1.6 -apple-system, 'Segoe UI', sans-serif; max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+    h1 { color:#8BCFF0; font-size: 26px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+    h2 { color:#8BCFF0; font-size: 20px; margin-top: 32px; }
+    h3 { color:#D6C3B5; font-size: 16px; }
+    a { color:#8BCFF0; text-decoration: none; } a:hover { text-decoration: underline; }
+    code { background:rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; font-size: 13px; color:#FFB877; }
+    table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13.5px; }
+    th { background:#2A292F; text-align:left; }
+    th, td { border: 1px solid rgba(255,255,255,0.1); padding: 7px 10px; vertical-align: top; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+    li { margin: 5px 0; }
+    strong { color:#FFB877; }
+    p { margin: 9px 0; }
+    </style></head><body><h1>2026-07-11: Comprehensive Adversarial Review + Integration Merge</h1>
+<p>Fable-led session: review everything unmerged across MyLife adversarially, resolve findings, and land all work on <code>main</code> safely. Twin report: <a href="../reports/REPORT-mylife-integration-review-2026-07-11.md">REPORT-mylife-integration-review-2026-07-11</a>.</p>
+<h2>Scope found at session start</h2>
+<ul>
+<li>7 branches unmerged into <code>main</code> (tip <code>45e45345</code>): <code>feature/dowork-production-readiness</code> (16 ahead, incl. the meerkat public-base-feed lineage), <code>docs/bestchef-production-readiness-2026-07-09</code>, <code>feature/yearn-production-readiness</code>, <code>feature/bestchef-remediation</code> (21 commits), <code>feature/meerkat-production-readiness-2026-07-09</code> (63 commits, ACTIVE session still committing), <code>fix/mynews-production-readiness</code>, <code>feature/meerkat-public-base-feed</code> (subset of dowork lineage).</li>
+<li>Uncommitted work in 4 places: the main checkout (yearn edits, bestchef docs, ledgers, chmod), the meerkat worktree (Plan 42 WP-42A mid-flight, left to its owning session), the mynews worktree (review gates + docs), and staged-but-uncommitted files in track-c-consumer.</li>
+<li>7 stashes, including pre-commit-gate auto-stashes up to 38k insertions and one from a deleted branch.</li>
+</ul>
+<h2>Review fleet (opus reviewers, Fable-authored scopes, no fable agents per founder instruction)</h2>
+<table>
+<tr><th>Agent</th><th>Target</th><th>Verdict</th></tr>
+<tr><td>rev-dowork</td><td>dowork lineage (16 commits)</td><td>SAFE AS-IS; HTML reconciliation verified reference-free; humanity-token fix does not weaken rate limits; JWT split correct</td></tr>
+<tr><td>rev-bestchef</td><td>bestchef-remediation (21 commits)</td><td>SAFE after migration renumber; fail-closed vendor claims verified real; RLS on every new table</td></tr>
+<tr><td>rev-yearn</td><td>yearn (14 commits)</td><td>SAFE AS-IS; 2 P2s: self-grantable <code>activate_boost</code>, legal URLs pending deploy; age gate enforced server-side; E2EE fails closed</td></tr>
+<tr><td>rev-mynews</td><td>mynews worktree + branch</td><td>SAFE after not committing stub READMEs; tests 66/66; commit units executed</td></tr>
+<tr><td>rev-meerkat</td><td>meerkat branch + worktree</td><td>Committed diff SAFE (refuted two sub-agent false positives); uncommitted WP-42A flagged; owning session later fixed + committed it</td></tr>
+<tr><td>merge-map-dowork</td><td>18-file conflict map</td><td>Followed for structure; its webhook recommendation was overridden after checking the actual RLS policy SQL</td></tr>
+</table>
+<h2>Pre-merge fixes</h2>
+<ul>
+<li><strong>Supabase migration version collision</strong> (P1): bestchef and dowork both added <code>20260711000001/02</code>; renumbered dowork&#x27;s to <code>20260711000012/13</code> + reference updates (<code>3cec60b3</code>).</li>
+<li><strong>Plan number collisions</strong>: yearn plan 46 renumbered to 47 (<code>0b7358ec</code>, dowork owns done/46), mynews plan 42 renumbered to 48 (meerkat owns queue/42).</li>
+<li><strong>mynews scope bug</strong> (caught by the function gate, missed by review): <code>ensureTermsAccepted</code> used in <code>SuggestionBody</code> but destructured in <code>SuggestionScreen</code>; fixed and committed (<code>549a461b</code>).</li>
+<li><strong>Superseded duplicates preserved via stash, not deleted</strong>: stale yearn edits in the main checkout (branch versions newer, with E2EE sender-key work), track-c staged Plan-39 P11 files (main <code>69742ea5</code> is the superset).</li>
+<li><strong>Stash archaeology</strong>: all pre-commit-gate stashes verified as intermediate snapshots fully covered by later commits; 3 errors_log rows recovered from the deleted <code>feature/meerkat-launch-finish</code> branch stash (P0 web XSS since fixed on main; P1 node DoS fixed on the meerkat branch; P3 moderation un-hide still open).</li>
+</ul>
+<h2>The merges (true merges, --no-ff, matching main&#x27;s existing practice)</h2>
+<ul>
+<li><code>9a2b485c</code> <strong>dowork lineage</strong> - 18 conflicts, the hard one: two parallel DoWork fix waves (main&#x27;s trainer-launch vs branch&#x27;s plan-46). Semantic unions: <code>annotateWorkoutSession</code> supersedes <code>updateWorkoutSessionMeta</code> (callers updated); RevenueCat CANCELLATION maps to <code>active</code> (branch model verified compatible with the <code>20260704000002</code> paid-through RLS policy, including refund revocation via period end; UNCANCELLATION mapping kept); DL-4 queue retention (permanent failures burn attempts to cap 5, transient requeues free, 14-day age backstop) driven by main&#x27;s <code>failureClass</code> object classifier; trainer profile keeps main&#x27;s virtualized <code>TrainerProfileVideoList</code> extended with the branch&#x27;s <code>LockedVideoCard</code> premium teasers; downloads keep main&#x27;s marker-required revoke + branch&#x27;s 401 <code>needs_reauth</code>; missing cloud config is a silent null state (test contradiction resolved in favor of caller fallbacks). Both save screens verified: dowork app 559/559, workouts module 559/559.</li>
+<li><code>e94b7f5f</code> docs/bestchef launch gate (report row re-indexed as superseded by the 07-11 status).</li>
+<li><code>14df25e6</code> yearn plan-47 remediation - merged clean (ancestry from merge 1 eliminated shared-lineage conflicts).</li>
+<li><code>b649241d</code> bestchef-remediation - Launch State prose in CLAUDE.md/Tickets rewritten to the currently-true post-plan-45 state; <code>financial-model.html</code> deletion kept per HTML lifecycle policy; gate initially failed on missing merged deps (interactive pnpm purge prompt silently aborted the first install; <code>CI=true pnpm install --no-frozen-lockfile</code> fixed it).</li>
+<li><code>7e47355a</code> meerkat plan-44 - took the LIVE branch tip <code>56df52a9</code> (the active Plan 42 session had committed 8 more commits including the push gateway with tests + RN client, and had itself fixed rev-meerkat&#x27;s dead-reads P1); resolved 9 conflicts (blackglass docs + downloads.tsx take the branch&#x27;s newer versions, plugins.md keeps main, e2e spec unioned with main&#x27;s WebSocket relay-handshake helper, App.tsx lazy-import refactor, package.json lint script); fixed one remaining DOM-lib fetch-body type error by mirroring the session&#x27;s own <code>0d85b12f</code> ArrayBuffer pattern.</li>
+<li><code>6e0b17b0</code> mynews - lockfile-only conflict.</li>
+</ul>
+<h2>Verification on merged main</h2>
+<ul>
+<li><code>pnpm check:parity</code> full suite green, including bestchef&#x27;s newly chained gates (i18n values, store metadata 21/21 locales, compliance keys, no-ungated-fixtures).</li>
+<li><code>pnpm check:generated-artifacts</code> green. Full <code>pnpm typecheck</code>: 131/131 turbo tasks.</li>
+<li>Per-merge pre-commit function gates ran on every conflicted merge commit.</li>
+</ul>
+<h2>Ledger reconciliation</h2>
+<ul>
+<li><code>errors_log.md</code>: 29 rows added (7 new session rows incl. the O(n) push-gateway lookup and yearn boost self-grant as Unresolved; 7 rows recovered from the main checkout&#x27;s uncommitted delta; 3 recovered from the deleted-branch stash; 12 recovered from branch ledgers that lost merge races, with the DoWork boot-dead row upgraded to Resolved via <code>fdf942ea</code>).</li>
+<li><code>memory.md</code>: authoritative rewrite (the meerkat merge had replaced Project State with that branch&#x27;s view); 32 consolidated session rows appended to <code>docs/archives/memory-sessions-2026-07.md</code>.</li>
+</ul>
+<h2>Remaining and deliberate non-actions</h2>
+<ul>
+<li><code>main</code> is LOCAL ONLY. Pushing to origin needs founder go-ahead (repo rule: push only when asked).</li>
+<li>The meerkat worktree&#x27;s in-flight Plan 42 work belongs to its active session; its post-<code>56df52a9</code> commits merge later.</li>
+<li>Founder-ops blockers unchanged per app (BestChef F1-F9, DoWork store ops, Yearn plan 47 phases 2-5, Meerkat evidence ladder, MyNews plan 48).</li>
+<li>Merged-branch worktrees can be pruned once their sessions are confirmed idle; not done unilaterally.</li>
+</ul></body></html>

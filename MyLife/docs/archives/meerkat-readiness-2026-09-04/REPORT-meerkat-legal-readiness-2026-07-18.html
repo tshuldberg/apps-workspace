@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat Legal Readiness Review - 2026-07-18</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>">
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { background:#131318; color:#E4E1E9; font:16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin:0; padding:2.5rem 1.25rem; }
+  main { max-width: 960px; margin: 0 auto; }
+  h1 { font-size:1.7rem; color:#FFB877; margin:0 0 .3rem; }
+  h2 { font-size:1.25rem; color:#FFB877; margin:2.2rem 0 .6rem; border-bottom:1px solid rgba(255,255,255,0.10); padding-bottom:.3rem; }
+  .sub { color:#D6C3B5; margin-bottom:1.4rem; }
+  .card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:1rem 1.25rem; margin:.8rem 0; }
+  code { background:#2A292F; border-radius:4px; padding:.08rem .35rem; font-size:.88em; }
+  .tablewrap { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; font-size:.93rem; }
+  th, td { text-align:left; padding:.5rem .6rem; border-bottom:1px solid rgba(255,255,255,0.06); vertical-align:top; }
+  th { color:#D6C3B5; font-weight:600; white-space:nowrap; }
+  .ok { color:#30D158; font-weight:600; }
+  .miss { color:#FFB4AB; font-weight:600; }
+  .part { color:#FFB877; font-weight:600; }
+  .risk { color:#FFB4AB; font-weight:700; }
+  ol li, ul li { margin:.4rem 0; }
+  .note { color:#9F8E81; font-size:.9rem; }
+  strong { color:#F1EDF6; }
+  details.draft { border:1px solid rgba(255,255,255,0.10); border-radius:10px; margin:.6rem 0; background:rgba(255,255,255,0.02); }
+  details.draft summary { cursor:pointer; padding:.7rem 1rem; font-weight:700; color:#FFB877; }
+  details.draft summary:hover { background:rgba(255,255,255,0.04); }
+  .draftbody { padding:.4rem 1.2rem 1rem; border-top:1px solid rgba(255,255,255,0.06); }
+  .draftbody p { margin:.5rem 0; font-size:.93rem; }
+  mark { background:#93000A; color:#FFDAD6; border-radius:3px; padding:0 .25rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Meerkat Legal Readiness Review</h1>
+  <div class="sub">Attorney consultation prep · 2026-07-18, updated 2026-07-20 (red flags fixed in code, drafts appended) · reviewed at rc8 <code>8989a091</code>, remediations merged at <code>9f174c0b</code> (new RC required) · engineering review, not legal advice · canonical source: <code>docs/reports/REPORT-meerkat-legal-readiness-2026-07-18.md</code></div>
+
+  <div class="card">
+    <strong>Executive summary.</strong> The engineering side is strong: DMCA intake/takedown, NCMEC filing, CSAM scanning, moderation, and account deletion are implemented, tested, and fail-closed. The gap is the paper: <span class="miss">no published legal documents exist</span>. Terms, Privacy Policy, Community Standards, and the safety/appeals page are env-configured URLs (<code>MEERKAT_TERMS_URL</code> etc.), all currently empty; the app honestly shows "Policy links are not configured."
+    <p><strong>Update 2026-07-20:</strong> both code red flags are <span class="ok">fixed</span> (Section 6) and complete draft examples of all seven documents are staged for review in Section 7 below - click each to expand.</p>
+  </div>
+
+  <h2>1 · What exists vs what is missing</h2>
+  <div class="card tablewrap">
+    <table>
+      <tr><th>Item</th><th>Status</th><th>Evidence</th></tr>
+      <tr><td>Terms of Use document</td><td class="miss">MISSING</td><td>env URL only; acceptance versioned <code>CURRENT_PUBLIC_TERMS_VERSION = '2026-07'</code></td></tr>
+      <tr><td>Privacy Policy document</td><td class="miss">MISSING</td><td>env URL only (<code>app.config.ts:250</code>)</td></tr>
+      <tr><td>Community Standards / UGC rules</td><td class="miss">MISSING</td><td>env URL only; in-app report categories implemented</td></tr>
+      <tr><td>Safety support + appeals page</td><td class="miss">MISSING</td><td>env URL only; no written appeals process</td></tr>
+      <tr><td>Law-enforcement request procedure</td><td class="miss">MISSING</td><td>required by runbook Step 3</td></tr>
+      <tr><td>Play data-deletion instructions page</td><td class="miss">MISSING</td><td>founder-ops item 4.7</td></tr>
+      <tr><td>DMCA policy page (public)</td><td class="part">PARTIAL</td><td><code>GET /public/dmca/agent</code> implemented; human-readable policy missing</td></tr>
+      <tr><td>DMCA intake + counter-notice flow</td><td class="ok">IMPLEMENTED</td><td><code>dmca-intake.ts</code>: 512(c)(3) elements, 512(g) counter-notice, tombstones, console lanes</td></tr>
+      <tr><td>DMCA registered agent identity</td><td class="miss">MISSING</td><td>fail-closed: first-party boot throws until six <code>MEERKAT_DMCA_AGENT_*</code> fields are real</td></tr>
+      <tr><td>NCMEC reporting pipeline</td><td class="ok">IMPLEMENTED</td><td><code>filed</code> only on provider confirmation; CyberTipline onboarding is founder-ops</td></tr>
+      <tr><td>CSAM / abuse-hash scanning</td><td class="ok">IMPLEMENTED</td><td>fail-closed without a configured rail; licensed hash DB is founder-ops</td></tr>
+      <tr><td>Account deletion</td><td class="ok">IMPLEMENTED</td><td>remote persona delete + full local wipe; honest peer-copy boundary copy</td></tr>
+      <tr><td>Age gate / minimum age</td><td class="ok">IMPLEMENTED 2026-07-20</td><td>neutral first-launch DOB gate, mobile + web, shared <code>@mylife/sync</code> core; configurable <code>MEERKAT_MINIMUM_AGE</code> (clamped 13-21, default 13); durable underage lock; birth date never persisted. Counsel still rules the floor.</td></tr>
+      <tr><td>Encryption export declaration</td><td class="ok">CORRECTED 2026-07-20</td><td><code>ITSAppUsesNonExemptEncryption: true</code>, pinned by a guard test; founder-ops remainder: ASC questionnaire, ECCN 5D992.c + annual BIS report, French declaration</td></tr>
+      <tr><td>Internal legal risk analysis</td><td class="part">INTERNAL ONLY</td><td><code>docs/legal/LEGAL-RISK-ANALYSIS-2026-03-29.md</code> (March snapshot, whole suite)</td></tr>
+    </table>
+  </div>
+
+  <h2>2 · Documents to draft (counsel reviews)</h2>
+  <div class="card">
+    <ol>
+      <li><strong>Terms of Use</strong> - verify-to-view feed, $4.99 one-time unlock, $4.99/mo hosted subscription (founder-locked pricing), UGC license, acceptable use, disputes, versioned acceptance ('2026-07', re-acceptance on bump).</li>
+      <li><strong>Privacy Policy</strong> - written around the real architecture: E2EE payloads, zero-knowledge relays, ciphertext-only hosted storage, provider-visible sizes/timing only, no analytics, 30-day default hosted retention.</li>
+      <li><strong>Community Standards</strong> - must match the five in-app report categories exactly (spam/scam, harassment/hate, violence, sexual content involving minors, copyright).</li>
+      <li><strong>Safety support + appeals page</strong> - appeal windows + moderation decision language.</li>
+      <li><strong>Law-enforcement guidelines</strong> - what can technically be produced (ciphertext only; metadata scope + retention).</li>
+      <li><strong>DMCA policy page</strong> - agent identity, notice + counter-notice process, repeat-infringer policy (code defaults: 5-day action, 14-day counter-notice hold).</li>
+      <li><strong>Play data-deletion instructions page.</strong></li>
+    </ol>
+  </div>
+
+  <h2>3 · Product facts the documents must match</h2>
+  <div class="card">
+    <ul>
+      <li>Relays pair by opaque tokens and forward ciphertext verbatim; hosted nodes hold no decryption keys (tested invariants).</li>
+      <li>Deletion destroys local data + public persona + (opt-in) encrypted backups, but cannot reach copies already synced to peers - the in-app copy says so.</li>
+      <li>Non-pinned hosted content: 30-day rolling retention. Pinned/published persists until takedown.</li>
+      <li>Third-party storage providers (Drive/Dropbox/OneDrive/Box/WebDAV/S3/iCloud) see encrypted objects, sizes, timing - never keys or plaintext.</li>
+      <li>Public posting requires verification + recorded Terms/Standards acceptance; private mesh needs no account.</li>
+      <li>Moderation fails closed; NCMEC <code>filed</code> requires provider confirmation; DMCA takedown tombstones against replay.</li>
+      <li>No analytics, no telemetry.</li>
+    </ul>
+  </div>
+
+  <h2>4 · Attorney consult agenda (open decisions)</h2>
+  <div class="card">
+    <ol>
+      <li><strong>Operating entity</strong> - nothing names one; every registration cascades from this.</li>
+      <li><strong>DMCA agent registration</strong> - Copyright Office filing under the entity; confirm 5/14-day windows; adopt a repeat-infringer policy (512 safe harbor).</li>
+      <li><strong>Export classification</strong> - declaration corrected to <code>true</code> in code (2026-07-20); remaining: ECCN 5D992.c self-classification, annual BIS report, truthful ASC questionnaire, French declaration.</li>
+      <li><strong>Minimum age / minors</strong> - a neutral age gate now ships on both surfaces (2026-07-20), default floor 13; counsel rules the actual floor (raising it is configuration, not code) and store age-rating implications.</li>
+      <li><strong>Privacy regime scope</strong> - GDPR / CCPA applicability by launch jurisdiction; E2EE + no-analytics architecture works in our favor.</li>
+      <li><strong>CSAM duties</strong> - 18 U.S.C. 2258A reporting + 90-day preservation vs what the NCMEC queue retains; review in-app "reported to authorities" language.</li>
+      <li><strong>Section 230 posture</strong> - moderation language; exposure analysis for self-host/community-node mode.</li>
+      <li><strong>E2EE policy environment</strong> - EU CSA trajectory, UK OSA if UK distribution; initial jurisdiction scoping.</li>
+      <li><strong>Clickwrap mechanics</strong> - versioned acceptance flow sufficiency; re-acceptance trigger policy.</li>
+      <li><strong>Subscription commerce</strong> - auto-renewal laws, cancellation UX, refund wording, hosted AUP/SLA.</li>
+      <li><strong>Store compliance</strong> - privacy nutrition label + Data Safety form derived from the final Privacy Policy; UGC policy visibility for both stores.</li>
+      <li><strong>Law-enforcement response</strong> - process recipient, preservation handling, transparency-report stance.</li>
+      <li><strong>Purchase-rail policy (2026-07-20)</strong> - founder proposal: sell the unlock ONLY via Apple/Google (store-grade verification for every purchaser); web unlocks via cross-rail link codes (both directions already in code); Stripe stays for the hosted subscription only. Counsel: compliance value vs consumer-access/DMA concerns of dropping the direct web purchase.</li>
+    </ol>
+  </div>
+
+  <h2>5 · Sequence</h2>
+  <div class="card">
+    <ol>
+      <li>Entity decision.</li>
+      <li>DMCA registration + export-classification correction (mechanical once the entity exists).</li>
+      <li>Counsel reviews the drafted policy set against the Section 3 facts.</li>
+      <li>Host documents over HTTPS, fill production env values, run Step 3 URL verifications, record counsel approvals + version ids + effective dates in the rc8 evidence ledger.</li>
+    </ol>
+    <div class="note">Runbook Step 3 exit gate: all documents approved, public, internally consistent, and matching observed product behavior.</div>
+  </div>
+
+  <h2>6 · Account and verification architecture (implemented 2026-07-20)</h2>
+  <div class="card">
+    <ul>
+      <li><strong>IMPLEMENTED 2026-07-20 (Plan 51, all phases):</strong> a minimal <strong>verification account</strong> (Apple/Google SSO) anchors the person and holds ONLY required checks + entitlement, on a separate account-service deployable over new <code>account.</code>/<code>credential.</code> schemas. The in-app identity is separate and proves membership via an anonymous blind-signed credential (RFC 9474 RSA blind signatures, Privacy Pass publicly verifiable shape); the account layer never learns which persona it backs. Bans = credential revocation + renewal refusal, never persona-to-account mapping, never IP identity.</li>
+      <li><strong>Shipped linkability grade: Grade 2 for stored data.</strong> Blind issuance (transcript disjointness asserted by test) plus a schema wall guard and a log-hygiene canary: no table, log, or metric holds both an account identifier and a persona/device identifier, and no serial is ever stored or logged beside an account identifier. Nothing the service stores or can be compelled to produce can link an account to a persona. Documented residual: the expiring serial transits the renewal request (discarded, never persisted); copy claims "nothing we store can link." Live SSO credentials + production deploy of the account service remain founder-ops.</li>
+      <li><strong>Layer 1, the store gate:</strong> person-bound legal checks (payment identity, parental consent, store-level age verification where mandated) run at the Apple/Google boundary under the store's systems; the in-app neutral age gate stays the universal floor for web, self-host, and non-store-regime jurisdictions.</li>
+      <li><strong>Layer 2, the entitlement wall:</strong> only a receipt or single-use cross-rail link code crosses in, validated server-side; no store identity enters the data model; <code>appAccountToken</code>-style linking is skipped on purpose. The purchase is also the sybil cost for public posting.</li>
+      <li><strong>Layer 3, inside the walls:</strong> device-keypair identity, E2EE, zero-knowledge relays, no analytics; restore via the store. Stated exception: the web Stripe rail, where the processor sees billing identity (see agenda item 13).</li>
+    </ul>
+  </div>
+
+  <h2>6b · Remediation update (2026-07-20)</h2>
+  <div class="card">
+    Both red flags are fixed in code, merged at <code>9f174c0b</code> (<code>feature/meerkat-legal-readiness-fixes</code>):
+    <ul>
+      <li><strong>Age gate:</strong> shared pure core (<code>packages/sync/src/protocol/age-gate.ts</code>), mobile <code>AgeGate.tsx</code> before onboarding, web <code>AgeGateOverlay.tsx</code> before onboarding; durable underage lock; the birth date is never persisted. 27 new tests; sync 2,386 / app 1,382 / web 974 tests + parity green.</li>
+      <li><strong>Export declaration:</strong> <code>ITSAppUsesNonExemptEncryption</code> is now <code>true</code>, pinned by a guard test documenting the founder-ops remainder.</li>
+      <li><strong>Release impact:</strong> code changed after rc8, so a new release candidate must be cut from the merge SHA before store evidence binds.</li>
+    </ul>
+  </div>
+
+  <h2>7 · Draft example policy documents (click to expand)</h2>
+  <div class="card">
+    <p>Seven complete draft examples, written by engineering from the Section 3 code-verified facts, updated 2026-07-20 to the verification-account architecture (Drafts A and B). <strong>None is effective and none is legal advice</strong>: each needs the entity decision, counsel edits and approval, filled <mark>[bracketed values]</mark>, and publication at its production URL. Canonical text also lives in the markdown twin.</p>
+  <details class="draft">
+    <summary>Draft A: Terms of Use</summary>
+    <div class="draftbody">
+<p><strong>DRAFT EXAMPLE for counsel review. Not effective. Not legal advice.</strong></p>
+<p><strong>Meerkat Terms of Use</strong> (Version 2026-07; effective <mark>[DATE]</mark>)</p>
+<p>1. <strong>Who we are.</strong> Meerkat is operated by <mark>[ENTITY NAME]</mark>, a <mark>[STATE]</mark> <mark>[ENTITY TYPE]</mark> (&quot;we,&quot; &quot;us&quot;). Contact: <mark>[EMAIL]</mark>, <mark>[ADDRESS]</mark>.</p>
+<p>2. <strong>What Meerkat is.</strong> Meerkat is a privacy-first communication app. Private spaces (communities, direct messages, file sync) are end-to-end encrypted; we cannot read them. A separate public layer (The Commons) hosts publicly published posts that anyone can view after verification.</p>
+<p>3. <strong>Eligibility.</strong> You must be at least <mark>[13/16/18, counsel to rule]</mark> years old. Where your app store provides a lawful age signal we use it; otherwise the app asks your birth date once, on your device, to confirm eligibility. The date itself is not stored or transmitted.</p>
+<p>4. <strong>Your verification account.</strong> Purchasing and public participation use a minimal verification account created by signing in with your existing Apple or Google identity. It holds only what the law and the stores require us to know: that you are a real person, your verification checks (such as age status and, where required, parental consent), and your purchase entitlement. It holds nothing about what you do inside Meerkat.</p>
+<p>5. <strong>Your Meerkat identity and keys.</strong> Inside the app your identity is a cryptographic key created on your device. It is separate from your verification account and is never registered with it: <mark>[we do not link them / the credential design makes us unable to link them; counsel to match the shipped implementation]</mark>. Private use of Meerkat (your communities, messages, and files) requires no sign-in at all. You are responsible for your recovery key; if you lose your keys and have no backup, we cannot recover your data.</p>
+<p>6. <strong>Purchases.</strong> The app is unlocked with a one-time purchase of $4.99 through the Apple App Store or Google Play, tied to your verification account. An optional hosted service subscription ($4.99 per month, hosted storage included) is billed through the store on mobile or Stripe on the web. Prices may change prospectively; store refund rules apply to store purchases. You can cancel the subscription at any time effective at the end of the billing period. Deleting your verification account or Meerkat data remains available after your subscription lapses.</p>
+<p>7. <strong>Public content license.</strong> When you publish to the public layer, you grant us a non-exclusive, worldwide, royalty-free license to host, store, reproduce, and display that content for operating the service. You keep ownership. This license ends when the publication is removed, except for lawful retention (for example, safety evidence).</p>
+<p>8. <strong>Acceptable use.</strong> You may not use Meerkat to violate law, post content in the categories prohibited by the Community Standards, infringe intellectual property, interfere with the service, or attempt to deanonymize other users.</p>
+<p>9. <strong>Moderation and enforcement.</strong> The private, end-to-end-encrypted layer is not moderated by us and cannot be. On the public layer we may remove content, restrict accounts, and honor legal takedowns as described in the Community Standards and DMCA Policy. Appeals are described on the Safety Support page.</p>
+<p>10. <strong>Acceptance and changes.</strong> Public posting requires recorded acceptance of these Terms and the Community Standards at the current version. Material changes create a new version; continued public posting requires re-acceptance. <mark>[Counsel: confirm change-notice mechanics.]</mark></p>
+<p>11. <strong>Termination.</strong> You can stop using Meerkat at any time and delete your data from the app. We may suspend public-layer access for violations by revoking your public credential and refusing renewal on your verification account. Private, on-device functionality does not depend on our approval.</p>
+<p>12. <strong>Disclaimers and liability.</strong> The service is provided &quot;as is.&quot; To the maximum extent permitted by law, our aggregate liability is limited to the greater of $50 or the amount you paid us in the last 12 months. <mark>[Counsel: jurisdiction-specific consumer-law carve-outs.]</mark></p>
+<p>13. <strong>Disputes.</strong> <mark>[Counsel: governing law, venue, arbitration yes/no, class waiver yes/no.]</mark></p>
+    </div>
+  </details>
+  <details class="draft">
+    <summary>Draft B: Privacy Policy</summary>
+    <div class="draftbody">
+<p><strong>DRAFT EXAMPLE for counsel review. Not effective. Not legal advice.</strong></p>
+<p><strong>Meerkat Privacy Policy</strong> (Version 1.0; effective <mark>[DATE]</mark>)</p>
+<p>1. <strong>The short version.</strong> Meerkat is built so we cannot read your private content. Your messages, files, and communities are end-to-end encrypted with keys that exist only on your devices. We run no analytics and no advertising. This policy explains the little we do handle.</p>
+<p>2. <strong>Your verification account.</strong> Purchasing and public participation use a minimal account you create by signing in with Apple or Google. It stores only: the sign-in identifier your provider gives us (Apple lets you hide your email), your verification checks (human verification, age status, parental consent where required), and your purchase entitlement. It is never linked to your identity, messages, communities, or files inside Meerkat: <mark>[we do not store any such link / the anonymous credential design makes us unable to create one; counsel to match the shipped implementation]</mark>. Private use of Meerkat requires no account.</p>
+<p>3. <strong>Data on your device.</strong> Your identity keys, messages, files, and settings live in a local database on your device. Your birth date, if the in-app age screen runs, is checked on the device and never stored or transmitted; only a pass/fail record is kept. Where your app store provides a lawful age signal, we record the resulting age status on your verification account instead.</p>
+<p>4. <strong>What our infrastructure sees.</strong> Relay servers forward encrypted envelopes between devices using opaque one-time tokens. They do not receive your name, device identifiers, message content, or message types, and they can observe only ciphertext sizes and timing. Hosted storage (optional, paid) stores encrypted objects we cannot decrypt; we hold no decryption keys.</p>
+<p>5. <strong>Public layer.</strong> Content you publish to The Commons is public by design, together with your chosen public persona. Public posting requires verification and recorded acceptance of the Terms.</p>
+<p>6. <strong>Third-party storage you connect.</strong> If you connect Google Drive, Dropbox, OneDrive, Box, WebDAV, S3, or iCloud as a backup destination, that provider receives encrypted objects and can observe object sizes and timing. It never receives your keys or plaintext.</p>
+<p>7. <strong>Payments.</strong> Purchases run through Apple, Google, or Stripe. We receive transaction confirmations and entitlement status, not your card number.</p>
+<p>8. <strong>Retention.</strong> Non-pinned hosted content is retained on a rolling <mark>[30]</mark>-day basis. Pinned or published content persists until unpinned, taken down, or deleted. Safety and legal records (for example, abuse reports and DMCA notices) are retained as required by law.</p>
+<p>9. <strong>Deletion.</strong> Two independent deletions exist. &quot;Delete my data&quot; in the app destroys your local data, your public persona, and, if you choose, encrypted backups at connected destinations; copies already synced to other people&#x27;s devices are outside our and your reach, and the app says so before you delete. Deleting your verification account removes the account record and revokes your public credentials; it cannot touch in-app data because the account was never linked to it.</p>
+<p>10. <strong>Safety disclosures.</strong> We report apparent child sexual abuse material to NCMEC as required by law, and respond to valid legal process as described in our Law Enforcement Guidelines.</p>
+<p>11. <strong>Your rights.</strong> <mark>[Counsel: GDPR/CCPA scope by launch jurisdiction; note that most rights are satisfied intrinsically because we cannot access content. Identify the data-subject contact address.]</mark></p>
+<p>12. <strong>Children.</strong> Meerkat is not directed to children under <mark>[13]</mark>. We do not knowingly collect personal information from children under <mark>[13]</mark>. <mark>[Counsel: align with age-floor ruling.]</mark></p>
+<p>13. <strong>Changes and contact.</strong> We will post changes here with a new effective date. Contact: <mark>[PRIVACY EMAIL]</mark>.</p>
+    </div>
+  </details>
+  <details class="draft">
+    <summary>Draft C: Community Standards</summary>
+    <div class="draftbody">
+<p><strong>DRAFT EXAMPLE for counsel review. Not effective. Not legal advice.</strong></p>
+<p><strong>Meerkat Community Standards</strong> (Version 1.0; effective <mark>[DATE]</mark>)</p>
+<p>These standards govern the public layer (The Commons) and any content you publish for public viewing. Private, end-to-end-encrypted spaces are yours; we cannot see them and do not moderate them.</p>
+<p><strong>Prohibited on the public layer:</strong></p>
+<p>1. <strong>Spam and scams.</strong> Deceptive schemes, phishing, pyramid promotion, bulk unsolicited posting.</p>
+<p>2. <strong>Harassment and hate.</strong> Targeted harassment, threats, and attacks on people based on protected characteristics.</p>
+<p>3. <strong>Violence and dangerous acts.</strong> Incitement, credible threats, glorification of violence, instructions for serious harm.</p>
+<p>4. <strong>Sexual content involving minors.</strong> Zero tolerance. Content is scanned against industry hash lists before public archive acceptance, apparent CSAM is reported to NCMEC, and accounts are terminated. This category is fast-tracked ahead of all other review.</p>
+<p>5. <strong>Copyright infringement.</strong> See the DMCA Policy for notices, counter-notices, and our repeat-infringer policy.</p>
+<p><strong>How enforcement works.</strong> Every public post can be reported in the app under exactly these categories. Nothing enters the public archive without passing malware and abuse-hash scanning; unscannable content is not published. Violations lead to content removal and, for repeat or severe violations, loss of public-layer access. <strong>Appeals.</strong> If your content was removed or your access restricted, you can appeal within <mark>[14]</mark> days through the Safety Support page; a person reviews appeals and the decision and reason are recorded.</p>
+    </div>
+  </details>
+  <details class="draft">
+    <summary>Draft D: Safety Support and Appeals</summary>
+    <div class="draftbody">
+<p><strong>DRAFT EXAMPLE for counsel review. Not effective. Not legal advice.</strong></p>
+<p><strong>Meerkat Safety Support</strong> (Version 1.0; effective <mark>[DATE]</mark>)</p>
+<p><strong>Report content.</strong> Use the in-app report button on any public post (categories: spam or scam, harassment or hate, violence or dangerous acts, sexual content involving minors, copyright). CSAM reports are fast-tracked and reported to authorities where required. Reports about private encrypted spaces can only be actioned by the space&#x27;s own members and admins using in-app blocking and removal tools; we cannot see private content.</p>
+<p><strong>Blocking.</strong> You can block any public persona in the app; blocking is local and immediate.</p>
+<p><strong>Appeals.</strong> If your public content was removed or your public access restricted, submit an appeal at <mark>[SUPPORT URL]</mark> within <mark>[14]</mark> days of the decision. Include the content reference from the removal notice. A human reviews every appeal; outcomes are upheld, reversed, or modified, and you will receive the reason. <mark>[Counsel: confirm window and whether a second-level appeal exists.]</mark></p>
+<p><strong>Emergencies.</strong> If someone is in immediate danger, contact local emergency services first.</p>
+<p><strong>Contact.</strong> Safety team: <mark>[SAFETY EMAIL]</mark>. Postal: <mark>[ADDRESS]</mark>.</p>
+    </div>
+  </details>
+  <details class="draft">
+    <summary>Draft E: Law Enforcement Guidelines</summary>
+    <div class="draftbody">
+<p><strong>DRAFT EXAMPLE for counsel review. Not effective. Not legal advice.</strong></p>
+<p><strong>Meerkat Law Enforcement Guidelines</strong> (Version 1.0; effective <mark>[DATE]</mark>)</p>
+<p>1. <strong>Service of process.</strong> Legal process for <mark>[ENTITY NAME]</mark> should be served at <mark>[REGISTERED AGENT / ADDRESS]</mark> or <mark>[LE EMAIL]</mark>. We require valid legal process appropriate to the data sought and our jurisdiction. <mark>[Counsel: specify acceptable instruments.]</mark></p>
+<p>2. <strong>What we can produce.</strong> Meerkat is end-to-end encrypted by design. We do not possess message content, private files, community content, or user decryption keys, and cannot produce them under any process. Categories that may exist: hosted-service billing records (via the payment processor), public-layer publications and persona records (already public), safety records we are required to keep (abuse reports, NCMEC report records, DMCA notices), and limited infrastructure logs. Relay servers are zero knowledge: they process opaque tokens and ciphertext, retain <mark>[no / N-day]</mark> connection logs, and never see message content or device identifiers.</p>
+<p>3. <strong>Preservation.</strong> On receipt of a valid preservation request we will preserve the specific existing records identified, for <mark>[90]</mark> days, renewable once. We cannot preserve what we do not possess.</p>
+<p>4. <strong>Emergency disclosure.</strong> Where we have a good-faith belief that disclosure of records we possess is needed to prevent death or serious injury, we may disclose them consistent with <mark>[18 U.S.C. 2702(b)(8)]</mark>. <mark>[Counsel: confirm standard.]</mark></p>
+<p>5. <strong>User notice.</strong> Our policy is to notify users of legal process seeking their records where we have a means of contact and are not legally prohibited. <mark>[Counsel: confirm.]</mark></p>
+<p>6. <strong>CSAM.</strong> We report apparent CSAM to NCMEC under 18 U.S.C. 2258A and preserve the associated report records as required.</p>
+<p>7. <strong>Transparency.</strong> We intend to publish an annual transparency report. <mark>[Counsel: confirm commitment.]</mark></p>
+    </div>
+  </details>
+  <details class="draft">
+    <summary>Draft F: DMCA Policy</summary>
+    <div class="draftbody">
+<p><strong>DRAFT EXAMPLE for counsel review. Not effective. Not legal advice.</strong></p>
+<p><strong>Meerkat DMCA Policy</strong> (Version 1.0; effective <mark>[DATE]</mark>)</p>
+<p>1. <strong>Scope.</strong> This policy covers content published on Meerkat&#x27;s public layer. We respond to valid notices under 17 U.S.C. 512.</p>
+<p>2. <strong>Designated agent.</strong> <mark>[AGENT NAME]</mark>, <mark>[ORGANIZATION]</mark>, <mark>[ADDRESS]</mark>, <mark>[EMAIL]</mark>, <mark>[PHONE]</mark>, registered with the U.S. Copyright Office on <mark>[REGISTRATION DATE]</mark>. The same identity is served machine-readably at <code>/public/dmca/agent</code>.</p>
+<p>3. <strong>Filing a notice.</strong> Submit through the in-app copyright report flow or <code>POST /public/dmca/notice</code>, including: identification of the work, identification of the infringing material (post IDs or URLs), your contact information, a good-faith statement, an accuracy statement under penalty of perjury, and your physical or electronic signature. Incomplete notices are rejected with the defect identified.</p>
+<p>4. <strong>What happens.</strong> Valid claims are actioned within <mark>[5]</mark> business days: the identified publications are removed from serving and tombstoned against republication. The poster is notified and provided the notice.</p>
+<p>5. <strong>Counter-notice.</strong> The poster may submit a counter-notice under 17 U.S.C. 512(g) with the statutory attestations. Unless the claimant informs us within <mark>[14]</mark> business days that they have filed a court action, the content may be restored.</p>
+<p>6. <strong>Repeat infringers.</strong> We terminate public-layer access of users who are the subject of <mark>[N, counsel to set]</mark> actioned notices without a successful counter-notice within <mark>[12]</mark> months. <mark>[Counsel: confirm thresholds.]</mark></p>
+<p>7. <strong>Misrepresentation.</strong> Knowingly false notices or counter-notices incur liability under 17 U.S.C. 512(f).</p>
+    </div>
+  </details>
+  <details class="draft">
+    <summary>Draft G: Google Play Data Deletion Instructions</summary>
+    <div class="draftbody">
+<p><strong>DRAFT EXAMPLE for counsel review. Not effective. Not legal advice.</strong></p>
+<p><strong>Delete your Meerkat data</strong> (Version 1.0; effective <mark>[DATE]</mark>)</p>
+<p>Meerkat stores your content on your own device, end-to-end encrypted. To delete it: open Meerkat, go to Me, then Settings, then Delete my data. This destroys your local data and identity keys, deletes your public persona from our servers if you created one, and, if you choose, tells connected backup destinations to delete their encrypted backup objects. Copies you already synced to other people&#x27;s devices stay on their devices; the app tells you this before deleting. If you subscribed to the hosted service, deletion also removes your hosted encrypted objects; billing history is retained by the payment processor as required by law. Deletion works without an active subscription and without contacting support. If you cannot access the app, contact <mark>[PRIVACY EMAIL]</mark> to delete server-side records (public persona and hosted objects); we cannot delete on-device data remotely because we have no access to your device or keys.</p>
+    </div>
+  </details>
+  </div>
+</main>
+</body>
+</html>

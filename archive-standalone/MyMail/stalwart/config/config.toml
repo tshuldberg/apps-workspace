@@ -1,0 +1,219 @@
+###############################################################################
+# MyMail - Stalwart Mail Server Configuration
+# Comprehensive config for SMTP, IMAP, JMAP with Rspamd integration
+###############################################################################
+
+# ─── Server Identity ────────────────────────────────────────────────────────
+[server]
+hostname = "%{HOSTNAME}%"
+max-connections = 1024
+
+[server.run-as]
+user = "stalwart-mail"
+group = "stalwart-mail"
+
+# ─── Storage Configuration ──────────────────────────────────────────────────
+[store."sqlite"]
+type = "sqlite"
+path = "/opt/stalwart-mail/data/index.sqlite3"
+
+[store."blob"]
+type = "fs"
+path = "/opt/stalwart-mail/data/blobs"
+
+[storage]
+data = "sqlite"
+blob = "blob"
+fts = "sqlite"
+lookup = "sqlite"
+directory = "internal"
+
+# ─── Directory (User Store) ────────────────────────────────────────────────
+[directory."internal"]
+type = "internal"
+store = "sqlite"
+
+# ─── TLS Configuration ─────────────────────────────────────────────────────
+# Certificates provisioned by Caddy / Let's Encrypt, shared via volume
+[certificate."default"]
+cert = "/caddy-data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/%{HOSTNAME}%/%{HOSTNAME}%.crt"
+private-key = "/caddy-data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/%{HOSTNAME}%/%{HOSTNAME}%.key"
+
+# Fallback: use ACME directly if Caddy certs aren't available
+[acme."letsencrypt"]
+directory = "https://acme-v02.api.letsencrypt.org/directory"
+contact = ["mailto:%{ADMIN_EMAIL}%"]
+domains = ["%{HOSTNAME}%"]
+challenge = "tls-alpn-01"
+
+# ─── SMTP Listeners ────────────────────────────────────────────────────────
+
+# Port 25: Inbound SMTP (server-to-server)
+[server.listener."smtp"]
+bind = "[::]:25"
+protocol = "smtp"
+tls.implicit = false
+
+# Port 465: SMTPS (implicit TLS submission)
+[server.listener."smtps"]
+bind = "[::]:465"
+protocol = "smtp"
+tls.implicit = true
+
+# Port 587: SMTP Submission (STARTTLS)
+[server.listener."submission"]
+bind = "[::]:587"
+protocol = "smtp"
+tls.implicit = false
+
+# ─── IMAP Listener ─────────────────────────────────────────────────────────
+
+# Port 993: IMAPS (implicit TLS)
+[server.listener."imaps"]
+bind = "[::]:993"
+protocol = "imap"
+tls.implicit = true
+
+# ─── JMAP Listener ─────────────────────────────────────────────────────────
+
+# Port 8080: JMAP / REST API (internal, proxied through Caddy)
+[server.listener."jmap"]
+bind = "[::]:8080"
+protocol = "http"
+tls.implicit = false
+
+# ─── ManageSieve Listener ──────────────────────────────────────────────────
+
+[server.listener."sieve"]
+bind = "[::]:4190"
+protocol = "managesieve"
+tls.implicit = false
+
+# ─── Authentication ────────────────────────────────────────────────────────
+[authentication]
+fail2ban = "101/1d"
+
+[auth.denylist]
+lookup = "sqlite"
+
+# ─── Session Limits ────────────────────────────────────────────────────────
+[session]
+timeout = "5m"
+transfer-limit = 52428800  # 50 MB
+duration = "10m"
+
+[session.ehlo]
+require = true
+
+[session.auth]
+mechanisms = ["PLAIN", "LOGIN"]
+require = true
+directory = "internal"
+
+[session.auth.errors]
+total = 5
+wait = "5s"
+
+# ─── Outbound SMTP ─────────────────────────────────────────────────────────
+[queue]
+path = "/opt/stalwart-mail/data/queue"
+hash = 64
+
+[queue.schedule]
+retry = ["2m", "5m", "10m", "15m", "30m", "1h", "2h"]
+notify = ["1d", "3d"]
+expire = "5d"
+
+# Outbound relay configuration (for use with Amazon SES or similar)
+[remote."relay"]
+address = "%{RELAY_HOST}%"
+port = "%{RELAY_PORT}%"
+protocol = "smtp"
+tls.implicit = false
+tls.starttls = true
+
+[remote."relay".auth]
+username = "%{RELAY_USER}%"
+secret = "%{RELAY_PASSWORD}%"
+
+# ─── DKIM Signing ──────────────────────────────────────────────────────────
+[signature."dkim"]
+private-key = "file:///opt/stalwart-mail/etc/dkim/private.key"
+domain = "%{DOMAIN}%"
+selector = "mail"
+headers = ["From", "To", "Date", "Subject", "Message-ID"]
+algorithm = "ed25519-sha256"
+canonicalization = "relaxed/relaxed"
+expire = "7d"
+set-body-length = false
+
+# Fallback RSA DKIM for maximum compatibility
+[signature."dkim-rsa"]
+private-key = "file:///opt/stalwart-mail/etc/dkim/rsa-private.key"
+domain = "%{DOMAIN}%"
+selector = "mail-rsa"
+headers = ["From", "To", "Date", "Subject", "Message-ID"]
+algorithm = "rsa-sha256"
+canonicalization = "relaxed/relaxed"
+expire = "7d"
+set-body-length = false
+
+# ─── Spam Filter Integration (Rspamd via milter) ───────────────────────────
+[session.data.milter."rspamd"]
+enable = true
+hostname = "rspamd"
+port = 11332
+timeout = "30s"
+tls = false
+tempfail-on-error = true
+
+# ─── Sieve Scripting ───────────────────────────────────────────────────────
+[sieve]
+max-script-size = 102400
+max-scripts = 256
+
+[sieve.untrusted]
+disable-capabilities = []
+notification-methods = []
+protected-headers = ["Original-Subject", "Original-From"]
+
+# ─── Rate Limiting ──────────────────────────────────────────────────────────
+[session.throttle."inbound"]
+match = "remote-ip"
+key = "remote-ip"
+rate = "25/1h"
+concurrency = 5
+
+[session.throttle."outbound-auth"]
+match = "authenticated-as"
+key = "authenticated-as"
+rate = "100/1h"
+concurrency = 10
+
+[session.throttle."outbound-rcpt"]
+match = "rcpt-domain"
+key = "rcpt-domain"
+rate = "50/1h"
+
+# ─── Message Limits ────────────────────────────────────────────────────────
+[session.data.limits]
+messages = 10
+size = 26214400     # 25 MB
+received-headers = 50
+
+# ─── Logging ───────────────────────────────────────────────────────────────
+[tracing."stdout"]
+type = "stdout"
+level = "info"
+enable = true
+
+[tracing."log"]
+type = "log"
+path = "/opt/stalwart-mail/logs"
+level = "info"
+prefix = "stalwart"
+enable = true
+
+# ─── Auto-Configuration (Thunderbird / Outlook) ────────────────────────────
+[server.autoconfig]
+enable = true

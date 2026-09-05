@@ -1,0 +1,62 @@
+import type { ThemeProfile } from '../schema';
+
+export const CANDY_GLASS: ThemeProfile = {
+  id: 'candy-glass',
+  name: 'Candy Glass',
+  description: 'Pastel pink and lavender with frosted glass. Nunito rounded warmth.',
+  author: 'MyLife',
+  version: '1.0.0',
+  colorMode: 'light',
+  colors: {
+    background: '#FFF0F7',
+    surface: '#FFE6F2',
+    surfaceElevated: '#FFFFFF',
+    text: '#3D1F33',
+    textSecondary: '#7A4A6B',
+    textTertiary: 'rgba(61,31,51,0.45)',
+    border: 'rgba(255,107,157,0.16)',
+    danger: '#FF3B30',
+    success: '#52D48E',
+    warning: '#FFB84D',
+    accent: '#FF6B9D',
+    primary: '#FF6B9D',
+    primaryContainer: '#FFD4E5',
+  },
+  glass: {
+    cardFill: 'rgba(255,255,255,0.55)',
+    cardBorder: 'rgba(255,107,157,0.16)',
+    strongFill: 'rgba(255,255,255,0.80)',
+    strongBorder: 'rgba(255,107,157,0.25)',
+    dockFill: 'rgba(255,230,242,0.70)',
+    dockBorder: 'rgba(255,107,157,0.18)',
+    blurIntensity: 80,
+  },
+  fonts: {
+    display: 'Nunito',
+    body: 'Nunito',
+  },
+  typeScale: {
+    heroTitle: { size: 36, weight: '800', lineHeight: 44 },
+    heading: { size: 24, weight: '700', lineHeight: 32 },
+    subheading: { size: 18, weight: '600', lineHeight: 24 },
+    body: { size: 16, weight: '500', lineHeight: 26 },
+    caption: { size: 13, weight: '500', lineHeight: 18 },
+    label: { size: 12, weight: '700', lineHeight: 16, letterSpacing: 0.8 },
+  },
+  surfaces: {
+    treatment: 'glass',
+    cornerRadius: { card: 24, button: 18, icon: 18, tabBar: 32 },
+    shadows: {
+      card: '0 4px 14px rgba(255,107,157,0.15)',
+      elevated: '0 12px 32px rgba(255,107,157,0.20)',
+      pressed: '0 2px 6px rgba(255,107,157,0.18)',
+    },
+  },
+  layout: {
+    dashboardStyle: 'bento-grid',
+    moduleGridColumns: 4,
+    tabBarStyle: 'floating-pill',
+    headerStyle: 'wordmark',
+    spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
+  },
+};

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Production Readiness Implementation Report</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0a0a0f; --panel:#12121a; --raised:#1a1a24; --text:#f0f0f5; --muted:rgba(240,240,245,.67); --line:rgba(255,255,255,.10); --blue:#64a8ff; --green:#30d158; --amber:#ffd60a; --red:#ff453a; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at 85% 0%,#15243b 0,transparent 29rem),var(--bg); color:var(--text); font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:54px 0 80px; }
+    header { padding:34px; border:1px solid var(--line); border-radius:24px; background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025)); box-shadow:0 22px 70px rgba(0,0,0,.35); }
+    h1 { margin:10px 0 14px; font-size:clamp(2rem,5vw,4.1rem); line-height:1.04; letter-spacing:-.045em; }
+    h2 { margin:50px 0 16px; font-size:1.65rem; letter-spacing:-.025em; }
+    h3 { margin:26px 0 8px; font-size:1.08rem; color:#dbe9ff; }
+    p { max-width:82ch; color:var(--muted); }
+    a { color:var(--blue); }
+    code { padding:.14em .4em; border-radius:6px; background:#050509; color:#cfe4ff; font: .91em ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .eyebrow { color:#a9cfff; font-size:.78rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .status { display:inline-flex; align-items:center; gap:8px; margin-top:8px; padding:8px 12px; border:1px solid rgba(48,209,88,.35); border-radius:999px; background:rgba(48,209,88,.09); color:#93f7ae; font-weight:750; font-size:.82rem; }
+    .status::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green); }
+    .warning { border-color:rgba(255,214,10,.32); background:rgba(255,214,10,.08); color:#ffe87e; }
+    .warning::before { background:var(--amber); box-shadow:0 0 14px var(--amber); }
+    .meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-top:24px; }
+    .meta div,.card { padding:18px; border:1px solid var(--line); border-radius:16px; background:rgba(18,18,26,.82); }
+    .meta small { display:block; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+    .meta strong { display:block; margin-top:5px; word-break:break-word; }
+    .lead { font-size:1.12rem; color:#d7d7df; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:14px; }
+    .card h3 { margin-top:0; }
+    .card p { margin-bottom:0; }
+    .callout { margin:24px 0; padding:18px 20px; border-left:4px solid var(--amber); border-radius:0 14px 14px 0; background:rgba(255,214,10,.07); color:#f8edb0; }
+    ol,ul { color:#d6d6dd; padding-left:1.35rem; }
+    li { margin:.5rem 0; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:16px; background:var(--panel); }
+    table { width:100%; border-collapse:collapse; min-width:700px; }
+    th,td { padding:14px 16px; text-align:left; vertical-align:top; border-bottom:1px solid var(--line); }
+    th { color:#bcd8ff; background:rgba(255,255,255,.04); font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; }
+    tr:last-child td { border-bottom:0; }
+    .pass { color:#8ff4aa; font-weight:700; }
+    .remaining td:first-child { color:#9ec9ff; font-weight:800; }
+    footer { margin-top:56px; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem; }
+    @media print { body { background:#fff; color:#111; } header,.meta div,.card,.table-wrap { background:#fff; border-color:#ccc; box-shadow:none; } p,ol,ul,footer { color:#333; } code { background:#eee; color:#111; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">MyLife / Meerkat / Plan 44</div>
+    <h1>Production readiness implementation report</h1>
+    <p class="lead">Plan 44 Phase 0 is implemented, reviewed, verified against PostgreSQL 17, and committed. The complete remaining launch queue is preserved below.</p>
+    <span class="status">Phase 0 complete</span>
+    <span class="status warning">Product remains production NO-GO</span>
+    <div class="meta">
+      <div><small>Date</small><strong>2026-07-09</strong></div>
+      <div><small>Branch</small><strong>feature/meerkat-production-readiness-2026-07-09</strong></div>
+      <div><small>Starting commit</small><strong><code>f7920118</code></strong></div>
+      <div><small>Implementation commit</small><strong><code>16957020</code></strong></div>
+    </div>
+  </header>
+
+  <h2>Outcome</h2>
+  <p class="lead">The first dependency in the comprehensive Meerkat launch plan is complete. The relay package now has a production-grade PostgreSQL 17 foundation for mutable-state inventory, SQL contracts, migration control, least-privilege roles, readiness validation, operator workflows, and live CI verification.</p>
+  <div class="callout">This closes Plan 44 Phase 0 only. PostgreSQL adapters, object storage, cutover, observability, recovery, release supply chain, downstream feature plans, and integrated launch evidence remain active.</div>
+
+  <h2>Startup verification and required reading</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Check</th><th>Verified result</th></tr></thead>
+    <tbody>
+      <tr><td>Target worktree</td><td><code>.claude/worktrees/meerkat-production-readiness-2026-07-09</code></td></tr>
+      <tr><td>Expected branch</td><td><code>feature/meerkat-production-readiness-2026-07-09</code></td></tr>
+      <tr><td>Starting commit</td><td><code>f7920118e5a4cf7fd90364fceb64b32c186274ee</code></td></tr>
+      <tr><td>Starting state</td><td>Clean isolated worktree. The unrelated primary checkout was not modified.</td></tr>
+      <tr><td>Push state</td><td>Local only. No push was requested or performed.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Before substantial edits, the work read <code>AGENTS.md</code>, <code>CLAUDE.md</code>, local settings, the skills and plugin snapshots, <code>memory.md</code>, Plan 40, Plan 44, the production plan coverage session, and the relevant adversarial audit sections.</p>
+  <p>The environment did not expose an Open Brain connector. No external capture was performed. This report, the session log, plan status, memory, and error ledger are the durable repository record.</p>
+
+  <h2>Dependency-ordered execution plan</h2>
+  <ol>
+    <li><strong>Plan 44 Phase 0:</strong> PostgreSQL inventory, contracts, migrations, roles, readiness, and CI. <span class="pass">Completed.</span></li>
+    <li><strong>Plan 44 Phases 1 through 7:</strong> adapters, object storage, cutover, observability, recovery, supply chain, and soak.</li>
+    <li><strong>Plan 42:</strong> native nearby transport, push, and background lifecycle.</li>
+    <li><strong>Plan 43:</strong> managed archive, seeding, scanning, pinning, and safety operations.</li>
+    <li><strong>Plan 41:</strong> storage destinations, provider clients, and atomic restore.</li>
+    <li><strong>Plan 25:</strong> direct calls, rooms, LiveKit, TURN, recording, and native call UI.</li>
+    <li><strong>Plan 40 residuals:</strong> R1 through R3 and stale truth reconciliation.</li>
+    <li><strong>Integrated evidence:</strong> live production, provider, store, physical-device, failure, and recovery proof.</li>
+  </ol>
+
+  <h2>Implementation completed</h2>
+  <div class="grid">
+    <section class="card"><h3>State inventory</h3><p>Added 20 typed first-party mutable-state contracts, including separate security boundaries for community kills, directory kills, host freshness, and seeder manifests.</p></section>
+    <section class="card"><h3>SQL contracts</h3><p>Defined community, directory, humanity, persona, hosted, moderation, push, archive, and operations schemas with explicit invariants.</p></section>
+    <section class="card"><h3>Migration safety</h3><p>Added contiguous checksummed migrations, an owner-controlled permanent ledger, advisory locking, transactional batches, and verified online recovery SQL.</p></section>
+    <section class="card"><h3>Ledger hardening</h3><p>Validated exact shape, constraints, owners, persistence, schema ACLs, table ACLs, column ACLs, and PostgreSQL 17 <code>MAINTAIN</code> grants.</p></section>
+    <section class="card"><h3>Connection policy</h3><p>Added bounded pooling, verified TLS, explicit CA support, parameter-free URLs, safe timeout ordering, transaction timeout, and application naming.</p></section>
+    <section class="card"><h3>Least privilege</h3><p>Added transactional role reconciliation, complete managed-schema revocation, exact table and sequence grants, and immutable legal and safety evidence boundaries.</p></section>
+    <section class="card"><h3>Push readiness</h3><p>Added hashed registration secrets, encrypted token metadata, capability normalization, retry attempts, leases, idempotency, generations, revocation, and expiry.</p></section>
+    <section class="card"><h3>Archive readiness</h3><p>Added publication jobs, content-global objects, scans, and pins. Deleting one job cannot cascade shared object metadata used by another job.</p></section>
+    <section class="card"><h3>Operator workflow</h3><p>Added root-runnable migration and role-grant CLIs with structured redacted errors and a wrapper that forwards termination signals correctly.</p></section>
+    <section class="card"><h3>CI and conformance</h3><p>Added an immutable PostgreSQL 17 CI service, lockfile path coverage, destructive-test guards, runtime schema readiness, and store conformance helpers.</p></section>
+  </div>
+
+  <h2>Review and remediation</h2>
+  <p>The uncommitted implementation received maintainability, testing, security and migration, adversarial, red-team, and five Codex verification passes. All actionable findings were fixed before commit.</p>
+  <ul>
+    <li>Closed migration-ledger table, column, persistence, owner, and PostgreSQL 17 <code>MAINTAIN</code> gaps.</li>
+    <li>Made role reconciliation revoke <code>PUBLIC</code> and stale service-role rights before applying exact grants.</li>
+    <li>Separated infrastructure role validation from owner-level grant reconciliation.</li>
+    <li>Corrected public-post deletion while keeping tombstones and legal evidence immutable.</li>
+    <li>Normalized push capabilities and added registration-secret hashes.</li>
+    <li>Removed archive job ownership from content-global objects and proved shared retention.</li>
+    <li>Added transaction timeout, safe query timeout headroom, and signal-forwarding proof.</li>
+    <li>Made lockfile-only database dependency changes trigger live PostgreSQL CI.</li>
+  </ul>
+  <p class="pass">Final review state: no unresolved findings.</p>
+
+  <h2>Verification evidence</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Verification</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Relay full suite</td><td class="pass">102 files passed, 1 skipped; 656 tests passed, 10 skipped</td></tr>
+      <tr><td>Live PostgreSQL 17</td><td class="pass">1 file passed; 10 tests passed</td></tr>
+      <tr><td>Changed-function gate</td><td class="pass">Passed; 48 focused tests passed, consumer typechecks passed</td></tr>
+      <tr><td>Relay lint and typecheck</td><td class="pass">Passed</td></tr>
+      <tr><td>Repository typecheck</td><td class="pass">130 of 130 tasks successful</td></tr>
+      <tr><td>Full parity gate</td><td class="pass">Passed</td></tr>
+      <tr><td>Generated artifact guard</td><td class="pass">Passed</td></tr>
+      <tr><td>Whitespace and pre-commit gates</td><td class="pass">Passed</td></tr>
+    </tbody>
+  </table></div>
+  <p>The live suite used the same immutable PostgreSQL 17 Alpine image digest declared in CI. Verification containers were removed after the run.</p>
+
+  <h2>Files and surfaces changed</h2>
+  <ul>
+    <li><code>packages/meerkat-relay/src/postgres/</code>: inventory, pool, migrations, roles, schema guard, conformance, CLIs, exports, and tests.</li>
+    <li><code>packages/meerkat-relay/bin/</code>: migration, role-grant, and signal-aware TypeScript entry points.</li>
+    <li><code>package.json</code> and <code>pnpm-lock.yaml</code>: PostgreSQL dependency and command wiring.</li>
+    <li><code>.github/workflows/ci.yml</code>: pinned live PostgreSQL verification and path filtering.</li>
+    <li><code>errors_log.md</code>: implementation failures and review defects with resolutions.</li>
+    <li>Plan 40, Plan 44, <code>memory.md</code>, session record, and report twins.</li>
+  </ul>
+
+  <h2>Everything remaining</h2>
+  <div class="table-wrap"><table class="remaining">
+    <thead><tr><th>Order</th><th>Scope</th><th>Completion condition</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Plan 44 Phase 1</td><td>Every mutable store has a PostgreSQL adapter with transaction and concurrency proof. File and self-host modes remain supported.</td></tr>
+      <tr><td>2</td><td>Plan 44 Phases 2 through 7</td><td>Object storage, cutover, observability, SLOs, backup, recovery, signed release supply chain, deploy, load, and soak pass.</td></tr>
+      <tr><td>3</td><td>Plan 42</td><td>Owned Nearby and BLE implementation, APNs/FCM/Web Push, background and terminated-state physical-device proof pass.</td></tr>
+      <tr><td>4</td><td>Plan 43</td><td>Managed archive, scanning, quarantine, pinning, seeding, NCMEC, DMCA, takedown, and history proof pass.</td></tr>
+      <tr><td>5</td><td>Plan 41</td><td>All storage destinations, provider credentials, corruption cases, migration, and fresh-install atomic restore pass.</td></tr>
+      <tr><td>6</td><td>Plan 25</td><td>Direct and room calls, TURN, LiveKit, recording, moderation, native call UI, load, and device proof pass.</td></tr>
+      <tr><td>7</td><td>Plan 40 residual work</td><td>Share Inbox routing, placeholders, stale truth, and R1 through R3 findings close.</td></tr>
+      <tr><td>8</td><td>Integrated launch evidence</td><td>Infrastructure, provider, store, device, failover, restore, canary, rollback, load, soak, legal, moderation, and founder-operated gates are green.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">Next implementation step: Plan 44 Phase 1 PostgreSQL adapters, starting with security-sensitive stores and the shared conformance suite.</div>
+
+  <footer>Generated as the self-contained HTML twin of <code>REPORT-meerkat-production-readiness-implementation-2026-07-09.md</code>. Local branch only. No push performed.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "skill_name": "route-parity-validator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Check if the mobile and web routes match for all modules.",
+      "expected_output": "Extracts routes from both mobile and web for each module, compares structures, and reports mismatches in a table format.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "extracts-both-platforms",
+          "assertion": "Output shows route extraction from both apps/mobile/ and apps/web/ directories"
+        },
+        {
+          "name": "produces-comparison-table",
+          "assertion": "Output includes a table or structured comparison showing route names with their mobile and web status"
+        },
+        {
+          "name": "classifies-mismatches",
+          "assertion": "Mismatches are classified as MOBILE_ONLY, WEB_ONLY, or similar category labels rather than just listed"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Are there any orphaned web routes that don't have matching mobile screens?",
+      "expected_output": "Identifies web-only routes across all modules that have no corresponding mobile screen.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "identifies-web-only-routes",
+          "assertion": "Output lists specific route paths that exist in apps/web/ but have no corresponding mobile route"
+        },
+        {
+          "name": "provides-file-paths",
+          "assertion": "Each orphaned route includes the exact file path of the web route file"
+        }
+      ]
+    }
+  ]
+}

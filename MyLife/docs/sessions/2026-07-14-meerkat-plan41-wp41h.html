@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Plan 41 WP-41H Storage Lifecycle Report</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0e0e13; --panel:#1b1b20; --panel2:#232329; --text:#e4e1e9; --muted:#d6c3b5; --accent:#ffb877; --info:#8bcff0; --ok:#30d158; --line:rgba(255,255,255,.1); }
+    * { box-sizing: border-box; }
+    body { margin:0; background:linear-gradient(145deg,#0e0e13,#17151a 55%,#201913); color:var(--text); font:15px/1.62 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1120px,calc(100% - 32px)); margin:32px auto 64px; }
+    header,.card { background:rgba(27,27,32,.93); border:1px solid var(--line); border-radius:18px; box-shadow:0 16px 45px rgba(0,0,0,.25); }
+    header { padding:32px; border-top:3px solid var(--accent); }
+    .card { padding:24px 28px; margin-top:18px; }
+    h1 { margin:0 0 10px; font-size:clamp(28px,4vw,46px); line-height:1.12; letter-spacing:-.03em; }
+    h2 { margin:0 0 14px; color:var(--accent); font-size:23px; }
+    h3 { margin:24px 0 8px; color:var(--info); font-size:18px; }
+    p { margin:8px 0 14px; }
+    .meta { color:var(--muted); margin:0; }
+    .outcome { font-size:17px; }
+    ul,ol { padding-left:22px; }
+    li { margin:5px 0; }
+    code { color:#ffd1a7; background:#121217; padding:2px 5px; border-radius:5px; font-size:.92em; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+    th,td { text-align:left; vertical-align:top; padding:11px 12px; border:1px solid var(--line); }
+    th { color:var(--accent); background:#15151a; }
+    tr:nth-child(even) td { background:rgba(255,255,255,.018); }
+    .status { display:inline-block; margin:8px 8px 0 0; padding:5px 10px; border-radius:999px; border:1px solid var(--line); background:#141419; }
+    .pass { color:var(--ok); }
+    .known { color:var(--accent); }
+    .note { border-left:3px solid var(--info); padding:10px 14px; background:rgba(139,207,240,.07); border-radius:0 10px 10px 0; }
+    .files { columns:2 360px; }
+    footer { color:var(--muted); text-align:center; margin-top:24px; }
+    @media (max-width:760px) { main{width:min(100% - 18px,1120px);margin-top:10px} header,.card{border-radius:13px;padding:20px} table{display:block;overflow-x:auto}.files{columns:1} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="meta">Meerkat Plan 41 · WP-41H · 2026-07-14</p>
+    <h1>Storage lifecycle and cross-device recovery</h1>
+    <p class="outcome">Scheduling, retention, mirrors, repair, destination moves, credential rotation, deletion, and fresh-install locator discovery are implemented across the shared core, mobile, and web.</p>
+    <span class="status pass">Typechecks pass</span><span class="status pass">Parity passes</span><span class="status pass">Mobile 1,268/1,268</span><span class="status known">Sandbox listener failures unchanged</span>
+  </header>
+
+  <section class="card">
+    <h2>Outcome</h2>
+    <p>Backups publish bounded, provider-discoverable locator records on every primary and mirror destination. A fresh install can list and open those backups with destination credentials and the recovery key. Every lifecycle action is driven by persisted storage truth and reports partial work without inventing completion.</p>
+    <p>The existing hosted <code>GET /api/storage/v1/backups</code> route was sufficient. <code>packages/meerkat-relay</code> was not changed.</p>
+  </section>
+
+  <section class="card">
+    <h2>Implemented capabilities</h2>
+    <h3>Retention</h3>
+    <ul><li>Keep-last is bounded to 1 through 100 and max age to 1 through 3,650 days.</li><li>Deletion requires a backup to fall outside both windows.</li><li>The last verified complete backup is preserved.</li><li>A mirror is protected whenever its primary is not verified.</li><li>Backup ownership is classified from real prefixed object rows by data class, so policies sharing a destination cannot delete each other's data.</li></ul>
+    <h3>Scheduling</h3>
+    <ul><li>Pure decisions cover due, not due, disabled, invalid, unavailable, revoked, quota full, active, and paused states.</li><li>Last-run evidence is keyed by data class and destination and comes only from complete backups with verified objects.</li><li>Mobile uses the existing opt-in background-sync and gated OS registration discipline. Manual execution remains available.</li><li>Web runs best effort only while open and visible and says so directly.</li></ul>
+    <h3>Repair and moves</h3>
+    <ul><li>Repair prefers verified local bytes, then a mirror, and verifies source, upload, and read-back before changing state.</li><li>Backup rows return to complete only after every tracked object and the manifest verify.</li><li>Move remains copy, read-back verify, then source delete, with exact live progress on mobile and web.</li></ul>
+    <h3>Credential rotation and deletion</h3>
+    <ul><li>WebDAV and S3 secrets are securely replaced, probed, health-checked, and rolled back on failure before paused jobs resume.</li><li>Broker reconnect atomically swaps the verified vault reference.</li><li>Account deletion revokes every destination, optionally deletes remote encrypted objects, deletes broker vaults and the hosted account, clears secrets, and clears all <code>mk_storage_*</code> rows only after remote work succeeds.</li><li>Reports use exact counts and the completed flow is idempotent.</li></ul>
+    <h3>Cross-device discovery</h3>
+    <ul><li>Every backup uses <code>mkb1.&lt;sha256(backupId)&gt;.</code> as a provider-safe flat prefix.</li><li><code>locator.json</code>, <code>manifest-ref.json</code>, the encrypted manifest, and encrypted objects are written on every destination.</li><li>Discovery bounds pages and objects, validates locator and path agreement, validates the manifest reference, and requires manifest hash evidence.</li><li>Mobile and web fresh-install restore share the same byte-twin discovery consumer.</li></ul>
+  </section>
+
+  <section class="card">
+    <h2>Baseline and final verification</h2>
+    <table><thead><tr><th>Command</th><th>Pre-change</th><th>Final</th><th>Delta</th></tr></thead><tbody>
+      <tr><td><code>pnpm --filter @mylife/sync test</code></td><td>169 files pass, 2 fail; 2,129 tests pass, 3 fail</td><td>180 files pass, 2 fail; 2,175 tests pass, 3 fail</td><td>+11 passing files, +46 passing tests; same listener failures</td></tr>
+      <tr><td><code>pnpm --filter @mylife/sync typecheck</code></td><td>Pass</td><td>Pass</td><td>No regression</td></tr>
+      <tr><td><code>pnpm --filter @mylife/meerkat-app test</code></td><td>124 files, 1,266 tests pass</td><td>125 files, 1,268 tests pass</td><td>+1 passing file, +2 passing tests</td></tr>
+      <tr><td><code>pnpm --filter @mylife/meerkat-app typecheck</code></td><td>Pass</td><td>Pass</td><td>No regression</td></tr>
+      <tr><td><code>pnpm --filter meerkat-web test</code></td><td>101 files pass, 10 fail; 806 tests pass, 14 fail</td><td>102 files pass, 10 fail; 808 tests pass, 14 fail</td><td>+1 passing file, +2 passing tests; same listener failures</td></tr>
+      <tr><td><code>pnpm --filter meerkat-web typecheck</code></td><td>Pass</td><td>Pass</td><td>No regression</td></tr>
+      <tr><td><code>node scripts/check-meerkat-parity.mjs</code></td><td>Pass</td><td>Pass</td><td>Copy and cores aligned</td></tr>
+    </tbody></table>
+    <p class="note">The three sync failures and fourteen web failures are identical to baseline. They attempt to listen on <code>127.0.0.1</code>, receive <code>EPERM</code> from this sandbox, and time out. Every WP-41H focused test passes.</p>
+    <ul><li>Shared function gate: 46 focused tests pass with lint and typecheck.</li><li>Mobile function gate: 46 focused tests pass with lint and typecheck.</li><li>Web function gate: 24 focused tests pass with lint and typecheck.</li><li>Web production build passes with 483 transformed modules.</li><li>Relay was not touched. Its pre-change listener-restricted full baseline was not rerun.</li></ul>
+    <p><code>gate:function:changed</code> and <code>check:generated-artifacts</code> were not run because both invoke Git internally and this packet prohibited every Git command. Explicit package function gates were used. No Git command was executed.</p>
+    <p>In-app visual browser QA was unavailable because this session did not expose the in-app browser-control runtime. No separate automation mechanism was substituted. The required direct <code>open</code> attempt was also made immediately after HTML creation, but this environment has no compatible desktop application.</p>
+  </section>
+
+  <section class="card">
+    <h2>Judgment calls</h2>
+    <ol><li>A flat provider-safe prefix keeps the discovery convention identical across local, WebDAV, S3, broker, and hosted adapters.</li><li>Discovery proves locator and manifest hash evidence. Full cryptographic authenticity still occurs when the recovery key opens the manifest.</li><li>A mirror failure never downgrades a verified primary. It is reported as partial mirror coverage.</li><li>Account cleanup retains local evidence until requested remote operations succeed, enabling honest retry.</li><li>Legacy backups without the v1 prefix are not retention-deleted and do not count as schedule evidence.</li><li>Web scheduling is foreground best effort. Mobile OS work remains behind the existing capability gate.</li></ol>
+  </section>
+
+  <section class="card">
+    <h2>Primary files</h2>
+    <div class="files"><ul>
+      <li><code>packages/sync/src/storage/retention.ts</code></li><li><code>packages/sync/src/storage/storage-scheduler.ts</code></li><li><code>packages/sync/src/storage/remote-backups.ts</code></li><li><code>packages/sync/src/storage/repair.ts</code></li><li><code>packages/sync/src/storage/lifecycle.ts</code></li><li><code>packages/sync/src/storage/credential-config.ts</code></li><li><code>packages/sync/src/storage/router.ts</code></li><li><code>packages/sync/src/storage/schema.ts</code></li><li><code>apps/meerkat/.../storage-scheduler-run.ts</code></li><li><code>apps/meerkat/.../local-backup-run.ts</code></li><li><code>apps/meerkat/.../restore-orchestrator-core.ts</code></li><li><code>apps/meerkat/.../storage-account-delete.ts</code></li><li><code>apps/meerkat/.../storage/backup.tsx</code></li><li><code>apps/meerkat/.../storage/restore.tsx</code></li><li><code>apps/meerkat-web/src/lib/storage/web-storage-scheduler-run.ts</code></li><li><code>apps/meerkat-web/src/lib/storage/web-backup-run.ts</code></li><li><code>apps/meerkat-web/src/lib/storage/configured-registry.ts</code></li><li><code>apps/meerkat-web/src/lib/storage/storage-account-delete.ts</code></li><li><code>apps/meerkat-web/src/ui/settings/StorageOverlay.tsx</code></li><li><code>apps/meerkat-web/src/ui/settings/DangerSection.tsx</code></li><li><code>scripts/check-meerkat-parity.mjs</code></li>
+    </ul></div>
+  </section>
+  <footer>Point-in-time implementation evidence. Current code and tests remain authoritative.</footer>
+</main>
+</body>
+</html>

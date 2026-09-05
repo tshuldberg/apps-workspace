@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLife Apps and Market Competitors, 2026-08-30</title>
+<style>
+  :root {
+    --bg: #0e0c0a;
+    --surface: rgba(255,255,255,0.04);
+    --surface2: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.10);
+    --text: #ece7e0;
+    --muted: #a89f93;
+    --accent: #d4a24e;
+    --accent2: #8bcff0;
+    --green: #7dc98f;
+    --red: #e07a6a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: radial-gradient(1200px 600px at 20% -10%, #1c1611 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    padding: 48px 24px 80px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  header { margin-bottom: 40px; }
+  .kicker { color: var(--accent); text-transform: uppercase; letter-spacing: 0.14em; font-size: 12px; font-weight: 700; }
+  h1 { font-size: 34px; font-weight: 800; margin: 8px 0 10px; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); max-width: 76ch; font-size: 15px; }
+  .statrow { display: flex; flex-wrap: wrap; gap: 12px; margin: 24px 0 8px; }
+  .stat {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 20px; min-width: 150px; backdrop-filter: blur(8px);
+  }
+  .stat .n { font-size: 24px; font-weight: 800; color: var(--accent); }
+  .stat .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  section { margin-top: 44px; }
+  h2 { font-size: 21px; font-weight: 750; margin-bottom: 4px; letter-spacing: -0.01em; }
+  h2 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 10px; }
+  .secdesc { color: var(--muted); font-size: 14px; margin-bottom: 14px; max-width: 80ch; }
+  .tablebox { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 720px; }
+  th {
+    text-align: left; padding: 12px 16px; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--muted); border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  td { padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.app { white-space: nowrap; font-weight: 700; }
+  td.app .tag { display: block; font-weight: 400; font-size: 12px; color: var(--muted); white-space: normal; }
+  .comp { font-weight: 600; color: var(--accent2); }
+  .fact { color: var(--muted); font-size: 12.5px; }
+  .pill {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--muted); margin-left: 8px; vertical-align: 2px;
+  }
+  .pill.flag { color: var(--accent); border-color: rgba(212,162,78,0.45); }
+  .anchors { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+  .anchor { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; font-size: 13.5px; }
+  .anchor b { color: var(--accent); }
+  footer { margin-top: 56px; color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--border); padding-top: 18px; }
+  a { color: var(--accent2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">MyLife Suite / Competitive Landscape</div>
+  <h1>Every MyLife App and Its Real-Market Competitors</h1>
+  <p class="sub">
+    MyLife is a privacy-first hub of 41 registry modules plus standalone flagship apps, shipping on iOS, Android, and Web.
+    Each module replaces a category leader that monetizes user data or charges a standalone subscription.
+    Competitor sets below come from the code-verified investor research of April 2026 (117 competitor deep dives across
+    docs/investor-deck/competitors/), extended for the newer standalones. Figures are point-in-time from that research.
+  </p>
+  <div class="statrow">
+    <div class="stat"><div class="n">41</div><div class="l">Registry modules</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">Standalone apps</div></div>
+    <div class="stat"><div class="n">117+</div><div class="l">Competitors tracked</div></div>
+    <div class="stat"><div class="n">~$165B</div><div class="l">TAM proxy</div></div>
+    <div class="stat"><div class="n">~$15B</div><div class="l">Disclosed leader revenue</div></div>
+    <div class="stat"><div class="n">$6.5B+</div><div class="l">Comparable exits floor</div></div>
+  </div>
+</header>
+
+<section>
+  <h2><span class="dot" style="background:var(--accent)"></span>Standalone Flagship Apps</h2>
+  <p class="secdesc">Fully isolated apps in the monorepo with their own store identities. BestChef and DoWork also exist as hub modules (recipes, workouts) with enforced parity.</p>
+  <div class="tablebox"><table>
+    <tr><th>App</th><th>What it is</th><th>Major competitors</th></tr>
+    <tr>
+      <td class="app">Meerkat<span class="tag">Encrypted private network with a local node per device; agent-native Posts primitive aimed at the team-communication market</span></td>
+      <td>Private, decentralized social + workspace communication. Pricing founder-locked at $4.99 one-time + $4.99/mo hosted.</td>
+      <td><span class="comp">Slack</span> <span class="fact">(Salesforce, acquired $27.7B)</span> · <span class="comp">Discord</span> <span class="fact">(~$15B peak valuation)</span> · <span class="comp">Signal</span> <span class="fact">(nonprofit E2EE benchmark)</span> · <span class="comp">Matrix / Element</span></td>
+    </tr>
+    <tr>
+      <td class="app">BestChef<span class="tag">Recipe manager: import from URL, cooking mode, public launch on server-backed path</span></td>
+      <td>Recipe capture, organization, and guided cooking.</td>
+      <td><span class="comp">Paprika</span> <span class="fact">(paid indie standard)</span> · <span class="comp">Mealime</span> · <span class="comp">Samsung Food</span> <span class="fact">(ex-Whisk, platform-subsidized)</span></td>
+    </tr>
+    <tr>
+      <td class="app">DoWork<span class="tag">Standalone workout tracker built on @mylife/workouts; trainer pilot (TrainWithRyan) adds coach-to-client delivery</span></td>
+      <td>Lifting logs, workout builder, form recordings, trainer programs.</td>
+      <td><span class="comp">Strong</span> · <span class="comp">Hevy</span> <span class="fact">(fast-growing indie)</span> · <span class="comp">Fitbod</span> <span class="fact">(algorithmic programming)</span> · <span class="comp">Trainerize / TrueCoach</span> <span class="fact">(trainer rail)</span></td>
+    </tr>
+    <tr>
+      <td class="app">MyNews<span class="tag">Open journalism improved by everyone; built on Meerkat Posts, bundled in Pro</span></td>
+      <td>Decentralized news + open-science reading and support platform.</td>
+      <td><span class="comp">Ground News</span> <span class="fact">(bias-comparison subscriptions)</span> · <span class="comp">Substack</span> <span class="fact">(creator-direct model)</span> · <span class="comp">Apple News+</span></td>
+    </tr>
+    <tr>
+      <td class="app">Manhattan<span class="tag">"Your city, planned": discover, pin, and plan city events</span></td>
+      <td>Local event discovery and personal city planning.</td>
+      <td><span class="comp">Eventbrite</span> <span class="fact">(public, ~$3B peak)</span> · <span class="comp">Fever</span> <span class="fact">($1.8B valuation)</span> · <span class="comp">Meetup</span> · <span class="comp">Partiful</span></td>
+    </tr>
+    <tr>
+      <td class="app">Yearn<span class="tag">Expo rewrite of the native SwiftUI app; public TestFlight target with full trust-and-safety gates (verification, E2EE, screening)</span></td>
+      <td>Connection / dating-style social app with membership + boost products.</td>
+      <td><span class="comp">Tinder</span> <span class="fact">(Match Group, ~$1.9B rev)</span> · <span class="comp">Hinge</span> · <span class="comp">Bumble</span> <span class="fact">(public, IPO $8.2B)</span> · <span class="comp">Feeld</span> <span class="fact">(profitable indie)</span></td>
+    </tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#e07a6a"></span>Health &amp; Wellness</h2>
+  <p class="secdesc">The privacy wedge is strongest here: Flo settled with the FTC in 2024 over sharing cycle data with Facebook and Google despite "private" marketing.</p>
+  <div class="tablebox"><table>
+    <tr><th>Module</th><th>Category</th><th>Major competitors</th></tr>
+    <tr><td class="app">MyHealth</td><td>Unified health record, vitals, correlations, documents</td><td><span class="comp">Apple Health</span> <span class="fact">(platform default)</span> · <span class="comp">Bearable</span> · <span class="comp">Welltory</span></td></tr>
+    <tr><td class="app">MyMeds</td><td>Medication schedule, interactions, adherence</td><td><span class="comp">Medisafe</span> <span class="fact">($51.5M raised)</span> · <span class="comp">MyTherapy</span> · <span class="comp">Round Health</span> <span class="fact">(delisted, orphaned users)</span></td></tr>
+    <tr><td class="app">MyCycle</td><td>Cycle tracking and prediction</td><td><span class="comp">Flo</span> <span class="fact">(unicorn, $1B+; FTC settlement 2024)</span> · <span class="comp">Clue</span> · <span class="comp">Natural Cycles</span> <span class="fact">(FDA-cleared)</span></td></tr>
+    <tr><td class="app">MyMood</td><td>Mood logging, Plutchik wheel, breathe, insights</td><td><span class="comp">Daylio</span> <span class="fact">(indie standard)</span> · <span class="comp">Headspace</span> <span class="fact">($3B merger with Ginger)</span> · <span class="comp">Calm</span> <span class="fact">($2B valuation)</span></td></tr>
+    <tr><td class="app">MySleep</td><td>Sleep tracking and trends</td><td><span class="comp">Sleep Cycle</span> <span class="fact">(public, Stockholm)</span> · <span class="comp">Oura</span> <span class="fact">($5.2B valuation)</span> · <span class="comp">Calm</span></td></tr>
+    <tr><td class="app">MyFast</td><td>Intermittent fasting timer and plans</td><td><span class="comp">Zero</span> <span class="fact">(category leader)</span> · <span class="comp">DoFasting</span> · <span class="comp">Window</span></td></tr>
+    <tr><td class="app">MyHabits</td><td>Habit streaks and routines</td><td><span class="comp">Streaks</span> <span class="fact">(Apple Design Award)</span> · <span class="comp">Habitica</span> · <span class="comp">Finch</span> <span class="fact">(~$4M/mo, bootstrapped)</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#7dc98f"></span>Fitness &amp; Outdoors</h2>
+  <p class="secdesc">Strava's 2018 heatmap leak of military bases is the standing precedent for why location fitness data belongs on-device.</p>
+  <div class="tablebox"><table>
+    <tr><th>Module</th><th>Category</th><th>Major competitors</th></tr>
+    <tr><td class="app">MyWorkouts</td><td>Strength training log and builder (pairs with DoWork)</td><td><span class="comp">Strong</span> · <span class="comp">Hevy</span> · <span class="comp">Fitbod</span></td></tr>
+    <tr><td class="app">MyTrails</td><td>Hiking and outdoor route tracking</td><td><span class="comp">AllTrails</span> <span class="fact">(~$1B via Permira proxy)</span> · <span class="comp">Strava</span> <span class="fact">($2.2B valuation)</span> · <span class="comp">Gaia GPS</span> <span class="fact">(Outside acq.)</span></td></tr>
+    <tr><td class="app">MySurf</td><td>Surf forecasting, spots, buoys, session log</td><td><span class="comp">Surfline</span> <span class="fact">(category monopoly, ~$30M+ rev)</span> · <span class="comp">Windy</span> · <span class="comp">Dawn Patrol</span></td></tr>
+    <tr><td class="app">MyNutrition</td><td>Food and macro tracking</td><td><span class="comp">MyFitnessPal</span> <span class="fact">(sold $475M, resold $345M)</span> · <span class="comp">Cronometer</span> · <span class="comp">Yazio</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#d4a24e"></span>Money &amp; Assets</h2>
+  <p class="secdesc">Mint's 2024 shutdown displaced 3.6M users overnight with no migration path; Rocket Money's $1.275B acquisition anchors category value.</p>
+  <div class="tablebox"><table>
+    <tr><th>Module</th><th>Category</th><th>Major competitors</th></tr>
+    <tr><td class="app">MyBudget</td><td>Envelope budgeting</td><td><span class="comp">YNAB</span> <span class="fact">(~$50M+ rev, bootstrapped)</span> · <span class="comp">Rocket Money</span> <span class="fact">(acq. $1.275B)</span> · <span class="comp">Monarch Money</span> <span class="fact">(Mint refugee winner)</span></td></tr>
+    <tr><td class="app">MySubs</td><td>Subscription tracking and cancellation</td><td><span class="comp">Rocket Money</span> · <span class="comp">Bobby</span> · <span class="comp">Subby</span></td></tr>
+    <tr><td class="app">MyPay <span class="pill flag">design phase</span></td><td>Dual-rail payments (BaaS + stablecoin)</td><td><span class="comp">Venmo</span> <span class="fact">(PayPal, ~$1B+ rev)</span> · <span class="comp">Cash App</span> <span class="fact">(Block, ~$4B gross profit)</span> · <span class="comp">Revolut</span> <span class="fact">($45B valuation)</span></td></tr>
+    <tr><td class="app">MyShop</td><td>Purchase tracking, deals, rewards</td><td><span class="comp">Honey</span> <span class="fact">(PayPal acq. $4B)</span> · <span class="comp">Fetch</span> <span class="fact">(unicorn)</span> · <span class="comp">Amazon Shopping</span></td></tr>
+    <tr><td class="app">MyHomes</td><td>Home projects, listings, mortgage tools</td><td><span class="comp">Angi</span> <span class="fact">(public)</span> · <span class="comp">Thumbtack</span> <span class="fact">($3.2B valuation)</span> · <span class="comp">HomeZada</span></td></tr>
+    <tr><td class="app">MyCar</td><td>Vehicle service, costs, insurance, diagnostics</td><td><span class="comp">Jerry</span> <span class="fact">($242M raised)</span> · <span class="comp">Drivvo</span> · <span class="comp">Fuelly</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#8bcff0"></span>Knowledge, Learning &amp; Creation</h2>
+  <p class="secdesc">Chegg's post-ChatGPT collapse and Evernote's Bending Spoons squeeze (free tier capped at 50 notes) show category incumbents are vulnerable.</p>
+  <div class="tablebox"><table>
+    <tr><th>Module</th><th>Category</th><th>Major competitors</th></tr>
+    <tr><td class="app">MyBooks</td><td>Reading tracking and reviews</td><td><span class="comp">Goodreads</span> <span class="fact">(Amazon acq. ~$150M, stagnant)</span> · <span class="comp">StoryGraph</span> · <span class="comp">Bookly</span></td></tr>
+    <tr><td class="app">MyClasses</td><td>Class schedule, assignments, what-if grades</td><td><span class="comp">MyStudyLife</span> · <span class="comp">Power Planner</span> · <span class="comp">Chegg</span> <span class="fact">(collapsed post-ChatGPT)</span></td></tr>
+    <tr><td class="app">MyFlash</td><td>Spaced-repetition flashcards</td><td><span class="comp">Anki</span> <span class="fact">(open-source standard)</span> · <span class="comp">Quizlet</span> <span class="fact">(unicorn)</span> · <span class="comp">Brainscape</span></td></tr>
+    <tr><td class="app">MyWords</td><td>Dictionary and vocabulary building</td><td><span class="comp">Merriam-Webster</span> · <span class="comp">Dictionary.com</span> · <span class="comp">Duolingo</span> <span class="fact">(public, $10B+)</span></td></tr>
+    <tr><td class="app">MyNotes</td><td>Notes and knowledge base</td><td><span class="comp">Notion</span> <span class="fact">($10B valuation)</span> · <span class="comp">Evernote</span> <span class="fact">(Bending Spoons acq. ~$200M)</span> · <span class="comp">Obsidian</span> <span class="fact">(local-first peer)</span></td></tr>
+    <tr><td class="app">MyJournal</td><td>Private journaling</td><td><span class="comp">Day One</span> <span class="fact">(Automattic acq. ~$20-30M)</span> · <span class="comp">Journey</span> · <span class="comp">Penzu</span></td></tr>
+    <tr><td class="app">MyVoice</td><td>Voice memos and transcription</td><td><span class="comp">Otter.ai</span> <span class="fact">($100M+ ARR path)</span> · <span class="comp">Rev</span> · <span class="comp">Just Press Record</span></td></tr>
+    <tr><td class="app">MyCreate</td><td>Creative projects, skills, portfolio</td><td><span class="comp">Notion</span> · <span class="comp">Behance</span> <span class="fact">(Adobe)</span> · <span class="comp">Patreon</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#c792ea"></span>Social &amp; Communication</h2>
+  <p class="secdesc">BeReal's collapse from 73M to under 25M users before its $500M sale to Voodoo shows social hype cycles; MyLife's social layer rides the Meerkat mesh instead of ad-funded servers.</p>
+  <div class="tablebox"><table>
+    <tr><th>Module</th><th>Category</th><th>Major competitors</th></tr>
+    <tr><td class="app">MyFriends</td><td>Personal CRM: people, hangouts, staying in touch</td><td><span class="comp">Snapchat</span> <span class="fact">(public, ~$5B rev)</span> · <span class="comp">BeReal</span> <span class="fact">(sold $500M after user collapse)</span> · <span class="comp">Life360</span> <span class="fact">(public)</span></td></tr>
+    <tr><td class="app">MyForums</td><td>Communities, threads, moderation</td><td><span class="comp">Reddit</span> <span class="fact">(public, IPO 2024)</span> · <span class="comp">Discord</span> · <span class="comp">Circle.so</span></td></tr>
+    <tr><td class="app">MyRSVP</td><td>Events, invites, check-in, shared albums</td><td><span class="comp">Partiful</span> <span class="fact">(a16z-backed, Gen Z default)</span> · <span class="comp">Evite</span> · <span class="comp">Paperless Post</span></td></tr>
+    <tr><td class="app">MyMail</td><td>Private email</td><td><span class="comp">Proton Mail</span> <span class="fact">(100M+ accounts)</span> · <span class="comp">Hey</span> <span class="fact">(37signals)</span> · <span class="comp">Fastmail</span></td></tr>
+    <tr><td class="app">MyPresence</td><td>Focus, screen-time, presence sharing</td><td><span class="comp">Forest</span> · <span class="comp">Opal</span> <span class="fact">($100M+ valuation)</span> · <span class="comp">Life360</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#f0a35e"></span>Food, Home &amp; Daily Life</h2>
+  <div class="tablebox"><table>
+    <tr><th>Module</th><th>Category</th><th>Major competitors</th></tr>
+    <tr><td class="app">BestChef (recipes)</td><td>Hub module twin of the standalone app</td><td><span class="comp">Paprika</span> · <span class="comp">Mealime</span> · <span class="comp">Samsung Food</span></td></tr>
+    <tr><td class="app">MyDining</td><td>Restaurant tracking, visits, dishes</td><td><span class="comp">Beli</span> <span class="fact">(social dining hype)</span> · <span class="comp">The Infatuation</span> <span class="fact">(JPMorgan acq. ~$50-80M)</span> · <span class="comp">TheFork</span> <span class="fact">(Tripadvisor)</span></td></tr>
+    <tr><td class="app">MyMarket</td><td>Grocery and shopping lists</td><td><span class="comp">AnyList</span> · <span class="comp">Bring!</span> · <span class="comp">Out of Milk</span></td></tr>
+    <tr><td class="app">MyGarden</td><td>Plant care, diagnosis, harvest journal</td><td><span class="comp">PictureThis</span> <span class="fact">(top-grossing plant ID)</span> · <span class="comp">PlantIn</span> · <span class="comp">PlantSnap</span></td></tr>
+    <tr><td class="app">MyPets</td><td>Pet health, care schedules</td><td><span class="comp">Tractive</span> <span class="fact">(EUR 300-500M valuation)</span> · <span class="comp">PetDesk</span> · <span class="comp">11pets</span></td></tr>
+    <tr><td class="app">MyCloset</td><td>Wardrobe and outfit tracking</td><td><span class="comp">Whering</span> · <span class="comp">Indyx</span> · <span class="comp">Acloset</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#6ac9c4"></span>Travel, Leisure &amp; Interests</h2>
+  <div class="tablebox"><table>
+    <tr><th>Module</th><th>Category</th><th>Major competitors</th></tr>
+    <tr><td class="app">MyTravel</td><td>Trips, itineraries, travel journal</td><td><span class="comp">TripIt</span> <span class="fact">(SAP Concur)</span> · <span class="comp">Wanderlog</span> · <span class="comp">Polarsteps</span> <span class="fact">(profitable via photo books)</span></td></tr>
+    <tr><td class="app">MySports</td><td>Teams, scores, personal fandom</td><td><span class="comp">ESPN</span> <span class="fact">(Disney)</span> · <span class="comp">theScore</span> <span class="fact">(Penn acq. $2B)</span> · <span class="comp">Sofascore</span></td></tr>
+    <tr><td class="app">MyStars</td><td>Astrology and daily readings</td><td><span class="comp">Co-Star</span> <span class="fact">(20M+ downloads)</span> · <span class="comp">The Pattern</span> · <span class="comp">Sanctuary</span></td></tr>
+  </table></div>
+</section>
+
+<section>
+  <h2><span class="dot" style="background:#d4a24e"></span>Market Anchors Worth Remembering</h2>
+  <p class="secdesc">Exit and valuation datapoints from the competitor research that frame what these categories are worth.</p>
+  <div class="anchors">
+    <div class="anchor"><b>Rocket Money, $1.275B</b> acquisition by Rocket Companies validates budgeting + subs tracking.</div>
+    <div class="anchor"><b>Headspace + Ginger, $3B</b> merger anchors the mood and mindfulness cluster.</div>
+    <div class="anchor"><b>AllTrails, ~$1B</b> valuation proxy from Permira's $150M investment.</div>
+    <div class="anchor"><b>MyFitnessPal</b>: bought $475M (2015), sold $345M (2020). Extractive ownership pattern, users pay for it.</div>
+    <div class="anchor"><b>Evernote, ~$200M</b> to Bending Spoons, which capped the free tier at 50 notes. Trust vacuum in notes.</div>
+    <div class="anchor"><b>Mint shutdown, 2024</b>: 3.6M users displaced with no migration path. Data portability is a feature.</div>
+    <div class="anchor"><b>Flo FTC settlement, 2024</b>: shared cycle data with Facebook and Google despite "private" marketing.</div>
+    <div class="anchor"><b>Finch, ~$4M/mo</b> reportedly, bootstrapped. Indie precedent for the habits category.</div>
+    <div class="anchor"><b>BeReal, $500M</b> sale to Voodoo after users fell from 73M to under 25M.</div>
+    <div class="anchor"><b>Goodreads, ~$150M</b> to Amazon (2013), then a decade of stagnation. Books category is open.</div>
+  </div>
+</section>
+
+<footer>
+  Sources: docs/investor-deck/ (REPORT.md, competitors/&lt;module&gt;/*.md, 117 deep dives, built 2026-04-21), packages/module-registry/src/constants.ts (41 module IDs), app READMEs for standalones. Valuations and revenue figures are point-in-time from that research; verify before external use. Yearn and Manhattan competitor sets are editorial extensions, not part of the original 117-file research. Generated 2026-08-30.
+</footer>
+
+</div>
+</body>
+</html>

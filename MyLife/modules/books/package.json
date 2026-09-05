@@ -1,0 +1,44 @@
+{
+  "name": "@mylife/books",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./ui": "./src/ui/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "zod": "^3.24.0"
+  },
+  "peerDependencies": {
+    "@mylife/automations": "workspace:*",
+    "@mylife/db": "workspace:*",
+    "@mylife/module-registry": "workspace:*",
+    "expo-haptics": "*",
+    "expo-linear-gradient": "*",
+    "react": "*",
+    "react-native": "~0.81.5"
+  },
+  "devDependencies": {
+    "@mylife/automations": "workspace:*",
+    "@mylife/flash": "workspace:*",
+    "@mylife/typescript-config": "workspace:*",
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/react": "19.2.14",
+    "better-sqlite3": "^11.0.0",
+    "expo-linear-gradient": "~15.0.8",
+    "react": "19.1.0",
+    "react-native": "^0.81.5",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6"
+  }
+}

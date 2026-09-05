@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.mylife.local/mynews/release-manifest.schema.json",
+  "title": "MyNews production release manifest",
+  "description": "Shape contract for apps/mynews/release-manifest.json. scripts/check-build-env.mjs LOADS this file and validates the manifest against it, so the shape can never drift from the checker. Value rules that depend on other sources (app.json version, CURRENT_TERMS_VERSION, the build environment) live in the checker; this file only pins structure and types.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "appVersion",
+    "backendProjectRef",
+    "controlledOrigin",
+    "paymentsLive",
+    "legalContacts",
+    "policyVersions",
+    "smokeReceipt",
+    "deployAttestation"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "appVersion": { "type": "string", "minLength": 1 },
+    "backendProjectRef": { "type": "string", "pattern": "^[a-z0-9]{20}$" },
+    "controlledOrigin": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "paymentsLive": {
+      "description": "Whether this release ships the journalist support rail live. The checker requires EXPO_PUBLIC_MYNEWS_PAYMENTS_ENABLED / _PROVIDER to agree with this flag in both directions, and requires the payment smoke checks to be true only when it is true.",
+      "type": "boolean"
+    },
+    "legalContacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["support", "legal", "safety", "privacy", "dmca"],
+      "properties": {
+        "support": { "type": "string", "format": "email" },
+        "legal": { "type": "string", "format": "email" },
+        "safety": { "type": "string", "format": "email" },
+        "privacy": { "type": "string", "format": "email" },
+        "dmca": { "type": "string", "format": "email" }
+      }
+    },
+    "policyVersions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["terms", "privacy", "guidelines"],
+      "properties": {
+        "terms": { "type": "string", "minLength": 1 },
+        "privacy": { "type": "string", "minLength": 1 },
+        "guidelines": { "type": "string", "minLength": 1 }
+      }
+    },
+    "smokeReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timestamp", "checklist"],
+      "properties": {
+        "timestamp": { "type": "string", "format": "date-time" },
+        "checklist": {
+          "description": "Recorded production smoke results. Entries are plain booleans here because a check against a disabled rail must be recordable as false; the checker decides which ones must be true for THIS release.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cloudConnection",
+            "readerFeed",
+            "subscriptionPurchase",
+            "subscriptionRestore",
+            "supportCheckout",
+            "paymentWebhook",
+            "supportHistory",
+            "journalistPayoutStatus"
+          ],
+          "properties": {
+            "cloudConnection": { "type": "boolean" },
+            "readerFeed": { "type": "boolean" },
+            "subscriptionPurchase": { "type": "boolean" },
+            "subscriptionRestore": { "type": "boolean" },
+            "supportCheckout": { "type": "boolean" },
+            "paymentWebhook": { "type": "boolean" },
+            "supportHistory": { "type": "boolean" },
+            "journalistPayoutStatus": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "deployAttestation": {
+      "description": "Operator attestation for configuration that lives on the Supabase project and is NOT visible to an app build. Worker and webhook secrets can never be checked from the app environment, so the gate requires an explicit signed-off claim instead of pretending to verify them.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attestedBy", "attestedAt", "workerSecrets"],
+      "properties": {
+        "attestedBy": { "type": "string", "minLength": 1 },
+        "attestedAt": { "type": "string", "format": "date-time" },
+        "workerSecrets": {
+          "description": "Deploy-side secrets set on the backend project: MYNEWS_NCII_WORKER_SECRET, MYNEWS_SUPPORT_WORKER_SECRET, MYNEWS_PAYMENTS_WEBHOOK_SECRET, MYNEWS_ACCOUNT_WORKER_SECRET.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["nciiWorker", "supportWorker", "paymentsWebhook", "accountWorker"],
+          "properties": {
+            "nciiWorker": { "type": "boolean" },
+            "supportWorker": { "type": "boolean" },
+            "paymentsWebhook": { "type": "boolean" },
+            "accountWorker": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  }
+}

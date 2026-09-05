@@ -1,0 +1,74 @@
+{
+  "descriptor": {
+    "descriptor": {
+      "version": 1,
+      "communityId": "899794e887302fe1dbdaa3f2ad302a8b",
+      "revision": 1,
+      "previousHash": null,
+      "genesisNonce": "857a3b1da1ea916d961f387135e170dd",
+      "forkedFrom": null,
+      "name": "Fixture Burrow",
+      "ownerDeviceId": "2cf4a62403b9fcc81b375682bef1b96b4a526efafc747a93447d915856f308c6",
+      "hosts": [],
+      "catalogCid": null,
+      "joinPolicy": "invite_only",
+      "quotas": {
+        "maxMembers": 64,
+        "maxStorageBytes": 10737418240
+      },
+      "channels": [
+        {
+          "id": "general",
+          "name": "general"
+        }
+      ],
+      "members": [
+        {
+          "deviceId": "2cf4a62403b9fcc81b375682bef1b96b4a526efafc747a93447d915856f308c6",
+          "role": "owner",
+          "displayName": "Fixture Owner",
+          "dhPublicKey": "695e7c3a67abd2f0c75f8e29a36aa4116c5e71d05262f32d49689223084c0c5f"
+        },
+        {
+          "deviceId": "9cca9f68cb92d21b669b5fa29e271e61adea387c6c5edd98f1d990b702420b03",
+          "role": "member"
+        }
+      ],
+      "createdAt": "2026-08-29T12:00:00.000Z",
+      "updatedAt": "2026-08-29T12:00:00.000Z",
+      "historyScope": "full",
+      "feedPollIntervalMs": "manual"
+    },
+    "signature": "222510b692a5bcd2ea879b823ecf4f52b1eb71e342151a6be32eebe8422f2e6af96bca571ba2ffb8b0ffb3582191b7c04cce4f8a3c0bbe901b6d754bab4f2404"
+  },
+  "mint": {
+    "version": 1,
+    "communityId": "899794e887302fe1dbdaa3f2ad302a8b",
+    "kind": "mint",
+    "badgeId": "abababababababababababababababab",
+    "name": "Frozen Founder",
+    "glyph": "🦫",
+    "colorToken": "accent",
+    "supplyCap": 7,
+    "recipientDevice": null,
+    "createdAt": "2026-08-29T12:01:00.000Z",
+    "signedBy": "2cf4a62403b9fcc81b375682bef1b96b4a526efafc747a93447d915856f308c6",
+    "signature": "df6ca65da2afbe8d894829fb4e6a5dd7c3e5ffaf2479df5c0cb72fe6f1cfcc25b6f6261c20dcb061b5bf8ae21d0eb2aedb4e678d5c59ec358992264529d44202",
+    "id": "78f99ba1a0754edf3ebe8f2ef958e74e"
+  },
+  "award": {
+    "version": 1,
+    "communityId": "899794e887302fe1dbdaa3f2ad302a8b",
+    "kind": "award",
+    "badgeId": "abababababababababababababababab",
+    "name": null,
+    "glyph": null,
+    "colorToken": null,
+    "supplyCap": null,
+    "recipientDevice": "9cca9f68cb92d21b669b5fa29e271e61adea387c6c5edd98f1d990b702420b03",
+    "createdAt": "2026-08-29T12:02:00.000Z",
+    "signedBy": "2cf4a62403b9fcc81b375682bef1b96b4a526efafc747a93447d915856f308c6",
+    "signature": "128f5803bae2cf92ef878fd7ec2b4afe45ff9a29fda4ab005875b132124881296925f561881e57f8040ce93758a6bf3a07c4359eb9a97909575b733560130a0d",
+    "id": "023b1a691d175510b6d28d6b6b67301f"
+  }
+}

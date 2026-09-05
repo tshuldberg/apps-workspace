@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>DoWork production audit, 2026-07-04</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    :root { color-scheme: light dark; --bg: #0f1115; --panel: #171a21; --text: #f4f6fb; --muted: #a8b0bf; --border: #2b313d; --accent: #72d6a0; --link: #8ab4ff; }
+    @media (prefers-color-scheme: light) { :root { --bg: #f7f8fb; --panel: #ffffff; --text: #151923; --muted: #596273; --border: #d9deea; --accent: #087f5b; --link: #1d4ed8; } }
+    html { background: var(--bg); }
+    body { margin: 0 auto; max-width: 1120px; padding: 40px 28px 72px; background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    main, body > :not(style) { box-sizing: border-box; }
+    h1, h2, h3, h4 { line-height: 1.25; margin-top: 1.6em; margin-bottom: 0.55em; }
+    h1 { font-size: 2.2rem; margin-top: 0; }
+    h2 { border-top: 1px solid var(--border); padding-top: 1.1em; }
+    p, li { color: var(--text); }
+    a { color: var(--link); }
+    code { background: var(--panel); border: 1px solid var(--border); border-radius: 5px; padding: 0.08em 0.28em; font-size: 0.92em; }
+    pre { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; overflow-x: auto; }
+    pre code { border: 0; padding: 0; background: transparent; }
+    table { width: 100%; border-collapse: collapse; margin: 1.1em 0 1.4em; display: block; overflow-x: auto; }
+    th, td { border: 1px solid var(--border); padding: 8px 10px; vertical-align: top; }
+    th { background: var(--panel); text-align: left; }
+    blockquote { margin-left: 0; padding-left: 1em; border-left: 4px solid var(--accent); color: var(--muted); }
+    #TOC { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; margin: 1.5em 0 2em; }
+    #TOC ul { margin: 0.2em 0 0.2em 1.2em; padding: 0; }
+    hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">DoWork production audit, 2026-07-04</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#dowork-production-audit-2026-07-04"
+id="toc-dowork-production-audit-2026-07-04">DoWork production audit,
+2026-07-04</a>
+<ul>
+<li><a href="#inputs-read" id="toc-inputs-read">Inputs read</a></li>
+<li><a href="#verification" id="toc-verification">Verification</a></li>
+<li><a href="#verdict" id="toc-verdict">Verdict</a></li>
+<li><a href="#top-9-explicit-gaps" id="toc-top-9-explicit-gaps">Top 9
+explicit gaps</a></li>
+<li><a href="#persona-journey-matrix"
+id="toc-persona-journey-matrix">Persona journey matrix</a></li>
+<li><a href="#findings" id="toc-findings">Findings</a>
+<ul>
+<li><a href="#critical" id="toc-critical">Critical</a></li>
+<li><a href="#high" id="toc-high">High</a></li>
+<li><a href="#medium" id="toc-medium">Medium</a></li>
+<li><a href="#low" id="toc-low">Low</a></li>
+</ul></li>
+<li><a href="#refuted-or-not-re-reported"
+id="toc-refuted-or-not-re-reported">Refuted or not re-reported</a></li>
+<li><a href="#fix-wave-recommendation"
+id="toc-fix-wave-recommendation">Fix wave recommendation</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="dowork-production-audit-2026-07-04">DoWork production audit,
+2026-07-04</h1>
+<p>Branch: <code>feature/dowork-trainer-launch</code><br />
+HEAD audited:
+<code>495fb04b7274f6e7617da8e3a2a03e06719106a0</code><br />
+Worktree:
+<code>/Users/trey/Desktop/Apps/MyLife/.claude/worktrees/dowork-trainer-launch</code><br />
+Mode: report-only. No source code was changed.</p>
+<h2 id="inputs-read">Inputs read</h2>
+<ul>
+<li>Product spec:
+<code>docs/plans/queue/36-dowork-trainer-platform-launch.md</code></li>
+<li>App review notes:
+<code>apps/dowork/Tickets/app-review-notes.md</code></li>
+<li>Supabase runbook:
+<code>docs/runbooks/dowork-supabase-setup.md</code></li>
+<li>Prior reviews:
+<code>docs/sessions/2026-07-04-dowork-production-review.md</code>,
+<code>docs/sessions/2026-07-04-dowork-punch-list-wave.md</code></li>
+<li>Error ledger: <code>errors_log.md</code> rows dated
+<code>2026-07-04</code></li>
+<li>Scope reviewed: <code>apps/dowork</code>, the six
+<code>supabase/functions/dowork-*</code> functions, consumed
+<code>modules/workouts</code> surfaces, and
+<code>scripts/check-dowork-parity.mjs</code></li>
+</ul>
+<p>Known deferred items from the prompt were excluded from findings:
+two-brand visual seams on ported screens, near-zero a11y on the ported
+half, builder-first first-workout funnel, trainer-platform block-list
+read filtering, the deep RevenueCat price fallback, Expo SDK hoist skew,
+and device-bound voice, GPS, push, purchase, and hardware QA.</p>
+<h2 id="verification">Verification</h2>
+<ul>
+<li><code>cd apps/dowork &amp;&amp; npx vitest run --maxWorkers=2</code>
+<ul>
+<li>PASS: 26 test files, 375 tests</li>
+</ul></li>
+<li><code>node scripts/check-dowork-parity.mjs</code>
+<ul>
+<li>PASS: all DoWork parity checks passed</li>
+</ul></li>
+</ul>
+<p>These gates prove the current automated surface is stable. They do
+not cover several user-facing and server-contract failures below.</p>
+<h2 id="verdict">Verdict</h2>
+<p>Production readiness: 6.8 out of 10.</p>
+<p>DoWork is much closer than the prior production review: the required
+test suite and parity script pass, the six edge functions exist, the
+main trainer/client/video/coaching routes are wired, and the prior
+critical queue and sign-in route regressions are mostly closed. It is
+not production-ready for public launch yet because several
+source-verified issues still break account lifecycle promises, paid
+entitlement timing, account switching, ended coaching relationships,
+workout save semantics, and some high-value mobile reliability
+paths.</p>
+<h2 id="top-9-explicit-gaps">Top 9 explicit gaps</h2>
+<ol type="1">
+<li>Critical: Account deletion skips <code>dw_purchase_events</code>,
+despite the App Review promise that deletion removes all server
+data.</li>
+<li>High: Email magic-link and password-recovery callbacks do not
+establish a Supabase session or complete password reset.</li>
+<li>High: Deactivated or unverified trainers are hidden from discovery
+but can still upload and mint playback signed URLs.</li>
+<li>High: RevenueCat <code>CANCELLATION</code> events revoke premium
+access immediately, even when <code>current_period_end</code> is still
+in the future.</li>
+<li>High: Ended client links can still receive text feedback, and failed
+text feedback is always presented as saved offline.</li>
+<li>High: Offline workout shares can replay under a different account
+after anonymous-to-email sign-in.</li>
+<li>Medium: Save Workout and Discard Workout are no-ops for title,
+notes, visibility, and discard intent.</li>
+<li>Medium: Continuous voice control can exhaust its restart budget
+during normal Android silence turnover.</li>
+<li>Medium: User-facing polish and reliability still have visible gaps:
+raw errors, Android keyboard behavior, dead Settings/About and workout
+mic rows, unvirtualized long lists, GPS chart/stats issues, and plan
+unsubscribe no-op.</li>
+</ol>
+<h2 id="persona-journey-matrix">Persona journey matrix</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Persona</th>
+<th>Expected function</th>
+<th>Result</th>
+<th>State coverage and evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trainer</td>
+<td>Sign in, recover account, redeem invite, enter Studio</td>
+<td>FAIL for email-link and recovery callback, PASS for password path
+and invite route</td>
+<td>Email/password screen exists in
+<code>apps/dowork/app/(root)/account.tsx:37</code>; magic links use the
+callback redirect in <code>data/account.ts:45</code>; callback only
+waits and routes in <code>auth-callback.tsx:9</code>; Supabase URL
+session detection is disabled in
+<code>DoWorkCloudProvider.tsx:136</code>. Trainer invite success routes
+to Studio in <code>redeem-invite.tsx:84</code>.</td>
+</tr>
+<tr>
+<td>Trainer</td>
+<td>Studio upload, manage videos, edit profile</td>
+<td>PASS for happy path, FAIL for deactivated trainer server truth</td>
+<td>Studio has cloud-off, not-trainer, error, loading, retry, and tabs
+in <code>studio.tsx:102</code> and <code>studio.tsx:157</code>. Upload
+queue has empty, progress, done, error, and retry states in
+<code>UploadQueue.tsx:196</code> and <code>UploadQueue.tsx:239</code>.
+Server upload only checks trainer row existence in
+<code>dowork-upload-finalize/index.ts:241</code> and
+<code>index.ts:508</code>, not active or verified state.</td>
+</tr>
+<tr>
+<td>Trainer</td>
+<td>Public profile, free and premium library, report/block
+affordances</td>
+<td>PASS for ordinary profile/library, FAIL for server deactivation
+enforcement</td>
+<td>Public profile lookup filters active and verified trainers in
+<code>cloud-trainers.ts:160</code>. Exercise/video rails filter active
+and verified trainers in <code>cloud-trainer-videos.ts:217</code>.
+Playback edge entitlement does not require active or verified trainer
+state in <code>dowork-playback-url/index.ts:142</code>.</td>
+</tr>
+<tr>
+<td>Trainer</td>
+<td>Client roster, invite, end/reactivate, form-check thread</td>
+<td>FAIL for ended-link write semantics</td>
+<td>Client cards show ended links and allow form-check thread preview
+for any non-invited link in <code>clients.tsx:295</code>. Form-check
+review always renders the text/video composer in
+<code>form-check/[id].tsx:375</code>. DB feedback insert uses
+<code>dw_form_feedback_participant(form_check_id)</code> with
+<code>p_require_active</code> defaulting false in migration
+<code>20260703000001_dowork_trainer_platform_v2.sql:202</code> and
+policy line <code>489</code>.</td>
+</tr>
+<tr>
+<td>Trainer</td>
+<td>Review form checks, post feedback, attach timestamp, video reply,
+notify client</td>
+<td>PASS for active-link happy path, FAIL for safety and offline
+classification</td>
+<td>Plan requires feedback and timestamp review at
+<code>docs/plans/queue/36-dowork-trainer-platform-launch.md:376</code>.
+Video form-check upload is active-gated in
+<code>dowork-upload-finalize/index.ts:286</code> and
+<code>index.ts:327</code>. Text feedback queues every failed text insert
+if body length is valid in <code>cloud-coaching.ts:623</code>, and the
+screen always says saved offline in
+<code>form-check/[id].tsx:237</code>. Form-check UGC has no report
+target kind in <code>cloud-reports.ts:12</code> or SQL check
+<code>20260428000004_dowork_moderation.sql:10</code>.</td>
+</tr>
+<tr>
+<td>Trainer</td>
+<td>Earnings and subscription counts</td>
+<td>PASS source-level</td>
+<td>RevenueCat webhook writes events and recomputes subscriber count in
+<code>dowork-rc-webhook/index.ts:185</code>. Earnings reads are covered
+by <code>cloud-subscriptions.ts</code>. The cancellation timing bug
+below affects entitlement and subscriber count, not route
+existence.</td>
+</tr>
+<tr>
+<td>Paid subscriber</td>
+<td>Discover trainer, open profile, see free and premium libraries, buy
+subscription</td>
+<td>FAIL for paid-through cancellation semantics, PASS for route/state
+coverage</td>
+<td>Trainer list has loading, error, empty, and search states in
+<code>(tabs)/trainers.tsx:166</code>. Profile separates free and premium
+libraries in <code>trainer/[handle].tsx:442</code> and
+<code>trainer/[handle].tsx:476</code>. Paywall uses store price gating
+in <code>PaywallSheet.tsx:91</code> and
+<code>PaywallSheet.tsx:287</code>. <code>CANCELLATION</code> maps to
+<code>cancelled</code> in <code>dowork-rc-webhook/index.ts:37</code>,
+while client and DB entitlement require <code>status = active</code> in
+<code>cloud-subscriptions.ts:118</code> and migration line
+<code>545</code>.</td>
+</tr>
+<tr>
+<td>Paid subscriber</td>
+<td>Play premium videos with voice, downloads, errors, and offline
+fallback</td>
+<td>FAIL for voice restart and some error/download states</td>
+<td>Playback error screen renders <code>load.message</code> directly in
+<code>player.tsx:486</code>; playback data returns machine codes in
+<code>cloud-playback.ts:40</code>, while user copy exists in
+<code>friendly-errors.ts:27</code>. Continuous voice restart cap is
+<code>4</code> per <code>10_000 ms</code> in
+<code>restart-policy.ts:10</code>, and Android silence is configured at
+<code>2000 ms</code> in <code>useVoiceCoach.ts:87</code>. Download
+revoke check treats markerless 403 as revoked in
+<code>downloads.ts:229</code> and deletes local files in
+<code>downloads.ts:379</code>.</td>
+</tr>
+<tr>
+<td>Coaching client</td>
+<td>Redeem client invite, open My Trainer, use included premium library,
+send form checks, read feedback</td>
+<td>FAIL for ended-link feedback and private UGC safety exit</td>
+<td>Manual and deep-link invite routes exist in
+<code>client-invite/index.tsx:28</code> and
+<code>client-invite/[code].tsx:61</code>. My Trainer link is active-link
+based per Plan 36 line <code>372</code>. Form-check upload sign/finalize
+requires active link in <code>dowork-upload-finalize/index.ts:286</code>
+and <code>index.ts:327</code>. After a relationship is ended, text
+feedback can still insert because feedback RLS does not require active
+link.</td>
+</tr>
+<tr>
+<td>Solo lifter</td>
+<td>Onboard, build workout, run session, finish, save or discard</td>
+<td>FAIL for Save Workout and session UI reliability</td>
+<td>Onboarding routes are present in <code>onboarding.tsx:36</code> and
+<code>onboarding.tsx:109</code>. Builder validates and saves in
+<code>builder.tsx:343</code>. Session has loading/error/live/end states
+around <code>session.tsx:576</code> and <code>session.tsx:713</code>. On
+completion it routes to Save Workout with <code>sessionId</code> in
+<code>session.tsx:434</code>, but Save Workout <code>handleSave</code>
+and <code>handleDiscard</code> only call <code>router.back()</code> in
+<code>save-workout.tsx:30</code> and
+<code>save-workout.tsx:34</code>.</td>
+</tr>
+<tr>
+<td>Solo lifter</td>
+<td>Plans, exercises, GPS, social sharing, settings</td>
+<td>FAIL for several secondary workflows</td>
+<td>Plan unsubscribe passes <code>activeSub.id</code> to a helper
+expecting <code>planId</code> in <code>plans.tsx:63</code> and
+<code>modules/workouts/src/db/crud.ts:954</code>. Exercises load up to
+400 rows and render via ScrollView map in <code>exercises.tsx:103</code>
+and <code>exercises.tsx:362</code>. GPS preserves null altitude at
+mapping time in <code>position-source.ts:71</code>, but charts null as
+zero in <code>gps.tsx:105</code> and stores max speed equal to average
+speed in <code>gps.tsx:303</code>. Settings About row is a no-op in
+<code>(tabs)/settings.tsx:244</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="findings">Findings</h2>
+<h3 id="critical">Critical</h3>
+<h4 id="c1.-account-deletion-leaves-raw-revenuecat-purchase-events">C1.
+Account deletion leaves raw RevenueCat purchase events</h4>
+<p>Evidence:</p>
+<ul>
+<li>App Review notes promise account deletion removes all server data in
+<code>apps/dowork/Tickets/app-review-notes.md:50</code>.</li>
+<li><code>dw_purchase_events</code> stores <code>user_id</code>,
+<code>trainer_id</code>, product data, price, and raw JSON in migration
+<code>20260703000001_dowork_trainer_platform_v2.sql:58</code>.</li>
+<li><code>dowork-delete-account</code> deletes subscriptions, social
+rows, reports, videos, blocks, profiles, tokens, and storage, but not
+<code>dw_purchase_events</code> in
+<code>supabase/functions/dowork-delete-account/index.ts:80</code>.</li>
+<li>The delete-account test expectation omits
+<code>dw_purchase_events</code> in
+<code>supabase/functions/dowork-delete-account/__tests__/index.test.ts:83</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A user deletes their account. Auth user, visible profile,
+subscriptions, push tokens, and media are removed, but
+<code>dw_purchase_events</code> still retains the user UUID and raw
+RevenueCat payload. That conflicts with the in-app and App Review
+promise unless there is an explicit retention policy and
+anonymization.</p>
+<p>Suggested fix shape:</p>
+<p>Decide the policy explicitly. If deletion means deletion, remove rows
+where <code>user_id = auth.uid()</code> and consider trainer-side
+records where the deleting user owns the trainer. If financial audit
+retention is required, anonymize <code>user_id</code>, scrub personal
+fields from <code>raw</code>, and update App Review copy and tests to
+state retained purchase ledger data clearly.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. This is not the deferred purchase price fallback.
+It is account deletion coverage.</p>
+<h3 id="high">High</h3>
+<h4
+id="h1.-email-magic-link-and-password-recovery-callbacks-do-not-establish-a-session">H1.
+Email magic-link and password-recovery callbacks do not establish a
+session</h4>
+<p>Evidence:</p>
+<ul>
+<li>Magic links and recovery emails are sent with the auth callback
+redirect in <code>apps/dowork/app/(root)/data/account.ts:45</code> and
+<code>account.ts:79</code>.</li>
+<li><code>AuthCallback</code> only checks params, waits 600 ms, and
+routes away in
+<code>apps/dowork/app/(root)/auth-callback.tsx:9</code>.</li>
+<li>Supabase client has <code>detectSessionInUrl: false</code> in
+<code>apps/dowork/app/(root)/providers/DoWorkCloudProvider.tsx:136</code>.</li>
+<li>There is no <code>exchangeCodeForSession</code> or
+<code>setSession</code> call under <code>apps/dowork/app</code> or
+<code>apps/dowork/lib</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A user taps an email sign-in link or password-recovery link. The app
+opens <code>dowork://auth-callback</code>, but no token or code is
+exchanged into the Supabase client, so the user remains anonymous.
+Password recovery also lacks a new-password UI after the callback.</p>
+<p>Suggested fix shape:</p>
+<p>Parse <code>code</code>, <code>access_token</code>,
+<code>refresh_token</code>, and error params in
+<code>auth-callback</code>. Call the proper Supabase session exchange or
+setter through the shared client, then route only after
+<code>auth.getSession()</code> confirms the signed-in user. Add tests
+for magic link, recovery link, error callback, and malformed
+callback.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. Password sign-in exists and works as a separate
+path, so this is not the prior “sign-in rows unreachable” issue.</p>
+<h4
+id="h2.-deactivated-or-unverified-trainer-content-can-still-upload-and-play">H2.
+Deactivated or unverified trainer content can still upload and play</h4>
+<p>Evidence:</p>
+<ul>
+<li>Public trainer profile lookup filters <code>is_active = true</code>
+and <code>is_verified = true</code> in
+<code>apps/dowork/app/(root)/data/cloud-trainers.ts:160</code>.</li>
+<li>Trainer video rails also filter active and verified trainers in
+<code>apps/dowork/app/(root)/data/cloud-trainer-videos.ts:217</code>.</li>
+<li>Playback entitlement checks hidden, free, owner, subscription, and
+client-link status, but not trainer active or verified state in
+<code>supabase/functions/dowork-playback-url/index.ts:142</code>.</li>
+<li>RLS select policy has the same omission in
+<code>supabase/migrations/20260703000001_dowork_trainer_platform_v2.sql:537</code>.</li>
+<li>Upload signing only requires a trainer row in
+<code>supabase/functions/dowork-upload-finalize/index.ts:241</code>, and
+<code>getTrainerIdForUser</code> selects only <code>id</code> in
+<code>index.ts:508</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>Moderation deactivates a trainer by setting
+<code>dw_trainers.is_active = false</code>. The profile disappears from
+discovery, but old video links, deep links, active clients, active
+subscribers, and free-video paths can still mint signed playback URLs.
+The trainer can also continue uploading new videos because upload
+signing ignores active and verified flags.</p>
+<p>Suggested fix shape:</p>
+<p>Make server truth require <code>dw_trainers.is_active = true</code>
+and <code>is_verified = true</code> for public, subscriber, and
+client-link playback and trainer-video upload/finalize. Decide
+separately whether owner preview should remain available for inactive
+trainers, then encode that path explicitly. Add edge tests and RLS tests
+for inactive and unverified trainers.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. The base four-path entitlement exists, but
+active/verified trainer state is missing from the server side.</p>
+<h4
+id="h3.-revenuecat-cancellation-revokes-paid-through-access-immediately">H3.
+RevenueCat cancellation revokes paid-through access immediately</h4>
+<p>Evidence:</p>
+<ul>
+<li>Webhook comment says cancellation access typically runs to period
+end in
+<code>supabase/functions/dowork-rc-webhook/index.ts:18</code>.</li>
+<li><code>STATUS_BY_EVENT.CANCELLATION</code> maps to
+<code>cancelled</code> in <code>dowork-rc-webhook/index.ts:37</code>,
+and the upsert writes that status in <code>index.ts:185</code>.</li>
+<li>DB entitlement requires <code>status = 'active'</code> and future
+period in
+<code>20260703000001_dowork_trainer_platform_v2.sql:545</code>.</li>
+<li>Client mirror requires <code>subscription.status === 'active'</code>
+in
+<code>apps/dowork/app/(root)/data/cloud-subscriptions.ts:118</code>.</li>
+<li>Existing tests codify <code>cancelled</code> as inactive in
+<code>cloud-subscriptions.test.ts:77</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A subscriber cancels auto-renewal with paid time remaining.
+RevenueCat sends <code>CANCELLATION</code>; DoWork writes
+<code>cancelled</code>; premium playback disappears immediately even
+though the user should retain access until
+<code>current_period_end</code>, unless the event is a refund or
+revocation.</p>
+<p>Suggested fix shape:</p>
+<p>Preserve access until period end. Either keep status
+<code>active</code> with a cancellation marker, or update entitlement to
+allow <code>cancelled</code> rows with a future
+<code>current_period_end</code>. Use expiration, refund, revocation, or
+explicit period-end events for immediate access loss. Update webhook
+tests, client subscription tests, subscriber count semantics, and
+paywall copy.</p>
+<p>Verified/refuted note:</p>
+<p>Verified against local code and comments. This is not the deferred
+store price fallback.</p>
+<h4 id="h4.-ended-client-links-can-still-receive-text-feedback">H4.
+Ended client links can still receive text feedback</h4>
+<p>Evidence:</p>
+<ul>
+<li>Plan 36 makes active client links the entitlement path for
+trainer/client coaching and form-check uploads in
+<code>docs/plans/queue/36-dowork-trainer-platform-launch.md:237</code>
+and <code>:240</code>.</li>
+<li>Form-check video signing and finalize require an active link in
+<code>supabase/functions/dowork-upload-finalize/index.ts:286</code> and
+<code>index.ts:327</code>.</li>
+<li><code>dw_form_feedback_participant</code> defaults
+<code>p_require_active</code> to false in
+<code>20260703000001_dowork_trainer_platform_v2.sql:202</code>.</li>
+<li><code>dw_form_feedback_participant_insert</code> calls it without
+requiring active link in migration line <code>489</code>.</li>
+<li>Trainer UI opens form-check threads for any non-invited link,
+including ended links, in
+<code>apps/dowork/app/(root)/clients.tsx:295</code>.</li>
+<li>Form-check screen always renders the composer in
+<code>apps/dowork/app/(root)/form-check/[id].tsx:375</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A trainer ends a coaching relationship. Video uploads are correctly
+blocked, but either participant can still open historical checks and
+insert new text feedback. That makes ended coaching relationships
+writable and inconsistent with the active-link upload path.</p>
+<p>Suggested fix shape:</p>
+<p>Change the feedback insert policy to require active participation,
+for example
+<code>public.dw_form_feedback_participant(form_check_id, true)</code>.
+Keep select read-only for historical access if desired. Make
+<code>form-check/[id].tsx</code> render history read-only for ended
+links, and add RLS/client tests for active, invited, and ended link
+states.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. Historical read access may be intentional; new
+writes after end are the defect.</p>
+<h4
+id="h5.-text-feedback-queues-permanent-rejects-and-tells-users-it-saved-offline">H5.
+Text feedback queues permanent rejects and tells users it saved
+offline</h4>
+<p>Evidence:</p>
+<ul>
+<li><code>postFormFeedback</code> queues any failed text insert if the
+body is non-empty and under length cap in
+<code>apps/dowork/app/(root)/data/cloud-coaching.ts:623</code>.</li>
+<li>The comment says only transport-shaped failures should queue in
+<code>cloud-coaching.ts:616</code>, but no transport/permanent
+classification exists.</li>
+<li>The UI always says “Saved offline. It will send when you reconnect.”
+and clears the draft on any <code>!result.ok</code> in
+<code>apps/dowork/app/(root)/form-check/[id].tsx:237</code>.</li>
+<li>Queue comments acknowledge ended or revoked participant rejects can
+retry until capped in <code>cloud-coaching.ts:888</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>RLS rejects a feedback insert because the link ended, the participant
+was revoked, or the form check was deleted. The app tells the user the
+feedback was saved offline, clears the text, retries up to five times,
+then drops it.</p>
+<p>Suggested fix shape:</p>
+<p>Have data functions return a distinct queued result, such as
+<code>{ ok: false, queued: true }</code>. Queue only known transient
+errors. For permanent server rejects, keep the draft, show friendly
+actionable copy, and do not enqueue poison items.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. This is related to H4 but still needs a
+client-side fix even after RLS is tightened.</p>
+<h4
+id="h6.-offline-workout-shares-can-replay-under-a-different-account">H6.
+Offline workout shares can replay under a different account</h4>
+<p>Evidence:</p>
+<ul>
+<li><code>PendingShareItem</code> stores only <code>input</code>,
+created time, attempts, and error in
+<code>apps/dowork/app/(root)/data/cloud-shares.ts:89</code>.</li>
+<li><code>uploadWorkoutShareCore</code> resolves <code>user_id</code>
+from the current Supabase session at replay time in
+<code>cloud-shares.ts:248</code>.</li>
+<li>Queues are cleared on explicit sign-out in
+<code>DoWorkCloudProvider.tsx:271</code>, but password sign-in from
+anonymous state uses <code>signInWithPassword</code> and
+<code>refreshIdentity</code> in <code>account.tsx:54</code>, not
+sign-out.</li>
+<li>Startup and foreground flushes use the current client/session in
+<code>DoWorkCloudProvider.tsx:155</code> and <code>:223</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>An anonymous user queues a workout share while offline. Later,
+without explicit sign-out, they sign into an email account. The pending
+share lacks the enqueueing user id, so replay posts it as the email
+account.</p>
+<p>Suggested fix shape:</p>
+<p>Store the enqueueing user id on pending share items, as comments,
+likes, and feedback already do. On flush, post only if the current auth
+uid matches, otherwise hold, migrate with explicit confirmation, or drop
+with a local notice. Also clear or re-key all queues on auth user-id
+transition, not only explicit sign-out.</p>
+<p>Verified/refuted note:</p>
+<p>Verified for workout shares. Refuted for comments, likes, and
+feedback because those queues carry <code>userId</code> or
+<code>authorUserId</code>.</p>
+<h4 id="h7.-form-check-ugc-has-no-report-or-block-action">H7. Form-check
+UGC has no report or block action</h4>
+<p>Evidence:</p>
+<ul>
+<li>Report target kinds are limited to <code>share</code>,
+<code>comment</code>, <code>trainer_video</code>, and
+<code>profile</code> in
+<code>apps/dowork/app/(root)/data/cloud-reports.ts:12</code>.</li>
+<li>SQL enforces the same target-kind check in
+<code>supabase/migrations/20260428000004_dowork_moderation.sql:10</code>.</li>
+<li>Form-check review renders the video, feedback rows, and composer
+without report, block, or end-coaching safety action in
+<code>apps/dowork/app/(root)/form-check/[id].tsx:309</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A client receives abusive private video feedback, or a trainer
+receives abusive client form-check content. The private review thread
+has no in-context report path, and the database would reject a
+<code>form_check</code> or <code>form_feedback</code> report even if the
+UI tried to submit one.</p>
+<p>Suggested fix shape:</p>
+<p>Add <code>form_check</code> and <code>form_feedback</code> target
+kinds to TS and SQL. Add overflow actions to the form-check screen,
+scoped to participant role. For block behavior, provide a
+participant-appropriate path such as end coaching, block account, and
+report content, then verify App Review notes match the implemented
+surface.</p>
+<p>Verified/refuted note:</p>
+<p>Verified as a safety gap for private form-check UGC. Public trainer
+profile/video report paths exist, so this is not a duplicate of the
+prior trainer-surface finding.</p>
+<h3 id="medium">Medium</h3>
+<h4
+id="m1.-save-workout-and-discard-workout-do-not-save-or-discard-user-input">M1.
+Save Workout and Discard Workout do not save or discard user input</h4>
+<p>Evidence:</p>
+<ul>
+<li>Completed session is written before routing to Save Workout in
+<code>apps/dowork/app/(root)/session.tsx:423</code>.</li>
+<li>The route passes <code>sessionId</code> in
+<code>session.tsx:434</code>.</li>
+<li>Save Workout collects title, description, and visibility in
+<code>apps/dowork/app/(root)/save-workout.tsx:21</code>.</li>
+<li><code>handleSave</code> only calls <code>router.back()</code> in
+<code>save-workout.tsx:30</code>.</li>
+<li><code>handleDiscard</code> also only calls
+<code>router.back()</code> in <code>save-workout.tsx:34</code>.</li>
+<li><code>wk_workout_sessions</code> has no title, notes, or visibility
+columns in <code>modules/workouts/src/db/schema.ts:56</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A solo lifter finishes a workout, enters a title and notes, chooses
+visibility, and taps Save. Nothing is persisted. If they tap Discard
+Workout, the already-completed local session is not deleted either.</p>
+<p>Suggested fix shape:</p>
+<p>Define the intended data model. Either persist session title, notes,
+and visibility on <code>wk_workout_sessions</code>, or make Save Workout
+create/update a cloud workout share when visibility is public. Make
+Discard delete or mark the just-created session according to product
+intent. Add tests for save, discard, and back navigation.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. The exercise set completion data is saved before
+this screen, but the screen-specific user input and discard intent are
+not.</p>
+<h4
+id="m2.-continuous-voice-can-give-up-during-normal-android-silence-turnover">M2.
+Continuous voice can give up during normal Android silence turnover</h4>
+<p>Evidence:</p>
+<ul>
+<li>Android complete silence timeout is set to <code>2000</code> ms in
+<code>apps/dowork/lib/voice/useVoiceCoach.ts:87</code>.</li>
+<li>Continuous mode restarts after every <code>end</code> when
+<code>shouldListenRef.current</code> is true in
+<code>useVoiceCoach.ts:201</code>.</li>
+<li>Restart policy allows only four restarts in a 10 second rolling
+window in <code>apps/dowork/lib/voice/restart-policy.ts:10</code>.</li>
+<li>The fifth restart in that window sets
+<code>handsFreeInterrupted</code> in
+<code>useVoiceCoach.ts:195</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>In a quiet stretch while a video is playing, Android can emit normal
+silence <code>end</code> events every two seconds. Four normal endings
+inside 10 seconds use the full rapid-restart budget; the next ending
+stops hands-free voice and falls back to push-to-talk even though
+nothing unhealthy happened.</p>
+<p>Suggested fix shape:</p>
+<p>Separate normal silence turnover from unhealthy restart loops. Reset
+budget after a healthy recognition lifetime, count only rapid
+start/error/end failures, or use a much larger silence-turnover budget
+with backoff. Add policy tests for normal Android silence cycles.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. This is not the prior restart oscillation bug; it
+is the opposite failure mode.</p>
+<h4 id="m3.-playback-and-other-key-screens-still-surface-raw-errors">M3.
+Playback and other key screens still surface raw errors</h4>
+<p>Evidence:</p>
+<ul>
+<li>Friendly mapper exists in
+<code>apps/dowork/app/(root)/data/friendly-errors.ts:20</code>,
+including user copy for <code>not_entitled</code> and
+<code>not_found</code> in lines <code>27</code> and
+<code>30</code>.</li>
+<li><code>getPlaybackSource</code> can return raw machine codes in
+<code>apps/dowork/app/(root)/data/cloud-playback.ts:40</code>.</li>
+<li>Player stores <code>result.error</code> directly in
+<code>apps/dowork/app/(root)/player.tsx:211</code> and renders it in
+<code>player.tsx:486</code>.</li>
+<li>Account screen catches and renders raw auth error messages in
+<code>apps/dowork/app/(root)/account.tsx:37</code>.</li>
+<li>Studio upload stores raw upload errors in
+<code>apps/dowork/app/(root)/components/studio/UploadQueue.tsx:196</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A user without entitlement opens a premium video and sees
+<code>not_entitled</code>, or a user hits a Supabase/RLS/auth failure
+and sees backend language instead of actionable app copy.</p>
+<p>Suggested fix shape:</p>
+<p>Require <code>friendlyError(...)</code> at every UI banner, alert,
+and empty/error state boundary. Keep raw strings in logs only. Add tests
+for playback entitlement errors, auth errors, upload errors,
+report/block errors, and invite redemption errors.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. Prior passes adopted friendly errors on some
+surfaces, but coverage is incomplete.</p>
+<h4
+id="m4.-download-entitlement-probe-deletes-local-files-on-markerless-403">M4.
+Download entitlement probe deletes local files on markerless 403</h4>
+<p>Evidence:</p>
+<ul>
+<li>Comment assumes the playback function is the only 403 source in
+<code>apps/dowork/app/(root)/data/downloads.ts:180</code>.</li>
+<li><code>checkDownloadEntitlement</code> treats
+<code>status === 403</code> with <code>marker === null</code> as revoked
+in <code>downloads.ts:229</code>.</li>
+<li><code>openDownloadedVideo</code> deletes the file when verdict is
+revoked in <code>downloads.ts:379</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>Supabase Functions, JWT middleware, a gateway, or CORS-like failure
+returns 403 with an unreadable or non-JSON body. The app treats it as
+entitlement loss and removes a valid offline video.</p>
+<p>Suggested fix shape:</p>
+<p>Only delete when the server response explicitly carries
+<code>error: 'not_entitled'</code> from the playback function. Treat
+markerless 403 as offline or unknown. Add a markerless 403 test that
+keeps the file.</p>
+<p>Verified/refuted note:</p>
+<p>Source-verified resilience risk. The edge function itself returns
+JSON, but the mobile client is responsible for ambiguous platform-layer
+failures.</p>
+<h4
+id="m5.-android-keyboard-avoidance-is-not-actually-configured-for-the-form-check-composer">M5.
+Android keyboard avoidance is not actually configured for the form-check
+composer</h4>
+<p>Evidence:</p>
+<ul>
+<li>Form-check screen opts into keyboard avoidance in
+<code>apps/dowork/app/(root)/form-check/[id].tsx:309</code>.</li>
+<li>Shared <code>CoachingScreen</code> uses
+<code>behavior={Platform.OS === 'ios' ? 'padding' : undefined}</code> in
+<code>components/coaching/coaching-kit.tsx:54</code>.</li>
+<li><code>apps/dowork/app.json:30</code> has no Android soft-input
+resize setting.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>On Android builds that do not resize automatically, focusing the
+bottom feedback composer can leave the input and send/video buttons
+under the keyboard.</p>
+<p>Suggested fix shape:</p>
+<p>Set an Android-tested soft-input mode or use an Android
+keyboard-aware scroll wrapper that scrolls the composer above the IME.
+Add a device or Playwright-style native screenshot check if
+available.</p>
+<p>Verified/refuted note:</p>
+<p>Source-verified risk. Not device-tested in this audit.</p>
+<h4
+id="m6.-push-prompt-answered-state-is-device-global-not-user-scoped">M6.
+Push prompt answered state is device-global, not user-scoped</h4>
+<p>Evidence:</p>
+<ul>
+<li>Prompt state is stored under a single key,
+<code>dowork.push_prompt.v1</code>, in
+<code>apps/dowork/app/(root)/components/PushPrompt.tsx:32</code>.</li>
+<li>Dismissed and registered states are read without user id in
+<code>PushPrompt.tsx:46</code>.</li>
+<li><code>shouldOfferPushPrompt</code> hides the prompt once
+<code>state.registered</code> or <code>state.dismissed</code> is true in
+<code>PushPrompt.tsx:82</code>.</li>
+<li>Sign-out removes tokens in <code>DoWorkCloudProvider.tsx:282</code>,
+but prompt state is not cleared or re-keyed.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>User A dismisses or registers push on a shared device, then signs
+out. User B signs in; server tokens are absent for B, but the
+device-global prompt state hides the prompt, so B never sees the
+launch-critical nudge.</p>
+<p>Suggested fix shape:</p>
+<p>Key prompt state by user id, or clear prompt state on auth user-id
+transition and let server token existence be the registered truth.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. This is separate from founder-ops push credential
+setup.</p>
+<h4 id="m7.-plan-unsubscribe-passes-the-wrong-identifier">M7. Plan
+unsubscribe passes the wrong identifier</h4>
+<p>Evidence:</p>
+<ul>
+<li>Plans screen calls
+<code>unsubscribeFromPlan(db, activeSub.id)</code> in
+<code>apps/dowork/app/(root)/plans.tsx:63</code>.</li>
+<li><code>unsubscribeFromPlan</code> expects a plan id and updates
+<code>WHERE plan_id = ?</code> in
+<code>modules/workouts/src/db/crud.ts:954</code>.</li>
+<li><code>PlanSubscriptionRow</code> has both <code>id</code> and
+<code>planId</code> in
+<code>modules/workouts/src/types.ts:501</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>The user taps Unsubscribe on the active plan. The update matches zero
+rows because it receives the subscription id, so the plan remains
+active.</p>
+<p>Suggested fix shape:</p>
+<p>Pass <code>activeSub.planId</code> or change the helper to accept
+subscription id with a clearer name. Add a UI-level regression test
+around the Plans unsubscribe action.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. Module tests cover the helper when given a plan
+id, not this DoWork screen call site.</p>
+<h4
+id="m8.-workout-session-has-stale-voice-ui-no-keep-awake-and-a-hot-interval-effect">M8.
+Workout session has stale voice UI, no keep-awake, and a hot interval
+effect</h4>
+<p>Evidence:</p>
+<ul>
+<li><code>session.tsx</code> defines a no-op <code>useKeepAwake</code>
+with comment “expo-keep-awake is not installed” in
+<code>apps/dowork/app/(root)/session.tsx:69</code>, while player imports
+real <code>expo-keep-awake</code> in <code>player.tsx:11</code>.</li>
+<li>Session calls the stub in <code>session.tsx:183</code>.</li>
+<li>Live session mic button shows “Voice controls will be connected in a
+later pass.” in <code>session.tsx:739</code>.</li>
+<li>The interval effect depends on full mutable <code>status</code> in
+<code>session.tsx:323</code>, and the interval updates
+<code>status</code> every 200 ms in <code>session.tsx:341</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>The screen can auto-lock during an active workout. A user can tap a
+mic button and get a “later pass” message. During active sessions the
+interval effect repeatedly tears down and recreates, increasing JS churn
+and drift risk.</p>
+<p>Suggested fix shape:</p>
+<p>Use real keep-awake while session is active. Remove or fully
+implement the session mic button. Key interval lifecycle on stable
+fields such as session state and store mutable status in a ref or
+reducer.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. This is not a failure of the Plan 36 video-player
+voice implementation.</p>
+<h4 id="m9.-large-trainer-and-exercise-lists-are-unvirtualized">M9.
+Large trainer and exercise lists are unvirtualized</h4>
+<p>Evidence:</p>
+<ul>
+<li>Studio Manage renders every trainer video via <code>.map</code> in
+<code>apps/dowork/app/(root)/components/studio/ManageGrid.tsx:208</code>.</li>
+<li>Trainer profile renders free videos via <code>.map</code> in
+<code>trainer/[handle].tsx:442</code> and premium videos via
+<code>.map</code> in <code>trainer/[handle].tsx:476</code>.</li>
+<li>Exercises load up to 400 rows in
+<code>apps/dowork/app/(root)/exercises.tsx:103</code> and render them in
+a grid via <code>.map</code> in <code>exercises.tsx:362</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A real trainer with a large library, or a full exercise catalog on a
+midrange phone, causes heavy initial render, scroll jank, and image
+memory pressure.</p>
+<p>Suggested fix shape:</p>
+<p>Use <code>FlatList</code>, <code>SectionList</code>, or FlashList for
+these list surfaces. Memoize row components and section data. Add
+pagination or Supabase range queries for trainer libraries if libraries
+can grow unbounded.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. This is a scalability and efficiency finding, not
+a current test failure.</p>
+<h3 id="low">Low</h3>
+<h4 id="l1.-settings-about-dowork-row-is-still-a-dead-action">L1.
+Settings About DoWork row is still a dead action</h4>
+<p>Evidence:</p>
+<ul>
+<li>Settings <code>appRows</code> includes <code>About DoWork</code>
+with <code>onPress: () =&gt; {}</code> in
+<code>apps/dowork/app/(root)/(tabs)/settings.tsx:244</code>.</li>
+<li>Rows render as pressable actions in
+<code>settings.tsx:365</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A user taps Settings, App, About DoWork. The row depresses but
+nothing opens.</p>
+<p>Suggested fix shape:</p>
+<p>Wire it to a real About, legal, or support screen, or remove the row.
+Add a simple guard against empty settings row handlers.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. Prior notes said dead settings rows were fixed,
+but this row remains.</p>
+<h4
+id="l2.-gps-live-tracking-performs-cumulative-work-and-stores-inaccurate-max-speed">L2.
+GPS live tracking performs cumulative work and stores inaccurate max
+speed</h4>
+<p>Evidence:</p>
+<ul>
+<li>Each GPS fix inserts one point and re-queries all points in
+<code>apps/dowork/app/(root)/gps.tsx:198</code>.</li>
+<li>Metrics recompute from the full <code>livePoints</code> array every
+update in <code>gps.tsx:234</code>.</li>
+<li><code>maxSpeedKmh</code> is stored as the same value as average
+speed in <code>gps.tsx:303</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>Longer runs do more work per fix, increasing battery and jank risk.
+Route history underreports peak speed because max speed is not actually
+derived.</p>
+<p>Suggested fix shape:</p>
+<p>Append the new point to state, maintain rolling metrics for the live
+display, and compute final full metrics on stop. Derive max speed from
+valid <code>speedMps</code> samples or segment speed.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. Fake GPS mapping concerns were refuted:
+<code>position-source.ts:71</code> preserves null altitude and invalid
+speed as null.</p>
+<h4 id="l3.-gps-elevation-chart-maps-unknown-altitude-to-zero">L3. GPS
+elevation chart maps unknown altitude to zero</h4>
+<p>Evidence:</p>
+<ul>
+<li>Location mapping preserves unknown altitude as null in
+<code>apps/dowork/lib/gps/position-source.ts:71</code>.</li>
+<li>Elevation gain calculation filters null altitude in
+<code>modules/workouts/src/gps/metrics.ts:70</code>.</li>
+<li>The live chart maps <code>point.altitudeMeters ?? 0</code> in
+<code>apps/dowork/app/(root)/gps.tsx:105</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>On a device that reports unknown altitude, the chart shows a false
+drop to 0 m. Mixed known and unknown points skew the chart.</p>
+<p>Suggested fix shape:</p>
+<p>Build the elevation chart only from altitude-known points, or show an
+“elevation unavailable” state until enough real altitude samples
+exist.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source. This is a charting issue, not a GPS fix mapping
+issue.</p>
+<h4
+id="l4.-form-check-feedback-load-failures-become-false-empty-states">L4.
+Form-check feedback load failures become false empty states</h4>
+<p>Evidence:</p>
+<ul>
+<li>Feedback load failure is converted to an empty array in
+<code>apps/dowork/app/(root)/form-check/[id].tsx:122</code>.</li>
+<li>The screen then renders “No feedback yet.” in
+<code>form-check/[id].tsx:352</code>.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>A network, RLS, or token failure hides existing feedback and tells
+the trainer or client that no feedback exists.</p>
+<p>Suggested fix shape:</p>
+<p>Track <code>feedbackError</code> separately from true empty state.
+Render a retryable friendly error when feedback cannot load.</p>
+<p>Verified/refuted note:</p>
+<p>Verified in source.</p>
+<h4 id="l5.-dead-doworkprovider-remains-mounted">L5. Dead
+<code>DoWorkProvider</code> remains mounted</h4>
+<p>Evidence:</p>
+<ul>
+<li><code>apps/dowork/app/(root)/providers/DoWorkProvider.tsx:17</code>
+hardcodes cloud unavailable state.</li>
+<li>It is still mounted in
+<code>apps/dowork/app/(root)/_layout.tsx:93</code>.</li>
+<li>No current consumers were found.</li>
+</ul>
+<p>Failure scenario:</p>
+<p>No active runtime break today, but a future import of this stale
+provider can get incorrect cloud and user state despite
+<code>DoWorkCloudProvider</code> being the real implementation.</p>
+<p>Suggested fix shape:</p>
+<p>Remove it or adapt it to delegate to
+<code>DoWorkCloudProvider</code>.</p>
+<p>Verified/refuted note:</p>
+<p>Verified as dead-code risk, not a current user-facing bug.</p>
+<h2 id="refuted-or-not-re-reported">Refuted or not re-reported</h2>
+<ul>
+<li>Base four-path trainer video entitlement exists in playback and RLS:
+free, owner, active subscription, active client link. The gaps are
+cancellation timing and active/verified trainer status.</li>
+<li>Form-check video upload caps, MIME checks, and active-link
+requirements are enforced by <code>dowork-upload-finalize</code>.</li>
+<li>The queue double-drain and infinite replay loop is fixed by
+serialized flushes in <code>pending-queues.ts:123</code>.</li>
+<li>Comments, likes, and feedback queue identity drift is mostly refuted
+because those queued payloads carry <code>userId</code> or
+<code>authorUserId</code>. Workout shares are the remaining identity
+gap.</li>
+<li>Explicit sign-out clears queues before the next session. The
+remaining issue is anonymous-to-email sign-in without explicit
+sign-out.</li>
+<li>Push notification route resolution is source-covered for warm and
+cold taps. Device delivery remains in the known deferred
+hardware/founder-ops bucket.</li>
+<li>Paywall visible price truth is handled at the sheet layer. The known
+deep <code>purchases.ts</code> fallback remains deferred and was not
+re-reported.</li>
+<li>GPS fake-location concerns were refuted. Simulator mode is
+development-gated, and real location mapping does not fabricate speed or
+altitude.</li>
+<li>The prior voice restart oscillation was not found. The new voice
+finding is restart-budget exhaustion during normal silence
+turnover.</li>
+</ul>
+<h2 id="fix-wave-recommendation">Fix wave recommendation</h2>
+<ol type="1">
+<li>Close account lifecycle first: auth callback, password recovery,
+account deletion purchase-event handling, and tests.</li>
+<li>Close paid/server truth next: cancellation semantics,
+active/verified trainer enforcement, and entitlement tests.</li>
+<li>Close coaching state correctness: ended-link feedback RLS, read-only
+ended threads, feedback queue classification, and form-check report
+targets.</li>
+<li>Close account switching/offline queue identity for workout
+shares.</li>
+<li>Close user-visible workflow defects: Save Workout, plan unsubscribe,
+raw error boundaries, Android keyboard, and dead rows/buttons.</li>
+<li>Close efficiency and GPS cleanup: list virtualization, session
+timer, keep-awake, GPS rolling metrics, max speed, and elevation
+chart.</li>
+</ol>
+</body>
+</html>

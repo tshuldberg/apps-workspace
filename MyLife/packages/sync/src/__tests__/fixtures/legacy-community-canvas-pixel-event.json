@@ -1,0 +1,15 @@
+{
+  "pixel": {
+    "version": 1,
+    "canvasId": "abababababababababababababababab",
+    "communityId": "fixture-community",
+    "x": 12,
+    "y": 34,
+    "colorIndex": 6,
+    "authorDevice": "51a439c6daca7010c6b985429fbb37fd3126a9d1e8b7db6a9e91e3c068704125",
+    "createdAt": "2026-08-29T12:00:00.000Z",
+    "signedBy": "51a439c6daca7010c6b985429fbb37fd3126a9d1e8b7db6a9e91e3c068704125",
+    "signature": "cf56077ba17eb41f521ef32ed95ce4dcf73cc78f03ea52ccd5b9e3ad93855b5cb23674631369584159689b8642eaaa4e3404789ab09eb5c3c9438da33db35605",
+    "id": "5983acac06ed721f9f56dd49197a34f4"
+  }
+}

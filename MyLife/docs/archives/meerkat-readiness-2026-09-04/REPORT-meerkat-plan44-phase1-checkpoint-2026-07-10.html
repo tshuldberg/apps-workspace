@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Plan 44 Phase 1 Checkpoint</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0A0A0F; --surface:#12121A; --raised:#1A1A24; --text:#F0F0F5; --muted:rgba(240,240,245,.68); --border:rgba(255,255,255,.10); --accent:#7DD3FC; --success:#30D158; --warn:#FFD60A; --danger:#FF453A; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:radial-gradient(circle at top right, rgba(125,211,252,.09), transparent 34rem), var(--bg); color:var(--text); font:16px/1.58 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1120px, calc(100% - 32px)); margin:0 auto; padding:48px 0 80px; }
+    header, section { background:rgba(18,18,26,.88); border:1px solid var(--border); border-radius:18px; padding:28px; margin:0 0 20px; box-shadow:0 18px 60px rgba(0,0,0,.22); }
+    h1 { font-size:clamp(2rem,5vw,3.35rem); line-height:1.04; margin:0 0 14px; letter-spacing:-.04em; }
+    h2 { margin:0 0 16px; font-size:1.5rem; letter-spacing:-.02em; }
+    h3 { margin:24px 0 10px; font-size:1.1rem; color:var(--accent); }
+    p { margin:10px 0; }
+    ul, ol { padding-left:1.35rem; }
+    li { margin:.38rem 0; }
+    code { background:var(--raised); border:1px solid var(--border); border-radius:6px; padding:.12rem .35rem; color:#BAE6FD; overflow-wrap:anywhere; }
+    .lede { color:var(--muted); font-size:1.08rem; max-width:78ch; }
+    .badges { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 4px; }
+    .badge { display:inline-flex; align-items:center; border:1px solid var(--border); border-radius:999px; padding:6px 11px; font-size:.84rem; font-weight:700; background:var(--raised); }
+    .badge.good { color:var(--success); }
+    .badge.warn { color:var(--warn); }
+    .badge.danger { color:var(--danger); }
+    .meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin-top:22px; }
+    .meta div { background:var(--raised); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+    .meta span { display:block; color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
+    table { width:100%; border-collapse:collapse; min-width:720px; }
+    th, td { padding:12px 14px; text-align:left; vertical-align:top; border-bottom:1px solid var(--border); }
+    th { color:var(--accent); background:var(--raised); font-size:.84rem; text-transform:uppercase; letter-spacing:.05em; }
+    tr:last-child td { border-bottom:0; }
+    .callout { border-left:4px solid var(--warn); background:rgba(255,214,10,.06); border-radius:0 12px 12px 0; padding:14px 18px; margin:18px 0; }
+    .goodline { border-left-color:var(--success); background:rgba(48,209,88,.06); }
+    .dangerline { border-left-color:var(--danger); background:rgba(255,69,58,.06); }
+    footer { color:var(--muted); text-align:center; padding:14px; font-size:.88rem; }
+    @media (max-width:640px) { main { width:min(100% - 20px,1120px); padding-top:20px; } header, section { padding:20px; border-radius:14px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Meerkat Plan 44 Phase 1 Checkpoint</h1>
+    <p class="lede">A safely committed, gate-passing checkpoint for the PostgreSQL state-adapter work. Phase 1 remains in progress and Meerkat remains a production NO-GO.</p>
+    <div class="badges"><span class="badge good">Committed safely</span><span class="badge warn">Phase 1 in progress</span><span class="badge danger">Production NO-GO</span><span class="badge">Not pushed</span></div>
+    <div class="meta">
+      <div><span>Date</span>2026-07-10</div>
+      <div><span>Branch</span><code>feature/meerkat-production-readiness-2026-07-09</code></div>
+      <div><span>Starting commit</span><code>b9ac0246</code></div>
+      <div><span>Checkpoint commit</span><code>02b77f89</code></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>Outcome</h2>
+    <p>Plan 44 Phase 1 now contains the shared PostgreSQL runtime, additive migrations, state contracts, file and PostgreSQL adapters, replica concurrency tests, and first-party runtime selection for humanity, persona, directory, and hosted billing.</p>
+    <div class="callout dangerline"><strong>This is not Phase 1 completion.</strong> Private community state still needs migration registration, least-privilege grants, exports, inventory, and process wiring. Push migration 5 still needs one live old-writer-after-migration test. Later Plan 44 storage, cutover, recovery, observability, and supply-chain work remains.</div>
+  </section>
+
+  <section>
+    <h2>Startup and execution plan</h2>
+    <p>The worktree, branch, and expected starting commit were verified. Required project rules, local settings, skills, plugin inventory, memory, and Plans 42 through 44 were read before substantial edits.</p>
+    <ol>
+      <li>Add additive schema and rolling-compatibility rules.</li>
+      <li>Build one shared PostgreSQL context and explicit runtime selector.</li>
+      <li>Refine memory and file contracts, then run common conformance suites.</li>
+      <li>Implement community and directory state adapters.</li>
+      <li>Implement humanity, persona, billing, moderation, NCMEC, and DMCA adapters.</li>
+      <li>Implement push and archive lifecycles with fenced leases.</li>
+      <li>Separate hosted quota and object metadata from byte storage.</li>
+      <li>Wire first-party processes and close pools on every exit path.</li>
+      <li>Verify migration, race, and outage behavior on two PostgreSQL 17 pools.</li>
+    </ol>
+    <p>The engineering-review workflow set this order. CodeRabbit was unavailable, so a separate local adversarial review supplied the migration and authorization challenges used during correction.</p>
+  </section>
+
+  <section>
+    <h2>Implemented store matrix</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Surface</th><th>Checkpoint work</th><th>State</th></tr></thead>
+      <tbody>
+        <tr><td>Community public</td><td>Descriptors, publications, kills, reports, posts, freezes, blocks, submit windows</td><td>Adapter complete and live-tested</td></tr>
+        <tr><td>Community private</td><td>Authority contract, memory, file, PostgreSQL, staged recovery, challenge and rate state</td><td>Implemented and tested; registration and runtime pending</td></tr>
+        <tr><td>Directory</td><td>Publications, kills, host announcements, database-time expiry, authoritative health</td><td>Adapter and first-party runtime complete</td></tr>
+        <tr><td>Humanity</td><td>Challenge, issuance, spend, registration redemption, pruning</td><td>Adapter and first-party runtime complete</td></tr>
+        <tr><td>Persona</td><td>Registry, sessions, tombstones, revocations, registration recovery</td><td>Adapter and first-party runtime complete</td></tr>
+        <tr><td>Hosted billing</td><td>Subscriptions, purchases, links, persona binding</td><td>Adapter and first-party runtime complete</td></tr>
+        <tr><td>Hosted storage metadata</td><td>Policies, quota, reservations, activation, receipts, manifests, reconciliation</td><td>Adapter complete; object composition remains</td></tr>
+        <tr><td>Moderation and legal</td><td>Operator audit, triage, NCMEC, DMCA</td><td>Adapters complete; community runtime pending</td></tr>
+        <tr><td>Push</td><td>Registration, generations, capabilities, attempts, retry, cancellation, fencing</td><td>File and PostgreSQL complete and live-tested</td></tr>
+        <tr><td>Archive</td><td>Signed jobs, objects, scans, pins, leases, serving, legacy readiness</td><td>File and PostgreSQL complete and live-tested</td></tr>
+        <tr><td>Operations</td><td>Durable replay claims and fenced job leases</td><td>PostgreSQL complete and live-tested</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Major correctness fixes</h2>
+    <ul>
+      <li>Revoked and refenced legacy push and archive leases during migration.</li>
+      <li>Preserved legacy archive rows without invented signatures, hashes, identities, or byte counts.</li>
+      <li>Classified incompatible rows as <code>legacy_unbound</code> and excluded them from active paths.</li>
+      <li>Cancelled push attempts after registration, capability, or token invalidation in both backends.</li>
+      <li>Revalidated the complete push address graph at claim time using database time.</li>
+      <li>Preserved operations fencing history when leases and replay claims are released.</li>
+      <li>Added expiring persona reservations and recovery for durable humanity verification.</li>
+      <li>Mapped PostgreSQL outages to HTTP 503 at humanity and persona boundaries.</li>
+      <li>Shared one bounded HTTPS-by-default humanity client across persona and community processes.</li>
+      <li>Bounded NCMEC evidence to 256 hashes and 64 KiB.</li>
+      <li>Removed destructive hosted root-table grants.</li>
+      <li>Made directory health statistics authoritative across process restarts.</li>
+      <li>Replaced unsupported PostgreSQL regex quantifiers with explicit length checks.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Verification evidence</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Gate</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Relay lint and TypeScript</td><td>Passed</td></tr>
+        <tr><td>Full relay suite</td><td>133 files passed, 12 skipped; 850 passed, 76 skipped</td></tr>
+        <tr><td>Fresh PostgreSQL 17 suite</td><td>15 files passed; 78 passed</td></tr>
+        <tr><td>Corrected push suites</td><td>2 files passed; 10 passed</td></tr>
+        <tr><td>Staged function gate</td><td>51 files passed, 12 skipped; 387 passed, 76 skipped</td></tr>
+        <tr><td>Mobile and web consumer typechecks</td><td>Passed</td></tr>
+        <tr><td>Full parity gate</td><td>Passed</td></tr>
+        <tr><td>Generated artifact guard</td><td>Passed</td></tr>
+        <tr><td>Production compose parse</td><td>Passed</td></tr>
+        <tr><td>Diff check and pre-commit hook</td><td>Passed</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout goodline"><strong>Fresh database result:</strong> the first pass exposed one ambiguous push trigger and one stale unsafe test expectation. Both were corrected. The final PostgreSQL 17 run passed all 78 tests.</div>
+  </section>
+
+  <section>
+    <h2>Remaining Phase 1 work</h2>
+    <ol>
+      <li>Register migration 7 and update schema-version expectations.</li>
+      <li>Add exact private-community table and sequence grants.</li>
+      <li>Export and inventory the private community PostgreSQL adapter.</li>
+      <li>Wire community state to the community-role PostgreSQL context.</li>
+      <li>Wire operator, NCMEC, and DMCA state to a separate moderation-role context.</li>
+      <li>Close both pools on startup failure and shutdown.</li>
+      <li>Add community and moderation database URLs and TLS material to compose.</li>
+      <li>Add community state-authority process tests.</li>
+      <li>Add the live v2-writer-after-v5 migration compatibility test.</li>
+      <li>Run the final Phase 1 adversarial review after the wiring changes.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Remaining Plan 44 and launch work</h2>
+    <ul>
+      <li>Production object storage, multipart handling, checksums, versioning, reconciliation, and deletion jobs.</li>
+      <li>Import, semantic digest, shadow reads, cutover, rollback, and staging rehearsal.</li>
+      <li>PostgreSQL high availability, point-in-time recovery, backups, and regional recovery proof.</li>
+      <li>Readiness, metrics, structured logs, dashboards, and multi-window alerts.</li>
+      <li>SBOM, vulnerability results, provenance, signatures, and release manifests.</li>
+      <li>Canary, rollback, load, and 48-hour production-shaped soak evidence.</li>
+      <li>Production credentials, providers, moderation operations, legal operations, and real-device evidence.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Resume point</h2>
+    <p>Resume from <code>02b77f89</code> on <code>feature/meerkat-production-readiness-2026-07-09</code>.</p>
+    <p>External append-only checkpoint: <code>/Users/trey/.gstack/projects/checkpoints/20260710-143611-meerkat-plan44-phase1-paused-checkpoint.md</code></p>
+    <p>No push was performed. The local PostgreSQL 17 container <code>meerkat-pg-phase1</code> remains on port 55444 for the next verification pass.</p>
+  </section>
+
+  <footer>MyLife Meerkat Plan 44 Phase 1 checkpoint report, generated 2026-07-10.</footer>
+</main>
+</body>
+</html>

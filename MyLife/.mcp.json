@@ -1,0 +1,34 @@
+{
+  "mcpServers": {
+    "jina-mcp-server": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.jina.ai/v1",
+        "--header",
+        "Authorization: Bearer ${JINA_API_KEY}"
+      ]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "open-brain": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://wfjxsmmlhxfgpmmdczdh.supabase.co/functions/v1/open-brain",
+        "--header",
+        "x-brain-key: ${BRAIN_KEY}"
+      ],
+      "env": {
+        "BRAIN_KEY": "${BRAIN_KEY}"
+      }
+    }
+  }
+}

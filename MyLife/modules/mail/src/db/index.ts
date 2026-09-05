@@ -1,0 +1,23 @@
+export { ALL_TABLES, CREATE_INDEXES } from './schema';
+export {
+  createAccount,
+  getAccount,
+  getAccounts,
+  updateAccount,
+  deleteAccount,
+  createMessage,
+  getMessage,
+  getMessages,
+  getMessagesByAccount,
+  markAsRead,
+  toggleStar,
+  moveToFolder,
+  deleteMessage,
+  createDraft,
+  getDrafts,
+  updateDraft,
+  deleteDraft,
+  createFolder,
+  getFolders,
+  getMailStats,
+} from './crud';

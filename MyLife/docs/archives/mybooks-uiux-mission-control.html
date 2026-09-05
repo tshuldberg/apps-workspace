@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyBooks UIUX Mission Control</title>
+<style>
+  :root {
+    --bg: #0E0E13;
+    --surface: #131318;
+    --surface-low: #1B1B20;
+    --surface-mid: #1F1F25;
+    --surface-high: #2A292F;
+    --surface-highest: #35343A;
+    --primary: #C9894D;
+    --primary-light: #FFB877;
+    --text: #E4E1E9;
+    --text-secondary: #D6C3B5;
+    --text-tertiary: #9F8E81;
+    --border: rgba(255,255,255,0.06);
+    --glass: rgba(255,255,255,0.03);
+    --glass-strong: rgba(255,255,255,0.08);
+    --danger: #FFB4AB;
+    --success: #30D158;
+    --info: #8BCFF0;
+    --pending: #52443A;
+    --in-progress: #C9894D;
+    --done: #30D158;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    padding: 24px;
+  }
+
+  h1 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--primary-light);
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    background: var(--surface-low);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-pill .count {
+    font-weight: 700;
+    color: var(--primary-light);
+    font-size: 16px;
+  }
+
+  .phase {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .phase-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .phase-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: var(--surface-high);
+    color: var(--text-tertiary);
+  }
+
+  .phase-badge.sequential { background: #93000A33; color: var(--danger); }
+  .phase-badge.parallel { background: #30D15833; color: var(--success); }
+
+  .dep-note {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    margin-bottom: 16px;
+    padding-left: 4px;
+  }
+
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+    gap: 16px;
+  }
+
+  .prompt-card {
+    background: var(--surface-low);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .prompt-card:hover {
+    border-color: rgba(201, 137, 77, 0.3);
+  }
+
+  .prompt-card.status-done {
+    opacity: 0.5;
+    border-color: var(--success);
+  }
+
+  .prompt-card.status-in-progress {
+    border-color: var(--in-progress);
+    box-shadow: 0 0 12px rgba(201, 137, 77, 0.15);
+  }
+
+  .prompt-id {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+
+  .prompt-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .prompt-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+
+  .prompt-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+
+  .meta-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--surface-high);
+    color: var(--text-tertiary);
+  }
+
+  .meta-tag.files { color: var(--info); background: rgba(139, 207, 240, 0.1); }
+  .meta-tag.design { color: var(--primary-light); background: rgba(255, 184, 119, 0.1); }
+
+  .prompt-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-copy {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    color: #1a1008;
+  }
+
+  .btn-copy:hover { filter: brightness(1.1); }
+
+  .btn-status {
+    background: var(--surface-high);
+    color: var(--text-tertiary);
+    border: 1px solid var(--border);
+  }
+
+  .btn-status:hover { background: var(--surface-highest); }
+
+  .btn-expand {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-tertiary);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .btn-expand:hover { color: var(--text); border-color: var(--primary); }
+
+  .prompt-body {
+    display: none;
+    margin-top: 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 14px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+  }
+
+  .prompt-body.visible { display: block; }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--success);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 999;
+  }
+
+  .copied-toast.show { opacity: 1; }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .collapse-arrow {
+    transition: transform 0.2s;
+    font-size: 14px;
+    color: var(--text-tertiary);
+  }
+
+  .collapsed .collapse-arrow { transform: rotate(-90deg); }
+  .collapsed .prompt-grid { display: none; }
+  .collapsed .dep-note { display: none; }
+
+  @media (max-width: 768px) {
+    .prompt-grid { grid-template-columns: 1fr; }
+    body { padding: 12px; }
+  }
+
+  .gap-summary {
+    background: var(--surface-low);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+
+  .gap-summary h3 {
+    font-size: 14px;
+    color: var(--primary-light);
+    margin-bottom: 8px;
+  }
+
+  .gap-summary ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .gap-summary li {
+    font-size: 12px;
+    color: var(--text-secondary);
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .gap-summary li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<h1>MyBooks UIUX Mission Control</h1>
+<p class="subtitle">41 design screens mapped to 20 parallel-executable prompts across 6 phases. Obsidian Noir design system.</p>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat-pill"><span class="count" id="totalPrompts">20</span> Prompts</div>
+  <div class="stat-pill"><span class="count" id="doneCount">0</span> Done</div>
+  <div class="stat-pill"><span class="count" id="progressCount">0</span> In Progress</div>
+  <div class="stat-pill"><span class="count" id="pendingCount">20</span> Pending</div>
+  <div class="stat-pill"><span class="count">41</span> Design Screens</div>
+  <div class="stat-pill"><span class="count">6</span> Phases</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--pending)"></div> Pending</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--in-progress)"></div> In Progress</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--done)"></div> Done</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div> Sequential (do first)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--success)"></div> Parallel (run together)</div>
+</div>
+
+<div class="gap-summary">
+  <h3>Key Gap Analysis Findings</h3>
+  <ul>
+    <li>Navigation: Design uses 5 tabs (Home/Library/Search/Stats/Journal) -- current code has 4 (no Journal tab)</li>
+    <li>Typography: Design uses Plus Jakarta Sans everywhere -- code uses Inter</li>
+    <li>No-Line Rule: Design forbids 1px borders for sectioning -- code uses borderTopWidth/borderColor extensively</li>
+    <li>Glass Morphism: Design mandates backdrop-blur on nav/overlays -- code has basic glass tokens but inconsistent usage</li>
+    <li>Home: Missing goal ring centering, quote of day section, "On Your Desk" hero cards, Quick Actions grid</li>
+    <li>Library: Missing featured book hero, stat badges (volume count, completion %), filter chip redesign</li>
+    <li>Stats: Missing streak card, monthly activity chart, top authors leaderboard, genre donut chart</li>
+    <li>Book Detail: Missing mood/atmosphere chips, content warnings, series info section, reading stats section</li>
+    <li>Journal: Should be 5th tab, needs encrypted entry cards with lock icons, category filter chips</li>
+    <li>All screens: Need editorial typography (tight letter-spacing headings, uppercase labels with tracking)</li>
+  </ul>
+</div>
+
+<!-- PHASE 0: FOUNDATION -->
+<div class="phase" id="phase-0">
+  <div class="phase-header" onclick="togglePhase('phase-0')">
+    <h2><span class="collapse-arrow">▼</span> Phase 0: Foundation</h2>
+    <span class="phase-badge sequential">Sequential -- Must Complete First</span>
+  </div>
+  <p class="dep-note">These 3 prompts must run sequentially (P0-A then P0-B then P0-C). All other phases depend on Phase 0.</p>
+  <div class="prompt-grid">
+
+    <!-- P0-A -->
+    <div class="prompt-card" data-id="P0-A" data-status="pending">
+      <div class="prompt-id">P0-A</div>
+      <div class="prompt-title">Design Tokens + Typography Foundation</div>
+      <div class="prompt-desc">Install Plus Jakarta Sans, update all books screens to use editorial typography. Implement the "no-line rule" and glass morphism tokens specific to MyBooks.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">obsidian_noir/DESIGN.md</span>
+        <span class="meta-tag files">packages/ui/src/tokens/</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/_layout.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P0-A')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P0-A')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P0-A')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P0-A">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P0-A -- Design Tokens + Typography Foundation
+
+### Context
+MyBooks is being redesigned to match the "Obsidian Noir" design system. Review the design reference at /Users/trey/Downloads/MyBooksUIUX/obsidian_noir/DESIGN.md for the full spec.
+
+### Requirements
+
+1. **Plus Jakarta Sans font integration (module-scoped)**
+   - Install `@expo-google-fonts/plus-jakarta-sans` as a dependency in apps/mobile/
+   - Load the font in apps/mobile/app/(books)/_layout.tsx using `useFonts` from expo-font
+   - Export font family constants from a new file: modules/books/src/ui/typography.ts
+   - Weights needed: 400, 500, 600, 700
+   - Do NOT change fonts for other modules (they keep Inter)
+
+2. **MyBooks-specific token overrides** in modules/books/src/ui/tokens.ts:
+   - `BOOKS_TYPOGRAPHY` object with:
+     - `displayLg`: { fontFamily: 'PlusJakartaSans_700Bold', letterSpacing: -0.02 * fontSize }
+     - `headlineMd`: { fontFamily: 'PlusJakartaSans_600SemiBold' }
+     - `bodyMd`: { fontFamily: 'PlusJakartaSans_400Regular', lineHeight: 1.6 * fontSize }
+     - `labelUpper`: { fontFamily: 'PlusJakartaSans_500Medium', letterSpacing: 0.05 * fontSize, textTransform: 'uppercase' }
+   - `BOOKS_SURFACES` object matching the 5-tier system:
+     - Level 0 (Depth): #0E0E13
+     - Level 1 (Base): #131318
+     - Level 2 (Lift): #1B1B20
+     - Level 3 (Focus): #2A292F
+     - Level 4 (Highest): #35343A
+   - `BOOKS_GLASS` for floating navigation: { backgroundColor: 'rgba(19, 19, 24, 0.7)', backdropFilter: 'blur(20px)' }
+   - `BOOKS_NO_BORDER` flag -- all future books screens must use surface color shifts instead of 1px borders
+   - Primary CTA gradient: `{ from: '#FFB877', to: '#C9894D', angle: 135 }`
+
+3. **Shared BookCard component** at modules/books/src/ui/BookCard.tsx:
+   - No footer/header lines inside card (per design "Book Jacket" rule)
+   - Vertical whitespace (24px) between title and author
+   - On press: scale to 1.02, shift from surface-low to surface-high
+   - Ghost border on covers: 1px inner stroke of outline-variant at 15% opacity
+
+4. **Primary CTA Button** at modules/books/src/ui/GradientButton.tsx:
+   - Pill shape (borderRadius: 999)
+   - LinearGradient from #FFB877 to #C9894D at 135deg
+   - Text color: deep brown (#1a1008), semibold
+   - Use expo-linear-gradient
+
+### Acceptance Criteria
+- `pnpm typecheck` passes
+- Plus Jakarta Sans loads correctly in books module only
+- Token file exports are importable from @mylife/books
+- No changes to non-books modules</div>
+    </div>
+
+    <!-- P0-B -->
+    <div class="prompt-card" data-id="P0-B" data-status="pending">
+      <div class="prompt-id">P0-B</div>
+      <div class="prompt-title">Navigation Restructure (5 Tabs)</div>
+      <div class="prompt-desc">Change from 4 tabs to 5: Home, Library, Search, Stats, Journal. Move Settings to header gear icon. Update tab bar styling to glass morphism.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">mybooks_home, journal_list, mybooks_settings</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/_layout.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P0-B')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P0-B')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P0-B')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P0-B">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P0-B -- Navigation Restructure (5 Tabs)
+
+### Context
+The design screens show a 5-tab bottom navigation: Home, Library, Search, Stats, Journal. The current code has 4 tabs (Home, Library, Search, Stats). Journal is currently a stack screen accessed from Home. Settings is currently hidden but should be accessed via a gear icon in the header.
+
+View these design references for the tab bar:
+- /Users/trey/Downloads/MyBooksUIUX/mybooks_home/screen.png (bottom: HOME, LIBRARY, SEARCH, STATS, JOURNAL tabs with icons)
+- /Users/trey/Downloads/MyBooksUIUX/journal_list/screen.png (Journal tab active)
+- /Users/trey/Downloads/MyBooksUIUX/reading_challenges/screen.png (shows HOME, LIBRARY, READER, STATS, SOCIAL variant -- but Journal is the correct 5th tab)
+
+### Requirements
+
+1. **Update _layout.tsx** (apps/mobile/app/(books)/_layout.tsx):
+   - Add "journal" as 5th visible tab with icon (use a journal/notebook emoji or custom icon)
+   - Tab order: Home, Library, Search, Stats, Journal
+   - Move `journal` from hidden screens to visible tabs
+   - Keep `journal/[id]` and `journal/new` as hidden stack screens
+
+2. **Tab bar styling** (glass morphism per design):
+   - Background: `rgba(19, 19, 24, 0.7)` with backdrop blur
+   - No solid border-top line (remove borderTopWidth: 1)
+   - Active tint: #C9894D (books accent)
+   - Inactive tint: rgba(255,255,255,0.4)
+   - Tab labels: Plus Jakarta Sans Medium, 10px, uppercase, letter-spacing: 0.05em
+   - Tab icons: Use text-based icons, not emoji (Home icon, Library icon, Search icon, Stats icon, Journal icon)
+
+3. **Header update**:
+   - Add gear icon (Settings) to headerRight for all tab screens
+   - On press, navigate to /(books)/settings
+   - Style: color var(--text-tertiary), 22px
+
+4. **Screen renames** (if needed for design alignment):
+   - Ensure "journal" route maps to the journal list screen
+   - journal/[id] for entry detail, journal/new for new entry
+
+### Acceptance Criteria
+- 5 tabs visible in bottom nav
+- Journal tab shows journal list screen
+- Settings accessible via header gear icon
+- Tab bar has glass morphism styling (no solid borders)
+- `pnpm typecheck` passes
+- All existing navigation still works</div>
+    </div>
+
+    <!-- P0-C -->
+    <div class="prompt-card" data-id="P0-C" data-status="pending">
+      <div class="prompt-id">P0-C</div>
+      <div class="prompt-title">Shared UI Components (Cards, Chips, Progress, Section Headers)</div>
+      <div class="prompt-desc">Build the reusable component library that all screens need: glass cards, genre chips with glow, ultra-thin progress bars, editorial section headers.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">obsidian_noir/DESIGN.md</span>
+        <span class="meta-tag files">modules/books/src/ui/</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P0-C')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P0-C')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P0-C')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P0-C">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P0-C -- Shared UI Components
+
+### Context
+Multiple screens reuse the same component patterns from the Obsidian Noir design. Build these once in modules/books/src/ui/ so all subsequent screen prompts can import them. Reference the DESIGN.md at /Users/trey/Downloads/MyBooksUIUX/obsidian_noir/DESIGN.md.
+
+Import the books tokens from modules/books/src/ui/tokens.ts (created in P0-A).
+
+### Components to Build
+
+1. **SectionHeader** (modules/books/src/ui/SectionHeader.tsx):
+   - Props: { label?: string; title: string; action?: { text: string; onPress: () => void } }
+   - `label` renders as uppercase tracking text (labelUpper typography) in primary color
+   - `title` renders as headlineMd
+   - `action` renders as "View All" or similar link-style text on the right
+   - Example: label="CURRENTLY READING" title="On Your Desk" action={{ text: "View All", onPress: ... }}
+
+2. **GlassCard** (modules/books/src/ui/GlassCard.tsx):
+   - Props: { children; level?: 0|1|2|3|4; style?; onPress? }
+   - Uses BOOKS_SURFACES[level] as background
+   - NO border lines (use surface color shift for elevation)
+   - Ghost border on hover/press: 1px rgba(outline-variant, 0.15)
+   - If onPress provided, scale to 1.02 on press with Animated
+
+3. **GenreChip** (modules/books/src/ui/GenreChip.tsx):
+   - Props: { label: string; selected?: boolean; onPress? }
+   - Default: surface-high background, text-secondary color
+   - Selected: primary outer glow (4px blur, 20% opacity), primary text color
+   - Pill shape, horizontal scroll friendly
+
+4. **ReadingProgressBar** (modules/books/src/ui/ReadingProgressBar.tsx):
+   - Props: { progress: number; height?: number; showLabel?: boolean }
+   - Ultra-thin (4px default)
+   - Background: surface-highest
+   - Fill: primary accent with rounded ends
+   - Optional percentage label on right
+
+5. **StatBadge** (modules/books/src/ui/StatBadge.tsx):
+   - Props: { value: string | number; label: string; icon?: string }
+   - Compact display: large value on top, small uppercase label below
+   - Surface-low background, rounded corners
+   - Used in library (142 VOLUMES, 68% COMPLETION) and stats screens
+
+6. **QuoteCard** (modules/books/src/ui/QuoteCard.tsx):
+   - Props: { text: string; author: string; source: string; coverUrl?: string; favorited?: boolean; onToggleFavorite? }
+   - Large italic quote text in primary-light color
+   - Source book with small cover thumbnail
+   - Heart icon for favorite toggle
+
+7. **ActivityCard** (modules/books/src/ui/ActivityCard.tsx):
+   - Props: { avatarUrl?: string; userName: string; action: string; bookTitle?: string; timestamp: string; likes?: number; comments?: number }
+   - Social feed item card for reader_feed screen
+
+### Acceptance Criteria
+- All components export from modules/books/src/ui/index.ts
+- All use Plus Jakarta Sans typography from P0-A tokens
+- All follow "no-line rule" (no solid 1px borders for sectioning)
+- `pnpm typecheck` passes
+- Components are pure presentation (no database or hook dependencies)</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PHASE 1: CORE TAB SCREENS -->
+<div class="phase" id="phase-1">
+  <div class="phase-header" onclick="togglePhase('phase-1')">
+    <h2><span class="collapse-arrow">▼</span> Phase 1: Core Tab Screens</h2>
+    <span class="phase-badge parallel">Parallel -- Run All 5 Together</span>
+  </div>
+  <p class="dep-note">Depends on: Phase 0 complete. All 5 prompts in this phase can run in parallel (they edit different files).</p>
+  <div class="prompt-grid">
+
+    <!-- P1-A -->
+    <div class="prompt-card" data-id="P1-A" data-status="pending">
+      <div class="prompt-id">P1-A</div>
+      <div class="prompt-title">Home Screen Redesign</div>
+      <div class="prompt-desc">Full redesign of the books home tab: "The Curator" header, centered goal ring, daily quote, "On Your Desk" currently reading hero, "On This Day" carousel, Recently Finished, Quick Actions grid.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">mybooks_home/screen.png</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/index.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P1-A')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P1-A')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P1-A')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P1-A">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P1-A -- Home Screen Redesign
+
+### Design Reference
+View: /Users/trey/Downloads/MyBooksUIUX/mybooks_home/screen.png
+
+### File to Edit
+apps/mobile/app/(books)/index.tsx
+
+### Current State
+The home screen has a reading goal ring, currently reading section, recently finished list, on-this-day section, and random quote. The layout is functional but visually plain compared to the design.
+
+### Design Requirements (match the screen.png exactly)
+
+**Header:**
+- "The Curator" title with avatar icon (left) and notification bell + stats icon (right)
+- Use "MyBooks" instead of "The Curator" per design decision (see memory: mybooks_uiux_decisions.md rule #4)
+
+**Annual Goal Section (centered):**
+- Large centered ReadingGoalRing (size ~140px)
+- "14 OF 24 BOOKS" inside ring with year label ("2024 GOAL" above)
+- "58% of your journey complete" text below ring
+
+**Daily Quote Section:**
+- Large quotation mark icon (orange/primary)
+- Italic quote text in larger font
+- Author attribution below with dash separator
+- Shuffle icon to get random quote
+
+**"On Your Desk" -- Currently Reading:**
+- SectionHeader with label="CURRENTLY READING" title="On Your Desk" action="View All"
+- Large book cover cards with title, author below
+- "PROGRESS" label with ReadingProgressBar showing percentage
+- Page count text ("32 of 420 pages read")
+- GradientButton "RESUME READING"
+
+**"On This Day" Section:**
+- Horizontal scroll of small book covers with title and author
+- Left/right arrows for navigation
+
+**Recently Finished Section:**
+- List view: small cover thumbnail, title, author, star rating on right
+- Compact rows
+
+**Quick Actions Grid:**
+- 2-column grid of GlassCards with icons and labels
+- Actions: CHALLENGES, JOURNAL, INSIGHTS, QUOTES, FOR YOU, SERIES, DISCOVER, BADGES, SHARE, RATE BOOKS, WHAT'S NEW, SETTINGS, CLUBS, COMMUNITY, SOCIAL, FRIENDS
+- Each navigates to the respective screen
+
+### Implementation Notes
+- Import shared components from modules/books/src/ui/ (SectionHeader, GlassCard, GradientButton, ReadingProgressBar, QuoteCard, BookCard, StatBadge)
+- Import typography from modules/books/src/ui/tokens.ts
+- Use BOOKS_SURFACES for background sections (alternate between Level 1 and Level 2 to create "carved" look)
+- Keep all existing hooks and data logic, just redesign the JSX/styles
+- Use Animated for any press interactions on cards
+
+### Acceptance Criteria
+- Matches design layout and visual hierarchy
+- All existing data (goal, sessions, books, quotes, insights) still displayed
+- Quick actions navigate to correct screens
+- Pull-to-refresh still works
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P1-B -->
+    <div class="prompt-card" data-id="P1-B" data-status="pending">
+      <div class="prompt-id">P1-B</div>
+      <div class="prompt-title">Library Screen Redesign</div>
+      <div class="prompt-desc">Featured book hero, stat badges (volumes/completion), redesigned filter chips and sort, book grid with BookCard component, "Book Jacket" card styling.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">mybooks_library/screen.png</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/library.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P1-B')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P1-B')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P1-B')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P1-B">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P1-B -- Library Screen Redesign
+
+### Design Reference
+View: /Users/trey/Downloads/MyBooksUIUX/mybooks_library/screen.png
+
+### File to Edit
+apps/mobile/app/(books)/library.tsx
+
+### Design Requirements
+
+**Header:**
+- "PERSONAL COLLECTION" label (uppercase, tracking, primary color)
+- "MyBooks" large display title
+- Stat badges row: "TOTAL ARCHIVE: 142 VOLUMES" and "COMPLETION: 68%"
+
+**Filter Chips:**
+- Horizontal scrollable: All, Want to Read, Currently Read (orange pill for selected)
+- Sort dropdown: "Sort: Recently Added" with chevron
+
+**Featured Book Hero:**
+- Large book cover (fills ~60% width, tall)
+- "FEATURED CLASSIC" label badge
+- Book title in displayLg typography
+- Author name
+- Short synopsis snippet
+- ReadingProgressBar with percentage
+
+**Book Grid:**
+- 2-column grid using BookCard component
+- Each card: cover image, title, author, star rating dots
+- Ghost border on covers
+- Scale animation on press
+
+### Implementation Notes
+- Keep existing filter/sort/search logic from current library.tsx
+- Replace visual rendering with new components
+- Featured book: pick the book with longest reading session or most recently added
+- Import BookCard, StatBadge, GenreChip from modules/books/src/ui/
+- Use BOOKS_SURFACES Level 1 as main background, Level 2 for featured section
+
+### Acceptance Criteria
+- Matches design layout
+- Filter/sort/search still functional
+- Grid/list toggle still works (can keep list mode with updated styling)
+- Book covers display correctly
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P1-C -->
+    <div class="prompt-card" data-id="P1-C" data-status="pending">
+      <div class="prompt-id">P1-C</div>
+      <div class="prompt-title">Search Screen Redesign</div>
+      <div class="prompt-desc">Redesigned search with mood/genre discovery, Open Library results with rich cards, year/format filters, "LOAD MORE CURATED WORKS" button.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">search/screen.png</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/search.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P1-C')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P1-C')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P1-C')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P1-C">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P1-C -- Search Screen Redesign
+
+### Design Reference
+View: /Users/trey/Downloads/MyBooksUIUX/search/screen.png (this is the web version but captures the design language)
+
+The mobile search should follow the same aesthetic but in a single-column mobile layout.
+
+### File to Edit
+apps/mobile/app/(books)/search.tsx
+
+### Design Requirements
+
+**Search Bar:**
+- Full-width pill shape with surface-highest background
+- Placeholder: "Search your digital sanctuary..."
+- Search icon on left
+- Barcode scan button on right (navigates to scan screen)
+
+**Recent Searches:**
+- Horizontal scroll of recent search chips
+- Small x to clear each
+
+**Search Results:**
+- "32 Results for 'Philosophy'" heading with sort dropdown
+- Book cards in 2-column grid: large cover, title below, author, ISBN in uppercase label style, pub year
+- "+" button on each card to add to library
+- "LOAD MORE CURATED WORKS" GradientButton at bottom
+
+**Filter Sidebar (on mobile, use bottom sheet or collapsible):**
+- Genre chips (multi-select with glow)
+- Minimum Rating (star selector)
+- Publication Year (From/To inputs)
+- Format dropdown (Hardcover, Paperback, etc.)
+
+### Implementation Notes
+- Keep existing Open Library API search logic
+- Replace visual rendering with Obsidian Noir components
+- Import GenreChip, BookCard, GlassCard from modules/books/src/ui/
+- Filters can be a collapsible section above results on mobile
+
+### Acceptance Criteria
+- Search still queries Open Library API
+- Results display in new card style
+- Filters functional
+- Scan button navigates to barcode screen
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P1-D -->
+    <div class="prompt-card" data-id="P1-D" data-status="pending">
+      <div class="prompt-id">P1-D</div>
+      <div class="prompt-title">Stats Screen Redesign</div>
+      <div class="prompt-desc">Full dashboard: annual goal ring with messaging, daily streak, stat cards (pages/rating/time), monthly activity chart, top authors, genre distribution donut, library status.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">reading_stats/screen.png, stats/screen.png</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/stats.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P1-D')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P1-D')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P1-D')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P1-D">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P1-D -- Stats Screen Redesign
+
+### Design References
+View both:
+- /Users/trey/Downloads/MyBooksUIUX/reading_stats/screen.png (mobile "Your Reading Journey")
+- /Users/trey/Downloads/MyBooksUIUX/stats/screen.png (web dashboard layout -- use as reference for data layout)
+
+### File to Edit
+apps/mobile/app/(books)/stats.tsx
+
+### Design Requirements (follow reading_stats/screen.png layout)
+
+**Header:**
+- "INSIGHTS & ANALYTICS" label (uppercase, tracking)
+- "Your Reading Journey" display title
+
+**Annual Goal Card:**
+- Large centered ReadingGoalRing (75% shown)
+- "You've finished 32 out of 40 books this year."
+- "You are 4 books ahead of schedule. Keep this pace to reach your goal by mid-November."
+- Chips: "32 FINISHED" and "8 REMAINING"
+
+**Daily Streak Card:**
+- Large number (18) with "Days in a row" label
+- Mini bar chart showing last 7 days activity
+- "LAST 7 DAYS" label
+
+**Stat Cards Row (3 cards, horizontal):**
+- 12,482 TOTAL PAGES (book icon)
+- 4.8 AVG RATING (star icon)
+- 342h READING TIME (clock icon)
+
+**Monthly Activity Chart:**
+- "PAGES PER MONTH" label
+- Bar chart with month labels (Jan-Jun shown)
+- Primary accent color bars
+
+**Top Authors Leaderboard:**
+- Numbered list: 1. Haruki Murakami (8 Books), 2. Donna Tartt (5 Books), etc.
+- Author name with progress-bar style indicator
+
+**Genre Distribution:**
+- "Magical Realism 42%" with genre breakdown
+- Pie/donut sections: Fiction, Philosophy, Sci-Fi, Other
+
+**Library Status:**
+- Completed: 142
+- Currently Reading: 3
+- Want to Read: 84
+
+### Implementation Notes
+- Keep existing data calculation logic from current stats.tsx
+- For charts, use simple View-based bar charts (colored View bars) -- no chart library needed
+- For the donut chart, use a simple segmented circle or pie approximation with Views
+- Import StatBadge, GlassCard, ReadingProgressBar from modules/books/src/ui/
+
+### Acceptance Criteria
+- All existing stats data displayed in new layout
+- Charts render correctly with real data
+- Scroll performance smooth
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P1-E -->
+    <div class="prompt-card" data-id="P1-E" data-status="pending">
+      <div class="prompt-id">P1-E</div>
+      <div class="prompt-title">Settings Screen Redesign</div>
+      <div class="prompt-desc">Settings grouped by category (Preferences, Security & Sync, System) with glass cards, sort preference picker, theme toggle, notification status, export button, danger zone.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">mybooks_settings/screen.png</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/settings.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P1-E')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P1-E')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P1-E')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P1-E">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P1-E -- Settings Screen Redesign
+
+### Design Reference
+View: /Users/trey/Downloads/MyBooksUIUX/mybooks_settings/screen.png
+
+### File to Edit
+apps/mobile/app/(books)/settings.tsx
+
+### Design Requirements
+
+**Header:**
+- Avatar icon with "The Curator" label (use "MyBooks" per design decision)
+- "Settings" large display title
+- "Refine your library experience" subtitle
+
+**Preferences Section:**
+- "PREFERENCES" section label (uppercase, tracking, primary color, with subtle line)
+- Sort preference GlassCard: icon, "Sort preference", "Default sorting for your library", dropdown showing "Recents"
+- Theme toggle GlassCard: icon, "Theme toggle", "Switch between Obsidian and Ivory", toggle switch
+
+**Security & Sync Section:**
+- "SECURITY & SYNC" section label
+- Privacy controls GlassCard: shield icon, "Privacy controls", "Manage visibility of your reading habits", chevron
+- Cloud sync GlassCard: cloud icon, "Cloud sync", "Sync progress across all devices", toggle (off by default)
+
+**System Section:**
+- "SYSTEM" section label
+- Notifications GlassCard: bell icon, "Notifications", "Daily reminders and goals", "ACTIVE" badge
+- Export GlassCard: download icon, "Export", "Download annotations and data", "START EXPORT" link
+
+**Danger Zone:**
+- Red-tinted GlassCard at bottom
+- Warning icon, "Danger Zone"
+- "Resetting will permanently remove all your library data, reading progress, and saved annotations. This action cannot be undone."
+- "RESET MYBOOKS DATA" button (outlined, danger color)
+
+**Footer:**
+- "V2.4.0 OBSIDIAN" dot "PRIVACY POLICY" centered text
+
+### Implementation Notes
+- Keep existing settings logic (sort preference, theme, etc.)
+- Import GlassCard from modules/books/src/ui/
+- Each setting row is a GlassCard with icon, title, description, and control
+- Use BOOKS_SURFACES Level 2 for cards on Level 1 background
+
+### Acceptance Criteria
+- All settings functional (sort, theme, export, reset)
+- Grouped by section with uppercase labels
+- Danger zone clearly separated
+- `pnpm typecheck` passes</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PHASE 2: PRIMARY FEATURE SCREENS -->
+<div class="phase" id="phase-2">
+  <div class="phase-header" onclick="togglePhase('phase-2')">
+    <h2><span class="collapse-arrow">▼</span> Phase 2: Primary Feature Screens</h2>
+    <span class="phase-badge parallel">Parallel -- Run All 4 Together</span>
+  </div>
+  <p class="dep-note">Depends on: Phase 0 complete. Can run in parallel with Phase 1 (different files).</p>
+  <div class="prompt-grid">
+
+    <!-- P2-A -->
+    <div class="prompt-card" data-id="P2-A" data-status="pending">
+      <div class="prompt-id">P2-A</div>
+      <div class="prompt-title">Book Detail Screen Redesign</div>
+      <div class="prompt-desc">Hero cover, reading status dropdown, mood/atmosphere chips, content warnings, synopsis, personal review with stars, series info, reading stats, "Log Reading Session" CTA.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">book_detail_1/screen.png</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/book/[id].tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P2-A')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P2-A')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P2-A')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P2-A">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P2-A -- Book Detail Screen Redesign
+
+### Design Reference
+View: /Users/trey/Downloads/MyBooksUIUX/book_detail_1/screen.png
+
+### File to Edit
+apps/mobile/app/(books)/book/[id].tsx
+
+### Design Requirements (top to bottom as shown in design)
+
+**Hero Section:**
+- Back arrow ("Library") + heart/favorite icon top right
+- Large 3D-perspective book cover (centered, with shadow depth)
+- Genre badges below cover (e.g., "VOLUME 3", "THE OBSIDIAN CHRONICLES")
+
+**Book Info:**
+- Title in displayLg: "Beyond the Silent Horizon"
+- Author name in primary color: "Eleanor Vance"
+- Metadata row: PUBLISHED (Aether Press), YEAR (2023), PAGES (482), FORMAT (Hardcover) -- all in labelUpper style
+
+**Reading Status Section:**
+- "Reading Status" label with dropdown: "Currently Reading" (surface-high pill)
+- Page progress: "Page 312 of 482" with "65%" on right
+- ReadingProgressBar
+- GradientButton: "Log Reading Session"
+
+**Mood & Atmosphere:**
+- Horizontal scroll of GenreChips: Atmospheric, Dark Academic, Melancholic, Mysterious, Slow Burn
+- "CONTENT WARNINGS" section with warning chips: ISOLATION, LOSS
+
+**Synopsis:**
+- Collapsible text block with "Synopsis" header
+- Body text at 1.6 line height
+
+**My Personal Review:**
+- Star rating (5 stars, large, interactive)
+- Quote/review text in styled quote block
+- Text input: "Write your thoughts here..."
+- Action buttons row: FAVORITE QUOTE, MANAGE TAGS, SAVE REVIEW
+
+**Series Information:**
+- "The Obsidian Chronicles" series card
+- "Book 2 of 4" with list of other volumes (small covers + titles)
+
+**Reading Stats:**
+- Time Reading: 12h 45m
+- Started: Oct 12, 2023
+- Est. Completion: Oct 28, 2023
+
+### Implementation Notes
+- Keep all existing data hooks (useBooks, useSessions, useReviews, useTags, etc.)
+- Replace JSX layout to match design
+- Import GlassCard, GenreChip, ReadingProgressBar, GradientButton, SectionHeader from modules/books/src/ui/
+
+### Acceptance Criteria
+- All book data displays correctly for any book
+- Rating interaction works
+- Reading session logging works
+- Progress tracking accurate
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P2-B -->
+    <div class="prompt-card" data-id="P2-B" data-status="pending">
+      <div class="prompt-id">P2-B</div>
+      <div class="prompt-title">Journal System (List + Detail + New Entry)</div>
+      <div class="prompt-desc">Journal list with search/category filters, encrypted entry detail with rich content, new entry form with mood selector, linked books, markdown editor, passphrase encryption, photo attachments.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">journal_list, journal_entry_detail, new_journal_entry</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/journal.tsx, journal/[id].tsx, journal/new.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P2-B')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P2-B')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P2-B')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P2-B">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P2-B -- Journal System Redesign (3 screens)
+
+### Design References
+View all three:
+- /Users/trey/Downloads/MyBooksUIUX/journal_list/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/journal_entry_detail/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/new_journal_entry/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/journal.tsx (list)
+2. apps/mobile/app/(books)/journal/[id].tsx (detail)
+3. apps/mobile/app/(books)/journal/new.tsx (new entry)
+
+### Journal List (journal.tsx)
+
+**Header:**
+- MyBooks logo + title, search + settings icons
+- "Reading Journal" display title
+- "Your encrypted sanctuary for intellectual reflections and reading discoveries." subtitle
+
+**Search:**
+- SearchBar with placeholder "Search entries..."
+
+**Category Filter Chips:**
+- Horizontal scroll: ALL NOTES, PHILOSOPHY, FICTION, etc.
+- Use GenreChip component
+
+**Entry Cards:**
+- Date label (uppercase): "OCT 24, 2023"
+- Lock icon (encrypted indicator) on right
+- Entry title in headlineMd: "The Stoic Paradox"
+- Preview text (2-3 lines, truncated)
+- Linked book card at bottom: small cover + title + author
+- Emoji mood indicator on left of date
+
+**FAB:**
+- Orange floating "+" button bottom right to create new entry
+
+### Journal Entry Detail (journal/[id].tsx)
+
+**Header:**
+- "MyBooks" title, "DECRYPTED" badge on right
+- "REFLECTIVE" mood tag, date
+
+**Content:**
+- Entry title in displayLg
+- User avatar + "The Curator" (use "MyBooks") + tags (Contemporary, Philosophical)
+- Full markdown-rendered content with proper typography
+- Inline block quotes styled with primary accent left border
+- "Linked Books" section with cover thumbnails
+- "CURRENTLY READING", "REFERENCE", "ARCHIVED" section badges
+- Action buttons: "Add Entry" button at bottom
+
+### New Journal Entry (journal/new.tsx)
+
+**Header:**
+- Back arrow, "New Journal Entry" in primary, "Publish" button top right
+
+**Form:**
+- Date display: "OCTOBER 24, 2023"
+- Title: "Reflection & Notes" (editable, displayLg)
+- "CURRENT MOOD" section: horizontal mood chips (Inspired, Thoughtful, Intrigued, etc.)
+- "LINKED BOOK" section: book cover thumbnails, "Browse Library" button
+- Markdown text area: "Write your markdown thoughts here..."
+- Rich text toolbar: bold, list, link icons
+- "Encrypted Journal" section: lock icon, "END-TO-END PRIVACY", passphrase input with dots, "Your biometric key will also unlock this entry."
+- "ATTACHMENTS" section: photo thumbnails with x to remove, "ADD IMAGE" button
+
+### Implementation Notes
+- Keep existing journal engine (AES-256 encryption) from modules/books/src/journal/
+- Import GlassCard, GenreChip, GradientButton, SectionHeader from modules/books/src/ui/
+- Mood chips are a new UI element but can use GenreChip with custom colors
+
+### Acceptance Criteria
+- All 3 screens match design layout
+- Encryption/decryption still works
+- Search and filter functional
+- New entry creation with all fields works
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P2-C -->
+    <div class="prompt-card" data-id="P2-C" data-status="pending">
+      <div class="prompt-id">P2-C</div>
+      <div class="prompt-title">Reader System (Library + View + Settings)</div>
+      <div class="prompt-desc">Digital library with upload, format badges, progress bars, last-opened timestamps. Reader view with highlights sidebar, font/theme settings bottom sheet (serif/sans, light/sepia/obsidian).</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">reader_library_1, reader_view_2</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/reader/index.tsx, reader/[id].tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P2-C')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P2-C')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P2-C')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P2-C">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P2-C -- Reader System Redesign (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/reader_library_1/screen.png (mobile reader list)
+- /Users/trey/Downloads/MyBooksUIUX/reader_view_2/screen.png (reader settings bottom sheet)
+
+### Files to Edit
+1. apps/mobile/app/(books)/reader/index.tsx (library)
+2. apps/mobile/app/(books)/reader/[id].tsx (reading view)
+
+### Reader Library (reader/index.tsx)
+
+**Header:**
+- MyBooks logo, search + settings icons
+- "YOUR COLLECTION" label (uppercase, tracking)
+- "Digital Library" display title
+- GradientButton: "Upload Document" with upload icon
+
+**Stats Row (2x2 grid):**
+- TOTAL BOOKS: 24
+- IN PROGRESS: 8
+- FORMATS: PDF, EPUB
+- LAST READ: 2h ago
+
+**Document List:**
+- Each item is a GlassCard with:
+  - Book cover thumbnail (left)
+  - Title + Author
+  - Format badge pill (EPUB, PDF) on right
+  - ReadingProgressBar with percentage
+  - "Last opened" timestamp
+- Sorted by last opened
+
+**Upload CTA (bottom):**
+- "+" icon with "Expand Your Library"
+- "Upload ePub, PDF, or text files to read here and start building your knowledge vault."
+- Format pills: PDF, EPUB, TXT
+
+### Reader View (reader/[id].tsx)
+
+Keep the existing reading view but add the **Reader Settings Bottom Sheet** from the design:
+
+**Settings Bottom Sheet (triggered by settings icon):**
+- Drag handle at top
+- "Reader Settings" title with X close button
+- FONT SIZE: slider from small A to large A, showing "20px" value
+- TYPOGRAPHY: two toggle pills -- "Serif" (selected) and "Sans-serif"
+- APPEARANCE: three theme cards -- "LIGHT" (white), "SEPIA" (warm), "OBSIDIAN" (dark, selected with primary border)
+- Each theme card shows "Aa" preview text in that theme's colors
+
+### Implementation Notes
+- Keep existing reader document parser and ePub/PDF handling
+- The bottom sheet can use a Modal or @gorhom/bottom-sheet if available
+- Stats computed from reader documents in the database
+
+### Acceptance Criteria
+- Document library displays uploaded files correctly
+- Upload flow works
+- Reader settings bottom sheet opens/closes smoothly
+- Theme/font changes apply to reading view
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P2-D -->
+    <div class="prompt-card" data-id="P2-D" data-status="pending">
+      <div class="prompt-id">P2-D</div>
+      <div class="prompt-title">Quotes System (Collection + Add Quote)</div>
+      <div class="prompt-desc">Quotes collection with large styled quote cards, curation stats, favorites. Add quote form with large text area, source book picker, page location, collection tags.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">quotes_collection, add_quote</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/quotes.tsx, quotes/new.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P2-D')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P2-D')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P2-D')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P2-D">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P2-D -- Quotes System Redesign (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/quotes_collection/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/add_quote/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/quotes.tsx (collection)
+2. apps/mobile/app/(books)/quotes/new.tsx (add quote)
+
+### Quotes Collection (quotes.tsx)
+
+**Header:**
+- MyBooks logo + settings icon
+- "Quotes Collection" display title
+- SearchBar: "Search your curated thoughts..."
+
+**Quote Cards (large, one per row):**
+- Use QuoteCard component from modules/books/src/ui/
+- Large italic quote text in primary-light color on GlassCard
+- Source: book cover thumbnail + author name + book title (uppercase label)
+- Heart icon for favorite toggle (filled orange when favorited)
+
+**Curation Stats Card:**
+- Decorative icon
+- "Curation Stats" title
+- "You've highlighted 42 passages across 12 different authors this month."
+- Save icon below
+
+**Floating "+" button** bottom right to add new quote
+
+### Add Quote (quotes/new.tsx)
+
+**Header:**
+- Back arrow, "MyBooks" title, settings + avatar icons
+
+**Title:**
+- "Capture Wisdom" display title
+- "Add a new fragment to your digital collection." subtitle
+
+**Quote Input:**
+- Large GlassCard with quotation mark icon
+- Tall text area: "Type the words that moved you..."
+- "FAVORITE QUOTE" heart toggle bottom right of card
+
+**Source Book:**
+- "SOURCE BOOK" label
+- Book picker card: cover thumbnail + title + author, dropdown chevron
+- Tapping opens book selection from library
+
+**Location:**
+- "LOCATION" label
+- "PG. 000" input field
+
+**Collection Tags:**
+- "COLLECTION TAGS" label
+- Tag chips with x to remove (e.g., "Philosophy", "Existentialism")
+- "+ Add Tag" button
+
+**Submit:**
+- GradientButton: "Curate Fragment" (full width)
+
+### Acceptance Criteria
+- Quotes display with correct styling
+- Favorites toggle persists
+- New quote creation works with all fields
+- Source book picker shows library books
+- Search/filter functional
+- `pnpm typecheck` passes</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PHASE 3: SOCIAL & DISCOVERY -->
+<div class="phase" id="phase-3">
+  <div class="phase-header" onclick="togglePhase('phase-3')">
+    <h2><span class="collapse-arrow">▼</span> Phase 3: Social & Discovery Screens</h2>
+    <span class="phase-badge parallel">Parallel -- Run All 4 Together</span>
+  </div>
+  <p class="dep-note">Depends on: Phase 0 complete. Can run in parallel with Phases 1 and 2.</p>
+  <div class="prompt-grid">
+
+    <!-- P3-A -->
+    <div class="prompt-card" data-id="P3-A" data-status="pending">
+      <div class="prompt-id">P3-A</div>
+      <div class="prompt-title">Discover + Recommendations</div>
+      <div class="prompt-desc">Discover screen with mood/pace filters, genre browsing with rich imagery, match percentages. Recommendations with curated picks, author affinity, genre clusters, discovery queue.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">discover, recommendations</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/discover.tsx, recommendations.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P3-A')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P3-A')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P3-A')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P3-A">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P3-A -- Discover + Recommendations Redesign (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/discover/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/recommendations/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/discover.tsx
+2. apps/mobile/app/(books)/recommendations.tsx
+
+### Discover Screen
+
+**Header:**
+- MyBooks logo, search bar (compact), settings icon
+- "Discover" display title
+- "CURATING YOUR NEXT INTELLECTUAL JOURNEY" label
+
+**Mood Filter Section:**
+- "MOOD" label, horizontal chips: Atmospheric, Melancholy, Thought-provoking, Whimsical
+- "PACE" label, horizontal chips: Slow Burn, Medium, Fast-Paced
+
+**Browse by Genre:**
+- "Browse by Genre" section with "EXPLORE ALL" action
+- Large genre cards with atmospheric background images
+- Genre names: Fantasy, Sci-Fi, Classics, Philosophy, Mystery
+- Cards have different sizes (asymmetric layout)
+
+**Recommended For You:**
+- "Based on your recent journey through 'Dune'"
+- Book cards with match percentage badge (e.g., "95% MATCH")
+- Title, author, "WHY THIS?" expandable with explanation text
+- GradientButton "PREVIEW" on each
+
+### Recommendations Screen
+
+**Header:**
+- "Curated For You" title with "DAILY REFRESH" badge
+
+**Featured Pick:**
+- Large book cover with match percentage
+- Dismiss (x) button
+
+**Popup Card (The Midnight Archive):**
+- "AFFINITY RATIONALE" label
+- "You loved 3 books by this author, including The Silent Echo."
+- GradientButton "Start Reading"
+
+**Author Affinity Section:**
+- Author rows: avatar, name, books read count, affinity level, "Explore" button
+
+**Genre Clusters:**
+- 2-column grid: cluster name + count (e.g., "Sci-Fi Noir 04", "Existentialism 02")
+
+**Discovery Queue:**
+- Horizontal scroll of book covers with title/author below
+- "LOAD MORE" link
+
+### Implementation Notes
+- Keep existing discovery engine from modules/books/src/discovery/
+- Keep existing recommendation engine from modules/books/src/recommendations/
+- Import all shared UI components from modules/books/src/ui/
+
+### Acceptance Criteria
+- Mood/pace/genre filtering works
+- Recommendations display with match percentages
+- Navigation between discover and recommendations works
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P3-B -->
+    <div class="prompt-card" data-id="P3-B" data-status="pending">
+      <div class="prompt-id">P3-B</div>
+      <div class="prompt-title">Social Feed + Friends Challenge</div>
+      <div class="prompt-desc">Social feed with activity cards (rated, finished, completed challenge). Friends challenge with leaderboard, progress comparison, invite flow.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">reader_feed, friends_challenge</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/social.tsx, friends-challenge.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P3-B')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P3-B')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P3-B')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P3-B">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P3-B -- Social Feed + Friends Challenge (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/reader_feed/screen.png (social feed)
+- /Users/trey/Downloads/MyBooksUIUX/friends_challenge/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/social.tsx
+2. apps/mobile/app/(books)/friends-challenge.tsx
+
+### Social Feed (social.tsx)
+
+**Header:**
+- MyBooks logo + notification bell
+- Hero card: "Connect with friends" + "See what your circle is reading and find your next obsession together." + "Find Friends" button
+
+**Recent Activity Section:**
+- "RECENT ACTIVITY" label + "Add Friend" link
+- ActivityCard items showing:
+  - Avatar + "Elena Rossi rated" + star rating + book title (primary color) + timestamp
+  - Avatar + "Marcus Chen finished reading" + book cover card + timestamp
+  - Avatar + "Julian Vane completed a goal" + challenge badge card + timestamp
+  - Avatar + "Sarah Bloom reviewed Dune" + quoted review text + timestamp
+- Hearts + comments count on each
+
+**Privacy Reminder (bottom):**
+- Lock icon, "PRIVACY REMINDER"
+- "Your reading progress and library visibility can be managed in Account Settings."
+
+### Friends Challenge (friends-challenge.tsx)
+
+**Header:**
+- Avatar, "MyBooks" title, bell icon
+- "ACTIVE CHALLENGE" badge + "4 Days Remaining"
+- "The Winter Marathon" display title
+- "Reach 1,500 pages before the weekend."
+
+**Your Progress Card:**
+- Large number: 842 / 1500 pg
+- ReadingProgressBar + "56% Completed" + "+120 today"
+
+**Opponent Card:**
+- "JULIAN LEADS BY 42 PG"
+- Avatar + 884 / 1500 pg + "59% Completed" + "Beating your pace"
+
+**Circle Leaderboard:**
+- "The Circle Leaderboard" + "VIEW FULL RANK"
+- Numbered list: rank, avatar, name, status tag, pages, notes
+- Your row highlighted
+
+**Expand The Circle:**
+- "Reading is better with competition. Invite new friends to this challenge."
+- GradientButton "Invite Friends"
+
+**Challenge Reward:**
+- Badge card with reward name
+
+### Implementation Notes
+- Social feed uses mock data (per design decision: robust mock data with Supabase-like schema)
+- Import ActivityCard, GlassCard, ReadingProgressBar, GradientButton from modules/books/src/ui/
+
+### Acceptance Criteria
+- Social feed renders with mock data
+- Friends challenge shows progress comparison
+- Leaderboard displays correctly
+- All navigation works
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P3-C -->
+    <div class="prompt-card" data-id="P3-C" data-status="pending">
+      <div class="prompt-id">P3-C</div>
+      <div class="prompt-title">Book Clubs + Club Detail</div>
+      <div class="prompt-desc">Reading Circles list with join/create flow, featured club with group progress. Club detail with current book, discussion prompts, member reading pace, reading history.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">book_clubs, club_detail</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/clubs.tsx, club/[id].tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P3-C')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P3-C')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P3-C')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P3-C">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P3-C -- Book Clubs + Club Detail (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/book_clubs/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/club_detail/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/clubs.tsx
+2. apps/mobile/app/(books)/club/[id].tsx
+
+### Book Clubs List (clubs.tsx)
+
+Match /Users/trey/Downloads/MyBooksUIUX/book_clubs/screen.png exactly:
+- Header with "COMMUNITY" label, "Reading Circles" title
+- "Join with Code" outlined button + "Create Club" gradient button
+- Featured club card (large): book cover, "MOST ACTIVE" badge, member icons, club name, currently reading description, group progress percentage, "Go to Discussion" link
+- Other clubs list: small cards with member count, page progress, status
+
+### Club Detail (club/[id].tsx)
+
+Match /Users/trey/Downloads/MyBooksUIUX/club_detail/screen.png:
+- "ACTIVE CLUB" + member count badges
+- Club name display title + description
+- "ENTER DISCUSSION" + "CLUB SETTINGS" buttons
+- Currently reading: large cover, "CURRENTLY READING" label, book title + author in primary, dates, progress ring
+- Management section: "Change Current Book", "Leave Club"
+- Discussion prompts section with quoted prompts
+- Member Reading Pace: avatar + name + pace status + progress bar for each member
+- Reading History: horizontal scroll of past book covers with titles and dates
+
+### Implementation Notes
+- Uses mock data for social features (per design decision)
+- Import GlassCard, ReadingProgressBar, GradientButton, SectionHeader from modules/books/src/ui/
+
+### Acceptance Criteria
+- Club list displays with featured club highlighted
+- Club detail shows all sections
+- Mock data renders correctly
+- Navigation between list and detail works
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P3-D -->
+    <div class="prompt-card" data-id="P3-D" data-status="pending">
+      <div class="prompt-id">P3-D</div>
+      <div class="prompt-title">Challenges + Community Challenges</div>
+      <div class="prompt-desc">Personal reading challenges with progress tracking (books/minutes/themed). Community challenge catalog with XP, leaderboard, join buttons.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">reading_challenges, community_challenges</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/challenges.tsx, community.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P3-D')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P3-D')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P3-D')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P3-D">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P3-D -- Challenges + Community Challenges (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/reading_challenges/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/community_challenges/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/challenges.tsx (personal)
+2. apps/mobile/app/(books)/community.tsx (community catalog)
+
+### Reading Challenges (challenges.tsx)
+
+Match design:
+- "PERSONAL GROWTH" label, "Reading Challenges" title
+- "Create Challenge" gradient button
+- "Active Challenges" section with "3 ONGOING"
+- Challenge cards with type badge (BOOKS/MINUTES/THEMED), end date
+  - Large title, description
+  - Progress ring (e.g., 34/50, 68% Completed)
+  - Books remaining note
+- Completed Challenges collapsible section with count badge
+
+### Community Challenges (community.tsx)
+
+Match design:
+- "ACTIVE CHALLENGES" header with days remaining badge
+- Featured challenge hero: large title, progress %, rank among participants
+- Stats: "Top 3%", XP points, user rank
+- Category filter chips
+- Difficulty filter
+- Challenge list: each with emoji icon, title, description, participant count, "Join Challenge" button
+- Challenges include: Weekend Warrior, Proust Pilgrimage, Modern Philosophy 101, Sci-Fi Odyssey, Buddy Read, Detective's Intuition, The Poet's Corner, Gothic Masterpieces, etc.
+
+### Implementation Notes
+- Keep existing challenge engine from modules/books/src/challenges/
+- Community challenges use mock data
+- Import GlassCard, ReadingProgressBar, GradientButton, GenreChip, StatBadge from modules/books/src/ui/
+
+### Acceptance Criteria
+- Personal challenges display with real data
+- Community challenges show catalog with mock data
+- Create challenge flow works
+- Progress tracking accurate
+- `pnpm typecheck` passes</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PHASE 4: STATS & GROWTH -->
+<div class="phase" id="phase-4">
+  <div class="phase-header" onclick="togglePhase('phase-4')">
+    <h2><span class="collapse-arrow">▼</span> Phase 4: Stats, Growth & Utility Screens</h2>
+    <span class="phase-badge parallel">Parallel -- Run All 5 Together</span>
+  </div>
+  <p class="dep-note">Depends on: Phase 0 complete. Can run in parallel with Phases 1-3.</p>
+  <div class="prompt-grid">
+
+    <!-- P4-A -->
+    <div class="prompt-card" data-id="P4-A" data-status="pending">
+      <div class="prompt-id">P4-A</div>
+      <div class="prompt-title">Insights + Badges</div>
+      <div class="prompt-desc">Reading Insights with streak, speed, peak hours, rhythm distribution, genre evolution, completion rate. Achievement Gallery with volume/page/social badges and streak display.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">reading_insights, literary_badges</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/insights.tsx, badges.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P4-A')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P4-A')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P4-A')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P4-A">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P4-A -- Insights + Badges (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/reading_insights/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/literary_badges/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/insights.tsx
+2. apps/mobile/app/(books)/badges.tsx
+
+### Reading Insights (insights.tsx)
+
+Match design sections top to bottom:
+- "Reading Insights" title + "Your intellectual journey, visualized." subtitle
+- CURRENT STREAK: "Daily momentum" + large "14" number
+- READING SPEED: "48 pages per hour" + "+12% vs last month" badge + mini bar chart
+- PEAK READING HOURS: "Night Owl Habit" with time distribution visualization
+- RHYTHM DISTRIBUTION: "Week Context" donut (70% Weekend) with "Weekend (7.3h/avg)" label
+- GENRE EVOLUTION: "Proportions Shift" stacked bar chart (Last 6 Months)
+- Completion rate: "92% Completion Specialist" with description
+- SESSION TRENDS: "Monthly Activity" line/bar chart with "Active Minutes" legend
+- Genre Diversity: chips grid (Philosophy, Science Fiction, Biography, Design, Poetry, Quantum Physics) with "High Versatility" badge
+
+### Achievement Gallery (badges.tsx)
+
+Match design:
+- Hero card: "Achievement Gallery" + description + "14 BADGES EARNED"
+- CURRENT STREAK: fire icon + "12 Days" + "Next milestone: 15 days"
+- Category filter chips: All Badges, Volume, Pages
+- VOLUME ACHIEVEMENTS section: Archivist (50 titles, GOLD), Bibliophile (25 books, SILVER), Legendary Reader (80/100 progress)
+- PAGE MASTERY section: Page Turner (10k pages, GOLD), Epic Voyager (800+ pages, IN PROGRESS)
+- SOCIAL & JOURNALING section: Chronicler (50 highlights, BRONZE), Opinionated (10 reviews, SILVER), Philosopher (5 philosophy books, BRONZE), 2023 Champion (SPECIAL TIER)
+- Undiscovered section: locked badge with "KEEP READING TO UNLOCK"
+
+### Implementation Notes
+- Keep existing insights engine and badges engine
+- For charts, build simple View-based visualizations
+- Import GlassCard, StatBadge, GenreChip, ReadingProgressBar from modules/books/src/ui/
+
+### Acceptance Criteria
+- All insight metrics display with real data
+- Badge progress shows correctly
+- Charts render at proper proportions
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P4-B -->
+    <div class="prompt-card" data-id="P4-B" data-status="pending">
+      <div class="prompt-id">P4-B</div>
+      <div class="prompt-title">Year in Review + Share Stats</div>
+      <div class="prompt-desc">Year in Ink carousel with year selector, share/download. Share stats with template selection, metric toggles, privacy controls.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">year_in_review, share_reading_stats</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/year-review.tsx, share.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P4-B')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P4-B')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P4-B')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P4-B">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P4-B -- Year in Review + Share Stats (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/year_in_review/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/share_reading_stats/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/year-review.tsx
+2. apps/mobile/app/(books)/share.tsx
+
+### Year in Review
+
+Match design:
+- Year selector dropdown in header (2023)
+- Progress dots/bar at top (multi-page carousel)
+- Large centered book icon in circular frame
+- "THE OBSIDIAN LIBRARY" label
+- "Your Year in Ink" display title with "Ink" in primary color
+- Description text about the year
+- Left/right arrows for carousel navigation
+- GradientButton "Share as Image"
+- "DOWNLOAD PDF SUMMARY" text button below
+
+### Share Stats
+
+Match design:
+- Close (x) button top right
+- Stats preview card: "128 Day Streak" + "KNOWLEDGE IS A HABIT" + stats (42 BOOKS READ, 12,402 TOTAL PAGES) + "MyBooks" watermark
+- "SELECT TEMPLATE" section: horizontal scroll of template options (Year summary, Monthly chart, Streak)
+- "METRICS DISPLAY" section: toggles for Page Count, Current Book Cover
+- "PRIVACY" section: toggles for Hide Reading Progress, Show Library Name
+- GradientButton "Share to Social"
+- Outlined button "Save Image"
+
+### Implementation Notes
+- Keep existing year-review and share/stats-card logic
+- The preview card should be capturable as an image (react-native-view-shot)
+- Import GlassCard, GradientButton, StatBadge from modules/books/src/ui/
+
+### Acceptance Criteria
+- Year carousel navigates between pages
+- Share preview renders correctly
+- Template selection changes preview
+- Privacy toggles affect preview content
+- Share/save functions work
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P4-C -->
+    <div class="prompt-card" data-id="P4-C" data-status="pending">
+      <div class="prompt-id">P4-C</div>
+      <div class="prompt-title">Series (List + Detail)</div>
+      <div class="prompt-desc">Series library with create modal. Series detail with hero cover, metadata, ordered book list with numbering, series progression ring, activity log.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">my_series, series_detail</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/series.tsx, series/[id].tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P4-C')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P4-C')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P4-C')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P4-C">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P4-C -- Series System (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/my_series/screen.png (list + create modal)
+- /Users/trey/Downloads/MyBooksUIUX/series_detail/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/series.tsx
+2. apps/mobile/app/(books)/series/[id].tsx
+
+### Series List + Create Modal
+
+Match design:
+- "Series Library" title with description
+- "Create Series" gradient button
+- Series cards in scrollable list
+- **New Series Modal** (shown in design): SERIES NAME input, DESCRIPTION textarea, "Initialize Collection" gradient button, "Save as Draft" text link
+
+### Series Detail
+
+Match design:
+- Hero section: atmospheric book cover image spanning full width
+- "SERIES" badge + series title in displayLg
+- "AUTHOR: ELENA THORNE"
+- Description text
+- Stats row: TOTAL BOOKS (05), COMPLETED (03), TOTAL PAGES (2,410)
+- "Add Book to Series" + "Manage Metadata" buttons
+- Series Order section: filter + view mode icons, numbered book list
+  - Each entry: number circle, book cover, title, published year, page count, checkbox for read
+- SERIES PROGRESSION: progress ring (60%) + "Pages Read: 1,446 / 2,410" + "Est. Time Remaining: 18h45m"
+- LIBRARY CATEGORIES: genre chips (High Fantasy, Grimdark, History, Political)
+- ACTIVITY LOG: bullet list of recent actions
+
+### Implementation Notes
+- Keep existing series CRUD logic from modules/books/src/db/series.ts
+- The modal can be a React Native Modal component
+- Import GlassCard, ReadingProgressBar, GradientButton, GenreChip, StatBadge from modules/books/src/ui/
+
+### Acceptance Criteria
+- Series list displays correctly
+- Create series modal works
+- Series detail shows all sections with real data
+- Book ordering and progression tracking accurate
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P4-D -->
+    <div class="prompt-card" data-id="P4-D" data-status="pending">
+      <div class="prompt-id">P4-D</div>
+      <div class="prompt-title">Add Book + Barcode Scan</div>
+      <div class="prompt-desc">Add book screen with Open Library search results and "Add to Library" buttons. Barcode scanner with camera viewfinder, ISBN alignment guide, scan result card.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">add_book, barcode_scan</span>
+        <span class="meta-tag files">apps/mobile/app/(books)/book/add.tsx, scan.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P4-D')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P4-D')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P4-D')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P4-D">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P4-D -- Add Book + Barcode Scan (2 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/add_book/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/barcode_scan/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/book/add.tsx
+2. apps/mobile/app/(books)/scan.tsx
+
+### Add Book (book/add.tsx)
+
+Match design:
+- "Expand your collection" display title
+- Subtitle: "Search the Open Library archives or scan a physical copy to add to your personal digital sanctuary."
+- SearchBar with placeholder "Title, author or ISBN"
+- "Scan Cover" button with camera icon
+- "FOUND IN ARCHIVES" + count + "PARALLELLIBRARY" badge
+- Book result cards (full width): large cover, "DARK ONE EDIT WORK" text, title, author, year, description snippet, GradientButton "Add to Library"
+- Multiple results stacked vertically
+
+### Barcode Scan (scan.tsx)
+
+Match design:
+- Camera viewfinder with book-shaped frame overlay
+- "ALIGN ISBN BARCODE" text centered below viewfinder
+- "Manual Entry" button with keyboard icon + history icon
+- "SCAN DETECTED" section when ISBN found: "VERIFIED" badge
+  - Book cover thumbnail + title + author
+  - Format/pages/published metadata
+  - Genre chips
+  - Synopsis snippet
+  - GradientButton "Add to Library"
+  - "Discard Scan" text button
+
+### Implementation Notes
+- Keep existing Open Library search and barcode scan logic
+- Use expo-camera for barcode scanning
+- Import GlassCard, GradientButton, GenreChip from modules/books/src/ui/
+
+### Acceptance Criteria
+- Search queries Open Library and displays results
+- Add to Library saves book to SQLite
+- Barcode scanner opens camera
+- Scan detection shows book info
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P4-E -->
+    <div class="prompt-card" data-id="P4-E" data-status="pending">
+      <div class="prompt-id">P4-E</div>
+      <div class="prompt-title">Onboarding + What's New + Import + Rate + Shelf Detail</div>
+      <div class="prompt-desc">First-launch onboarding with privacy messaging. What's New changelog. Import library flow (Goodreads/StoryGraph). Unrated books queue. Shelf collection view.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">onboarding, what_s_new, import_books, rate_books, shelf_detail</span>
+        <span class="meta-tag files">5 screen files</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P4-E')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P4-E')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P4-E')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P4-E">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P4-E -- Utility Screens (5 screens)
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/onboarding/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/what_s_new/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/import_books/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/rate_books/screen.png
+- /Users/trey/Downloads/MyBooksUIUX/shelf_detail/screen.png
+
+### Files to Edit
+1. apps/mobile/app/(books)/onboarding.tsx
+2. apps/mobile/app/(books)/whats-new.tsx
+3. (import is handled through onboarding/settings -- update the import section in settings or create import.tsx if missing)
+4. apps/mobile/app/(books)/rate-books.tsx
+5. apps/mobile/app/(books)/shelf/[id].tsx
+
+### Onboarding
+- Book icon + "The Curator" (use "MyBooks") title
+- "Your sanctuary for thought." display title
+- Privacy message: "Welcome to a private library designed for the modern intellectual. No ads, no tracking, just your books and your progress."
+- "Privacy First" card with shield icon and description
+- "GDPR COMPLIANT" + "ENCRYPTED" badges
+- Progress dots, "Skip" + "Continue" gradient button
+
+### What's New
+- "CURRENT VERSION V2.4.0" badge
+- "Curating your intellectual sanctuary." display title with "intellectual sanctuary" in primary
+- Feature cards: Encrypted Journaling (lock icon), Reading Stats (chart icon), AI Curator (sparkle icon), Quotes Collection, Obsidian Mode
+- RELEASE TIMELINE: version entries with dates and bullet lists
+- "You're all caught up!" section with "Got it, take me home" + "View Full Changelog" buttons
+
+### Import Books (mobile)
+- "Import Library" title + subtitle
+- "CHOOSE SOURCE": Goodreads / StoryGraph pills
+- Step instructions (numbered): Export from Goodreads, Download CSV
+- Drop zone: "Drop your CSV here" with "Select File" button
+- Preview: book count + book list with status dots
+- Stats: READ count, WANT TO READ count
+- "Import Library" gradient button
+- Success state: "Import Successful" with imported/duplicates/new genres stats
+
+### Rate Books
+- "Unrated Library" title
+- "PENDING FEEDBACK: 12 Books" with "Batch Skip" button
+- Book cards: cover image, date finished, title, author, 5-star rating, Skip/Rate buttons
+- Editor's Choice featured card for highlighted book
+
+### Shelf Detail
+- Back arrow + shelf icon
+- "ARCHIVED COLLECTION" label
+- Shelf name display title + description + volume count badge
+- "Edit" + "Start Reading" buttons
+- Filter chips: All Books, Unread, Reading + grid/list toggle
+- Book grid with covers, titles, authors, "NEW" badges
+
+### Implementation Notes
+- Keep all existing logic for each screen
+- Import shared components from modules/books/src/ui/
+
+### Acceptance Criteria
+- All 5 screens match design layout
+- Existing functionality preserved
+- `pnpm typecheck` passes</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PHASE 5: WEB PARITY -->
+<div class="phase" id="phase-5">
+  <div class="phase-header" onclick="togglePhase('phase-5')">
+    <h2><span class="collapse-arrow">▼</span> Phase 5: Web Parity</h2>
+    <span class="phase-badge parallel">Parallel -- Run All 4 Together</span>
+  </div>
+  <p class="dep-note">Depends on: Phases 0-4 complete (mobile screens done first). All 4 web prompts can run in parallel.</p>
+  <div class="prompt-grid">
+
+    <!-- P5-A -->
+    <div class="prompt-card" data-id="P5-A" data-status="pending">
+      <div class="prompt-id">P5-A</div>
+      <div class="prompt-title">Web Library Hub + Book Detail</div>
+      <div class="prompt-desc">Web library hub with sidebar nav, "Currently Reading" hero, "Your Manuscripts" grid, "Add Book" button. Web book detail with synopsis, curation, reading history.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">library_hub, book_detail_2</span>
+        <span class="meta-tag files">apps/web/app/books/page.tsx, books/[id]/page.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P5-A')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P5-A')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P5-A')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P5-A">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P5-A -- Web Library Hub + Book Detail
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/library_hub/screen.png (web library)
+- /Users/trey/Downloads/MyBooksUIUX/book_detail_2/screen.png (web book detail)
+
+### Files to Edit
+1. apps/web/app/books/page.tsx (library hub)
+2. apps/web/app/books/[id]/page.tsx (book detail)
+
+### Web Library Hub
+Match library_hub design:
+- Left sidebar with icon nav (already exists in web layout)
+- "COLLECTIONS" label + "MyBooks" title + "Add Book" gradient button
+- "Currently Reading" section: 2 book cards with cover, title, author, "View all archive" link
+- Filter chips row: All, Want, Reading, Finished, DNF + "Sort: Recent"
+- Book grid (3-4 columns): large covers with title, author, rating stars
+- "Missing something? Check your import settings" empty slot card
+- "Your Reading Rhythm" sidebar card with stats
+
+### Web Book Detail
+Match book_detail_2 design:
+- Breadcrumb: Library > My Collection > Book Title
+- "SKIP TO REVIEW" anchor
+- Two-column layout: cover image left, metadata right
+- Status badge, progress %, page count, rating stars
+- SYNOPSIS section (collapsible)
+- "Curation & Thoughts" section: date, star rating, quoted review text
+- "Reading History" section: table with date, pages, time, notes, "LOG SESSION" link
+- Use CSS variables matching Obsidian Noir tokens
+
+### Acceptance Criteria
+- Both pages render with Obsidian Noir styling
+- All data from server actions displays correctly
+- Responsive layout (sidebar collapses on mobile)
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P5-B -->
+    <div class="prompt-card" data-id="P5-B" data-status="pending">
+      <div class="prompt-id">P5-B</div>
+      <div class="prompt-title">Web Stats Dashboard</div>
+      <div class="prompt-desc">Full web stats dashboard with year toggle, goal ring, books-per-month bar chart, top authors, status donut, discovery origins.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">stats/screen.png</span>
+        <span class="meta-tag files">apps/web/app/books/stats/page.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P5-B')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P5-B')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P5-B')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P5-B">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P5-B -- Web Stats Dashboard
+
+### Design Reference
+View: /Users/trey/Downloads/MyBooksUIUX/stats/screen.png (this IS the web design)
+
+### File to Edit
+apps/web/app/books/stats/page.tsx
+
+### Design Requirements
+
+Match the web dashboard layout exactly:
+- Header: "Obsidian Library" + "Library Statistics" + year toggle (2023/2024)
+- Top stat row: TOTAL BOOKS (1,248), PAGES READ (42,890), AVG RATING (4.8 star)
+- 2024 READING GOAL card: large 75% ring, current pace + estimated completion date
+- BOOKS FINISHED BY MONTH card: bar chart with orange/average line, monthly labels
+- TOP AUTHORS card: numbered list with book counts + horizontal bars
+- STATUS BREAKDOWN card: donut chart (Finished/Reading/To Read) + "VIEW FULL ARCHIVE" link
+- DISCOVERY ORIGINS row: stat cards (42 CURATED, 18 IMPORTED, 124 PERSONAL, 31 DIGITAL ORIGINS, 9 SHARED, 56 OTHER)
+- Use CSS grid for dashboard layout
+- All cards use glass styling with surface tiers
+
+### Implementation Notes
+- Use server actions to fetch stats data
+- Build charts with CSS/SVG (no chart library)
+- Use CSS custom properties matching Obsidian Noir tokens
+
+### Acceptance Criteria
+- Dashboard renders with correct grid layout
+- Charts display real data
+- Year toggle switches between years
+- Responsive on smaller screens
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P5-C -->
+    <div class="prompt-card" data-id="P5-C" data-status="pending">
+      <div class="prompt-id">P5-C</div>
+      <div class="prompt-title">Web Search + Import</div>
+      <div class="prompt-desc">Web search with left sidebar filters, result grid, ISBN metadata. Web import wizard with source selection, CSV upload, preview table, batch summary.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">search, import</span>
+        <span class="meta-tag files">apps/web/app/books/search/page.tsx, books/import/page.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P5-C')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P5-C')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P5-C')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P5-C">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P5-C -- Web Search + Import
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/search/screen.png (web search)
+- /Users/trey/Downloads/MyBooksUIUX/import/screen.png (web import)
+
+### Files to Edit
+1. apps/web/app/books/search/page.tsx
+2. apps/web/app/books/import/page.tsx
+
+### Web Search
+Match design:
+- Full-width search bar: "Search your digital sanctuary..."
+- Recent searches chips row
+- Left sidebar: REFINE SEARCH with Genre chips (multi-select), Minimum Rating (star selector), Publication Year (from/to), Format dropdown
+- Results count + sort selector
+- Book result grid (3 columns): large covers, title, author, ISBN (uppercase), pub year, "+" add button
+- "LOAD MORE CURATED WORKS" button at bottom
+- Skeleton loading states for covers
+
+### Web Import
+Match design:
+- "Expand Your Sanctuary" title
+- Tabs: Goodreads / StoryGraph (importData tab)
+- 1. SELECT SOURCE: source pills
+- 2. HOW TO EXPORT: step instructions with numbered list
+- CSV drop zone: "Drop your CSV here" + "Choose File" button
+- IMPORT PREVIEW table: Title, Author, Rating columns with status dots
+- "IMPORT 142 BOOKS" gradient button
+- PREVIOUS BATCH SUMMARY sidebar: stats (DAYS AGO, BOOKS IMPORTED, ERRORS) + error log
+
+### Implementation Notes
+- Keep existing search and import server actions
+- Use CSS grid for layout
+
+### Acceptance Criteria
+- Search queries Open Library API
+- Filter sidebar functional
+- Import wizard accepts CSV and shows preview
+- All Obsidian Noir styling applied
+- `pnpm typecheck` passes</div>
+    </div>
+
+    <!-- P5-D -->
+    <div class="prompt-card" data-id="P5-D" data-status="pending">
+      <div class="prompt-id">P5-D</div>
+      <div class="prompt-title">Web Reader</div>
+      <div class="prompt-desc">Web Private Reader with manuscript grid, currently reading hero, upload flow, reading view with highlights sidebar and appearance settings.</div>
+      <div class="prompt-meta">
+        <span class="meta-tag design">reader_library_2, reader_view_1</span>
+        <span class="meta-tag files">apps/web/app/books/reader/page.tsx, reader/[id]/page.tsx</span>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn btn-copy" onclick="copyPrompt('P5-D')">Copy Prompt</button>
+        <button class="btn btn-status" onclick="cycleStatus('P5-D')">Pending</button>
+        <button class="btn btn-expand" onclick="toggleBody('P5-D')">View</button>
+      </div>
+      <div class="prompt-body" id="body-P5-D">You are working on MyBooks UIUX reconciliation in /Users/trey/Desktop/Apps/MyLife.
+
+## Task: P5-D -- Web Reader
+
+### Design References
+- /Users/trey/Downloads/MyBooksUIUX/reader_library_2/screen.png (web reader library)
+- /Users/trey/Downloads/MyBooksUIUX/reader_view_1/screen.png (web reading view)
+
+### Files to Edit
+1. apps/web/app/books/reader/page.tsx (library)
+2. apps/web/app/books/reader/[id]/page.tsx (reading view)
+
+### Web Reader Library
+Match design:
+- "Private Reader" title + description + search + view toggle (Grid/List) + "Last Opened" sort
+- Currently Reading hero: cover + title + author + "64% Complete" + page count + "Resume" button
+- Upload section: "Upload manuscripts" description + "Select Files" button (accepts PDF, EPUB, MOBI)
+- "Your Manuscripts" grid: book covers with title, author, days-ago timestamp, "COMPLETED" badge where applicable
+
+### Web Reading View
+Match design:
+- Left sidebar: highlight annotations list (clickable to jump to position)
+- Main content: chapter title + body text with proper typography
+- Top right: "Highlights" button toggle + settings gear
+- APPEARANCE panel (right sidebar or modal): font size slider, Serif/Sans toggle, background colors (Light/Dark/Sepia), "RESET DEFAULTS" link
+
+### Implementation Notes
+- Keep existing reader document handling and web server actions
+- Use CSS for reading themes (light/sepia/obsidian)
+- Highlights sidebar can be a collapsible panel
+
+### Acceptance Criteria
+- Reader library displays uploaded documents
+- Upload flow works
+- Reading view renders document content
+- Appearance settings change reader theme
+- `pnpm typecheck` passes</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DEPENDENCY GRAPH -->
+<div class="phase" id="dep-graph">
+  <div class="phase-header" onclick="togglePhase('dep-graph')">
+    <h2><span class="collapse-arrow">▼</span> Execution Dependency Graph</h2>
+  </div>
+  <div style="font-family: 'SF Mono', monospace; font-size: 13px; line-height: 2; padding: 16px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); overflow-x: auto;">
+<pre style="color: var(--text-secondary);">
+PHASE 0 (Sequential)        PHASE 1-4 (Parallel after P0)          PHASE 5 (After mobile)
+========================    ====================================    =======================
+
+P0-A Tokens + Typography
+  |
+  v
+P0-B Nav Restructure ------> P1-A Home          P2-A Book Detail
+  |                           P1-B Library       P2-B Journal (3)
+  v                           P1-C Search        P2-C Reader (2)
+P0-C Shared Components -----> P1-D Stats         P2-D Quotes (2)   ---> P5-A Web Lib + Detail
+                              P1-E Settings      P3-A Discover+Recs      P5-B Web Stats
+                                                 P3-B Social+Friends     P5-C Web Search+Import
+                              (all run in        P3-C Clubs (2)          P5-D Web Reader
+                               parallel)         P3-D Challenges (2)
+                                                 P4-A Insights+Badges
+                                                 P4-B Year+Share
+                                                 P4-C Series (2)
+                                                 P4-D Add+Scan
+                                                 P4-E Utility (5)
+
+TOTAL: 20 prompts covering 40 mobile + web screens
+Minimum sequential sessions: 4 (P0 -> P1-4 parallel -> P5 parallel -> verification)
+Maximum parallelism: 17 prompts in P1-4 can run simultaneously
+</pre>
+  </div>
+</div>
+
+<!-- EXECUTION GUIDE -->
+<div class="phase" id="exec-guide">
+  <div class="phase-header" onclick="togglePhase('exec-guide')">
+    <h2><span class="collapse-arrow">▼</span> Execution Guide</h2>
+  </div>
+  <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.8; padding: 8px;">
+    <p><strong style="color: var(--primary-light);">Session 1:</strong> Run P0-A, then P0-B, then P0-C sequentially. These establish the foundation. ~1 session.</p>
+    <p><strong style="color: var(--primary-light);">Session 2-5:</strong> Run P1-A through P1-E (5 tab screens) in parallel. Each is an independent file. Can /clear between each if needed.</p>
+    <p><strong style="color: var(--primary-light);">Session 6-12:</strong> Run P2-A through P4-E (12 feature screen prompts) in parallel or sequential batches. Each targets different files.</p>
+    <p><strong style="color: var(--primary-light);">Session 13-16:</strong> Run P5-A through P5-D (4 web parity prompts) after mobile is done.</p>
+    <p><strong style="color: var(--primary-light);">Session 17:</strong> Verification pass. Run pnpm typecheck, pnpm test, visual review of all screens.</p>
+    <p style="margin-top: 12px;"><strong style="color: var(--text);">Tips:</strong></p>
+    <ul style="padding-left: 20px;">
+      <li>Each prompt is self-contained with file paths and design references</li>
+      <li>Copy a prompt, paste into a fresh Claude Code session</li>
+      <li>After each prompt completes, mark it Done here and move to next</li>
+      <li>If a session hits context limits, /clear and paste the next prompt</li>
+      <li>Phase 1-4 prompts can run in any order</li>
+      <li>Always run pnpm typecheck after each session</li>
+    </ul>
+  </div>
+</div>
+
+<div class="copied-toast" id="toast">Prompt copied to clipboard!</div>
+
+<script>
+// State management
+const state = JSON.parse(localStorage.getItem('mybooks-mission-control') || '{}');
+
+function saveState() {
+  localStorage.setItem('mybooks-mission-control', JSON.stringify(state));
+}
+
+function updateStats() {
+  const cards = document.querySelectorAll('.prompt-card');
+  let done = 0, progress = 0, pending = 0;
+  cards.forEach(card => {
+    const s = card.dataset.status;
+    if (s === 'done') done++;
+    else if (s === 'in-progress') progress++;
+    else pending++;
+  });
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('progressCount').textContent = progress;
+  document.getElementById('pendingCount').textContent = pending;
+}
+
+// Restore state
+document.querySelectorAll('.prompt-card').forEach(card => {
+  const id = card.dataset.id;
+  if (state[id]) {
+    card.dataset.status = state[id];
+    card.classList.toggle('status-done', state[id] === 'done');
+    card.classList.toggle('status-in-progress', state[id] === 'in-progress');
+    const btn = card.querySelector('.btn-status');
+    btn.textContent = state[id] === 'done' ? 'Done' : state[id] === 'in-progress' ? 'In Progress' : 'Pending';
+  }
+});
+updateStats();
+
+function cycleStatus(id) {
+  const card = document.querySelector(`[data-id="${id}"]`);
+  const statuses = ['pending', 'in-progress', 'done'];
+  const labels = ['Pending', 'In Progress', 'Done'];
+  const current = statuses.indexOf(card.dataset.status);
+  const next = (current + 1) % statuses.length;
+  card.dataset.status = statuses[next];
+  card.classList.remove('status-done', 'status-in-progress');
+  if (statuses[next] === 'done') card.classList.add('status-done');
+  if (statuses[next] === 'in-progress') card.classList.add('status-in-progress');
+  card.querySelector('.btn-status').textContent = labels[next];
+  state[id] = statuses[next];
+  saveState();
+  updateStats();
+}
+
+function copyPrompt(id) {
+  const body = document.getElementById(`body-${id}`);
+  navigator.clipboard.writeText(body.textContent.trim()).then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  });
+}
+
+function toggleBody(id) {
+  const body = document.getElementById(`body-${id}`);
+  body.classList.toggle('visible');
+}
+
+function togglePhase(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+</script>
+
+</body>
+</html>

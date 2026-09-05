@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Meerkat Production Activation Runbook</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+color-scheme: dark;
+--bg: #0e0e13;
+--surface: #1b1b20;
+--surface-high: #2a292f;
+--text: #e4e1e9;
+--muted: #d6c3b5;
+--primary: #ffb877;
+--info: #8bcff0;
+--success: #30d158;
+--danger: #ffb4ab;
+--border: rgba(255,255,255,.10);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+margin: 0;
+background: radial-gradient(circle at top right, rgba(139,207,240,.08), transparent 34rem), var(--bg);
+color: var(--text);
+font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+font-size: 16px;
+line-height: 1.62;
+}
+body > header, body > nav, body > main, body > footer, body > div.section { width: min(1120px, calc(100% - 40px)); margin-inline: auto; }
+header { padding: 54px 0 20px; }
+header h1 { font-size: clamp(2rem, 5vw, 4rem); line-height: 1.04; margin: 0; letter-spacing: -.045em; }
+body > div.section > h1 { padding-top: 54px; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.045em; }
+nav#TOC {
+margin-top: 22px;
+margin-bottom: 28px;
+padding: 18px 22px;
+border: 1px solid var(--border);
+border-radius: 18px;
+background: rgba(255,255,255,.035);
+backdrop-filter: blur(18px);
+}
+nav#TOC > ul { columns: 2; column-gap: 34px; margin: 0; }
+nav#TOC li { break-inside: avoid; margin: 4px 0; }
+nav#TOC ul { padding-left: 22px; }
+main { padding-bottom: 80px; }
+h1, h2, h3, h4 { color: var(--text); line-height: 1.2; scroll-margin-top: 18px; }
+h2 { margin: 44px 0 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 1.75rem; }
+h3 { margin: 30px 0 12px; color: var(--primary); font-size: 1.24rem; }
+h4 { color: var(--info); }
+p, li { max-width: 92ch; }
+a { color: var(--info); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+strong { color: #fff; }
+code {
+color: #ffd2aa;
+background: rgba(255,184,119,.09);
+border: 1px solid rgba(255,184,119,.18);
+border-radius: 6px;
+padding: .1em .35em;
+}
+pre {
+overflow: auto;
+padding: 18px;
+border: 1px solid var(--border);
+border-radius: 14px;
+background: #131318;
+}
+pre code { padding: 0; background: transparent; border: 0; color: var(--text); }
+table {
+display: block;
+overflow-x: auto;
+width: 100%;
+border-collapse: separate;
+border-spacing: 0;
+margin: 18px 0 26px;
+border: 1px solid var(--border);
+border-radius: 14px;
+background: rgba(255,255,255,.025);
+}
+th, td { min-width: 150px; padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+th { color: var(--primary); background: rgba(255,184,119,.06); font-size: .9rem; letter-spacing: .02em; }
+tr:last-child td { border-bottom: 0; }
+blockquote {
+margin: 20px 0;
+padding: 12px 18px;
+border-left: 3px solid var(--info);
+background: rgba(139,207,240,.06);
+color: var(--muted);
+}
+ul, ol { padding-left: 25px; }
+li { margin: 7px 0; }
+input[type="checkbox"] { width: 1.05rem; height: 1.05rem; margin-right: .45rem; accent-color: var(--success); }
+hr { border: 0; border-top: 1px solid var(--border); margin: 36px 0; }
+footer { color: var(--muted); padding-bottom: 40px; }
+@media (max-width: 760px) {
+body > header, body > nav, body > main, body > footer, body > div.section { width: min(100% - 24px, 1120px); }
+header { padding-top: 34px; }
+nav#TOC > ul { columns: 1; }
+th, td { min-width: 190px; }
+}
+@media print {
+:root { color-scheme: light; }
+body { background: #fff; color: #111; }
+nav#TOC { background: #fff; }
+h1, h2, h3, h4, strong { color: #111; }
+a { color: #174d73; }
+table, th, td, nav#TOC { border-color: #ccc; }
+code { color: #7a3e00; background: #fff4e8; }
+}
+</style>
+  <meta name="theme-color" content="#0e0e13">
+  <link href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 64 64&#39;%3E%3Crect width=&#39;64&#39; height=&#39;64&#39; rx=&#39;14&#39; fill=&#39;%23131318&#39;/%3E%3Cpath d=&#39;M15 43V21h8l9 12 9-12h8v22h-8V33l-9 12-9-12v10z&#39; fill=&#39;%23ffb877&#39;/%3E%3C/svg%3E" rel="icon">
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#meerkat-production-activation-runbook" id="toc-meerkat-production-activation-runbook">Meerkat Production
+Activation Runbook</a>
+<ul>
+<li><a href="#how-to-use-this-runbook" id="toc-how-to-use-this-runbook">How to use this runbook</a></li>
+<li><a href="#step-1-select-the-immutable-release-candidate" id="toc-step-1-select-the-immutable-release-candidate">Step 1: select
+the immutable release candidate</a></li>
+<li><a href="#step-2-assign-accountable-owners-and-freeze-launch-changes" id="toc-step-2-assign-accountable-owners-and-freeze-launch-changes">Step
+2: assign accountable owners and freeze launch changes</a></li>
+<li><a href="#step-3-approve-and-publish-legal-and-safety-policy" id="toc-step-3-approve-and-publish-legal-and-safety-policy">Step 3:
+approve and publish legal and safety policy</a></li>
+<li><a href="#step-4-create-production-accounts-and-secure-access" id="toc-step-4-create-production-accounts-and-secure-access">Step 4:
+create production accounts and secure access</a></li>
+<li><a href="#step-5-provision-the-production-data-and-network-plane" id="toc-step-5-provision-the-production-data-and-network-plane">Step 5:
+provision the production data and network plane</a></li>
+<li><a href="#step-6-register-external-providers-and-load-secrets" id="toc-step-6-register-external-providers-and-load-secrets">Step 6:
+register external providers and load secrets</a></li>
+<li><a href="#step-7-deploy-the-complete-topology-by-immutable-digest" id="toc-step-7-deploy-the-complete-topology-by-immutable-digest">Step 7:
+deploy the complete topology by immutable digest</a></li>
+<li><a href="#step-8-run-migrations-and-prove-least-privilege" id="toc-step-8-run-migrations-and-prove-least-privilege">Step 8: run
+migrations and prove least privilege</a></li>
+<li><a href="#step-9-activate-malware-abuse-ncmec-dmca-and-moderation-operations" id="toc-step-9-activate-malware-abuse-ncmec-dmca-and-moderation-operations">Step
+9: activate malware, abuse, NCMEC, DMCA, and moderation
+operations</a></li>
+<li><a href="#step-10-prove-billing-entitlement-refund-and-deletion-behavior" id="toc-step-10-prove-billing-entitlement-refund-and-deletion-behavior">Step
+10: prove billing, entitlement, refund, and deletion behavior</a></li>
+<li><a href="#step-11-execute-the-complete-plan-41-provider-matrix" id="toc-step-11-execute-the-complete-plan-41-provider-matrix">Step 11:
+execute the complete Plan 41 provider matrix</a></li>
+<li><a href="#step-12-execute-calls-rooms-push-mesh-and-background-device-matrices" id="toc-step-12-execute-calls-rooms-push-mesh-and-background-device-matrices">Step
+12: execute calls, rooms, push, mesh, and background device
+matrices</a></li>
+<li><a href="#step-13-prove-backup-pitr-restore-failover-and-regional-recovery" id="toc-step-13-prove-backup-pitr-restore-failover-and-regional-recovery">Step
+13: prove backup, PITR, restore, failover, and regional
+recovery</a></li>
+<li><a href="#step-14-verify-supply-chain-and-signed-artifacts" id="toc-step-14-verify-supply-chain-and-signed-artifacts">Step 14:
+verify supply chain and signed artifacts</a></li>
+<li><a href="#step-15-run-production-shaped-browser-load-soak-canary-and-rollback" id="toc-step-15-run-production-shaped-browser-load-soak-canary-and-rollback">Step
+15: run production-shaped browser, load, soak, canary, and
+rollback</a></li>
+<li><a href="#step-16-complete-store-compliance-and-submit-exact-builds" id="toc-step-16-complete-store-compliance-and-submit-exact-builds">Step
+16: complete store compliance and submit exact builds</a></li>
+<li><a href="#step-17-assemble-the-immutable-evidence-ledger-and-rerun-the-final-audit" id="toc-step-17-assemble-the-immutable-evidence-ledger-and-rerun-the-final-audit">Step
+17: assemble the immutable evidence ledger and rerun the final
+audit</a></li>
+<li><a href="#step-18-sign-go-and-activate-public-availability" id="toc-step-18-sign-go-and-activate-public-availability">Step 18: sign
+GO and activate public availability</a></li>
+<li><a href="#automatic-stop-conditions" id="toc-automatic-stop-conditions">Automatic stop conditions</a></li>
+</ul></li>
+</ul>
+</nav>
+<section id="meerkat-production-activation-runbook" class="level1">
+<h1>Meerkat Production Activation Runbook</h1>
+<p>Date: 2026-07-15</p>
+<p>Purpose: ordered human and live-environment work required after the
+code-ready candidate.</p>
+<p>Starting code candidate: <code>25c38e51</code></p>
+<p>Launch state: <strong>NO-GO until every step is complete for one
+immutable release</strong></p>
+<section id="how-to-use-this-runbook" class="level2">
+<h2>How to use this runbook</h2>
+<p>Complete the steps in order. Do not mark a step complete because a
+configuration exists or a command started. Mark it complete only when
+its exit gate is satisfied and its evidence is stored in the release
+ledger.</p>
+<p>Use this evidence directory for the selected release:</p>
+<pre class="text"><code>docs/releases/meerkat/&lt;release-id&gt;/
+  evidence.json
+  evidence-summary.html
+  artifacts/
+  providers/
+  devices/
+  drills/
+  stores/</code></pre>
+<p>Never store passwords, private keys, OAuth client secrets, provider
+tokens, recovery codes, private user content, or abuse material in the
+repository. Evidence should contain identifiers, timestamps, redacted
+outputs, digests, verdicts, and links to restricted systems.</p>
+<p>Status vocabulary:</p>
+<ul>
+<li><code>OPEN</code>: work has not started.</li>
+<li><code>IN_PROGRESS</code>: an owner is actively collecting
+evidence.</li>
+<li><code>PASS</code>: the exact exit gate passed for the selected
+release.</li>
+<li><code>FAIL</code>: the exit gate failed. Stop promotion until
+resolved and rerun.</li>
+<li><code>WAIVED</code>: prohibited for mandatory launch gates unless
+the founder and relevant legal or security owner explicitly sign a
+documented exception.</li>
+</ul>
+</section>
+<section id="step-1-select-the-immutable-release-candidate" class="level2">
+<h2>Step 1: select the immutable release candidate</h2>
+<p>Owner: release owner</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Confirm the working tree is clean
+with <code>git status --short</code>.</label></li>
+<li><label><input type="checkbox"></input>Push
+<code>fix/meerkat-plan41-audit-findings</code> without
+force.</label></li>
+<li><label><input type="checkbox"></input>Open a pull request to the protected
+release branch.</label></li>
+<li><label><input type="checkbox"></input>Require review and all repository
+checks.</label></li>
+<li><label><input type="checkbox"></input>Merge through the protected
+path.</label></li>
+<li><label><input type="checkbox"></input>Record the final release SHA from
+<code>git rev-parse HEAD</code>.</label></li>
+<li><label><input type="checkbox"></input>Create a release id such as
+<code>meerkat-2026-07-15-rc1</code>.</label></li>
+<li><label><input type="checkbox"></input>Create
+<code>docs/releases/meerkat/&lt;release-id&gt;/evidence.json</code>
+bound to that SHA.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Release id, full SHA, branch, pull request URL, merge commit,
+reviewer identities, and remote CI run URLs.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>The exact SHA is immutable, remotely available, protected, reviewed,
+and green. Any later code change creates a new release candidate and
+restarts affected evidence.</li>
+</ul>
+</section>
+<section id="step-2-assign-accountable-owners-and-freeze-launch-changes" class="level2">
+<h2>Step 2: assign accountable owners and freeze launch changes</h2>
+<p>Owner: founder</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Name one owner each for release,
+infrastructure, security, safety, legal, privacy, billing, Apple
+release, Google release, support, and incident command.</label></li>
+<li><label><input type="checkbox"></input>Name a primary and backup rollback
+decision-maker.</label></li>
+<li><label><input type="checkbox"></input>Record escalation contacts and
+response windows.</label></li>
+<li><label><input type="checkbox"></input>Start a release change freeze. Only
+release-blocking fixes may enter the candidate.</label></li>
+<li><label><input type="checkbox"></input>Require a new SHA and rerun matrix
+for every accepted fix.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Owner roster, approval timestamp, escalation tree, and change-freeze
+policy.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Every mandatory lane has an accepting human owner and backup.</li>
+</ul>
+</section>
+<section id="step-3-approve-and-publish-legal-and-safety-policy" class="level2">
+<h2>Step 3: approve and publish legal and safety policy</h2>
+<p>Owners: legal, privacy, safety</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Approve Terms of Use.</label></li>
+<li><label><input type="checkbox"></input>Approve Privacy Policy and
+data-retention disclosures.</label></li>
+<li><label><input type="checkbox"></input>Approve Community Standards and UGC
+moderation rules.</label></li>
+<li><label><input type="checkbox"></input>Approve account deletion, appeal,
+safety support, law-enforcement, and contact procedures.</label></li>
+<li><label><input type="checkbox"></input>Resolve encryption export
+classification for iOS, Android, web, and container
+distribution.</label></li>
+<li><label><input type="checkbox"></input>Register the designated DMCA agent
+with the correct legal entity and contact data.</label></li>
+<li><label><input type="checkbox"></input>Publish every URL over HTTPS on the
+production domains.</label></li>
+<li><label><input type="checkbox"></input>Verify each URL from an
+unauthenticated browser and mobile device.</label></li>
+<li><label><input type="checkbox"></input>Enter the exact production values
+for every <code>MEERKAT_DMCA_AGENT_*</code> field.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Counsel approvals, DMCA registration reference, policy version ids,
+public URLs, TLS screenshots, and effective dates.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>All required documents are approved, public, internally consistent,
+and match observed product behavior.</li>
+</ul>
+</section>
+<section id="step-4-create-production-accounts-and-secure-access" class="level2">
+<h2>Step 4: create production accounts and secure access</h2>
+<p>Owners: infrastructure, security</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Create isolated production projects
+for cloud, DNS, registry, PostgreSQL, object storage, KMS, monitoring,
+logging, backup, Apple, Google, Stripe, RevenueCat, OAuth providers,
+LiveKit, safety vendors, and support.</label></li>
+<li><label><input type="checkbox"></input>Prohibit shared personal
+credentials.</label></li>
+<li><label><input type="checkbox"></input>Require hardware-backed MFA for
+privileged users.</label></li>
+<li><label><input type="checkbox"></input>Store recovery codes in the approved
+offline process.</label></li>
+<li><label><input type="checkbox"></input>Create named service identities and
+least-privilege operator groups.</label></li>
+<li><label><input type="checkbox"></input>Configure a two-person break-glass
+procedure.</label></li>
+<li><label><input type="checkbox"></input>Review and record every privileged
+grant.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Redacted account inventory, role matrix, MFA status, access-review
+export, and break-glass drill result.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>No production system depends on a shared personal credential or an
+unreviewed privileged grant.</li>
+</ul>
+</section>
+<section id="step-5-provision-the-production-data-and-network-plane" class="level2">
+<h2>Step 5: provision the production data and network plane</h2>
+<p>Owners: infrastructure, database, security</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Provision PostgreSQL 17 with
+verified TLS, automated backups, WAL archiving, HA, PITR, and
+monitoring.</label></li>
+<li><label><input type="checkbox"></input>Provision versioned S3-compatible
+object storage with encryption, lifecycle policy, access logs,
+replication or regional recovery, and deletion controls.</label></li>
+<li><label><input type="checkbox"></input>Provision DNS, certificates, edge
+routing, restricted operator network, metrics, logs, and alert
+delivery.</label></li>
+<li><label><input type="checkbox"></input>Provision KMS and secret-manager
+custody for OAuth envelopes, storage signing, push token encryption,
+service TLS, database credentials, object-store credentials, and
+operator secrets.</label></li>
+<li><label><input type="checkbox"></input>Configure retention and deletion
+schedules approved in Step 3.</label></li>
+<li><label><input type="checkbox"></input>Confirm clocks and time sources are
+monitored because signed requests and nonce windows depend on
+time.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Resource ids, regions, topology diagram, TLS reports, backup policy,
+object versioning, KMS key ids, monitoring links, and access
+boundaries.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>The data and network plane meets the approved availability, privacy,
+retention, and recovery requirements before any application service is
+deployed.</li>
+</ul>
+</section>
+<section id="step-6-register-external-providers-and-load-secrets" class="level2">
+<h2>Step 6: register external providers and load secrets</h2>
+<p>Owners: infrastructure, billing, release</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Register Google Drive OAuth client
+and exact redirect allowlist.</label></li>
+<li><label><input type="checkbox"></input>Register Dropbox OAuth client and
+exact redirect allowlist.</label></li>
+<li><label><input type="checkbox"></input>Register Microsoft OneDrive OAuth
+client and exact redirect allowlist.</label></li>
+<li><label><input type="checkbox"></input>Register Box OAuth client and exact
+redirect allowlist.</label></li>
+<li><label><input type="checkbox"></input>Configure Apple iCloud containers
+and app entitlements.</label></li>
+<li><label><input type="checkbox"></input>Configure APNs keys, FCM service
+account, and web VAPID keys.</label></li>
+<li><label><input type="checkbox"></input>Configure LiveKit production
+project, TURN endpoints, webhook verification, and recording policy if
+recording is enabled.</label></li>
+<li><label><input type="checkbox"></input>Configure Stripe, RevenueCat, App
+Store Connect, and Play Console products with the founder-approved
+identifiers and prices.</label></li>
+<li><label><input type="checkbox"></input>Mount every secret through files or
+the approved secret manager. Do not place secrets in images, source,
+shell history, evidence, or plain environment dumps.</label></li>
+<li><label><input type="checkbox"></input>Verify rotation ownership and expiry
+alerts.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Provider application ids, redirect allowlists, product ids, key
+versions, secret mount names, owner, rotation date, and redacted
+provider screenshots.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Every provider is production-approved, exact identifiers match the
+candidate configuration, and no placeholder remains.</li>
+</ul>
+</section>
+<section id="step-7-deploy-the-complete-topology-by-immutable-digest" class="level2">
+<h2>Step 7: deploy the complete topology by immutable digest</h2>
+<p>Owners: release, infrastructure</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Build every service image from the
+selected SHA.</label></li>
+<li><label><input type="checkbox"></input>Record each image digest before
+deployment.</label></li>
+<li><label><input type="checkbox"></input>Render
+<code>packages/meerkat-relay/deploy/compose.production.yml</code> or the
+equivalent production orchestrator configuration with the approved
+variables.</label></li>
+<li><label><input type="checkbox"></input>Deploy edge, relay, humanity,
+hosted, persona, push, verification-account, directory, community, LiveKit,
+ClamAV, archive scanner, archive seeder, and NCMEC filing worker.</label></li>
+<li><label><input type="checkbox"></input>Confirm no service installs packages
+or downloads executable code at runtime.</label></li>
+<li><label><input type="checkbox"></input>Confirm operator endpoints are
+reachable only from the approved network.</label></li>
+<li><label><input type="checkbox"></input>Verify liveness and readiness for
+every service.</label></li>
+<li><label><input type="checkbox"></input>Verify edge startup remains blocked
+when scanner, seeder, or filing dependencies are unhealthy.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>SHA, image digests, deployment ids, rendered service inventory,
+readiness output, operator-network denial proof, and dependency-failure
+proof.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>The deployed digest set exactly matches the release manifest and
+every required service is healthy without fallback to file or in-memory
+production state.</li>
+</ul>
+</section>
+<section id="step-8-run-migrations-and-prove-least-privilege" class="level2">
+<h2>Step 8: run migrations and prove least privilege</h2>
+<p>Owners: database, security</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Run all migrations in order against
+a production-shaped staging restore first.</label></li>
+<li><label><input type="checkbox"></input>Record migration checksums and
+durations.</label></li>
+<li><label><input type="checkbox"></input>Apply production migrations during
+the approved maintenance window.</label></li>
+<li><label><input type="checkbox"></input>Apply the generated per-service
+roles and grants.</label></li>
+<li><label><input type="checkbox"></input>From each service identity, prove
+allowed operations succeed.</label></li>
+<li><label><input type="checkbox"></input>From each service identity, prove
+prohibited cross-service and destructive operations fail.</label></li>
+<li><label><input type="checkbox"></input>Verify NCMEC filing, archive
+lifecycle, OAuth custody, hosted storage, release, promotion, and backup
+evidence tables are present and constrained.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Migration ledger, schema digest, role/grant export, positive tests,
+negative permission tests, and database readiness result.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Schema and grants match the selected SHA, every negative permission
+control fails as expected, and no service uses an owner or superuser
+connection.</li>
+</ul>
+</section>
+<section id="step-9-activate-malware-abuse-ncmec-dmca-and-moderation-operations" class="level2">
+<h2>Step 9: activate malware, abuse, NCMEC, DMCA, and moderation
+operations</h2>
+<p>Owners: safety, legal, security</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Configure current ClamAV engine and
+definition versions with freshness alerts.</label></li>
+<li><label><input type="checkbox"></input>Contract and configure the legally
+authorized abuse-hash source.</label></li>
+<li><label><input type="checkbox"></input>Complete NCMEC CyberTipline or
+approved vendor onboarding.</label></li>
+<li><label><input type="checkbox"></input>Configure the real NCMEC client and
+verify that <code>filed</code> is recorded only after provider
+acceptance.</label></li>
+<li><label><input type="checkbox"></input>Verify the DMCA agent identity shown
+by the service matches Step 3.</label></li>
+<li><label><input type="checkbox"></input>Staff moderation coverage and define
+backlog, escalation, and on-call thresholds.</label></li>
+<li><label><input type="checkbox"></input>Test operator console
+authentication, network restriction, failed-auth rate limiting, alert
+lanes, audit records, and access revocation.</label></li>
+<li><label><input type="checkbox"></input>Run synthetic malware, hash-match,
+CSAM escalation, credible threat, DMCA deadline, appeal, and
+safety-provider outage drills using lawful non-sensitive
+fixtures.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Vendor references, engine and definitions versions, synthetic drill
+ids, provider acceptance id, queue timings, operator audit ids, and
+incident-owner sign-off.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Safety queues cannot silently pass, <code>filed</code> cannot be
+fabricated, operators receive and resolve alerts within the approved
+windows, and all drills pass.</li>
+</ul>
+</section>
+<section id="step-10-prove-billing-entitlement-refund-and-deletion-behavior" class="level2">
+<h2>Step 10: prove billing, entitlement, refund, and deletion
+behavior</h2>
+<p>Owners: billing, release, privacy</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Purchase the one-time app unlock
+through Apple, Google, and Stripe where applicable.</label></li>
+<li><label><input type="checkbox"></input>Purchase hosted storage through each
+supported billing rail.</label></li>
+<li><label><input type="checkbox"></input>Restore purchases after reinstall
+and on a second device.</label></li>
+<li><label><input type="checkbox"></input>Test cross-rail link creation,
+single use, expiry, replay refusal, and invalid signature.</label></li>
+<li><label><input type="checkbox"></input>Test refund, cancellation, expiry,
+dispute, billing outage, webhook delay, and duplicate webhook
+behavior.</label></li>
+<li><label><input type="checkbox"></input>Confirm hosted access follows
+authoritative entitlement state.</label></li>
+<li><label><input type="checkbox"></input>Confirm account deletion remains
+available after entitlement lapse.</label></li>
+<li><label><input type="checkbox"></input>Delete an account with local data,
+broker vaults, hosted objects, publications, and remote destinations.
+Confirm idempotent retry after an injected remote failure.</label></li>
+<li><label><input type="checkbox"></input>Verification-account layer (Plan 51):
+sign in with Apple and Google against the live account service, mint a blind
+credential, then delete the verification account with SSO re-auth. Confirm the
+account row, entitlements, and issuance bookkeeping are gone; the
+client-submitted credential serial is revoked; renewal is refused; and
+inner-layer data is untouched. Repeat the deletion without the device present
+and confirm the outstanding credential is honestly reported as expiring at
+epoch end, never falsely reported as revoked.</label></li>
+<li><label><input type="checkbox"></input>Run the AC-2 wall guard expectations
+against the production schema: no credential serial and no persona or device
+identifier exists anywhere in the account service database. Capture the
+output.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Redacted transaction ids, entitlement states, webhook ids, refund
+results, deletion job ids, final zero-inventory proof, and privacy-owner
+approval.</li>
+<li>Account-layer deletion evidence: redacted account id, deletion response
+with deletionScope account_layer_only, revocation-list entry for the
+client-submitted serial (serial only, no account field), refused-renewal
+proof, and the AC-2 wall-guard output.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>All supported billing rails agree, failure states are honest, replay
+is refused, and deletion finishes without requiring an active
+subscription. Verification-account deletion works with entitlement lapsed,
+revokes what the client submits, states honestly what it cannot reach, and
+leaves the inner layer untouched.</li>
+</ul>
+</section>
+<section id="step-11-execute-the-complete-plan-41-provider-matrix" class="level2">
+<h2>Step 11: execute the complete Plan 41 provider matrix</h2>
+<p>Owners: QA, release</p>
+<p>Run each supported destination through authorize, write, read-back
+verification, list, quota, resume, revoke, credential rotation, backup,
+restore, move, delete, and reconnect.</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Local destination on
+iOS.</label></li>
+<li><label><input type="checkbox"></input>Local destination on
+Android.</label></li>
+<li><label><input type="checkbox"></input>Browser local destination with
+persistence granted and denied.</label></li>
+<li><label><input type="checkbox"></input>iCloud Drive in a signed iOS
+build.</label></li>
+<li><label><input type="checkbox"></input>iOS Files provider.</label></li>
+<li><label><input type="checkbox"></input>Android Storage Access
+Framework.</label></li>
+<li><label><input type="checkbox"></input>Google Drive.</label></li>
+<li><label><input type="checkbox"></input>Dropbox.</label></li>
+<li><label><input type="checkbox"></input>OneDrive.</label></li>
+<li><label><input type="checkbox"></input>Box.</label></li>
+<li><label><input type="checkbox"></input>WebDAV over trusted
+HTTPS.</label></li>
+<li><label><input type="checkbox"></input>S3-compatible storage with
+versioning.</label></li>
+<li><label><input type="checkbox"></input>Meerkat hosted storage.</label></li>
+<li><label><input type="checkbox"></input>Signed connected
+server.</label></li>
+<li><label><input type="checkbox"></input>Fresh-install restore of database,
+blobs, and identity on mobile.</label></li>
+<li><label><input type="checkbox"></input>Fresh-browser restore of database,
+blobs, and identity on web.</label></li>
+<li><label><input type="checkbox"></input>Corruption, wrong key, torn journal,
+quota, provider outage, lost response, and interrupted-move
+cases.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Provider, platform, app build id, test account id, operation
+results, backup manifest id, byte/hash comparison, restored identity
+fingerprint, and cleanup confirmation.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Every applicable cell passes. Unsupported platform cells must show
+the intended unavailable state, not a simulated success.</li>
+</ul>
+</section>
+<section id="step-12-execute-calls-rooms-push-mesh-and-background-device-matrices" class="level2">
+<h2>Step 12: execute calls, rooms, push, mesh, and background device
+matrices</h2>
+<p>Owners: QA, mobile, infrastructure</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Direct audio and video calls on iOS
+to iOS, Android to Android, and iOS to Android.</label></li>
+<li><label><input type="checkbox"></input>Community rooms on mobile and web
+with LiveKit and TURN fallback.</label></li>
+<li><label><input type="checkbox"></input>Incoming call behavior in
+foreground, background, locked, and terminated states.</label></li>
+<li><label><input type="checkbox"></input>CallKit, PushKit, Android Telecom,
+microphone, camera, Bluetooth audio, interruption, handoff, and
+permission-denied cases.</label></li>
+<li><label><input type="checkbox"></input>APNs, FCM, and VAPID provider
+acceptance and actual wake.</label></li>
+<li><label><input type="checkbox"></input>LAN Bonjour, Android DNS-SD/Wi-Fi
+Direct, BLE wake-only, WebRTC, encrypted relay fallback, and
+ranked-choice negotiation.</label></li>
+<li><label><input type="checkbox"></input>Radio off, network change, captive
+portal, reboot, revoked permission, token rotation, member removal,
+device revocation, and stale epoch cases.</label></li>
+<li><label><input type="checkbox"></input>Verify BLE never transports
+application payload data.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Device models, OS versions, signed build ids, network path,
+transport diagnostic output, call ids, provider attempt ids, screenshots
+or recordings, and pass/fail matrix.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Required physical-device cells pass with real media, real wake, real
+transport selection, and no fabricated completion state.</li>
+</ul>
+</section>
+<section id="step-13-prove-backup-pitr-restore-failover-and-regional-recovery" class="level2">
+<h2>Step 13: prove backup, PITR, restore, failover, and regional
+recovery</h2>
+<p>Owners: database, infrastructure, release</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Produce a production backup and
+record its source id and timestamp.</label></li>
+<li><label><input type="checkbox"></input>Restore it into an isolated
+environment that is not the production database.</label></li>
+<li><label><input type="checkbox"></input>Compare schema and semantic
+digests.</label></li>
+<li><label><input type="checkbox"></input>Run application smoke tests against
+the restore.</label></li>
+<li><label><input type="checkbox"></input>Execute a PITR restore to an exact
+timestamp.</label></li>
+<li><label><input type="checkbox"></input>Fail over PostgreSQL and verify
+application recovery.</label></li>
+<li><label><input type="checkbox"></input>Simulate object-store regional loss
+and recover from the approved path.</label></li>
+<li><label><input type="checkbox"></input>Rotate database, KMS, storage,
+OAuth, push, and service credentials.</label></li>
+<li><label><input type="checkbox"></input>Prove backups continue and old
+credentials stop working.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Backup id, timestamps, restore target, digest comparison, recovery
+time, recovery point, failover logs, rotation versions, and signed drill
+verdicts.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Restore, PITR, failover, regional recovery, and rotation meet the
+approved RPO and RTO with no data-authority ambiguity.</li>
+</ul>
+</section>
+<section id="step-14-verify-supply-chain-and-signed-artifacts" class="level2">
+<h2>Step 14: verify supply chain and signed artifacts</h2>
+<p>Owners: release, security</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Build mobile, web, and container
+artifacts from the immutable SHA in remote CI.</label></li>
+<li><label><input type="checkbox"></input>Generate SBOMs.</label></li>
+<li><label><input type="checkbox"></input>Run blocking dependency, image,
+license, and secret scans.</label></li>
+<li><label><input type="checkbox"></input>Generate provenance and sign every
+artifact.</label></li>
+<li><label><input type="checkbox"></input>Verify signatures using the pinned
+CI identity.</label></li>
+<li><label><input type="checkbox"></input>Confirm the staged and canary
+digests equal the release manifest.</label></li>
+<li><label><input type="checkbox"></input>Confirm no mutable tag is used as
+release evidence.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>CI URLs, build ids, artifact hashes, image digests, SBOM hashes,
+scan verdicts, provenance references, signature verification, and
+manifest.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Every distributed artifact is reproducibly tied to the selected SHA
+and passes the blocking security policy.</li>
+</ul>
+</section>
+<section id="step-15-run-production-shaped-browser-load-soak-canary-and-rollback" class="level2">
+<h2>Step 15: run production-shaped browser, load, soak, canary, and
+rollback</h2>
+<p>Owners: performance, infrastructure, release</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Deploy the web artifact behind
+production TLS with the production content-security policy.</label></li>
+<li><label><input type="checkbox"></input>Run the browser launch suite against
+real hosted and relay URLs.</label></li>
+<li><label><input type="checkbox"></input>Measure initial load, interaction
+latency, and the large sync, LiveKit, and app chunks on supported
+desktop and mobile browsers.</label></li>
+<li><label><input type="checkbox"></input>Run 10x expected launch load with
+published latency, error, saturation, and queue budgets.</label></li>
+<li><label><input type="checkbox"></input>Run a 48-hour soak with alerts
+active.</label></li>
+<li><label><input type="checkbox"></input>Verify no unbounded memory, socket,
+database, object, retry, moderation, archive, push, or NCMEC queue
+growth.</label></li>
+<li><label><input type="checkbox"></input>Promote the same digests to
+canary.</label></li>
+<li><label><input type="checkbox"></input>Hold canary for the approved
+duration.</label></li>
+<li><label><input type="checkbox"></input>Execute rollback to the recorded
+compatible target and verify recovery.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Browser report, performance traces, load report, soak report, SLO
+dashboard, canary record, alert history, rollback command reference, and
+post-rollback health.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Budgets pass, no unbounded growth exists, canary remains healthy,
+and rollback succeeds with the documented target.</li>
+</ul>
+</section>
+<section id="step-16-complete-store-compliance-and-submit-exact-builds" class="level2">
+<h2>Step 16: complete store compliance and submit exact builds</h2>
+<p>Owners: Apple release, Google release, legal, privacy</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Complete App Privacy and Google Data
+Safety from observed behavior.</label></li>
+<li><label><input type="checkbox"></input>Complete UGC, moderation, account
+deletion, encryption, background mode, push, camera, microphone, local
+network, nearby devices, and file-access declarations.</label></li>
+<li><label><input type="checkbox"></input>Enter the approved legal, support,
+privacy, and deletion URLs.</label></li>
+<li><label><input type="checkbox"></input>Capture screenshots and metadata
+from the exact signed candidates.</label></li>
+<li><label><input type="checkbox"></input>Verify product ids and review
+accounts.</label></li>
+<li><label><input type="checkbox"></input>Submit iOS and Android builds
+produced from the selected SHA.</label></li>
+<li><label><input type="checkbox"></input>Record review questions, responses,
+approvals, and any required resubmission SHA.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Store build ids, declaration exports, screenshots, metadata version,
+submission ids, review correspondence, and approval status.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Both stores approve the exact release artifacts and all declarations
+match real behavior.</li>
+</ul>
+</section>
+<section id="step-17-assemble-the-immutable-evidence-ledger-and-rerun-the-final-audit" class="level2">
+<h2>Step 17: assemble the immutable evidence ledger and rerun the final
+audit</h2>
+<p>Owner: release owner</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Confirm every prior step links
+evidence in <code>evidence.json</code>.</label></li>
+<li><label><input type="checkbox"></input>Confirm all evidence references the
+same SHA, digest set, build ids, and configuration version.</label></li>
+<li><label><input type="checkbox"></input>Confirm secrets and private content
+are absent.</label></li>
+<li><label><input type="checkbox"></input>Render
+<code>evidence-summary.html</code> for human review.</label></li>
+<li><label><input type="checkbox"></input>Rerun the production-readiness and
+adversarial audits against the immutable manifest.</label></li>
+<li><label><input type="checkbox"></input>Close every finding or record a
+signed mandatory exception.</label></li>
+<li><label><input type="checkbox"></input>Verify all SLO, safety, backup,
+billing, provider, and store dashboards are green.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Final evidence ledger, HTML summary, final audit, exception
+register, and dashboard snapshot references.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>The ledger is complete, internally consistent, reviewable, and
+contains no open mandatory finding.</li>
+</ul>
+</section>
+<section id="step-18-sign-go-and-activate-public-availability" class="level2">
+<h2>Step 18: sign GO and activate public availability</h2>
+<p>Owners: founder, release, security, safety, legal, incident
+command</p>
+<ul class="task-list">
+<li><label><input type="checkbox"></input>Hold the final GO review using the
+evidence ledger.</label></li>
+<li><label><input type="checkbox"></input>Confirm the exact SHA, artifact
+digests, app build ids, migration version, canary, and rollback
+target.</label></li>
+<li><label><input type="checkbox"></input>Confirm named incident and rollback
+owners are on duty.</label></li>
+<li><label><input type="checkbox"></input>Record GO signatures and
+timestamp.</label></li>
+<li><label><input type="checkbox"></input>Enable public availability in the
+approved sequence.</label></li>
+<li><label><input type="checkbox"></input>Watch SLO, safety, billing,
+provider, store, and support signals continuously through the launch
+window.</label></li>
+<li><label><input type="checkbox"></input>Roll back immediately if an
+automatic NO-GO condition appears.</label></li>
+</ul>
+<p>Evidence:</p>
+<ul>
+<li>Signed GO record, activation timestamps, duty roster, dashboard
+references, and launch-window incident log.</li>
+</ul>
+<p>Exit gate:</p>
+<ul>
+<li>Public launch is active only for the exact approved artifact set,
+with owners monitoring and a proven rollback path ready.</li>
+</ul>
+</section>
+<section id="automatic-stop-conditions" class="level2">
+<h2>Automatic stop conditions</h2>
+<p>Stop promotion and return the affected step to <code>FAIL</code> if
+any of these occurs:</p>
+<ul>
+<li>The release SHA or artifact digest changes.</li>
+<li>Remote CI is missing, red, or bypassed.</li>
+<li>A service uses an in-memory or file authority in first-party
+production.</li>
+<li>A migration, role, signature, provenance, scan, readiness, or
+negative control fails.</li>
+<li>Provider, device, restore, deletion, safety, billing, push, or store
+evidence is missing.</li>
+<li>An unsigned or mutable artifact reaches staging, canary, or a
+store.</li>
+<li>A backup has no successful restore proof.</li>
+<li>A safety queue can silently pass or an NCMEC record can be marked
+filed without provider acceptance.</li>
+<li>A load or soak budget fails, growth is unbounded, or an SLO remains
+active.</li>
+<li>Rollback is unavailable, incompatible, or untested.</li>
+<li>Product, store, legal, or release claims exceed the evidence.</li>
+<li>No named human owns the incident and rollback decision.</li>
+</ul>
+</section>
+</section>
+</body>
+</html>

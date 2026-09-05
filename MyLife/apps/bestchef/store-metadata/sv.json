@@ -1,0 +1,8 @@
+{
+  "name": "BestChef",
+  "subtitle": "Rösta fram bästa receptet",
+  "description": "BestChef är en tävlingsinriktad receptplattform byggd på en idé: för varje rätt finns det ett bästa recept, och communityn kan hitta det tillsammans.\n\nBläddra bland rätter, från vardagsklassiker till regionala specialiteter, och se recepten som skickats in för varje rätt. Rösta på de recept du faktiskt har lagat för att hjälpa den bästa versionen att klättra i topplistan. Skicka in ditt eget recept för en rätt och se hur det placerar sig.\n\nSkapa en kockprofil, följ rätter och kockar du gillar, och delta i utmaningar kopplade till specifika rätter och tekniker.\n\nBestChef har också ett privat kök som stannar på din enhet:\n- Spara recept du vill laga igen\n- Bygg inköpslistor från receptens ingredienser\n- Håll koll på skafferiet så du vet vad du redan har\n- Importera ett kassakvitto eller foto och granska varorna innan du lägger till dem\n- Lägg till utgångsdatum från förpackningen och få påminnelser\n- Kokläge med steg-för-steg-instruktioner, helt handsfree\n\nBestChef finns på 21 språk så att kockar över hela världen kan hitta, rösta på och skicka in det bästa receptet för varje rätt.\n\nBestChef spårar dig inte i andra appar eller webbplatser. Se vår integritetspolicy för detaljer om vad vi samlar in och varför.",
+  "keywords": "recept,bästa recept,matlagning,receptomröstning,inköpslista,skafferi,kokläge,menyplanering",
+  "promotionalText": "Rösta på riktiga recept, hitta det bästa för varje rätt och laga mat med privata verktyg som stannar på din enhet.",
+  "releaseNotes": "Första publika lanseringen. Bläddra bland rätter, rösta på recept, skapa din kockprofil och använd de privata köksverktygen: sparade recept, inköpslistor, skafferi och kokläge."
+}

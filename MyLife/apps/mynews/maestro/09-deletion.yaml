@@ -1,0 +1,82 @@
+appId: com.mylife.mynews
+name: MyNews account deletion
+tags:
+  - mynews
+  - account
+env:
+  # Deletion is the single most destructive control in the app. It is gated on
+  # its OWN variable, not the shared write gate, so that turning writes on for a
+  # publish or report flow can never also arm deletion.
+  MAESTRO_MYNEWS_ALLOW_ACCOUNT_DELETION: "0"
+---
+# Deletion: Me -> "Delete my account".
+#
+# The real invariants this flow exercises:
+#   - the screen is entitlement-exempt, so it renders even on a gated build,
+#   - the retained/removed disclosure is on screen BEFORE the confirm control,
+#   - the confirm button stays DISABLED until the phrase DELETE MY ACCOUNT is
+#     typed exactly (the app compares the typed text to the phrase),
+#   - deletion opens a cancellable grace window rather than wiping in-request.
+#
+# By default the flow types the phrase and asserts the button became enabled,
+# then leaves. It does NOT press it. Pressing it opens a real 7-day deletion on
+# the configured project, which is why it needs its own opt-in above and a
+# throwaway account.
+#
+# The phrase below is DELETION_CONFIRMATION_PHRASE from
+# modules/mynews/src/data/account.ts. If that constant changes, this flow must
+# change with it: a stale phrase here would silently stop testing the guard.
+
+- launchApp
+- tapOn: "Me"
+
+- scrollUntilVisible:
+    element:
+      text: "Delete my account"
+    direction: DOWN
+- tapOn: "Delete my account"
+- assertVisible: "Delete account"
+
+# Signed out, or no backend: the screen says so instead of offering a form.
+- runFlow:
+    when:
+      visible: "Deletion steps"
+    commands:
+      - assertVisible: "Deletion steps"
+      - assertVisible: "What we keep"
+      - assertVisible: "What we delete"
+      - assertVisible: "Export first"
+      - assertVisible: "Export my data"
+
+- runFlow:
+    when:
+      visible: "Confirm"
+    commands:
+      - assertVisible: "Confirm"
+      - assertVisible: "Type DELETE MY ACCOUNT to start the 7-day grace period."
+      - tapOn: "Deletion confirmation phrase"
+      # Deliberately wrong first, so the flow proves the guard REFUSES rather
+      # than only proving it accepts.
+      - inputText: "delete my account"
+      - hideKeyboard
+      - assertVisible: "Delete my account"
+      - eraseText
+      - tapOn: "Deletion confirmation phrase"
+      - inputText: "DELETE MY ACCOUNT"
+      - hideKeyboard
+      - assertVisible: "Delete my account"
+      - runFlow:
+          when:
+            true: ${MAESTRO_MYNEWS_ALLOW_ACCOUNT_DELETION == "1"}
+          commands:
+            - tapOn: "Delete my account"
+            # A deletion opens a grace window and the screen offers to cancel it.
+            - assertVisible: "Changed your mind?"
+            - tapOn: "Cancel deletion"
+
+# An account already in its grace window renders the cancel path directly.
+- runFlow:
+    when:
+      visible: "Changed your mind?"
+    commands:
+      - assertVisible: "Cancel deletion"

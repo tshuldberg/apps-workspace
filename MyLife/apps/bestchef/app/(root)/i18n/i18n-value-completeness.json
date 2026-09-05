@@ -1,0 +1,102 @@
+{
+  "generatedBy": "apps/bestchef/scripts/check-i18n-values.mjs",
+  "partialThreshold": 10,
+  "locales": {
+    "en": {
+      "identical": 0,
+      "partial": false
+    },
+    "ar": {
+      "identical": 0,
+      "partial": false
+    },
+    "bn": {
+      "identical": 0,
+      "partial": false
+    },
+    "de": {
+      "identical": 0,
+      "partial": false
+    },
+    "es": {
+      "identical": 0,
+      "partial": false
+    },
+    "fr": {
+      "identical": 0,
+      "partial": false
+    },
+    "he": {
+      "identical": 0,
+      "partial": false
+    },
+    "hi": {
+      "identical": 0,
+      "partial": false
+    },
+    "id": {
+      "identical": 0,
+      "partial": false
+    },
+    "it": {
+      "identical": 0,
+      "partial": false
+    },
+    "ja": {
+      "identical": 0,
+      "partial": false
+    },
+    "ko": {
+      "identical": 0,
+      "partial": false
+    },
+    "nl": {
+      "identical": 0,
+      "partial": false
+    },
+    "pl": {
+      "identical": 0,
+      "partial": false
+    },
+    "pt-BR": {
+      "identical": 0,
+      "partial": false
+    },
+    "pt-PT": {
+      "identical": 0,
+      "partial": false
+    },
+    "sv": {
+      "identical": 0,
+      "partial": false
+    },
+    "ta": {
+      "identical": 0,
+      "partial": false
+    },
+    "te": {
+      "identical": 0,
+      "partial": false
+    },
+    "th": {
+      "identical": 0,
+      "partial": false
+    },
+    "tr": {
+      "identical": 0,
+      "partial": false
+    },
+    "vi": {
+      "identical": 0,
+      "partial": false
+    },
+    "zh-Hans": {
+      "identical": 0,
+      "partial": false
+    },
+    "zh-Hant": {
+      "identical": 0,
+      "partial": false
+    }
+  }
+}

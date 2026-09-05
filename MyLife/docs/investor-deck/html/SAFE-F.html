@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meerkat - Investor 2-Pager (SAFE-F)</title>
+<style>
+  @page { margin: 0; size: letter; }
+  :root {
+    --bg: #131318; --bg-2: #1F1F25; --bg-3: #2A292F;
+    --text: #E4E1E9; --text-2: #D6C3B5; --muted: #9F8E81;
+    --primary: #FFB877; --tertiary: #8BCFF0; --success: #30D158;
+    --border: rgba(255,255,255,0.10); --border-soft: rgba(255,255,255,0.06);
+    --glass: rgba(255,255,255,0.03); --glass-strong: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px; line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    width: 8.5in; height: 11in;
+    padding: 0.45in 0.5in;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  h1, h2, h3 { font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 20px; margin-bottom: 10px; }
+  h3 { font-size: 14px; }
+  p { font-size: 12px; color: var(--text-2); line-height: 1.4; }
+  .small { font-size: 10px; color: var(--muted); }
+  .caption { font-size: 9px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+  /* Hero */
+  .hero-compact {
+    border: 1px solid var(--border); border-radius: 14px;
+    background: linear-gradient(180deg, #1B1B20 0%, #131318 70%);
+    padding: 22px 24px 18px; margin-bottom: 16px;
+  }
+  .badges { display: flex; gap: 6px; margin-bottom: 10px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; background: var(--glass-strong);
+    border: 1px solid var(--border); border-radius: 999px;
+    font-size: 9px; color: var(--text-2); letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); }
+  .wordmark {
+    font-size: 42px; font-weight: 800; letter-spacing: -0.04em; line-height: 0.95;
+    background: linear-gradient(135deg, #FFB877 0%, #D6C3B5 60%, #8BCFF0 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 8px;
+  }
+  .pitch { font-size: 14px; color: var(--text); max-width: 100%; line-height: 1.35; }
+  .pitch strong { color: var(--primary); font-weight: 600; }
+
+  /* Grid helpers */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .glass-card {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px;
+  }
+  .glass-card h3 { margin-bottom: 4px; }
+  .glass-card p { font-size: 10px; }
+  .icon { font-size: 16px; display: inline-block; margin-bottom: 4px; }
+
+  /* Metrics */
+  .metric-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; background: var(--glass);
+  }
+  .metric { padding: 10px 12px; border-right: 1px solid var(--border-soft); }
+  .metric:last-child { border-right: none; }
+  .metric .num { font-size: 22px; font-weight: 700; color: var(--primary); line-height: 1; margin-bottom: 2px; }
+  .metric .lbl { font-size: 9px; color: var(--text-2); }
+
+  /* Workflow pills */
+  .wf-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .wf-card {
+    flex: 1; min-width: 140px; padding: 10px 12px;
+    background: var(--glass); border: 1px solid var(--border); border-radius: 10px;
+    border-left: 3px solid var(--primary);
+  }
+  .wf-card h3 { font-size: 12px; margin-bottom: 3px; }
+  .wf-card .wf-tags { font-size: 9px; color: var(--muted); }
+
+  /* Ask */
+  .ask-card {
+    background: linear-gradient(135deg, rgba(255,184,119,0.08) 0%, rgba(139,207,240,0.05) 100%), var(--glass);
+    border: 1px solid rgba(255,184,119,0.25); border-radius: 14px; padding: 16px 20px;
+  }
+  .ask-num { font-size: 40px; font-weight: 800; color: var(--primary); line-height: 1; }
+  .ask-sub { font-size: 11px; color: var(--text-2); margin-bottom: 8px; }
+  .ask-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ask-item { padding: 8px; background: var(--glass); border: 1px solid var(--border-soft); border-radius: 8px; }
+  .ask-item .pct { font-size: 16px; color: var(--primary); font-weight: 700; }
+  .ask-item .lbl { font-size: 9px; color: var(--text-2); }
+
+  /* SAFE terms cards */
+  .safe-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .sf {
+    padding: 10px; background: var(--glass-strong);
+    border: 1px solid var(--border); border-radius: 10px;
+  }
+  .sf .sf-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .sf h3 { font-size: 12px; margin-bottom: 3px; }
+  .sf p { font-size: 9px; }
+
+  /* Tables */
+  table.t {
+    width: 100%; border-collapse: collapse; background: var(--glass);
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 10px;
+  }
+  table.t thead th {
+    background: var(--bg-2); text-align: left; padding: 6px 8px;
+    font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: 600; border-bottom: 1px solid var(--border);
+  }
+  table.t td { padding: 5px 8px; border-bottom: 1px solid var(--border-soft); color: var(--text-2); }
+  table.t tr:last-child td { border-bottom: none; }
+  table.t .company { color: var(--text); font-weight: 600; }
+  table.t .price { color: var(--primary); font-weight: 600; }
+  table.t .hl { background: rgba(255,184,119,0.06); }
+
+  /* Section spacing */
+  section { margin-bottom: 14px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .section-head .caption { color: var(--primary); }
+
+  /* Footer */
+  .deck-footer {
+    position: absolute; bottom: 0.4in; left: 0.5in; right: 0.5in;
+    border-top: 1px solid var(--border-soft); padding-top: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10px; color: var(--muted);
+  }
+  .cta {
+    padding: 6px 14px; background: var(--primary); color: #1B1107;
+    border-radius: 8px; font-weight: 600; font-size: 11px; text-decoration: none;
+  }
+
+  /* Chip */
+  .chip { padding: 2px 6px; font-size: 9px; border-radius: 999px; display: inline-block; }
+  .chip.free { background: rgba(48,209,88,0.12); color: var(--success); border: 1px solid rgba(48,209,88,0.25); }
+  .chip.premium { background: rgba(255,184,119,0.08); color: var(--primary); border: 1px solid rgba(255,184,119,0.3); }
+
+  /* Print */
+  @media print {
+    html, body { background: #fff !important; color: #111 !important; }
+    .page { padding: 0.4in 0.5in; }
+    * { color: #111 !important; }
+    .glass-card, .metric-strip, .metric, .ask-card, .ask-item, table.t,
+    .hero-compact, .sf, .wf-card {
+      background: #fff !important; border-color: #bbb !important; backdrop-filter: none !important;
+    }
+    .wordmark { background: none !important; -webkit-text-fill-color: #111 !important; }
+    .metric .num, .ask-num, .ask-item .pct, table.t .price, table.t .company { color: #111 !important; }
+    .badge { background: #f4f4f4 !important; border-color: #ccc !important; }
+    .cta { background: #FFB877 !important; }
+    .deck-footer { border-color: #ccc !important; }
+    a { text-decoration: none; }
+    .wf-card { border-left-color: #888 !important; }
+    .sf { border-top-color: #888 !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE 1: THE PITCH ===== -->
+<div class="page">
+  <div class="hero-compact">
+    <div class="badges">
+      <span class="badge"><span class="dot"></span>Seed Round</span>
+      <span class="badge">Privacy-first consumer software</span>
+      <span class="badge">April 2026</span>
+    </div>
+    <h1 class="wordmark">Meerkat</h1>
+    <p class="pitch">
+      <strong>Every personal app. Five intelligent loops. One private hub. $12 a year.</strong>
+      Meerkat consolidates Strava, MyFitnessPal, AllTrails, YNAB, Flo, Day One, Rocket Money
+      and dozens more into five workflow loops that share one database, one subscription, and zero ads.
+      Data syncs phone-to-phone before it ever touches a server.
+    </p>
+  </div>
+
+  <section>
+    <div class="grid-3">
+      <div class="glass-card">
+        <span class="icon">🔄</span>
+        <h3>5 loops, not dozens of apps</h3>
+        <p>Health &amp; Fitness, Home &amp; Life, Mind &amp; Growth, Social &amp; Community, Money &amp; Planning. Data flows across categories within each loop.</p>
+      </div>
+      <div class="glass-card">
+        <span class="icon">🔒</span>
+        <h3>Local-first. Zero analytics.</h3>
+        <p>All data in one encrypted file on-device. No third-party SDKs, no ad networks. Privacy pledge signed in code. No ads, no data sales, ever.</p>
+      </div>
+      <div class="glass-card">
+        <span class="icon">✨</span>
+        <h3>Cross-category intelligence</h3>
+        <p>Workouts, mood, nutrition, cycle, and sleep share one database. Insights that are trivial for Meerkat are impossible for any single-purpose app.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wf-row">
+      <div class="wf-card" style="border-left-color:#EF4444;">
+        <h3 style="color:#EF4444;">🏃 Health &amp; Fitness</h3>
+        <div class="wf-tags">Strava · MyFitnessPal · AllTrails · Surfline · Hevy · Sleep Cycle · Flo · Headspace · Medisafe</div>
+      </div>
+      <div class="wf-card" style="border-left-color:#F59E0B;">
+        <h3 style="color:#F59E0B;">🏠 Home &amp; Life</h3>
+        <div class="wf-tags">HomeZada · Planta · Partiful · Yelp · OfferUp · Whering</div>
+      </div>
+      <div class="wf-card" style="border-left-color:#8B5CF6;">
+        <h3 style="color:#8B5CF6;">🧠 Mind &amp; Growth</h3>
+        <div class="wf-tags">Day One · Daylio · Otter.ai · Evernote · Quizlet · Goodreads · Finch</div>
+      </div>
+    </div>
+    <div class="wf-row">
+      <div class="wf-card" style="border-left-color:#EC4899;">
+        <h3 style="color:#EC4899;">👥 Social &amp; Community</h3>
+        <div class="wf-tags">BeReal · Discord · ProtonMail · SofaScore</div>
+      </div>
+      <div class="wf-card" style="border-left-color:#22C55E;">
+        <h3 style="color:#22C55E;">💰 Money &amp; Planning</h3>
+        <div class="wf-tags">YNAB · Monarch · Rocket Money · Honey</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="metric-strip">
+      <div class="metric"><div class="num">5</div><div class="lbl">workflow loops covering every category</div></div>
+      <div class="metric"><div class="num">117</div><div class="lbl">competitors mapped</div></div>
+      <div class="metric"><div class="num">657M</div><div class="lbl">addressable users (overlap-adjusted)</div></div>
+      <div class="metric"><div class="num">$6.5B+</div><div class="lbl">tracked exit value in our market</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>What competitors charge</h2><span class="caption">Meerkat replaces all for $12/yr</span></div>
+    <table class="t">
+      <thead><tr><th>Competitor</th><th>Category</th><th>Price/yr</th><th>Revenue</th><th>Users</th></tr></thead>
+      <tbody>
+        <tr><td class="company">Strava</td><td>Trails + Workouts</td><td class="price">$80</td><td>$415M</td><td>135M</td></tr>
+        <tr><td class="company">MyFitnessPal</td><td>Nutrition</td><td class="price">$80</td><td>$310M</td><td>220M</td></tr>
+        <tr><td class="company">Headspace</td><td>Mood</td><td class="price">$70</td><td>$348M</td><td>100M</td></tr>
+        <tr><td class="company">Flo Health</td><td>Cycle</td><td class="price">$50</td><td>$275M</td><td>77M</td></tr>
+        <tr><td class="company">YNAB</td><td>Budget</td><td class="price">$109</td><td>~$100M</td><td>~2M paid</td></tr>
+        <tr><td class="company">Evernote</td><td>Notes</td><td class="price">$130+</td><td>~$100M</td><td>250M</td></tr>
+        <tr><td class="company">AllTrails</td><td>Trails</td><td class="price">$36</td><td>$38M</td><td>60M</td></tr>
+        <tr><td class="company">Quizlet</td><td>Flash</td><td class="price">$48</td><td>$96M</td><td>60M</td></tr>
+        <tr class="hl"><td class="company" style="color:var(--primary);">Meerkat</td><td>All of the above</td><td class="price">$12</td><td>-</td><td>-</td></tr>
+      </tbody>
+    </table>
+    <p class="small" style="margin-top:4px;">Users stacking these apps pay $500+/yr. Meerkat replaces them all for $12. 5% free-to-paid conversion matches Flo (~5%), Day One (~6%), Strava (~3-4%).</p>
+  </section>
+
+  <div class="deck-footer">
+    <span>Meerkat · trey.shuldberg@gmail.com · Page 1 of 2</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 2: THE ASK & RETURN ===== -->
+<div class="page">
+  <section>
+    <div class="ask-card">
+      <div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;">
+        <div>
+          <div class="caption" style="color:var(--primary);">The ask</div>
+          <div class="ask-num">$1.5M</div>
+          <div class="ask-sub">Standard YC post-money SAFE · $15M cap · no discount</div>
+        </div>
+        <div style="flex:1; min-width:220px;">
+          <p style="color:var(--text); font-size:12px;">Funds hire a core team, launch a 50-city marketing campaign, complete mesh sync, and reach profitability. Standard YC post-money SAFE. Clean cap table, no revenue-share waterfall, and conventional conversion into the next priced equity round.</p>
+        </div>
+      </div>
+      <div class="ask-grid" style="margin-top:10px;">
+        <div class="ask-item"><div class="pct">13%</div><div class="lbl">Founder comp ($187.5K / 24 mo)</div></div>
+        <div class="ask-item"><div class="pct">25%</div><div class="lbl">Sr. engineer ($375K / 24 mo)</div></div>
+        <div class="ask-item"><div class="pct">20%</div><div class="lbl">Marketing ($300K)</div></div>
+        <div class="ask-item"><div class="pct">10%</div><div class="lbl">Legal + compliance ($150K)</div></div>
+        <div class="ask-item"><div class="pct">7%</div><div class="lbl">Design ($100K)</div></div>
+        <div class="ask-item"><div class="pct">25%</div><div class="lbl">Infra + reserve ($387.5K)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Revenue projections</h2><span class="caption">1/1,000 expect · 1/500 goal · 5% free-to-paid</span></div>
+    <table class="t">
+      <thead><tr><th>Scenario</th><th>Capture rate</th><th>Total users</th><th>Paid subs (5%)</th><th>ARR @ $12/yr</th></tr></thead>
+      <tbody>
+        <tr><td class="company">Year 1 (expectation)</td><td>1 in 1,000 each</td><td>1.31M</td><td>65.5K</td><td class="price">$786K</td></tr>
+        <tr><td class="company">Year 2 (goal)</td><td>1 in 500 each</td><td>2.62M</td><td>131K</td><td class="price">$1.57M</td></tr>
+        <tr><td class="company">Year 3 (plan)</td><td>1 in 250 each</td><td>5.24M</td><td>262K</td><td class="price">$3.14M</td></tr>
+        <tr><td class="company">Year 3 (bull)</td><td>1 in 100 each</td><td>13.1M</td><td>655K</td><td class="price">$7.86M</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>SAFE structure</h2><span class="caption">Standard YC post-money SAFE · clean seed financing</span></div>
+    <p style="margin-bottom:10px;">Meerkat is raising up to $1.5M on the standard YC post-money SAFE. The SAFE converts into the preferred stock sold in the next equity financing or is handled under the standard form in a liquidity event or dissolution.</p>
+
+    <div class="safe-cards">
+      <div class="sf" style="border-top:3px solid var(--primary);">
+        <div class="sf-label" style="color:var(--primary);">Instrument</div>
+        <h3>Standard YC SAFE</h3>
+        <p>Familiar docs, simple close process, and no custom profit-sharing or guaranteed-yield mechanics.</p>
+      </div>
+      <div class="sf" style="border-top:3px solid var(--tertiary);">
+        <div class="sf-label" style="color:var(--tertiary);">Valuation cap</div>
+        <h3>$15M post-money</h3>
+        <p>Cap-only SAFE with no discount. If the next priced round is above the cap, the SAFE converts using the cap price.</p>
+      </div>
+      <div class="sf" style="border-top:3px solid var(--success);">
+        <div class="sf-label" style="color:var(--success);">Conversion</div>
+        <h3>Next priced round</h3>
+        <p>On conversion, investors receive the same preferred stock sold in the financing. Exact ownership depends on round size, option pool, and any other SAFEs outstanding.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <table class="t">
+          <thead><tr><th>Round term</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td class="company">Instrument</td><td>YC post-money SAFE</td></tr>
+            <tr><td class="company">Raise target</td><td class="price">Up to $1.5M</td></tr>
+            <tr><td class="company">Valuation cap</td><td class="price">$15M post-money</td></tr>
+            <tr><td class="company">Discount</td><td>None</td></tr>
+            <tr><td class="company">Conversion</td><td>Next equity financing</td></tr>
+            <tr><td class="company">Liquidity event</td><td>Standard SAFE treatment</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table class="t">
+          <thead><tr><th>Next round milestone</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td class="company">Product breadth</td><td>All five loops active</td></tr>
+            <tr><td class="company">Platform</td><td>Android launch + mesh sync live</td></tr>
+            <tr><td class="company">Usage</td><td class="price">2.5 loops per user + NPS above 60</td></tr>
+            <tr><td class="company">Retention</td><td class="price">Monthly churn under 3%</td></tr>
+            <tr><td class="company">Revenue</td><td class="price">~65K paid / ~$786K ARR expectation</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="small" style="margin-top:6px;">This SAFE is meant to fund the product and traction milestones above, then convert in a conventional priced round once the business has clearer market proof.</p>
+  </section>
+
+  <div class="deck-footer">
+    <div>
+      <div style="color:var(--text); font-weight:600; font-size:12px;">Meerkat</div>
+      <div>trey.shuldberg@gmail.com</div>
+    </div>
+    <a class="cta" href="mailto:trey.shuldberg@gmail.com">Start the conversation &rarr;</a>
+  </div>
+</div>
+
+</body>
+</html>

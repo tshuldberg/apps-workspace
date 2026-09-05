@@ -1,0 +1,107 @@
+# Meerkat emergency rollback checklist (Plan 44 Phase 6, WP-6C).
+#
+# WHAT THIS WORKFLOW IS. An AUDITABLE CHECKLIST RAIL for an emergency rollback,
+# founder-triggered. It requires BOTH the release id being rolled back AND the
+# earlier approved release id to roll back TO, and fails if either is empty. It
+# prints the EXACT operator commands to: verify the rollback target is a signed +
+# approved manifest, redeploy the target's pinned images, and RECORD the rolled_back
+# transition with the honest non-reversal evidence.
+#
+# ROLLBACK HONESTY (NC-44.5, stated loudly here and in the recorded row). A rollback
+# RE-POINTS the deploy at an earlier release's images. It does NOT un-write the
+# database: rows written while the rolled-back release was live REMAIN. The promotion
+# CLI stamps dataReversalClaimed=false and postgresWritesAfterFlipReversed=false into
+# the evidence and REFUSES any evidence that claims data reversal. No destructive
+# migration may run inside the rollback window.
+#
+# WHAT THIS WORKFLOW IS NOT. It runs no deploy and records no promotion; the redeploy
+# and the record are FOUNDER-OPS. A green run proves the checklist was generated, not
+# that a rollback happened. See docs/guides/meerkat-runbooks/release-promotion.md.
+
+name: Rollback release (checklist)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: 'The currently-deployed release id being rolled back'
+        required: true
+        type: string
+      rollback_to_release_id:
+        description: 'The EARLIER, APPROVED release id to redeploy'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  checklist:
+    name: Generate rollback checklist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      # Format guard: both ids are rendered into the step summary and copy/paste
+      # shell commands, so anything outside the safe charset would let a crafted
+      # input forge checklist sections or an operator-pasted command.
+      - name: Require well-formed release ids
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          ROLLBACK_TO: ${{ inputs.rollback_to_release_id }}
+        run: |
+          set -euo pipefail
+          for pair in "release_id=$RELEASE_ID" "rollback_to_release_id=$ROLLBACK_TO"; do
+            name="${pair%%=*}"
+            value="${pair#*=}"
+            if ! printf '%s' "$value" | grep -Eq '^[A-Za-z0-9._:@/-]{1,512}$'; then
+              echo "::error::${name} must match ^[A-Za-z0-9._:@/-]{1,512}$; refusing to render it into a checklist" >&2
+              exit 1
+            fi
+          done
+
+      - name: Emit the founder-ops rollback checklist
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          ROLLBACK_TO: ${{ inputs.rollback_to_release_id }}
+        run: |
+          set -euo pipefail
+          {
+            echo "# Emergency rollback checklist: \`${RELEASE_ID}\` -> \`${ROLLBACK_TO}\`"
+            echo
+            echo "> This workflow generated the checklist. It did NOT redeploy or record."
+            echo "> Run the steps below against the real hosts and ops database (FOUNDER-OPS)."
+            echo
+            echo "## 1. Verify the rollback TARGET is signed + approved (NC-44.4)"
+            echo '```bash'
+            echo "MEERKAT_POSTGRES_URL='postgres://meerkat_ops:<pw>@<ops-host>/<db>' \\"
+            echo "  pnpm --filter @mylife/meerkat-relay release:postgres --verify \\"
+            echo "    --release-id '${ROLLBACK_TO}' \\"
+            echo "    --image 'ghcr.io/<owner>/meerkat-relay@sha256:<prior-digest>' \\"
+            echo "    --image 'ghcr.io/<owner>/meerkat-platform@sha256:<prior-digest>' \\"
+            echo "    --image 'ghcr.io/<owner>/meerkat-hosted@sha256:<prior-digest>' \\"
+            echo "    --image 'ghcr.io/<owner>/meerkat-verification@sha256:<prior-digest>'"
+            echo '```'
+            echo
+            echo "## 2. Redeploy the prior release's pinned images (FOUNDER-OPS)"
+            echo '```bash'
+            echo "export MEERKAT_RELEASE_TAG='<git-sha of ${ROLLBACK_TO}>'"
+            echo "docker compose --env-file <prod.env> -f packages/meerkat-relay/deploy/compose.production.yml pull"
+            echo "docker compose --env-file <prod.env> -f packages/meerkat-relay/deploy/compose.production.yml up -d"
+            echo "# NC-44.5: do NOT run any destructive migration inside the rollback window."
+            echo '```'
+            echo
+            echo "## 3. Record the rolled_back transition (honest non-reversal evidence)"
+            echo '```bash'
+            echo "MEERKAT_POSTGRES_URL='postgres://meerkat_ops:<pw>@<ops-host>/<db>' \\"
+            echo "  pnpm --filter @mylife/meerkat-relay promotion:postgres --rollback \\"
+            echo "    --release-id '${RELEASE_ID}' --rollback-to '${ROLLBACK_TO}' --operator '<you>'"
+            echo "# The CLI stamps dataReversalClaimed=false and"
+            echo "# postgresWritesAfterFlipReversed=false. It re-points images; it never un-writes"
+            echo "# the database. Any evidence claiming data reversal is refused."
+            echo '```'
+            echo
+            echo "A recorded rollback proves the record, not that data was reverted. Writes taken"
+            echo "while \`${RELEASE_ID}\` was live remain; reconcile them per the runbook."
+          } >> "$GITHUB_STEP_SUMMARY"

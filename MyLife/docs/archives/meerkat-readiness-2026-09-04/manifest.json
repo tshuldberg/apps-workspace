@@ -1,0 +1,152 @@
+[
+  {
+    "old": "docs/reports/REPORT-meerkat-blackglass-production-adversarial-audit-2026-07-09.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-blackglass-production-adversarial-audit-2026-07-09.html",
+    "sha256_original": "ad5585ffa2635b38ca76b7df19eb3ebb7fdffa28d91ecb569f799dadad967c95"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-blackglass-production-adversarial-audit-2026-07-09.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-blackglass-production-adversarial-audit-2026-07-09.md",
+    "sha256_original": "a186bed85be20ce00aa98a45308a500dc3ce63df173424cd061908493cbc8e8e"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-production-readiness-implementation-2026-07-09.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-production-readiness-implementation-2026-07-09.html",
+    "sha256_original": "a8c8b61c66cd8835ac8c91475fd4ff8e48c9111c9bb2cdd8cc655f6754e075f9"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-production-readiness-implementation-2026-07-09.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-production-readiness-implementation-2026-07-09.md",
+    "sha256_original": "7d7f0b276836b10f4ebc1627baa1ed0e35d0ce52af01a5dc3a04591773006505"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-state-of-the-app-2026-07-11.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-state-of-the-app-2026-07-11.html",
+    "sha256_original": "b1f977ed8463d132c37819ec09931d8cfd6b34bae493403b6fd0ade461c3597c"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-state-of-the-app-2026-07-11.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-state-of-the-app-2026-07-11.md",
+    "sha256_original": "3da69dda0ecc1f75c6534e39f69d97c84a58c9b96d7fddcee9593402afbb194e"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-full-production-readiness-2026-07-15.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-full-production-readiness-2026-07-15.html",
+    "sha256_original": "1bd12c5be9622ae96098dd88e479d2459c6406a36941c4a9cddf3c7b9001a8c4"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-full-production-readiness-2026-07-15.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-full-production-readiness-2026-07-15.md",
+    "sha256_original": "b7af9e57946fe28ee9d01519874ca04db77dd0ca2a284b7b1e2965f0e691dc7b"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-launch-readiness-2026-07-24.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-launch-readiness-2026-07-24.html",
+    "sha256_original": "3bd059a1bb796ecd39fbb9d4f55d07cc5bcebbcb344fdcb999dde5184b983176"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-launch-readiness-2026-07-24.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-launch-readiness-2026-07-24.md",
+    "sha256_original": "2f4b9c05b5230a1ba48afc47b53267d8468ac489b20158285c16af0c60a89ece"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-launch-product-evaluation-2026-09-01.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-launch-product-evaluation-2026-09-01.html",
+    "sha256_original": "c6c8a24c861a55f171ff4c91c0d7042ffab87a639a0c8184e2c1289088a9a981"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-launch-product-evaluation-2026-09-01.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-launch-product-evaluation-2026-09-01.md",
+    "sha256_original": "6885b451da9db4d07ac8488290c62829278acc186d3d71acc040e54f4efbe7fd"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-fable-review-2026-09-01.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-fable-review-2026-09-01.html",
+    "sha256_original": "262a3692fb2152065b6754431bbec94d81cdfa5491be53a40e042f5bc00fc9b4"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-fable-review-2026-09-01.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-fable-review-2026-09-01.md",
+    "sha256_original": "2c437aeefd3df04fd81584d3d6adcea67ed116e053aff5142244727b2bd43f7c"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-comprehensive-code-performance-instruction-audit-2026-09-02.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-comprehensive-code-performance-instruction-audit-2026-09-02.html",
+    "sha256_original": "faa26ef2fc4313df670da45a029452fcad6876cbe9a5b159ae3efd3189557082"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-comprehensive-code-performance-instruction-audit-2026-09-02.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-comprehensive-code-performance-instruction-audit-2026-09-02.md",
+    "sha256_original": "be142c888ee3e00e5684653c0774586463b1377aa2245e6cf98fb33af144ade3"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-final-review-2026-07-07.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-final-review-2026-07-07.html",
+    "sha256_original": "262d2a026fe44dddef3ca5f71e0ba210124806fde285b863433c714ad26a191c"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-legal-readiness-2026-07-18.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-legal-readiness-2026-07-18.html",
+    "sha256_original": "453ee6320409dd38337ee026ecca4d3bf8e9d567955d033481bca96b55e74580"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-legal-readiness-2026-07-18.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-legal-readiness-2026-07-18.md",
+    "sha256_original": "1983284df2621a8245bd6645e92a663457c488e8a89a78000575a85e42ed8de9"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-plan41-completion-audit-2026-07-15.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-plan41-completion-audit-2026-07-15.html",
+    "sha256_original": "7863e87c5b8f1ec8203c01c13af5fe6c53c5f4309791998a1eed5475390139ab"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-plan41-completion-audit-2026-07-15.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-plan41-completion-audit-2026-07-15.md",
+    "sha256_original": "5cf576f561d866fca250377d26a094c3f0f1ed8b361846829e79fde47a3013b5"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-plan41-proof-pack-2026-07-14.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-plan41-proof-pack-2026-07-14.html",
+    "sha256_original": "c1d4fd2a3ad878831a9424bf3e45ca12809ada197b8b9e11c6c48c7f562d0b11"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-plan41-proof-pack-2026-07-14.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-plan41-proof-pack-2026-07-14.md",
+    "sha256_original": "cdd1823e78acfd2e7f1531aaff778d970cd49f6d8b2dc662779bd8117cb00165"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-plan44-phase1-checkpoint-2026-07-10.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-plan44-phase1-checkpoint-2026-07-10.html",
+    "sha256_original": "5962688eb06e169726e8ff99d6c1b14658e0429f05ed129e4f9590d0dd20e627"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-plan44-phase1-checkpoint-2026-07-10.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-plan44-phase1-checkpoint-2026-07-10.md",
+    "sha256_original": "b0033476745dcdc83aeef2c09f618036db315058d1a5698513697f65a6431ab8"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-investor-technical-review-2026-07-04-fable.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-investor-technical-review-2026-07-04-fable.html",
+    "sha256_original": "c75d3d35d18649be85568b454d9e6de75f0d88fb87225dea835a118c0b78539c"
+  },
+  {
+    "old": "docs/reports/REPORT-meerkat-investor-technical-review-2026-07-05-gpt.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-investor-technical-review-2026-07-05-gpt.html",
+    "sha256_original": "ebe0051d965cf6c0ef55c2b0c5fbe7811b33b2d76966920ad3708ab60533b773"
+  },
+  {
+    "old": "apps/meerkat/docs/reports/REPORT-meerkat-full-system-review-2026-08-24.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-full-system-review-2026-08-24.html",
+    "sha256_original": "8aee8989a5552f22f32e9e988dc6ea7cec8ec632ad1baf93ba230291ab7fcf7c"
+  },
+  {
+    "old": "apps/meerkat/docs/reports/REPORT-meerkat-community-server-onboarding-2026-08-31.html",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-community-server-onboarding-2026-08-31.html",
+    "sha256_original": "1fa3cf3685662a9bb0b5e5ce57b202e709f449dc4d9da11e60d4f76952ae3920"
+  },
+  {
+    "old": "apps/meerkat/docs/reports/REPORT-meerkat-community-server-onboarding-2026-08-31.md",
+    "new": "docs/archives/meerkat-readiness-2026-09-04/REPORT-meerkat-community-server-onboarding-2026-08-31.md",
+    "sha256_original": "f35526bae6b5ad1eaebdc8b648d464482d8e91f7198afdce19274051b3ae02f3"
+  }
+]

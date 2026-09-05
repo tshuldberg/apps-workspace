@@ -1,0 +1,45 @@
+{
+  "skill_name": "module-claude-md-generator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Generate CLAUDE.md for the books module.",
+      "expected_output": "A CLAUDE.md file created at modules/books/CLAUDE.md with Overview, Exports, Storage, Engines, Schemas, Test Coverage, Parity Status, and Key Files sections.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "creates-claude-md",
+          "assertion": "A file is created at modules/books/CLAUDE.md"
+        },
+        {
+          "name": "has-required-sections",
+          "assertion": "The generated file contains at minimum: Overview, Exports, Storage, and Test Coverage sections"
+        },
+        {
+          "name": "exports-match-source",
+          "assertion": "The Exports section lists functions and types that actually exist in modules/books/src/index.ts"
+        },
+        {
+          "name": "identifies-test-gaps",
+          "assertion": "The Test Coverage section identifies specific untested engines or functions rather than just a file count"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Which modules are missing CLAUDE.md? Generate docs for all of them.",
+      "expected_output": "Scans all modules/ and packages/ directories, lists those missing CLAUDE.md, and generates standardized docs for each.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "inventories-missing-docs",
+          "assertion": "Output lists the specific modules and packages that are missing CLAUDE.md files"
+        },
+        {
+          "name": "generates-multiple-files",
+          "assertion": "At least 3 CLAUDE.md files are created across different modules or packages"
+        }
+      ]
+    }
+  ]
+}

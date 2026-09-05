@@ -1,0 +1,62 @@
+import type { ThemeProfile } from '../schema';
+
+export const EARTH_CLAY: ThemeProfile = {
+  id: 'earth-clay',
+  name: 'Earth Clay',
+  description: 'Deep brown wood tones with Playfair Display. Sand accents, editorial feel.',
+  author: 'MyLife',
+  version: '1.0.0',
+  colorMode: 'dark',
+  colors: {
+    background: '#2A1D14',
+    surface: '#33241A',
+    surfaceElevated: '#3F2D21',
+    text: '#F1E4D1',
+    textSecondary: '#CBB89C',
+    textTertiary: 'rgba(241,228,209,0.45)',
+    border: 'rgba(222,198,168,0.14)',
+    danger: '#E06C4B',
+    success: '#9FB66E',
+    warning: '#E6A861',
+    accent: '#DEC6A8',
+    primary: '#DEC6A8',
+    primaryContainer: '#8C6A4A',
+  },
+  glass: {
+    cardFill: 'rgba(222,198,168,0.06)',
+    cardBorder: 'rgba(222,198,168,0.14)',
+    strongFill: 'rgba(222,198,168,0.12)',
+    strongBorder: 'rgba(222,198,168,0.22)',
+    dockFill: 'rgba(42,29,20,0.85)',
+    dockBorder: 'rgba(222,198,168,0.18)',
+    blurIntensity: 30,
+  },
+  fonts: {
+    display: 'Playfair Display',
+    body: 'Outfit',
+  },
+  typeScale: {
+    heroTitle: { size: 40, weight: '700', lineHeight: 48 },
+    heading: { size: 26, weight: '600', lineHeight: 34 },
+    subheading: { size: 19, weight: '500', lineHeight: 26 },
+    body: { size: 16, weight: '400', lineHeight: 26 },
+    caption: { size: 13, weight: '400', lineHeight: 18 },
+    label: { size: 12, weight: '600', lineHeight: 16, letterSpacing: 0.8 },
+  },
+  surfaces: {
+    treatment: 'solid',
+    cornerRadius: { card: 12, button: 8, icon: 8, tabBar: 18 },
+    shadows: {
+      card: '0 2px 6px rgba(0,0,0,0.35)',
+      elevated: '0 6px 16px rgba(0,0,0,0.45)',
+      pressed: '0 1px 3px rgba(0,0,0,0.40)',
+    },
+  },
+  layout: {
+    dashboardStyle: 'cards-horizontal',
+    moduleGridColumns: 3,
+    tabBarStyle: 'bottom-attached',
+    headerStyle: 'wordmark',
+    spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
+  },
+};

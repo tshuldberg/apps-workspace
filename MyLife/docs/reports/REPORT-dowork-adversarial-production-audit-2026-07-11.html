@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DoWork Adversarial Production Audit — 2026-07-11</title>
+<style>
+  :root{
+    --bg:#0B0B0E; --surface:#15151A; --surface2:#1F1F25; --border:rgba(255,255,255,.10);
+    --text:#F5F4F8; --muted:rgba(245,244,248,.72); --accent:#FF6B00; --accentlt:#FF8B33;
+    --p0:#FF5A5A; --p1:#FFB020; --p2:#8BCFF0; --p3:#9F8E81; --ok:#30D158;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Plus Jakarta Sans",sans-serif;}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 22px 80px}
+  h1{font-size:30px;line-height:1.2;margin:0 0 6px;letter-spacing:-.5px}
+  h2{font-size:22px;margin:44px 0 12px;padding-bottom:8px;border-bottom:2px solid var(--border)}
+  h3{font-size:17px;margin:24px 0 6px}
+  a{color:var(--accentlt)}
+  code{background:var(--surface2);padding:1px 6px;border-radius:5px;font-size:13px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#ffd8b8}
+  .lede{color:var(--muted)}
+  .verdict{background:linear-gradient(135deg,rgba(255,90,90,.14),rgba(255,107,0,.08));
+    border:1px solid rgba(255,90,90,.4);border-radius:14px;padding:20px 22px;margin:26px 0}
+  .verdict h2{border:0;margin:0 0 8px;color:var(--p0)}
+  .meta{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin:20px 0}
+  .meta li{margin:3px 0;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px;
+    display:block;overflow-x:auto}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--accentlt);font-weight:600;white-space:nowrap}
+  .finding{background:var(--surface);border:1px solid var(--border);border-left-width:4px;
+    border-radius:10px;padding:14px 18px;margin:14px 0}
+  .p0{border-left-color:var(--p0)} .p1{border-left-color:var(--p1)}
+  .p2{border-left-color:var(--p2)} .p3{border-left-color:var(--p3)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;
+    letter-spacing:.5px;vertical-align:middle;margin-right:8px}
+  .tag.p0{background:rgba(255,90,90,.18);color:var(--p0);border:1px solid rgba(255,90,90,.5)}
+  .tag.p1{background:rgba(255,176,32,.16);color:var(--p1);border:1px solid rgba(255,176,32,.5)}
+  .tag.p2{background:rgba(139,207,240,.14);color:var(--p2);border:1px solid rgba(139,207,240,.45)}
+  .tag.p3{background:rgba(159,142,129,.16);color:var(--p3);border:1px solid rgba(159,142,129,.45)}
+  .finding .loc{color:var(--muted);font-size:13px}
+  .finding p{margin:8px 0 0}
+  .fix{color:var(--accentlt);font-weight:600}
+  ul{padding-left:20px} li{margin:6px 0}
+  .score-ok{color:var(--ok);font-weight:700} .score-mid{color:var(--p1);font-weight:700}
+  .score-low{color:var(--p0);font-weight:700}
+  .foot{margin-top:40px;color:var(--muted);font-size:14px;border-top:1px solid var(--border);padding-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DoWork — Adversarial Production Readiness Audit</h1>
+  <p class="lede">Standalone invite-only trainer + workout platform (<code>apps/dowork/</code>) · 2026-07-11</p>
+
+  <div class="meta">
+    <ul>
+      <li><b>Method:</b> 8 parallel adversarial auditors (7 Sonnet zone-auditors + 1 Sonnet deep bug-hunt; a gpt-5.5/Codex hunt was quota-blocked and replaced). Fable lead verified every P0/P1 against source.</li>
+      <li><b>Baseline gates:</b> typecheck clean · 375 app tests pass · 540 <code>@mylife/workouts</code> tests pass · <code>check:dowork-parity</code> passes. The problems are <i>below</i> the gate surface.</li>
+    </ul>
+  </div>
+
+  <div style="background:#0f2a17;border:1px solid #30D158;border-radius:10px;padding:14px 18px;margin:0 0 18px 0;">
+    <b style="color:#30D158;">Remediation status (2026-07-11, same day):</b> every code-addressable finding in this report (P0 through P3) was closed on <code>feature/dowork-production-readiness</code> with regression tests; gates green (518 app tests, 556 module tests, full parity). Closure record: <code>docs/plans/done/46-dowork-production-readiness-remediation.md</code>. The NO-GO below is the audit-time snapshot; the remaining launch gate is founder-ops only (F1-F8).
+  </div>
+
+  <div class="verdict">
+    <h2>Verdict: NO-GO for public launch — Overall 6/10</h2>
+    <p>The substrate is genuinely well built: real RLS with no exploitable bypass, real full-cascade account deletion, real UGC moderation on every surface, honest server-truth monetization, and no fake-success stubs anywhere. The app is <b>close</b>.</p>
+    <p>It cannot ship today. Two paths on the flow <b>every user hits after every workout</b> silently lose data. The edge-function auth model rests on a deploy invariant nothing enforces. And the binary cannot be submitted without an app icon and an iOS privacy manifest. Fix the P0 and P1 sets and this is a GO.</p>
+  </div>
+
+  <h2>Scorecard by zone</h2>
+  <table>
+    <tr><th>Zone</th><th>Score</th><th>Headline</th></tr>
+    <tr><td>Backend security / RLS / entitlement</td><td class="score-ok">8/10</td><td>Logic solid; risk is an unenforced deploy invariant (BK-1)</td></tr>
+    <tr><td>Monetization / RevenueCat</td><td class="score-ok">8/10</td><td>Server-truth correct; one revenue bug on cancellation (MN-1)</td></tr>
+    <tr><td>App shell / providers / migrations</td><td class="score-ok">8/10</td><td>No races, safe migrations; 5 core screens unregistered (SH-1)</td></tr>
+    <tr><td>Client data / offline / downloads</td><td class="score-mid">6/10</td><td>Honest by design; KV race + in-memory social queues lose data</td></tr>
+    <tr><td>Runtime: voice / player / push / GPS</td><td class="score-mid">5/10</td><td>Honest states, but permanent voice lockout + multi-device push wipe</td></tr>
+    <tr><td>Workout flows (screens)</td><td class="score-low">4/10</td><td>Two P0 silent-data-loss bugs on the universal post-workout path</td></tr>
+    <tr><td>Legal / trust-safety / store</td><td class="score-mid">6/10</td><td>Excellent UGC + legal substance; blocked on icon + privacy manifest</td></tr>
+    <tr><td>Completeness / honesty</td><td class="score-ok">8/10</td><td>Claims hold up; social offline queues overstated; polish debt</td></tr>
+  </table>
+
+  <h2>P0 — Launch blockers</h2>
+
+  <div class="finding p0"><span class="tag p0">P0</span><b>BH-2 — "Save Workout" button does nothing; public-share intent lost</b>
+    <div class="loc"><code>save-workout.tsx:30-36</code> · verified in source</div>
+    <p><code>handleSave</code> and <code>handleDiscard</code> are byte-for-byte identical — both just <code>router.back()</code>. The screen captures title, notes, and a Private/Everyone choice and throws it all away. The user titles a workout, picks "Everyone" to share, taps Save — nothing is titled or shared. (Raw session is persisted upstream, so history survives.)</p>
+    <p class="fix">Fix: persist title/notes to the session and call the existing <code>uploadWorkoutShare</code> when visibility is "Everyone", using a summary from <code>buildWorkoutSummary</code> + <code>getSetWeightsForSession</code>. Effort: M.</p>
+  </div>
+
+  <div class="finding p0"><span class="tag p0">P0</span><b>BH-1 — Ending a session mid-set silently discards the current set</b>
+    <div class="loc"><code>session.tsx:510-529, 417-454</code> · verified in source</div>
+    <p><code>recordSetWeight</code> runs only inside <code>handleCompleteSet</code>. <code>handleEndWorkout → finalizeSession</code> completes the session without flushing the current draft, so a typed-but-not-"Mark Complete" set is never written to <code>wk_workout_set_weights</code> — invisible to history and 1RM, no warning.</p>
+    <p class="fix">Fix: flush any draft with weight&gt;0 &amp;&amp; reps&gt;0 before completing (or warn in the dialog). Effort: S.</p>
+  </div>
+
+  <div class="finding p0"><span class="tag p0">P0</span><b>BK-1 — No deploy-time enforcement that edge functions verify the JWT signature</b>
+    <div class="loc"><code>_shared/broker.ts:147-159</code> · <code>config.toml</code> · missing <code>dowork/scripts/deploy-functions.sh</code></div>
+    <p><code>getUserIdFromAuth</code> decodes the JWT <code>sub</code> with no signature check; all 6 <code>dowork-*</code> functions trust the gateway's <code>verify_jwt</code>. None are pinned in <code>config.toml</code>, there is no deploy script, and no canary. One <code>--no-verify-jwt</code> slip at the manual F1 deploy → forge <code>{"sub":"&lt;victim&gt;"}</code> → account takeover via <code>dowork-delete-account</code>/<code>dowork-playback-url</code>.</p>
+    <p class="fix">Fix: pin <code>verify_jwt = true</code> for all 6 in <code>config.toml</code>; add a deploy script mirroring BestChef's; add a forged-JWT→401 smoke test; update the runbook. Effort: S.</p>
+  </div>
+
+  <div class="finding p0"><span class="tag p0">P0</span><b>LG-2 — No iOS Privacy Manifest (<code>PrivacyInfo.xcprivacy</code>)</b>
+    <div class="loc">not generated by hardening plugins; not on disk</div>
+    <p>Uses required-reason APIs (SecureStore/UserDefaults, SQLite file-timestamps) and bundles RevenueCat + Supabase. ASC's automated manifest check rejects <i>after</i> a successful build — an easy-to-miss submission-day failure.</p>
+    <p class="fix">Fix: add a manifest via config plugin (UserDefaults + file-timestamp reason codes, <code>NSPrivacyTracking:false</code>, collected-data types matching the policy). Effort: M.</p>
+  </div>
+
+  <div class="finding p0"><span class="tag p0">P0 · founder-ops</span><b>LG-1 — No app icon or splash image</b>
+    <div class="loc"><code>app.json</code> has only <code>splash.backgroundColor</code>; no <code>assets/</code></div>
+    <p>Both stores reject binaries without a real icon. Tracked as founder-ops F8. Effort: M (art + wiring).</p>
+  </div>
+
+  <div class="finding p0"><span class="tag p0">P0 · founder-ops</span><b>LG-3 — <code>ascAppId</code> placeholder blocks submit</b>
+    <div class="loc"><code>eas.json:26</code> = <code>REPLACE_WITH_ASC_APP_ID</code></div>
+    <p><code>eas submit</code> fails until the founder creates the $4.99 ASC record (founder-ops F2). Effort: S.</p>
+  </div>
+
+  <h2>P1 — High (before public launch)</h2>
+  <div class="finding p1"><span class="tag p1">P1</span><b>MN-1 — Cancellation revokes paid access immediately</b>
+    <div class="loc"><code>dowork-rc-webhook/index.ts:37-43</code> + entitlement policy <code>…:547-548</code> · verified</div>
+    <p><code>CANCELLATION → 'cancelled'</code> fails the policy's <code>status='active'</code> clause, locking out a mid-period canceller from content they paid for. <span class="fix">Fix: keep <code>active</code> on cancel; expire via <code>current_period_end</code>; flip only on <code>EXPIRATION</code>. S.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>SH-1 — Five coaching-loop screens missing from Stack registration</b>
+    <div class="loc"><code>(root)/_layout.tsx</code>: my-trainer, clients, client-invite/[code], client-invite/index, form-check/[id]</div>
+    <p>Render outside parent <code>screenOptions</code> → white flash + native header on the product's core screens. <span class="fix">Fix: add 5 <code>&lt;Stack.Screen&gt;</code> lines. S.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>DL-1 — KV read-modify-write race loses download index (storage leak)</b>
+    <div class="loc"><code>downloads.ts:102-114</code>, <code>pending-queues.ts:57-63</code></div>
+    <p>Two downloads finishing together clobber one index entry: file on disk, invisible, never deletable. <span class="fix">Fix: wrap in <code>transaction()</code> or per-row keys. M.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>CG-2 — Likes/comments/shares offline queues are in-memory only</b>
+    <div class="loc"><code>cloud-likes.ts</code>, <code>cloud-comments.ts</code>, <code>cloud-shares.ts</code> (self-flagged TODOs)</div>
+    <p>Offline social action + force-quit = silently lost; makes CLAUDE.md's KV-persistence claim overstated. <span class="fix">Fix: extend <code>pending-queues.ts</code> KV persistence. M.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>RT-6 — Transient mic error permanently locks out voice control</b>
+    <div class="loc"><code>useVoiceCoach.ts:212-222</code></div>
+    <p><code>runtimeError</code> is never cleared, pinning voice + push-to-talk to <code>unavailable</code> for the screen's life after any transient audio contention. <span class="fix">Fix: clear on next <code>start</code>/foreground. S.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>RT-7 — Push token removal wipes all of a user's devices</b>
+    <div class="loc"><code>push.ts:277-289</code></div>
+    <p>Sign-out / notifications-off on one device deregisters push everywhere. <span class="fix">Fix: scope token rows by device id. M.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>RT-2 / RT-4 — Voice command races URL refresh; expiry only checked on foreground</b>
+    <div class="loc"><code>player.tsx:426-475, 271-296</code></div>
+    <p>Seek reads stale duration during <code>player.replace()</code>; a long-foregrounded session isn't proactively refreshed past 60 min. <span class="fix">Fix: <code>isRefreshing</code> gate + 60s expiry poll. M / S.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>RT-8 — GPS elapsed timer not paused on background</b>
+    <div class="loc"><code>gps.tsx:208-232</code></div>
+    <p>Route time drifts out of sync with point coverage (foreground-only permissions are correct). <span class="fix">Fix: pause timer via <code>AppState</code>. S-M.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>BH-3 — Plate calculator hides valid "bar only" result</b>
+    <div class="loc"><code>calculator.tsx:45-49</code></div>
+    <p>Nulls the card when target ≤ bar though the library handles it. <span class="fix">Fix: guard on ≤ 0. S.</span></p>
+  </div>
+  <div class="finding p1"><span class="tag p1">P1</span><b>DL-2 — Sign-out queue can leak across identities on persist failure</b>
+    <div class="loc"><code>pending-queues.ts:104-114</code></div>
+    <p>Memory cleared then persisted; a persist throw leaves the prior user's queue on disk to rehydrate into the next user. <span class="fix">Fix: catch/retry/surface. S.</span></p>
+  </div>
+
+  <h2>P2 — Medium</h2>
+  <ul>
+    <li><b>RT-1</b> — Unbounded resume-position KV growth (<code>player.tsx:317-337</code>); prune on delete/revoke.</li>
+    <li><b>RT-15</b> — Unguarded <code>ensureDownloadsDir</code> + no <code>.catch</code> → download UI stuck forever on full disk.</li>
+    <li><b>BH-6</b> — Superset duration over-counts rest (<code>superset.tsx:126-129</code>).</li>
+    <li><b>BH-5</b> — GPS pace always per-km while distance shows miles (<code>gps.tsx:377-383</code>).</li>
+    <li><b>BH-4</b> — Two divergent calculator screens; retire <code>calculator.tsx</code>.</li>
+    <li><b>DL-3</b> — Persisted queue items not shape-validated; add zod.</li>
+    <li><b>DL-4</b> — Retry cap counts flush cycles, not retries; flaky wifi silently drops actions.</li>
+    <li><b>BK-2</b> — <code>dowork-notify</code> non-constant-time secret + no rate limit.</li>
+    <li><b>CG-3</b> — No a11y labels on <code>builder.tsx</code> / <code>session.tsx</code>.</li>
+    <li><b>CG-4</b> — Onboarding never mentions the trainer/coaching pillar.</li>
+    <li><b>LG-4</b> — "Verified" trainer badge is self-issued on invite; rename or verify.</li>
+    <li><b>SH-2 / SH-3</b> — <code>index.tsx</code> reads DB before provider creates it; onboarding <code>setTimeout(100)</code> hack.</li>
+    <li><b>CG-1</b> — No tests for cloud-blocks / cloud-reports / launch-environment / public-render-policy.</li>
+    <li><b>RT-9 / RT-12</b> — Cold-start route not gated on DB-ready; 401 treated as "offline."</li>
+  </ul>
+
+  <h2>P3 / polish &amp; improvements</h2>
+  <ul>
+    <li><b>CG-5</b> — No delete/edit for saved workouts or history sessions.</li>
+    <li><b>CG-6</b> — No pull-to-refresh on Workouts/Explore/Progress/Programs.</li>
+    <li><b>CG-7</b> — No text search on the Explore exercise library.</li>
+    <li><b>CG-8</b> — Premium videos hidden from non-subscribers instead of shown as a locked teaser (conversion lever).</li>
+    <li><b>CG-9</b> — Voice control not wired into live <code>session.tsx</code> — the "hands-free in the gym" pitch doesn't reach mid-set.</li>
+    <li><b>IMP-9</b> — No "repeat last session" / duplicate-workout quick action.</li>
+    <li><b>BK-3 / BK-4 / DL-6 / RT-10/11/13/14</b> — invite-RPC rate cap; report target validation; non-crypto uuid warning; push diagnosability; minor polish.</li>
+  </ul>
+
+  <h2>Founder-ops (cannot be closed in code)</h2>
+  <ul>
+    <li><b>F1</b> — real DB push + deploy 6 functions <i>through the new deploy script</i> (BK-1) + Database Webhooks (gates coaching push).</li>
+    <li><b>F2</b> — ASC $4.99 app + real <code>ascAppId</code> (LG-3). <b>F3</b> — RevenueCat 8 products + webhook secret + EAS keys.</li>
+    <li><b>F4</b> — revenue-split decision. <b>F5</b> — host + counsel-review legal; confirm moderation SLA staffing (LG-5).</li>
+    <li><b>F6</b> — APNs/FCM keys. <b>F7</b> — TestFlight white-glove QA. <b>F8</b> — icon + splash art (LG-1).</li>
+  </ul>
+
+  <div class="verdict" style="background:linear-gradient(135deg,rgba(48,209,88,.10),rgba(255,107,0,.06));border-color:rgba(48,209,88,.35)">
+    <h2 style="color:var(--ok)">Bottom line</h2>
+    <p>Fix the code-addressable P0s (BH-1, BH-2, BK-1 config+script, LG-2 manifest) and the P1 set, complete the founder-ops asset/deploy items, and DoWork is a defensible GO. The engineering foundation is strong; the gap is a small number of high-impact defects plus submission logistics, not a rewrite.</p>
+  </div>
+
+  <p class="foot">Generated 2026-07-11 · Markdown source: <code>docs/reports/REPORT-dowork-adversarial-production-audit-2026-07-11.md</code> · Remediation plan: <code>docs/plans/queue/46-dowork-production-readiness-remediation.md</code></p>
+</div>
+</body>
+</html>

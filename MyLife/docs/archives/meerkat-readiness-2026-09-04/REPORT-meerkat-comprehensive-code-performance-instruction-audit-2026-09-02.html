@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Meerkat Comprehensive Audit, 2026-09-02</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: #ffffff;
+    }
+
+    body {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: none;
+      min-height: 100vh;
+      padding: clamp(20px, 3vw, 56px);
+      color: #17201b;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      hyphens: none;
+    }
+
+    #title-block-header {
+      display: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      line-height: 1.15;
+      text-wrap: balance;
+    }
+
+    table {
+      display: table;
+      width: 100%;
+      overflow: visible;
+    }
+
+    th,
+    td {
+      padding: 0.55rem 0.7rem;
+      vertical-align: top;
+    }
+
+    code {
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding: 16px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+    }
+
+    @media print {
+      body {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a
+href="#meerkat-comprehensive-code-performance-security-and-instruction-audit"
+id="toc-meerkat-comprehensive-code-performance-security-and-instruction-audit">Meerkat
+Comprehensive Code, Performance, Security, and Instruction Audit</a>
+<ul>
+<li><a href="#executive-verdict" id="toc-executive-verdict">Executive
+verdict</a></li>
+<li><a href="#finding-register" id="toc-finding-register">Finding
+register</a></li>
+<li><a href="#remediation-update"
+id="toc-remediation-update">Remediation update</a>
+<ul>
+<li><a href="#feed-read-model" id="toc-feed-read-model">Feed read
+model</a></li>
+<li><a href="#dependencies-and-expo-health"
+id="toc-dependencies-and-expo-health">Dependencies and Expo
+health</a></li>
+<li><a href="#low-risk-cleanup-and-instruction-quality"
+id="toc-low-risk-cleanup-and-instruction-quality">Low-risk cleanup and
+instruction quality</a></li>
+</ul></li>
+<li><a href="#f-01-feed-read-model-amplification"
+id="toc-f-01-feed-read-model-amplification">F-01: feed read-model
+amplification</a>
+<ul>
+<li><a href="#evidence" id="toc-evidence">Evidence</a></li>
+<li><a href="#root-causes" id="toc-root-causes">Root causes</a></li>
+<li><a href="#required-optimization"
+id="toc-required-optimization">Required optimization</a></li>
+<li><a href="#acceptance-criteria"
+id="toc-acceptance-criteria">Acceptance criteria</a></li>
+</ul></li>
+<li><a href="#f-02-dependency-advisories"
+id="toc-f-02-dependency-advisories">F-02: dependency advisories</a></li>
+<li><a href="#f-03-duplicate-expo-native-module"
+id="toc-f-03-duplicate-expo-native-module">F-03: duplicate Expo native
+module</a></li>
+<li><a href="#f-04-production-proof-gap"
+id="toc-f-04-production-proof-gap">F-04: production proof gap</a></li>
+<li><a href="#f-05-bundle-and-startup-pressure"
+id="toc-f-05-bundle-and-startup-pressure">F-05: bundle and startup
+pressure</a></li>
+<li><a href="#f-06-repeated-schema-work"
+id="toc-f-06-repeated-schema-work">F-06: repeated schema work</a></li>
+<li><a href="#f-07-duplicated-parity-cores"
+id="toc-f-07-duplicated-parity-cores">F-07: duplicated parity
+cores</a></li>
+<li><a href="#f-08-responsibility-concentration"
+id="toc-f-08-responsibility-concentration">F-08: responsibility
+concentration</a></li>
+<li><a href="#f-09-new-architecture-contradiction"
+id="toc-f-09-new-architecture-contradiction">F-09: New Architecture
+contradiction</a></li>
+<li><a href="#f-10-lint-warnings" id="toc-f-10-lint-warnings">F-10: lint
+warnings</a></li>
+<li><a href="#f-11-non-secret-randomness"
+id="toc-f-11-non-secret-randomness">F-11: non-secret randomness</a></li>
+<li><a href="#f-12-dependency-tool-scalability"
+id="toc-f-12-dependency-tool-scalability">F-12: dependency-tool
+scalability</a></li>
+<li><a href="#security-and-privacy-review"
+id="toc-security-and-privacy-review">Security and privacy review</a>
+<ul>
+<li><a href="#positive-evidence" id="toc-positive-evidence">Positive
+evidence</a></li>
+<li><a href="#residual-concerns" id="toc-residual-concerns">Residual
+concerns</a></li>
+</ul></li>
+<li><a href="#automated-verification-record"
+id="toc-automated-verification-record">Automated verification
+record</a></li>
+<li><a href="#instruction-audit-agents.md-and-claude.md"
+id="toc-instruction-audit-agents.md-and-claude.md">Instruction audit:
+AGENTS.md and CLAUDE.md</a>
+<ul>
+<li><a href="#measured-instruction-load"
+id="toc-measured-instruction-load">Measured instruction load</a></li>
+<li><a href="#rules-to-preserve" id="toc-rules-to-preserve">Rules to
+preserve</a></li>
+<li><a href="#rules-likely-to-create-more-issues-than-guidance"
+id="toc-rules-likely-to-create-more-issues-than-guidance">Rules likely
+to create more issues than guidance</a></li>
+<li><a href="#direct-contradictions-and-confusing-state"
+id="toc-direct-contradictions-and-confusing-state">Direct contradictions
+and confusing state</a></li>
+<li><a href="#proposed-structure" id="toc-proposed-structure">Proposed
+structure</a></li>
+</ul></li>
+<li><a href="#recommended-remediation-order"
+id="toc-recommended-remediation-order">Recommended remediation
+order</a></li>
+<li><a href="#audit-limitations" id="toc-audit-limitations">Audit
+limitations</a></li>
+<li><a href="#conclusion" id="toc-conclusion">Conclusion</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1
+id="meerkat-comprehensive-code-performance-security-and-instruction-audit">Meerkat
+Comprehensive Code, Performance, Security, and Instruction Audit</h1>
+<p><strong>Audit date:</strong> 2026-09-02<br> <strong>Original code
+baseline:</strong> <code>518bab5a</code> plus the non-product
+documentation changes listed in this report<br> <strong>Remediation
+implementation:</strong> <code>a3152851</code><br> <strong>Audited
+surfaces:</strong> Meerkat Expo app, shared <code>@mylife/sync</code>,
+Meerkat relay, mobile/web parity locks, dependency graph, production
+bundles, root and app <code>AGENTS.md</code> / <code>CLAUDE.md</code>
+instruction chain<br> <strong>Original auditor mode:</strong>
+Evidence-first, report-only.<br> <strong>Remediation update:</strong>
+2026-09-02. The primary local fixes and low-risk fixes were implemented
+and reverified after the original audit.</p>
+<h2 id="executive-verdict">Executive verdict</h2>
+<p>Meerkat has an unusually strong automated correctness and
+cryptographic-invariant baseline, but it is not optimization-complete or
+release-signoff-ready.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Area</th>
+<th>Verdict</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Functional correctness</td>
+<td>Pass</td>
+<td>7,330 tests passed across mobile, web, sync, and relay; 192
+provider/configuration-dependent tests were skipped</td>
+</tr>
+<tr>
+<td>Type safety</td>
+<td>Pass</td>
+<td>Strict TypeScript check passed; no runtime explicit
+<code>any</code>, <code>@ts-ignore</code>, or
+<code>@ts-expect-error</code> found</td>
+</tr>
+<tr>
+<td>Security invariants</td>
+<td>Pass with one unpatched dependency exception</td>
+<td>Transport negative controls, parity, account isolation, signature,
+fail-closed, and crypto suites passed; only two <code>image-size</code>
+advisories remain and npm has no fixed release</td>
+</tr>
+<tr>
+<td>Runtime performance</td>
+<td>Primary optimization passed on host</td>
+<td>Feed path now uses 7 queries and takes 693.86 ms median at 320
+posts, down from 1,286 queries and 1,995.45 ms</td>
+</tr>
+<tr>
+<td>Bundle efficiency</td>
+<td>Needs optimization</td>
+<td>Android Hermes bytecode is 15.34 MB decimal; LiveKit, Lucide,
+RevenueCat mappings, and LiveKit React sources are 21.97% of source-map
+source bytes</td>
+</tr>
+<tr>
+<td>Native dependency health</td>
+<td>Pass</td>
+<td>Expo Doctor now passes 17 of 17 checks after peer-context
+deduplication</td>
+</tr>
+<tr>
+<td>Production integration evidence</td>
+<td>Incomplete</td>
+<td>189 relay tests and 3 sync tests were skipped; live PostgreSQL,
+object-store, provider, and physical-device proof was not available</td>
+</tr>
+<tr>
+<td>Instruction quality</td>
+<td>Improved</td>
+<td>Security and honesty boundaries remain; over-broad scope, parity,
+artifact, commit, team, design-doc, and human-instruction rules were
+narrowed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Release position:</strong> do not treat this audit as a
+production sign-off. The primary local performance and native-dependency
+failures are fixed, but live provider and physical-device evidence,
+bundle work, schema cleanup, and the unpatched <code>image-size</code>
+advisories remain.</p>
+<h2 id="finding-register">Finding register</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>ID</th>
+<th>Severity</th>
+<th>Finding</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F-01</td>
+<td>High</td>
+<td>Feed read model performs query-amplified work and repeated
+cryptographic verification</td>
+<td>Resolved in code; physical-device trace pending</td>
+</tr>
+<tr>
+<td>F-02</td>
+<td>High</td>
+<td>Production dependency graph contains 13 advisory records, including
+8 high-severity records</td>
+<td>Mitigated: 11 records removed; 2 <code>image-size</code> records
+have no fixed release</td>
+</tr>
+<tr>
+<td>F-03</td>
+<td>High</td>
+<td>Expo Doctor detects duplicate <code>expo@54.0.37</code> native
+installations with different peer identities</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>F-04</td>
+<td>High assurance gap</td>
+<td>Live relay, PostgreSQL, object-store, provider, and physical-device
+evidence was unavailable</td>
+<td>Open</td>
+</tr>
+<tr>
+<td>F-05</td>
+<td>Medium</td>
+<td>Production bundle has large, concentrated dependency contributors
+and duplicate LiveKit formats</td>
+<td>Open</td>
+</tr>
+<tr>
+<td>F-06</td>
+<td>Medium</td>
+<td>Idempotent schema DDL runs repeatedly in normal DM read/write
+paths</td>
+<td>Open</td>
+</tr>
+<tr>
+<td>F-07</td>
+<td>Medium</td>
+<td>Mobile/web parity is enforced through 49 duplicated core pairs
+totaling 39,902 lines</td>
+<td>Open</td>
+</tr>
+<tr>
+<td>F-08</td>
+<td>Medium</td>
+<td>Several files combine too many responsibilities and are costly to
+review safely</td>
+<td>Open</td>
+</tr>
+<tr>
+<td>F-09</td>
+<td>Medium</td>
+<td>New Architecture documentation contradicts the actual SDK 54
+configuration</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>F-10</td>
+<td>Medium/Low</td>
+<td>Nine lint warnings include two fragile dependency omissions and
+avoidable render churn</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>F-11</td>
+<td>Low</td>
+<td>Non-secret protocol identifiers and conflict nonces use
+<code>Math.random()</code></td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>F-12</td>
+<td>Medium developer-experience issue</td>
+<td>Workspace <code>pnpm audit</code>, <code>pnpm why</code>, and
+infinite-depth listing exhaust 4 to 8 GB heaps</td>
+<td>Open</td>
+</tr>
+</tbody>
+</table>
+<p>No critical code defect was demonstrated by this audit.</p>
+<h2 id="remediation-update">Remediation update</h2>
+<h3 id="feed-read-model">Feed read model</h3>
+<p>The production implementation now loads post types in a bounded
+batch, loads community safety state once, verifies each channel event
+set once per feed evaluation, and reuses the resolved messages for
+unread, post, reaction, and file projections. It does not cache
+verification across calls, so changed signed bytes or safety state
+cannot reuse a stale acceptance.</p>
+<p>The repeatable harness is
+<code>apps/meerkat/scripts/benchmark-feed-read-model.ts</code>. It uses
+real signed Meerkat events, the production functions, an in-memory
+<code>better-sqlite3</code> adapter, 3 warmups, and 9 measured runs.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: right;">Posts, N</th>
+<th style="text-align: right;">Before feed queries</th>
+<th style="text-align: right;">After feed queries</th>
+<th style="text-align: right;">Before median</th>
+<th style="text-align: right;">After median</th>
+<th style="text-align: right;">Before p95</th>
+<th style="text-align: right;">After p95</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">122.92 ms</td>
+<td style="text-align: right;">43.30 ms</td>
+<td style="text-align: right;">124.09 ms</td>
+<td style="text-align: right;">43.61 ms</td>
+</tr>
+<tr>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">326</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">492.46 ms</td>
+<td style="text-align: right;">172.52 ms</td>
+<td style="text-align: right;">497.53 ms</td>
+<td style="text-align: right;">175.66 ms</td>
+</tr>
+<tr>
+<td style="text-align: right;">320</td>
+<td style="text-align: right;">1,286</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">1,995.45 ms</td>
+<td style="text-align: right;">693.86 ms</td>
+<td style="text-align: right;">2,022.05 ms</td>
+<td style="text-align: right;">701.25 ms</td>
+</tr>
+</tbody>
+</table>
+<p>At <code>N = 320</code>:</p>
+<pre class="text"><code>Query reduction  = 1 - (7 / 1,286) = 99.4557%
+Time saved       = 1,995.4499 - 693.8620 = 1,301.5879 ms
+Speedup          = 1,995.4499 / 693.8620 = 2.8759x
+Median reduction = 65.2278%
+p95 reduction    = 65.3199%</code></pre>
+<p>Post-card reads fell from 321 to 2 at 320 posts, a 99.3769%
+reduction. Reaction reads fell from 641 to 2 at 320 active reactions, a
+99.6880% reduction. Their latency remains dominated by required
+signature verification, which is intentionally preserved.</p>
+<h3 id="dependencies-and-expo-health">Dependencies and Expo health</h3>
+<p>Compatible overrides moved the audited vulnerable packages to
+<code>nanoid 3.3.18</code>, <code>decode-uri-component 0.5.0</code>,
+<code>brace-expansion 1.1.18/5.0.9</code>, <code>js-yaml 4.3.2</code>,
+<code>browserslist 4.28.8</code>, <code>undici 6.28.0/7.29.0</code>, and
+<code>@xmldom/xmldom 0.8.15</code>. A fresh npm advisory query reports
+only the two <code>image-size</code> records from the original audit.
+<code>image-size 1.2.1</code> remains reachable through Expo tooling;
+both its installed version and npm’s latest <code>2.0.2</code> remain
+vulnerable, so no safe package upgrade currently exists.</p>
+<p>Pinning the SDK-compatible <code>react-native-webview 13.15.0</code>
+peer context removed the duplicate Expo installation from the Meerkat
+graph. Expo Doctor now passes all 17 checks.</p>
+<h3 id="low-risk-cleanup-and-instruction-quality">Low-risk cleanup and
+instruction quality</h3>
+<ul>
+<li>All nine mobile warnings and three web warnings were fixed,
+including explicit membership and sync-engine hook dependencies. Both
+Meerkat surfaces now lint cleanly.</li>
+<li>Non-secret protocol IDs and canvas conflict nonces now use the
+configured <code>@mylife/sync</code> pseudorandom source. The bounded
+integer helper uses rejection sampling, avoiding modulo bias.</li>
+<li>Root <code>AGENTS.md</code> now scopes completeness, parity, session
+artifacts, report generation, commits, and human instructions to the
+work that actually needs them.</li>
+<li>Root <code>CLAUDE.md</code> now makes gates proportional, serializes
+overlapping agent work, limits design-doc ceremony to durable behavior
+changes, and makes Open Brain optional and non-blocking.</li>
+<li>Meerkat <code>AGENTS.md</code> now states the actual SDK 54
+legacy-architecture pin and describes scheduled background sync as
+implemented but disabled pending release validation.</li>
+</ul>
+<h2 id="f-01-feed-read-model-amplification">F-01: feed read-model
+amplification</h2>
+<h3 id="evidence">Evidence</h3>
+<p>The benchmark exercised the real production functions against an
+in-memory <code>better-sqlite3</code> database populated with real
+signed Meerkat events. Each size used 3 warmups and 9 measured
+repetitions. The benchmark wrapper counted adapter queries and
+executions. Host: Apple M4 Pro, 14 logical cores, 48 GiB RAM, macOS
+26.3, Node 22.22.0, pnpm 9.15.4.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: right;">Posts, N</th>
+<th style="text-align: right;"><code>listChannelPostCards</code>
+queries</th>
+<th style="text-align: right;">Median</th>
+<th style="text-align: right;">p95</th>
+<th style="text-align: right;"><code>evaluateLocalFeed</code>
+queries</th>
+<th style="text-align: right;">Median</th>
+<th style="text-align: right;">p95</th>
+<th style="text-align: right;">Batched prototype queries</th>
+<th style="text-align: right;">Median</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">40.98 ms</td>
+<td style="text-align: right;">41.18 ms</td>
+<td style="text-align: right;">86</td>
+<td style="text-align: right;">122.92 ms</td>
+<td style="text-align: right;">124.09 ms</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">40.73 ms</td>
+</tr>
+<tr>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">81</td>
+<td style="text-align: right;">163.09 ms</td>
+<td style="text-align: right;">164.24 ms</td>
+<td style="text-align: right;">326</td>
+<td style="text-align: right;">492.46 ms</td>
+<td style="text-align: right;">497.53 ms</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">162.82 ms</td>
+</tr>
+<tr>
+<td style="text-align: right;">320</td>
+<td style="text-align: right;">321</td>
+<td style="text-align: right;">658.75 ms</td>
+<td style="text-align: right;">665.97 ms</td>
+<td style="text-align: right;">1,286</td>
+<td style="text-align: right;">1,995.45 ms</td>
+<td style="text-align: right;">2,022.05 ms</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">666.20 ms</td>
+</tr>
+</tbody>
+</table>
+<p>Measured query equations on the post-only, no-reaction, empty-safety
+fixture:</p>
+<pre class="text"><code>listChannelPostCards queries = N + 1
+evaluateLocalFeed queries     = 4N + 6
+batched prototype queries     = 3</code></pre>
+<p>At <code>N = 320</code>:</p>
+<pre class="text"><code>Query reduction = 1 - (3 / 1,286) = 99.7667%
+Time saved      = 1,995.4499 - 666.2029 = 1,329.2470 ms
+Speedup         = 1,995.4499 / 666.2029 = 2.9953x
+Median reduction = 66.614%</code></pre>
+<p>The measured scaling exponents, using
+<code>alpha = ln(t320 / t20) / ln(320 / 20)</code>, were 1.002 for post
+cards, 1.005 for the feed, and 1.008 for the batched prototype. All
+remain linear because every signed event is still verified. Batching
+removes the database multiplier, not the required cryptographic
+work.</p>
+<p>Reaction aggregation separately measured:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Active reactions, N</th>
+<th style="text-align: right;">Queries</th>
+<th style="text-align: right;">Median</th>
+<th style="text-align: right;">p95</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">41</td>
+<td style="text-align: right;">44.21 ms</td>
+<td style="text-align: right;">44.83 ms</td>
+</tr>
+<tr>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">161</td>
+<td style="text-align: right;">169.81 ms</td>
+<td style="text-align: right;">170.33 ms</td>
+</tr>
+<tr>
+<td style="text-align: right;">320</td>
+<td style="text-align: right;">641</td>
+<td style="text-align: right;">674.12 ms</td>
+<td style="text-align: right;">684.89 ms</td>
+</tr>
+</tbody>
+</table>
+<p>The reaction equation is <code>2N + 1</code>; the endpoint slope was
+approximately 2.10 ms per additional reaction. The two per-reaction
+safety queries are visible in <code>reactionHiddenBySafety</code>.
+Signature verification remains the larger irreducible cost unless
+verified immutable rows are cached safely.</p>
+<h3 id="root-causes">Root causes</h3>
+<ul>
+<li><code>listChannelPostCards</code> calls <code>postTypeForRoot</code>
+once per root, even though <code>cm_posts.id</code> is indexed as a
+primary key.</li>
+<li><code>listChannelReactions</code> calls two safety lookups for each
+active reaction.</li>
+<li><code>evaluateLocalFeed</code> loads and verifies channel messages,
+then invokes post-card, reaction, unread, mute, and safety helpers that
+repeat reads or verification.</li>
+<li>The functions are also maintained as mobile/web twins, so a fix must
+be applied twice or extracted.</li>
+</ul>
+<h3 id="required-optimization">Required optimization</h3>
+<ol type="1">
+<li>Load post metadata for all root IDs in one bounded <code>IN</code>
+query or join.</li>
+<li>Load blocked-member and hidden-report sets once per
+community/channel evaluation.</li>
+<li>Build one verified channel read model and pass it to feed,
+post-card, unread, and reaction projections.</li>
+<li>Cache verification only by immutable signed-row identity plus
+signature/payload digest. Any row mutation, different signature,
+revocation-policy change, or safety-policy revision must invalidate or
+bypass the cache.</li>
+<li>Preserve the current fail-closed behavior and byte-identical
+mobile/web semantics.</li>
+</ol>
+<h3 id="acceptance-criteria">Acceptance criteria</h3>
+<ul>
+<li>Query count is constant in post/reaction count for one channel
+projection, with a target of no more than 8 adapter queries.</li>
+<li>The same <code>N = 320</code> harness reduces median feed time by at
+least 50% and p95 below 1 second on this host.</li>
+<li>A physical mid-range Android device trace proves that opening and
+scrolling the populated feed does not block the JavaScript thread for a
+visible interval.</li>
+<li>Adversarial tests prove that cached verification never accepts
+changed bytes, a changed signature, a revoked identity, or newly hidden
+content.</li>
+</ul>
+<h2 id="f-02-dependency-advisories">F-02: dependency advisories</h2>
+<p>The normal workspace command
+<code>pnpm audit --prod --audit-level high</code> exhausted Node’s
+default 4 GB heap and an 8 GB retry. To avoid reporting an unknown
+result, the audit created an isolated production deployment, enumerated
+physical package manifests, submitted 813 unique packages and 913
+package versions to npm’s bulk advisory endpoint, and traversed the pnpm
+lockfile to establish reachability from <code>apps/meerkat</code>.</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr>
+<th>Package</th>
+<th style="text-align: right;">Installed</th>
+<th style="text-align: right;">Advisory records</th>
+<th>Severity</th>
+<th>Reachability</th>
+<th>Bundled in native JS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nanoid</code></td>
+<td style="text-align: right;">3.3.16</td>
+<td style="text-align: right;">1</td>
+<td>High</td>
+<td><code>expo-router</code></td>
+<td>Yes, non-secure build</td>
+</tr>
+<tr>
+<td><code>decode-uri-component</code></td>
+<td style="text-align: right;">0.2.2</td>
+<td style="text-align: right;">1</td>
+<td>Moderate</td>
+<td><code>expo-router &gt; query-string</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>brace-expansion</code></td>
+<td style="text-align: right;">1.1.17, 5.0.8</td>
+<td style="text-align: right;">2</td>
+<td>High</td>
+<td>React Native glob and Expo CLI minimatch</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>js-yaml</code></td>
+<td style="text-align: right;">4.3.0</td>
+<td style="text-align: right;">1</td>
+<td>High</td>
+<td>Expo CLI &gt; xcpretty</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>browserslist</code></td>
+<td style="text-align: right;">4.28.1</td>
+<td style="text-align: right;">2</td>
+<td>High</td>
+<td>Expo metro config</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>image-size</code></td>
+<td style="text-align: right;">1.2.1</td>
+<td style="text-align: right;">2</td>
+<td>High</td>
+<td>Expo metro</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>undici</code></td>
+<td style="text-align: right;">6.27.0</td>
+<td style="text-align: right;">3</td>
+<td>Moderate</td>
+<td>Expo CLI</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>@xmldom/xmldom</code></td>
+<td style="text-align: right;">0.8.13</td>
+<td style="text-align: right;">1</td>
+<td>Moderate</td>
+<td>MapLibre &gt; Expo config plugins &gt; plist</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>Totals: 13 advisory records across 8 package names, consisting of 8
+high and 5 moderate records. No critical advisory was returned.</p>
+<p>The runtime bundle contains only the two Expo Router transitives from
+this set. The other six package names are production-dependency
+reachable because Expo ships CLI/build dependencies, but they were
+absent from the generated native JavaScript source map. This lowers
+mobile runtime exploitability but does not make the build chain
+clean.</p>
+<p>Relevant advisories: <a
+href="https://github.com/advisories/GHSA-2v37-7h3g-55p8">nanoid
+GHSA-2v37-7h3g-55p8</a>, <a
+href="https://github.com/advisories/GHSA-vcc3-ghjq-m6fr">decode-uri-component
+GHSA-vcc3-ghjq-m6fr</a>, <a
+href="https://github.com/advisories/GHSA-rgw5-rvv9-x895">brace-expansion
+GHSA-rgw5-rvv9-x895</a>, <a
+href="https://github.com/advisories/GHSA-5p4m-2wfm-xmqj">js-yaml
+GHSA-5p4m-2wfm-xmqj</a>, <a
+href="https://github.com/advisories/GHSA-c83g-rgw3-j3cx">Browserslist
+GHSA-c83g-rgw3-j3cx</a>, <a
+href="https://github.com/advisories/GHSA-73wf-gq98-2v4g">Browserslist
+GHSA-73wf-gq98-2v4g</a>, <a
+href="https://github.com/advisories/GHSA-w3rx-r6r6-pgpr">image-size
+GHSA-w3rx-r6r6-pgpr</a>, <a
+href="https://github.com/advisories/GHSA-5p2g-fcmc-qvqq">image-size
+GHSA-5p2g-fcmc-qvqq</a>, and the three Undici records <a
+href="https://github.com/advisories/GHSA-8xcm-r25x-g524">GHSA-8xcm-r25x-g524</a>,
+<a
+href="https://github.com/advisories/GHSA-m8rv-5g2x-5cg5">GHSA-m8rv-5g2x-5cg5</a>,
+<a
+href="https://github.com/advisories/GHSA-v3r7-h72x-cjcm">GHSA-v3r7-h72x-cjcm</a>.</p>
+<p><strong>Remediation:</strong> upgrade within the Expo-supported
+dependency matrix, then rerun Expo Doctor, the bulk scan, native
+exports, all test suites, and a clean native build. Do not force
+arbitrary transitive versions past Expo peer constraints.</p>
+<h2 id="f-03-duplicate-expo-native-module">F-03: duplicate Expo native
+module</h2>
+<p><code>pnpm dlx expo-doctor@latest . --verbose</code> passed 17 of 18
+checks and failed the duplicate dependency check. It found two
+<code>expo@54.0.37</code> installations that resolve through different
+pnpm peer identities. The version is the same, but the physical
+installations are not the same target.</p>
+<p>One path is the app’s direct Expo installation. The other is reached
+through <code>@expo/metro-runtime@6.1.2</code>. Expo Doctor warns that
+native builds should contain only one installation of a native
+module.</p>
+<p><strong>Impact:</strong> clean native builds can behave differently
+from Metro export, and duplicate native module resolution can produce
+build failures or runtime registration problems.</p>
+<p><strong>Remediation:</strong> reproduce from a clean workspace
+install, inspect the two peer suffixes, align the root override and
+Expo/Router peer graph, deduplicate, rerun Expo Doctor, and prove clean
+iOS and Android builds. Do not delete the lockfile as a first response
+in this shared monorepo.</p>
+<h2 id="f-04-production-proof-gap">F-04: production proof gap</h2>
+<p>The relay suite passed 1,653 tests but skipped 189. The sync suite
+passed 2,624 and skipped 3. The relay skips are primarily explicit live
+PostgreSQL, destructive migration, MinIO/S3, running-service authority,
+and optional LiveKit checks. They are correctly guarded rather than
+faked.</p>
+<p>This audit did not have:</p>
+<ul>
+<li>A disposable <code>meerkat_ci</code> or <code>meerkat_test</code>
+PostgreSQL instance with destructive-test opt-in.</li>
+<li>A live MinIO/S3 test endpoint.</li>
+<li>Live hosted/account/public/community provider credentials.</li>
+<li>Two physical devices for LAN, Nearby, BLE wake, WebRTC, background
+scheduling, push wake, or keychain lifecycle proof.</li>
+<li>Store/provider and EAS release evidence.</li>
+</ul>
+<p>The absence is an assurance gap, not a demonstrated code bug. It
+prevents a complete production claim.</p>
+<h2 id="f-05-bundle-and-startup-pressure">F-05: bundle and startup
+pressure</h2>
+<p>The audit generated fresh production exports rather than estimating
+from imports.</p>
+<table>
+<thead>
+<tr>
+<th>Artifact</th>
+<th style="text-align: right;">Android</th>
+<th style="text-align: right;">iOS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hermes bytecode</td>
+<td style="text-align: right;">15,338,903 B, 14.63 MiB</td>
+<td style="text-align: right;">15,341,985 B, 14.63 MiB</td>
+</tr>
+<tr>
+<td>gzip level 9</td>
+<td style="text-align: right;">6,083,091 B, 5.80 MiB</td>
+<td style="text-align: right;">6,089,904 B, 5.81 MiB</td>
+</tr>
+<tr>
+<td>Brotli quality 5</td>
+<td style="text-align: right;">5,308,996 B, 5.06 MiB</td>
+<td style="text-align: right;">5,319,725 B, 5.07 MiB</td>
+</tr>
+<tr>
+<td>Modules</td>
+<td style="text-align: right;">4,199</td>
+<td style="text-align: right;">4,203</td>
+</tr>
+</tbody>
+</table>
+<p>The Android Brotli transfer is 65.39% smaller than uncompressed
+bytecode. One update to 10,000 devices would transfer approximately
+49.44 GiB of bytecode before changed assets and protocol overhead. This
+is a capacity illustration, not a claim about current monthly active
+users.</p>
+<p>The no-bytecode Android export produced 10,316,611 B of minified
+JavaScript and 2,316,645 B gzip, a 77.54% reduction. Its source map
+contained 4,208 sources and 18,275,362 source-content bytes.</p>
+<table>
+<thead>
+<tr>
+<th>Source group</th>
+<th style="text-align: right;">Source bytes</th>
+<th style="text-align: right;">Modules</th>
+<th style="text-align: right;">Share of mapped source bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App code</td>
+<td style="text-align: right;">3,686,581</td>
+<td style="text-align: right;">289</td>
+<td style="text-align: right;">20.17%</td>
+</tr>
+<tr>
+<td>Workspace packages</td>
+<td style="text-align: right;">2,858,783</td>
+<td style="text-align: right;">284</td>
+<td style="text-align: right;">15.64%</td>
+</tr>
+<tr>
+<td>React Native</td>
+<td style="text-align: right;">2,320,683</td>
+<td style="text-align: right;">417</td>
+<td style="text-align: right;">12.70%</td>
+</tr>
+<tr>
+<td>LiveKit client</td>
+<td style="text-align: right;">1,745,951</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">9.55%</td>
+</tr>
+<tr>
+<td>Lucide React Native</td>
+<td style="text-align: right;">1,297,179</td>
+<td style="text-align: right;">1,549</td>
+<td style="text-align: right;">7.10%</td>
+</tr>
+<tr>
+<td>React Native Reanimated</td>
+<td style="text-align: right;">894,006</td>
+<td style="text-align: right;">288</td>
+<td style="text-align: right;">4.89%</td>
+</tr>
+<tr>
+<td>RevenueCat hybrid mappings</td>
+<td style="text-align: right;">720,569</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.94%</td>
+</tr>
+<tr>
+<td>LiveKit React components</td>
+<td style="text-align: right;">251,294</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">1.37%</td>
+</tr>
+</tbody>
+</table>
+<p>LiveKit client, Lucide, RevenueCat mappings, and LiveKit React
+components together account for 21.97% of mapped source bytes. The
+source map contains both LiveKit’s 1,204,871 B ESM build and 541,080 B
+UMD build. This is strong evidence of duplicate format inclusion,
+although source-content bytes are not identical to final minified byte
+contribution.</p>
+<p>The app imports the Lucide barrel from 63 files, and the source map
+includes 1,549 Lucide modules. Lazy <code>require</code> seams for
+optional native functionality do not guarantee bundle splitting in a
+single native bundle.</p>
+<p>Expo’s official guidance recommends production bundle analysis with
+Expo Atlas and notes that bundle size affects load and evaluation time.
+It also documents native Hermes bytecode compression as the meaningful
+update-transfer measurement: <a
+href="https://docs.expo.dev/guides/analyzing-bundles/">Expo bundle
+analysis</a>, <a
+href="https://docs.expo.dev/eas-update/estimate-bandwidth/">Expo update
+bandwidth measurement</a>, and <a
+href="https://docs.expo.dev/eas/observe/reference/metrics/">Expo metrics
+reference</a>.</p>
+<p><strong>Optimization experiments, in order:</strong></p>
+<ol type="1">
+<li>Resolve why both LiveKit ESM and UMD builds enter Metro. Acceptance:
+only one LiveKit client format remains and call tests still pass.</li>
+<li>Replace broad Lucide barrel resolution with proven per-icon imports
+or a Metro/Babel transform. Acceptance: materially fewer than 1,549
+Lucide modules with identical UI output.</li>
+<li>Confirm whether RevenueCat hybrid mappings can be excluded from
+native production output without breaking purchases.</li>
+<li>Record this export as a baseline and fail CI on unexplained platform
+bundle growth above an agreed percentage and absolute byte
+threshold.</li>
+</ol>
+<h2 id="f-06-repeated-schema-work">F-06: repeated schema work</h2>
+<p><code>ensureFullMeerkatSchema</code> on a fresh in-memory database
+took 6.43 ms on the host and performed 32 queries plus 164 executions.
+Repeating it on an initialized database took 0.73 ms median and 0.98 ms
+p95, but still performed 32 queries plus 157 executions per call.</p>
+<p><code>ensureDmTables</code> performed 9 executions per call and took
+0.0165 ms median on the host adapter. Production code has 12 call sites
+in <code>dm-provider-core.ts</code>, one in
+<code>dm-view-core.ts</code>, one restore call, and the intended
+schema-boot call.</p>
+<p>The host timing is small and must not be extrapolated directly to
+<code>expo-sqlite</code> on a phone. The concern is synchronous bridge
+and JavaScript-thread work, repeated on paths whose boot invariant
+already promises schema readiness.</p>
+<p><strong>Remediation:</strong> keep schema creation and migration at
+the single boot boundary. If defensive calls must remain, guard them
+with a database-instance once flag and retain a separate explicit
+restore/migration path. Prove cold boot, hot navigation, background
+boot, and restored-database behavior.</p>
+<h2 id="f-07-duplicated-parity-cores">F-07: duplicated parity cores</h2>
+<p><code>check-meerkat-parity.mjs</code> currently locks 49 mobile/web
+core pairs. Their physical size is:</p>
+<pre class="text"><code>Mobile twin files: 778,464 bytes, 19,951 lines
+Web twin files:    778,954 bytes, 19,951 lines
+Total:           1,557,418 bytes, 39,902 lines</code></pre>
+<p>The lock is effective: the parity gate passed, and byte-equivalent
+security behavior is much safer than silent drift. The problem is the
+architecture required to satisfy it. Every shared fix is duplicated,
+reviewed twice, and tested against a custom normalizer. Several
+high-risk files, including feed, public publish, canvas, DM, presence,
+and library cores, are in this registry.</p>
+<p><strong>Remediation:</strong> incrementally extract platform-neutral
+cores into one shared workspace package while leaving database adapters
+and UI seams platform-local. Keep the parity gate until each pair is
+removed and both consumers pass the same contract suite. Do not weaken
+or delete the lock before extraction.</p>
+<h2 id="f-08-responsibility-concentration">F-08: responsibility
+concentration</h2>
+<p>The app contains 126,671 TypeScript/JavaScript lines. Largest files
+include:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th style="text-align: right;">Lines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>community-core.ts</code></td>
+<td style="text-align: right;">4,294</td>
+</tr>
+<tr>
+<td><code>SyncProvider.tsx</code></td>
+<td style="text-align: right;">2,909</td>
+</tr>
+<tr>
+<td>channel screen</td>
+<td style="text-align: right;">2,087</td>
+</tr>
+<tr>
+<td><code>public-publish.ts</code></td>
+<td style="text-align: right;">1,557</td>
+</tr>
+<tr>
+<td><code>library-store-core.ts</code></td>
+<td style="text-align: right;">1,508</td>
+</tr>
+<tr>
+<td>DM thread screen</td>
+<td style="text-align: right;">1,409</td>
+</tr>
+<tr>
+<td><code>person-identity-core.ts</code></td>
+<td style="text-align: right;">1,401</td>
+</tr>
+<tr>
+<td><code>canvas-core.ts</code></td>
+<td style="text-align: right;">1,380</td>
+</tr>
+<tr>
+<td><code>dm-provider-core.ts</code></td>
+<td style="text-align: right;">1,324</td>
+</tr>
+<tr>
+<td>settings screen</td>
+<td style="text-align: right;">1,103</td>
+</tr>
+</tbody>
+</table>
+<p>Line count alone is not a defect. Here it correlates with many
+security domains, schemas, network paths, UI state machines, and
+provider callbacks living in single review units.
+<code>SyncProvider.tsx</code> is also where a hook dependency warning
+can affect an engine reference.</p>
+<p><strong>Remediation:</strong> split by stable responsibility
+boundaries, not arbitrary line targets. Good seams are schema/migration,
+verified read model, signed write commands, transport orchestration,
+mailbox handlers, and provider-facing hooks. Preserve existing public
+barrels and tests during extraction.</p>
+<h2 id="f-09-new-architecture-contradiction">F-09: New Architecture
+contradiction</h2>
+<p>The app instruction says the New Architecture is on.
+<code>app.json</code> explicitly sets
+<code>newArchEnabled: false</code>, and <code>app-config.test.ts</code>
+locks that value. On Expo SDK 54 this means the legacy architecture is
+in use.</p>
+<p>Expo states that SDK 54 is the last release that permits opt-out, the
+New Architecture is default for SDK 53/54 when not explicitly disabled,
+and SDK 55 or later requires it: <a
+href="https://docs.expo.dev/guides/new-architecture/">Expo New
+Architecture guide</a>.</p>
+<p><strong>Impact:</strong> agents can make incorrect compatibility
+assumptions, and the app cannot move to SDK 55 until its native modules
+work on the New Architecture.</p>
+<p><strong>Remediation:</strong> either correct the instruction to say
+legacy architecture is intentionally pinned, with owner and exit
+criteria, or run a dedicated native-module compatibility program and
+enable the architecture. Do not flip this setting without physical
+dev-build validation of all optional native transports, calls, storage
+destinations, camera, background tasks, and purchases.</p>
+<h2 id="f-10-lint-warnings">F-10: lint warnings</h2>
+<p>Lint passed with nine warnings:</p>
+<ul>
+<li>Two channel callbacks omit <code>bumpRevisionTick</code>. The
+function is itself stable through <code>useCallback([])</code>, so
+current behavior is safe, but the dependency suppression is unnecessary
+and fragile.</li>
+<li>Four layout-editor callbacks depend on a conditionally created
+<code>stack</code> array. When the fallback is <code>[]</code>,
+identities churn each render and recreate all callbacks.</li>
+<li><code>CanvasHost</code> omits
+<code>community.descriptor.members</code> from a memo that derives
+<code>memberInfo.isMember</code>. The <code>revision</code> dependency
+may often refresh it, but the coupling is implicit.</li>
+<li><code>SyncProvider</code> omits <code>engine</code> from
+<code>runForegroundDrain</code>, even though it calls
+<code>engine.recordChange</code>. Identity is also a dependency and
+normally co-varies with engine creation, but the correctness relies on
+that indirect coupling.</li>
+<li><code>MessageBubble</code> declares an unused
+<code>OUTER_RADIUS</code>.</li>
+</ul>
+<p>The Canvas and engine omissions are medium-risk maintainability
+warnings because stale security or membership state would be difficult
+to diagnose. The other warnings are low risk.</p>
+<h2 id="f-11-non-secret-randomness">F-11: non-secret randomness</h2>
+<p>Several local IDs and canvas conflict nonces use
+<code>Math.random()</code>. The code correctly labels them non-secret
+and signatures bind the events. There is no evidence that these values
+are authentication capabilities.</p>
+<p>For the 2,000,000,000-value canvas nonce space, two concurrent
+choices collide with probability <code>1 / 2,000,000,000</code>, or
+<code>5e-10</code>. At 10,000 choices in one collision domain, the
+birthday approximation is <code>1 - exp(-n(n-1)/(2M))</code>,
+approximately 2.47%. Ten thousand same-version concurrent edits to one
+node are unrealistic, but the protocol should not present weak
+randomness as a UUID-like primitive.</p>
+<p><strong>Remediation:</strong> use the already configured
+cryptographic random source or <code>Crypto.randomUUID()</code> for
+identifiers and a cryptographic 32-bit or 64-bit integer for conflict
+nonces. Treat this as reliability and clarity work, not a discovered
+secret compromise.</p>
+<h2 id="f-12-dependency-tool-scalability">F-12: dependency-tool
+scalability</h2>
+<p>These commands exhausted Node heaps on the workspace graph:</p>
+<ul>
+<li><code>pnpm audit --prod --audit-level high</code>: failed at the
+default heap and again with an 8 GB heap. The retry peaked at
+approximately 8.80 GB resident after 158 seconds.</li>
+<li><code>pnpm list --depth Infinity --json</code>: exhausted the
+default heap.</li>
+<li>A package-specific <code>pnpm why --prod</code> request exhausted
+the default heap.</li>
+</ul>
+<p>This makes the documented dependency workflow unreliable and helped
+hide the advisory result. The independent manifest and lockfile method
+completed in under one second.</p>
+<p><strong>Remediation:</strong> add a repository-owned, bounded
+dependency-audit command that traverses one importer and its workspace
+links without constructing the full recursive display tree. Keep
+official <code>pnpm audit</code> as a secondary signal until its
+workspace memory behavior is understood.</p>
+<h2 id="security-and-privacy-review">Security and privacy review</h2>
+<h3 id="positive-evidence">Positive evidence</h3>
+<ul>
+<li>Secret-pattern scan found no tracked private keys, common live API
+key formats, or committed <code>.env</code> files.</li>
+<li>Runtime code contained no explicit <code>any</code>, TypeScript
+suppression, <code>eval</code>, <code>new Function</code>, or
+<code>dangerouslySetInnerHTML</code>.</li>
+<li>Android backup is disabled and the security plugin sets cleartext
+traffic off.</li>
+<li>iOS declares a no-tracking privacy manifest and explicit
+local-network purpose text.</li>
+<li>Link preview code documents and tests the server-side
+request-forgery boundary.</li>
+<li>Account isolation, transport negative controls, fail-closed table
+policies, signatures, pairing, sealed shares, and cryptographic session
+behavior are extensively tested.</li>
+<li>The complete app, sync, and relay automated runs left zero Meerkat
+service processes behind, validating the orphan watchdog on the tested
+path.</li>
+</ul>
+<h3 id="residual-concerns">Residual concerns</h3>
+<ul>
+<li>User-provided remote-share and history-import helpers accept
+<code>http://</code> candidates while platform cleartext policy rejects
+general cleartext traffic. This may be intentional for local/self-host
+scenarios, but the product contract should name the allowed exception
+rather than relying on platform failure.</li>
+<li>There are 82 lint-disable comments. Most are justified lazy
+native-module <code>require</code> seams, but hook suppressions should
+be audited as a separate list because they can hide stale security
+state.</li>
+<li>ErrorBoundary and storage warnings do not log secrets in the
+inspected code, but component stacks and filesystem errors should still
+be treated as local diagnostic data only.</li>
+</ul>
+<h2 id="automated-verification-record">Automated verification
+record</h2>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 28%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+<th style="text-align: right;">Time</th>
+<th style="text-align: right;">Peak RSS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App TypeScript</td>
+<td>Pass</td>
+<td style="text-align: right;">3.39 s</td>
+<td style="text-align: right;">622,592,000 B</td>
+</tr>
+<tr>
+<td>App ESLint</td>
+<td>Pass with 9 warnings</td>
+<td style="text-align: right;">3.64 s</td>
+<td style="text-align: right;">689,586,176 B</td>
+</tr>
+<tr>
+<td>App Vitest</td>
+<td>1,815 passed in 165 files</td>
+<td style="text-align: right;">8.97 s wall</td>
+<td style="text-align: right;">342,196,224 B</td>
+</tr>
+<tr>
+<td><code>@mylife/sync</code> Vitest</td>
+<td>2,624 passed, 3 skipped in 207 files</td>
+<td style="text-align: right;">37.41 s wall</td>
+<td style="text-align: right;">402,882,560 B</td>
+</tr>
+<tr>
+<td>Meerkat relay Vitest</td>
+<td>1,653 passed, 189 skipped in 214 files</td>
+<td style="text-align: right;">17.04 s wall</td>
+<td style="text-align: right;">259,129,344 B</td>
+</tr>
+<tr>
+<td>Meerkat parity</td>
+<td>Pass</td>
+<td style="text-align: right;">Not separately timed</td>
+<td style="text-align: right;">Not sampled</td>
+</tr>
+<tr>
+<td>Transport negative controls and self-test</td>
+<td>Pass</td>
+<td style="text-align: right;">Not separately timed</td>
+<td style="text-align: right;">Not sampled</td>
+</tr>
+<tr>
+<td>Expo production export, both platforms</td>
+<td>Pass</td>
+<td style="text-align: right;">53.92 s including 22.3 s Watchman
+wait</td>
+<td style="text-align: right;">1,650,589,696 B</td>
+</tr>
+<tr>
+<td>Android no-bytecode source-map export</td>
+<td>Pass</td>
+<td style="text-align: right;">18.13 s</td>
+<td style="text-align: right;">1,076,297,728 B</td>
+</tr>
+<tr>
+<td>Expo Doctor</td>
+<td>17/18, duplicate Expo failure</td>
+<td style="text-align: right;">5.05 s</td>
+<td style="text-align: right;">Not sampled</td>
+</tr>
+<tr>
+<td>Workspace <code>pnpm audit</code></td>
+<td>Failed twice by OOM</td>
+<td style="text-align: right;">75 s and 157.68 s</td>
+<td style="text-align: right;">Up to 8,799,207,424 B RSS</td>
+</tr>
+<tr>
+<td>Independent npm bulk advisory scan</td>
+<td>Completed, findings open</td>
+<td style="text-align: right;">Under 1 s</td>
+<td style="text-align: right;">Not sampled</td>
+</tr>
+</tbody>
+</table>
+<p>Total executed test assertions: 6,092 passed, 192 skipped, 0
+failed.</p>
+<h2 id="instruction-audit-agents.md-and-claude.md">Instruction audit:
+AGENTS.md and CLAUDE.md</h2>
+<h3 id="measured-instruction-load">Measured instruction load</h3>
+<p>The effective Meerkat instruction family contains 442 lines and 5,958
+words when root, app, and the three named path rules are counted. It
+uses 16 <code>Critical</code> labels. The app <code>AGENTS.md</code>
+alone is 2,585 words. The app <code>CLAUDE.md</code> is a clean one-line
+import wrapper and is not independently problematic.</p>
+<p>Using the CLAUDE.md quality rubric against the effective imported
+instructions:</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scope</th>
+<th style="text-align: right;">Commands, 20</th>
+<th style="text-align: right;">Architecture, 20</th>
+<th style="text-align: right;">Patterns, 15</th>
+<th style="text-align: right;">Concision, 15</th>
+<th style="text-align: right;">Currency, 15</th>
+<th style="text-align: right;">Actionability, 15</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root effective <code>CLAUDE.md</code> + imported
+<code>AGENTS.md</code></td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">78/100</td>
+</tr>
+<tr>
+<td>App effective instructions</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">82/100</td>
+</tr>
+</tbody>
+</table>
+<p>The domain-specific architecture and safety content scores very well.
+The lost points come from operational overreach, repetition, temporal
+claims, contradictory state, and mandatory tooling side effects.</p>
+<h3 id="rules-to-preserve">Rules to preserve</h3>
+<p>These rules prevent real classes of failure and should remain
+prominent:</p>
+<ul>
+<li>Transport honesty and the prohibition on fabricated connectivity or
+delivery.</li>
+<li>The <code>effectiveRelayUrl</code> choke point and health-gated
+default relay.</li>
+<li>Sync scopes, maximum scopes, fail-closed missing entity policies,
+and apply-time verification.</li>
+<li>Account/Meerkat identity separation and the import-graph guard.</li>
+<li>MK-001 boot order for PRNG and keychain configuration.</li>
+<li>App isolation, archive boundaries, TypeScript strictness, no
+CodeRabbit, and non-destructive Git behavior.</li>
+<li>Report snapshot honesty and generated-artifact limits.</li>
+</ul>
+<h3 id="rules-likely-to-create-more-issues-than-guidance">Rules likely
+to create more issues than guidance</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Rule or pattern</th>
+<th>Why it causes trouble</th>
+<th>Recommended replacement principle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root <code>Scope And Completeness</code>: no time, phase, or scope
+limits; everything ships together</td>
+<td>Converts bounded work into an unbounded release, conflicts with safe
+incremental integration, and discourages explicit risk reduction</td>
+<td>Never silently omit the complete product target. Execute only the
+user-authorized scope, and allow production-safe staged integration with
+explicit completion criteria</td>
+</tr>
+<tr>
+<td>Apply paired hub/standalone changes in the same session</td>
+<td>Can force unrelated repositories and surfaces into a focused fix,
+increases collision risk, and makes read-only tasks ambiguous</td>
+<td>Require same-change parity only when shared behavior, schema, or
+copy actually changes; allow a tracked blocker when authority or
+isolation prevents the paired change</td>
+</tr>
+<tr>
+<td>Commit completed work proactively</td>
+<td>Mutates Git state without a per-task request and can mix with a
+dirty shared worktree</td>
+<td>Commit only when the task or active branch explicitly authorizes it;
+stage only agent-owned files and never absorb pre-existing changes</td>
+</tr>
+<tr>
+<td>Update memory, create a session log, update indexes, create an HTML
+twin, and open it after every task</td>
+<td>Creates substantial documentation churn for trivial or read-only
+work; the current 79-line memory cap is already at its limit</td>
+<td>Trigger the full artifact flow for material implementation, audit,
+decision, or release work; use a lighter breadcrumb for trivial
+tasks</td>
+</tr>
+<tr>
+<td>Six mandatory fields for every human instruction and every chat next
+step</td>
+<td>Makes simple developer commands verbose and conflicts with the
+separate concise-writing rule</td>
+<td>Apply the six-field form to external GUI, credentials, legal, store,
+and founder-operation runbooks; use concise command, expected result,
+and failure note for developer steps</td>
+</tr>
+<tr>
+<td>Claude startup must check external Open Brain before doing anything
+and immediately capture every deliverable</td>
+<td>Can block local work on unavailable infrastructure, causes external
+state changes without task need, and creates privacy/availability
+coupling</td>
+<td>Make external memory opt-in per workspace/session, never block local
+work, and capture only user-approved durable decisions</td>
+</tr>
+<tr>
+<td>Create an Agent Team when overlapping tasks exist</td>
+<td>Overlap is exactly where parallel edits are most likely to
+collide</td>
+<td>Parallelize independent, file-disjoint work; serialize or explicitly
+partition overlapping work</td>
+</tr>
+<tr>
+<td>After every code change run both full gate and review, plus broad UI
+state testing</td>
+<td>Good for meaningful code changes but disproportionate for comments,
+generated types, configuration, or mechanical edits</td>
+<td>Route by risk and affected surface; always run the function gate for
+function logic, but make review/browser matrices proportional and
+explicit</td>
+</tr>
+<tr>
+<td>Every feature without a feature document must get a document before
+code</td>
+<td>Forces speculative documentation for small bug fixes and can
+preserve an incorrect understanding before investigation</td>
+<td>Require a design document for new behavior, cross-system changes,
+security boundaries, or ambiguous product decisions; allow tests and
+issue notes for narrow fixes</td>
+</tr>
+<tr>
+<td>Many temporal Plan IDs and dated state claims in app
+instructions</td>
+<td>Plan references age quickly and require readers to resolve
+historical context before acting</td>
+<td>Keep current invariants in AGENTS; move history and rationale to
+linked design records</td>
+</tr>
+<tr>
+<td>Saturating 16 rules with <code>Critical</code></td>
+<td>Weakens prioritization because unrelated artifact, memory, Git,
+scope, and security rules appear equally urgent</td>
+<td>Reserve <code>Critical</code> for safety, privacy, destructive
+action, data integrity, and transport truth; label workflow rules as
+required or recommended</td>
+</tr>
+</tbody>
+</table>
+<h3 id="direct-contradictions-and-confusing-state">Direct contradictions
+and confusing state</h3>
+<ol type="1">
+<li>App instructions say New Architecture is on; <code>app.json</code>
+and its test require <code>false</code>.</li>
+<li>Root instructions prohibit deferred, phase, later, and out-of-scope
+framing; app instructions state background sync is pending and OS
+scheduling is deferred behind a flag.</li>
+<li>Root instructions say concise output; the universal six-field
+instruction rule requires long explanations even for simple next
+steps.</li>
+<li>Root instructions call <code>memory.md</code> a safety-net
+supplement, but also require a full session artifact after every task,
+which duplicates the report and Git history for review-only work.</li>
+<li>The skills snapshot is dated 2026-02-24 while the live local skill
+tree contains additional review, benchmark, QA, parity, and
+function-gate tools. The file describes itself as a snapshot, but agents
+are told to use it as discovery guidance.</li>
+<li>Root overview counts are explicitly dated 2026-07-09. They may be
+correct, but the current date is 2026-09-02 and the same file warns
+against stale current-looking counts elsewhere.</li>
+</ol>
+<h3 id="proposed-structure">Proposed structure</h3>
+<p>Use four short layers:</p>
+<ol type="1">
+<li>Root <code>AGENTS.md</code>: stable cross-agent invariants,
+source-of-truth paths, core commands, destructive-action and data
+rules.</li>
+<li>Root <code>CLAUDE.md</code>: Claude-only tool routing, no product or
+architecture duplication.</li>
+<li>App <code>AGENTS.md</code>: current Meerkat architecture and
+security contracts, written as present-tense invariants without plan
+chronology.</li>
+<li>Design records: historical plan IDs, rationale, protocol detail,
+launch state, and operational runbooks.</li>
+</ol>
+<p>A small precedence block should say: explicit user scope controls
+task breadth; safety and data-integrity invariants always apply;
+tool-specific workflows apply only when the tool exists; documentation
+and commit side effects require the task category that calls for
+them.</p>
+<h2 id="recommended-remediation-order">Recommended remediation
+order</h2>
+<table>
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 30%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: right;">Priority</th>
+<th>Work</th>
+<th>Proof required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Resolve dependency advisories and duplicate Expo installation</td>
+<td>Expo Doctor fully passes, zero patchable high advisories, clean
+iOS/Android native builds</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>Batch feed/post/reaction queries and add safe verification
+reuse</td>
+<td>Constant query count, at least 50% median improvement, adversarial
+cache invalidation tests</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Run live relay integration matrix</td>
+<td>PostgreSQL, MinIO/S3, LiveKit, service authority, migration, and
+canary tests all executed rather than skipped</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>Measure on physical devices</td>
+<td>Cold start, feed open/scroll, LAN, WebRTC, BLE wake, background
+scheduling, push wake, keychain relaunch</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>Remove repeated runtime DDL</td>
+<td>Boot/restore/background tests plus query trace proving no
+route-level DDL</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>Reduce bundle concentrations</td>
+<td>One LiveKit format, materially fewer Lucide modules, bundle
+regression baseline</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>Extract shared mobile/web cores</td>
+<td>Shared package contract tests, parity maintained during
+migration</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>Simplify instruction hierarchy</td>
+<td>Resolve contradictions, reduce <code>Critical</code> labels,
+preserve all security and honesty boundaries</td>
+</tr>
+</tbody>
+</table>
+<h2 id="audit-limitations">Audit limitations</h2>
+<ul>
+<li>Performance numbers are reproducible host-side measurements, not
+phone timings.</li>
+<li>The batched prototype used post-only data with no active reactions
+and empty safety sets. Its output matched that fixture, but it is not
+production code and does not prove all policies.</li>
+<li>Source-map source-content bytes show inclusion and concentration,
+not exact minified ownership.</li>
+<li>No user credentials, external provider mutations, deploys, App Store
+operations, or destructive live database tests were authorized or
+performed.</li>
+<li>The repository already contained unrelated uncommitted and untracked
+files. They were not modified by this audit.</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>Meerkat’s security posture is stronger than its optimization and
+release-hygiene posture. The key architectural boundaries are real,
+heavily tested, and generally fail closed. The most valuable next
+engineering move is not a broad rewrite. It is a measured read-model
+refactor that batches SQL and safely reuses cryptographic verification,
+followed immediately by dependency/native cleanup and live integration
+proof.</p>
+<p>The instruction system should also be simplified. Preserve the
+transport, identity, sync-scope, key-durability, and privacy rules.
+Rewrite the rules that impose unbounded scope, mandatory external state,
+duplicated documentation, unsolicited commits, or universal heavyweight
+workflows. Those rules currently increase operational risk while making
+the genuinely critical rules harder to see.</p>
+</body>
+</html>

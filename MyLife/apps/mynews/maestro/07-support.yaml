@@ -1,0 +1,73 @@
+appId: com.mylife.mynews
+name: MyNews support a journalist
+tags:
+  - mynews
+  - payments
+env:
+  MYNEWS_FLOW_JOURNALIST_HANDLE: "seeded_journalist"
+---
+# Support: the journalist support rail on the Support tab.
+#
+# This flow NEVER completes a payment and cannot be made to. "Continue to secure
+# checkout" opens the provider's hosted checkout in a browser, outside the app
+# under test, and finishing it needs a real card or a Stripe test-mode session
+# tied to a real Connect account. Card entry and payout verification are
+# founder-ops (README.md).
+#
+# What this flow DOES prove, which is the part that has been wrong before:
+#   - the fee breakdown renders the 2% platform fee and the allocated amount,
+#   - the copy does not claim the provider's processing fee is MyNews's,
+#   - the confirm step exists between entering an amount and opening checkout,
+#     which is where the stable idempotency key is minted.
+#
+# On a build with the payments rail off, the tab renders its honest unavailable
+# state and this flow asserts that instead.
+
+- launchApp
+- assertVisible: "Today"
+
+- tapOn: "Support"
+- assertVisible: "Support journalists"
+
+# No profile yet: supporting is tied to a profile so the receipt has an owner.
+- runFlow:
+    when:
+      visible: "Create a support profile"
+    commands:
+      - assertVisible: "A profile ties your provider receipt to your private history."
+      - assertVisible: "Create profile"
+
+- runFlow:
+    when:
+      visible: "Finish your profile"
+    commands:
+      - assertVisible: "Choose a handle before opening payment checkout."
+      - assertVisible: "Create MyNews profile"
+
+- runFlow:
+    when:
+      visible: "Journalist handle"
+    commands:
+      - tapOn: "Journalist handle"
+      - inputText: ${MYNEWS_FLOW_JOURNALIST_HANDLE}
+      - hideKeyboard
+
+      - assertVisible: "Your support"
+      - assertVisible: "MyNews platform fee, 2%"
+      - assertVisible: "Allocated to journalist"
+      # The provider's processing fee is disclosed as the provider's, not as a
+      # MyNews take. This assertion is the copy guard.
+      - assertVisible: "The payment provider may disclose its processing fees separately."
+
+      - assertVisible: "Review support"
+      - tapOn: "Review support"
+
+      - runFlow:
+          when:
+            visible: "Continue to secure checkout"
+          commands:
+            - assertVisible: "Continue to secure checkout"
+            - assertVisible: "Change details"
+            # STOP. Tapping "Continue to secure checkout" leaves the app for the
+            # provider's hosted page. See the header note.
+            - tapOn: "Change details"

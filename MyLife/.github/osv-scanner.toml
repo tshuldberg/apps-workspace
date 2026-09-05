@@ -1,0 +1,26 @@
+# OSV-Scanner configuration for MyLife CI supply-chain gate.
+#
+# Docs: https://google.github.io/osv-scanner/configuration/
+#
+# OSV Scanner exits non-zero for every reported vulnerability. Add entries to
+# [[IgnoredVulns]] only for advisories that we have reviewed and accepted
+# temporarily, always with a reason and reconsideration date.
+
+# Add ignored vulnerabilities below as needed. Each entry MUST include
+# a reason and a reconsider-after date so we revisit it.
+#
+# Example:
+# [[IgnoredVulns]]
+# id = "GHSA-xxxx-xxxx-xxxx"
+# ignoreUntil = 2026-07-01
+# reason = "dev-only dep, no runtime exposure; tracked in TODOS.md#security-2"
+
+[[IgnoredVulns]]
+id = "GHSA-h67p-54hq-rp68"
+ignoreUntil = 2026-09-30
+reason = "Remaining hit is js-yaml 3.14.2 from dev-only Istanbul/nyc coverage config tooling; v4 is already patched and v3 has no compatible fixed release."
+
+[[IgnoredVulns]]
+id = "GHSA-mh99-v99m-4gvg"
+ignoreUntil = 2026-10-31
+reason = "brace-expansion DoS (unbounded expansion -> OOM). No fixed release exists on the 1.x line (OSV: introduced 0, fixed 5.0.8), and 5.x is ESM-only, so overriding the 1.x consumers breaks CJS require interop (ESLint dies with 'expand is not a function'). The remaining 1.x hits reach us only through minimatch@3.1.4, whose consumers are dev-only tooling: eslint, glob@7, test-exclude. No shipped runtime artifact resolves brace-expansion 1.x, and no user-controlled input reaches a dev-time glob pattern. All 5.x hits ARE patched (5.0.8). Revisit when eslint/glob move off minimatch 3."

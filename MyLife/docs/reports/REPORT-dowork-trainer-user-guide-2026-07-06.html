@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DoWork Trainer Guide</title>
+<style>
+  :root {
+    --bg: #0B0B0E; --surface: #16161B; --surface2: #1F1F26;
+    --text: #E8E6EC; --muted: #A29DA8; --accent: #FF6B00; --accent-soft: #FF8B33;
+    --border: rgba(255,255,255,0.08); --warn-bg: #2A1A10; --warn-border: #FF6B00;
+    --danger: #FF6B6B; --ok: #30D158;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.65; padding: 0 0 80px; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  header { padding: 56px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 40px; background: linear-gradient(180deg, #14100C 0%, var(--bg) 100%); }
+  header .wrap { max-width: 860px; }
+  .kicker { color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+  h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .sub { color: var(--muted); font-size: 16px; max-width: 640px; }
+  h2 { font-size: 22px; font-weight: 750; margin: 48px 0 8px; letter-spacing: -0.01em; }
+  h2 .num { color: var(--accent); margin-right: 10px; }
+  h3 { font-size: 16px; font-weight: 700; margin: 26px 0 8px; color: var(--accent-soft); }
+  p { margin: 10px 0; color: var(--text); }
+  .lead { color: var(--muted); }
+  ol.steps { counter-reset: step; list-style: none; margin: 16px 0; }
+  ol.steps > li { counter-increment: step; position: relative; padding: 14px 16px 14px 56px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; }
+  ol.steps > li::before { content: counter(step); position: absolute; left: 14px; top: 14px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #16100A; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  ul { margin: 8px 0 8px 22px; }
+  li { margin: 4px 0; }
+  .btn { display: inline-block; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 1px 8px; font-weight: 650; font-size: 0.92em; color: var(--accent-soft); white-space: nowrap; }
+  .tab { display: inline-block; background: #23180F; border: 1px solid rgba(255,107,0,0.35); border-radius: 6px; padding: 1px 8px; font-weight: 650; font-size: 0.92em; color: var(--accent-soft); }
+  code { background: var(--surface2); border-radius: 5px; padding: 1px 6px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.9em; color: #FFD9B8; }
+  .callout { border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 18px 0; }
+  .callout.warn { border-left-color: var(--danger); background: var(--warn-bg); }
+  .callout.ok { border-left-color: var(--ok); }
+  .callout .title { font-weight: 750; margin-bottom: 4px; }
+  .callout.warn .title { color: var(--danger); }
+  .callout.ok .title { color: var(--ok); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: 650; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 24px 0; }
+  .toc a { color: var(--accent-soft); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc ol { margin-left: 20px; }
+  .badge { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; }
+  .badge.live { background: rgba(48,209,88,0.15); color: var(--ok); }
+  .badge.soon { background: rgba(255,107,0,0.15); color: var(--accent-soft); }
+  .badge.broken { background: rgba(255,107,107,0.15); color: var(--danger); }
+  footer { margin-top: 60px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">DoWork &middot; Trainer Guide</div>
+    <h1>How to use DoWork with your clients</h1>
+    <p class="sub">A step-by-step guide to setting up your coaching profile, uploading exercise videos, inviting clients, and running the form-check coaching loop. Written 2026-07-06 against the current app build.</p>
+  </div>
+</header>
+<div class="wrap">
+
+<div class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#what">What DoWork is</a></li>
+    <li><a href="#install">Install the app and create your account</a></li>
+    <li><a href="#trainer">Become a trainer (redeem your invite)</a></li>
+    <li><a href="#studio">Your Studio: upload videos and build your profile</a></li>
+    <li><a href="#invite">Invite your clients</a></li>
+    <li><a href="#clientside">What your clients do (share this section with them)</a></li>
+    <li><a href="#formcheck">The form-check coaching loop</a></li>
+    <li><a href="#earnings">Subscriptions and earnings</a></li>
+    <li><a href="#settings">Settings worth knowing</a></li>
+    <li><a href="#limits">Current limitations (read this)</a></li>
+  </ol>
+</div>
+
+<h2 id="what"><span class="num">1</span>What DoWork is</h2>
+<p>DoWork is a workout app with a built-in coaching platform. As a trainer you get:</p>
+<ul>
+  <li><strong>A public trainer profile</strong> with a free video library (anyone can watch) and a premium library (paying subscribers and your active clients).</li>
+  <li><strong>A Studio</strong> for bulk-uploading exercise and coaching videos from your phone.</li>
+  <li><strong>Client invites</strong>: a QR code or a 12-character code that links a client to you. Linked clients get your premium library included, free.</li>
+  <li><strong>Form checks</strong>: clients send you a video of a lift; you reply with feedback pinned to exact timestamps, or a video reply.</li>
+  <li><strong>An earnings screen</strong> showing subscribers and gross revenue once paid subscriptions go live.</li>
+</ul>
+<p class="lead">Your clients also get the full workout side of the app: an exercise library, a workout builder, progress tracking, calculators, and a voice-controlled video player.</p>
+
+<h2 id="install"><span class="num">2</span>Install the app and create your account</h2>
+<ol class="steps">
+  <li>Install DoWork from the link Trey sends you (an install link or a TestFlight invitation, depending on the build). Open the app.</li>
+  <li>Walk through the welcome screens: pick your experience level and goals, or tap <span class="btn">Skip</span>.</li>
+  <li><strong>Before anything else</strong>, go to the <span class="tab">Profile</span> tab &rarr; <strong>Account</strong> &rarr; <span class="btn">Sign in</span> and create an account with your real email and a password.</li>
+</ol>
+<div class="callout warn">
+  <div class="title">Do not skip the email sign-in</div>
+  The app works without an account, but everything you build (your trainer profile, your clients, any subscription linkage) is tied to the anonymous session on that one phone. If you reinstall or reset before attaching an email, it is gone permanently. Sign in with email first, then do everything else. Tell your clients to do the same before they join you.
+</div>
+
+<h2 id="trainer"><span class="num">3</span>Become a trainer (redeem your invite)</h2>
+<p>Trainer accounts are invite-only. Trey creates an invite code for you (it looks like <code>ABCD2345WXYZ</code>, 12 characters, valid for 30 days, single use).</p>
+<ol class="steps">
+  <li>Open the <span class="tab">Trainers</span> tab and scroll to the card that says <em>&ldquo;Are you a trainer?&rdquo;</em>.</li>
+  <li>Tap it to open the <strong>Redeem your invite</strong> screen.</li>
+  <li>Enter your <strong>Invite code</strong> and optionally a <strong>Display name</strong> (this becomes your public coach name).</li>
+  <li>Tap <span class="btn">Redeem invite</span>, then <span class="btn">Open your Studio</span>.</li>
+</ol>
+<p>You are now live in the trainer directory with a public profile at your handle.</p>
+
+<h2 id="studio"><span class="num">4</span>Your Studio: upload videos and build your profile</h2>
+<p>The Studio has three sections along the top: <span class="btn">Upload</span>, <span class="btn">Manage</span>, and <span class="btn">Profile</span>, plus buttons for <span class="btn">Clients</span> and <span class="btn">Earnings</span>.</p>
+
+<h3>Upload videos</h3>
+<ol class="steps">
+  <li>In the <span class="btn">Upload</span> section, tap <span class="btn">Add videos</span> to pick from your photo library, or <span class="btn">Record</span> to film on the spot.</li>
+  <li>For each video, set a <strong>Title</strong> (e.g. &ldquo;Barbell bench setup&rdquo;) and a <strong>Description</strong> (coaching cues, tempo, common mistakes).</li>
+  <li>Flip the <strong>Premium</strong> toggle on videos that should be subscriber/client-only. Leave it off for free previews that market you in the directory.</li>
+  <li>Tap <span class="btn">Upload N videos</span>. Uploads run as a background queue with progress bars; you can keep using the app.</li>
+</ol>
+<p>Uploaded videos appear in the <span class="btn">Manage</span> grid, on your public profile, and in the app's exercise rails.</p>
+
+<h3>Build your profile</h3>
+<ol class="steps">
+  <li>Open the <span class="btn">Profile</span> section of the Studio.</li>
+  <li>Fill in your <strong>Headline</strong> (what you help clients achieve), <strong>Instagram</strong>, and <strong>Website</strong>.</li>
+  <li>Tap <span class="btn">Save profile</span>.</li>
+</ol>
+<p>There is also a shareable <strong>QR poster</strong> for your profile you can post or print. Note: the QR opens the app directly, so it only works for people who already have DoWork installed.</p>
+
+<h2 id="invite"><span class="num">5</span>Invite your clients</h2>
+<ol class="steps">
+  <li>Studio &rarr; <span class="btn">Clients</span> &rarr; <span class="btn">Invite a client</span>.</li>
+  <li>A share sheet appears with a <strong>QR code</strong> and a <strong>12-character invite code</strong>. Either have the client scan the QR in person, or copy the code and text it to them.</li>
+  <li>When they redeem it, they appear in your <strong>Clients roster</strong>. Each row has <span class="btn">Reactivate</span> and <span class="btn">End</span> controls for managing the coaching relationship.</li>
+</ol>
+<div class="callout">
+  <div class="title">Codes are single use</div>
+  Generate one invite per client. Linked clients get your premium library included at no charge, which is exactly what you want for people already paying you for coaching directly.
+</div>
+
+<h2 id="clientside"><span class="num">6</span>What your clients do <span class="badge soon">share with clients</span></h2>
+<h3>Joining you</h3>
+<ol class="steps">
+  <li>Install DoWork from the invite link the trainer or Trey sends.</li>
+  <li>Go to <span class="tab">Profile</span> &rarr; <strong>Account</strong> &rarr; <span class="btn">Sign in</span> and create an account with your email (important, same reason as above).</li>
+  <li>Scan the trainer's QR code with the phone camera (the app must already be installed), which opens <strong>Join your trainer</strong> and connects automatically. Or: open <strong>My trainer</strong>, tap <span class="btn">Enter an invite code</span>, type the code, and tap <span class="btn">Join</span>.</li>
+  <li>You'll see <em>&ldquo;You're connected&rdquo;</em>, then <span class="btn">Go to my trainer</span>.</li>
+</ol>
+
+<h3>Watching videos</h3>
+<ol class="steps">
+  <li>Open the <span class="tab">Trainers</span> tab and tap your trainer, or use the <strong>YOUR TRAINER</strong> card on Home.</li>
+  <li>The profile shows the <strong>Free library</strong> and the <strong>Premium library</strong>. As a connected client the premium videos show an <em>&ldquo;Included&rdquo;</em> badge.</li>
+  <li>Tap a video to open the player. Playback links are secure and refresh themselves automatically.</li>
+  <li>Entitled videos can be saved for offline (useful in gyms with bad reception). Manage them under <span class="tab">Profile</span> &rarr; <strong>Offline downloads</strong>.</li>
+</ol>
+
+<h3>Voice control in the player</h3>
+<p>The video player supports hands-free voice commands (play, pause, speed, skip) so you can rack the bar and talk instead of touching the phone. Voice settings live under <span class="tab">Profile</span> &rarr; <strong>Voice control</strong>.</p>
+
+<h2 id="formcheck"><span class="num">7</span>The form-check coaching loop</h2>
+<h3>Client sends a form check</h3>
+<ol class="steps">
+  <li>Open <strong>My trainer</strong> and tap <span class="btn">Send a form check</span>.</li>
+  <li>Tap <span class="btn">Record</span> to film the set, or pick a video from the library.</li>
+  <li>The upload shows <em>&ldquo;Uploading&hellip; N%&rdquo;</em> and then appears under <strong>Your form checks</strong>.</li>
+</ol>
+<h3>Trainer reviews it</h3>
+<ol class="steps">
+  <li>Studio &rarr; <span class="btn">Clients</span> &rarr; tap the client &rarr; open the form check.</li>
+  <li>Watch the video. Feedback notes are anchored to timestamps: type in the <strong>Add feedback</strong> composer, keep the <span class="btn">Attach current timestamp</span> toggle on, and the note pins to that moment. The client can tap any timestamp chip to seek straight to it.</li>
+  <li>Optionally attach a <strong>video reply</strong> (film yourself demonstrating the fix).</li>
+  <li>The client replies in the same thread. Ended coaching relationships keep the history but become read-only.</li>
+</ol>
+<div class="callout">
+  <div class="title">Until push notifications are switched on</div>
+  The app does not yet send push alerts, so neither side gets a ping when a form check or feedback arrives. Check the app manually, or agree with clients to text each other when something is sent. Push is on the launch checklist.
+</div>
+
+<h2 id="earnings"><span class="num">8</span>Subscriptions and earnings <span class="badge soon">not live yet</span></h2>
+<p>The plan: strangers who find your profile can subscribe to your premium library at a monthly price you pick from a tier ladder ($4.99 to $39.99/month). Your <span class="btn">Earnings</span> screen (in the Studio) shows subscriber count and gross revenue, backed by the real store-purchase ledger.</p>
+<p><strong>Right now, purchases are switched off.</strong> The paywall honestly says <em>&ldquo;Subscriptions aren't available yet&rdquo;</em> and free videos still play. This does not affect your invited clients at all: they get premium included through the coaching link. The revenue split between you and the platform is still being finalized; Trey will confirm it with you directly before paid subscriptions open.</p>
+
+<h2 id="settings"><span class="num">9</span>Settings worth knowing</h2>
+<table>
+  <tr><th>Setting</th><th>Where</th><th>What it does</th></tr>
+  <tr><td>Account</td><td>Profile tab</td><td>Sign in, magic link (&ldquo;Email me a sign-in link&rdquo;), and &ldquo;Forgot password?&rdquo; recovery.</td></tr>
+  <tr><td>Notifications</td><td>Profile tab</td><td>Per-type notification preferences (new video, form check, feedback). Marketing is off by default.</td></tr>
+  <tr><td>Offline downloads</td><td>Profile tab</td><td>Storage meter and per-video management. Downloads are entitlement-checked; ending a subscription or coaching link removes them honestly.</td></tr>
+  <tr><td>Voice control</td><td>Profile tab</td><td>Continuous listening vs push-to-talk for the player.</td></tr>
+  <tr><td>Blocked users / reporting</td><td>Profile tab + every video</td><td>Report and block controls exist on all shared content, including private form checks.</td></tr>
+  <tr><td>Sign out</td><td>Profile tab</td><td>Signs out and wipes downloaded videos from the device.</td></tr>
+  <tr><td>Delete forever</td><td>Profile tab</td><td>Full account deletion: cloud rows, storage files, auth, and local data.</td></tr>
+</table>
+
+<h2 id="limits"><span class="num">10</span>Current limitations <span class="badge broken">read this</span></h2>
+<table>
+  <tr><th>Limitation</th><th>Status</th><th>Practical impact</th></tr>
+  <tr><td>Logging sets in a live workout session was broken (session opened frozen with no Start control).</td><td><span class="badge live">Fixed 2026-07-06</span></td><td>Sessions now start automatically and sets log normally. Any build made from today's code onward includes the fix.</td></tr>
+  <tr><td>No push notifications.</td><td><span class="badge soon">Launch checklist</span></td><td>Check the app manually for form checks and feedback.</td></tr>
+  <tr><td>Invite QRs and links only work if the app is already installed.</td><td><span class="badge soon">By design for now</span></td><td>Send the install link first, then the invite code. The typed code always works.</td></tr>
+  <tr><td>Paid subscriptions off; earnings shows gross only.</td><td><span class="badge soon">Launch checklist</span></td><td>Invited clients unaffected (premium included). Revenue split confirmed verbally before launch.</td></tr>
+  <tr><td>Legal pages (terms/privacy) not yet hosted.</td><td><span class="badge soon">Launch checklist</span></td><td>Links in Settings will not resolve until dowork.app is live.</td></tr>
+</table>
+
+<div class="callout ok">
+  <div class="title">What is solid today</div>
+  The trainer platform itself is production-grade under the hood: every table is protected by row-level security, premium video access is enforced server-side (free/owner/subscriber/active-client), uploads and playback use short-lived signed URLs, offline downloads re-check entitlement honestly, and account deletion is real. The seeded demo coach and live production backend have been verified end to end.
+</div>
+
+<footer>
+  DoWork Trainer Guide &middot; Generated 2026-07-06 from the codebase at <code>apps/dowork</code> (main, post Phase 0 fixes) &middot; Companion doc: REPORT-dowork-launch-steps-2026-07-06.html
+</footer>
+</div>
+</body>
+</html>

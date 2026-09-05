@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Plan Reconciliation - 2026-07-07</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f1115;
+      --panel: #171b22;
+      --text: #f3f4f6;
+      --muted: #aab3c2;
+      --border: #2a3140;
+      --accent: #74c69d;
+      --warn: #f6bd60;
+      --code: #111827;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 40px 22px 64px;
+    }
+    h1, h2 {
+      line-height: 1.15;
+      margin: 0 0 14px;
+    }
+    h1 {
+      font-size: 34px;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin-top: 34px;
+      font-size: 22px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    p {
+      margin: 0 0 16px;
+    }
+    ul, ol {
+      margin: 0 0 18px 22px;
+      padding: 0;
+    }
+    li {
+      margin: 6px 0;
+    }
+    code {
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    .summary {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 22px 0;
+    }
+    .tag {
+      display: inline-block;
+      color: #06130d;
+      background: var(--accent);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 6px;
+    }
+    .warn {
+      color: var(--warn);
+      font-weight: 700;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin: 16px 0 22px;
+    }
+    .box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .box h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .muted {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Meerkat Plan Reconciliation</h1>
+    <p class="muted">2026-07-07, local main, docs-only reconciliation.</p>
+
+    <section class="summary">
+      <p><span class="tag">Outcome</span> Active queue is now only Plans 21, 23, and 25. Plans 19, 20, 22, 24, 26, 27, 29, 37, and 39 moved to <code>docs/plans/done/</code>.</p>
+      <p><span class="tag">Plan 25</span> Buildable enough to start. It is not implemented, but the plan clearly defines architecture, files, schema, tests, and honesty constraints.</p>
+    </section>
+
+    <h2>Current Queue</h2>
+    <div class="grid">
+      <div class="box">
+        <h3>Plan 21</h3>
+        <p>DMs are live. Queue retained for AC-13: visible same-account link-device UI on both surfaces.</p>
+      </div>
+      <div class="box">
+        <h3>Plan 23</h3>
+        <p>Still the launch gate. Most old gaps are built, but the standalone cross-community Downloads browser was not found.</p>
+      </div>
+      <div class="box">
+        <h3>Plan 25</h3>
+        <p>Calls and rooms are not started. No call protocol, media session, SFU, schema, or UI exists yet.</p>
+      </div>
+    </div>
+
+    <h2>Plan 25 Verdict</h2>
+    <p><strong>Yes.</strong> Plan 25 is complete enough to build from. Start Phases 0-3: pure call signaling, relay <code>env</code> carrier, sibling media adapter, and 1:1 voice/video UI. Gate Phase 4 on the SFU choice: mediasoup versus LiveKit.</p>
+    <p>Native OS CallKit or ConnectionService UI is not launch-hard in the current plan. Add it only if the founder wants system-level call surfaces.</p>
+
+    <h2>Moved To Done</h2>
+    <p>Moved as code-complete or superseded scope: 19, 20, 22, 24, 26, 27, 29, 37, and 39.</p>
+
+    <h2>Verification</h2>
+    <ul>
+      <li>Code anchors verified for moved plans by searching actual implementation files and tests.</li>
+      <li>Active queue listing contains only Plans 21, 23, and 25.</li>
+      <li>Living stale links to moved Meerkat queue files were cleaned in plans, designs, and memory.</li>
+      <li><code>git diff --check</code> passed.</li>
+      <li><code>pnpm check:generated-artifacts</code> passed.</li>
+      <li><code>pnpm check:parity --quiet</code> passed.</li>
+      <li>Source function logic changed: no. Function gate skipped for docs-only work.</li>
+    </ul>
+
+    <h2>Founder-Ops</h2>
+    <p>The founder-ops runbook now tracks the deploys, keys, app-store records, provider accounts, physical device QA, and store submission work that remains after the old plans leave the active queue.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,297 @@
+/* Appearance section: preset gallery, custom-theme list, share/import panels.
+ * Chrome uses the app's --mk-* tokens (so it reskins with the active theme);
+ * each preview card sets its OWN --mk-* vars inline so it renders in that
+ * preset's colors regardless of the app theme. */
+
+.mk-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.mk-theme-card {
+  border: 2px solid var(--mk-border);
+  border-radius: var(--mk-radius-lg);
+  background: var(--mk-surface);
+  overflow: hidden;
+}
+
+.mk-theme-card.is-selected {
+  border-color: var(--mk-accent);
+}
+
+.mk-theme-card-apply {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.mk-theme-preview {
+  background: var(--mk-background);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 140px;
+}
+
+.mk-theme-preview-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--mk-surface);
+  border: 1px solid var(--mk-border);
+  border-radius: var(--mk-radius-sm);
+  padding: 6px 8px;
+}
+
+.mk-theme-preview-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--mk-accent);
+}
+
+.mk-theme-preview-line {
+  height: 6px;
+  flex: 1;
+  border-radius: 3px;
+  background: var(--mk-text-secondary);
+  opacity: 0.7;
+}
+
+.mk-theme-preview-card {
+  background: var(--mk-surface);
+  border: 1px solid var(--mk-border);
+  border-radius: var(--mk-radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.mk-theme-preview-wide {
+  height: 7px;
+  width: 80%;
+  border-radius: 3px;
+  background: var(--mk-text);
+}
+
+.mk-theme-preview-thin {
+  height: 5px;
+  width: 55%;
+  border-radius: 3px;
+  background: var(--mk-text-tertiary);
+}
+
+.mk-theme-preview-pill {
+  background: var(--mk-accent);
+  color: var(--mk-on-accent);
+  border-radius: var(--mk-radius-pill);
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.mk-theme-card-meta {
+  padding: 4px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mk-theme-card-apply .mk-theme-card-name {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 12px 0;
+  text-align: left;
+}
+
+.mk-theme-card-name {
+  color: var(--mk-text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.mk-theme-card-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mk-theme-register {
+  color: var(--mk-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mk-aa-chip {
+  background: var(--mk-surface-high);
+  color: var(--mk-text-secondary);
+  border-radius: var(--mk-radius-pill);
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.mk-aa-chip.is-pass {
+  background: var(--mk-success-soft);
+  color: var(--mk-success);
+}
+
+.mk-theme-share-link {
+  margin-left: auto;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  color: var(--mk-accent);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mk-theme-subhead {
+  color: var(--mk-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  margin: 12px 0 0;
+}
+
+.mk-theme-empty {
+  margin: 4px 0 0;
+}
+
+.mk-theme-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mk-theme-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mk-surface);
+  border: 1px solid var(--mk-border);
+  border-radius: var(--mk-radius-md);
+  padding: 8px 12px;
+}
+
+.mk-theme-row-name {
+  flex: 1;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--mk-text);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mk-theme-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mk-theme-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.mk-theme-qr {
+  align-self: center;
+  background: #ffffff;
+  border-radius: var(--mk-radius-md);
+  padding: 14px;
+  line-height: 0;
+}
+
+.mk-theme-blob {
+  display: block;
+  color: var(--mk-text-secondary);
+  font-family: var(--mk-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  background: var(--mk-surface-high);
+  border-radius: var(--mk-radius-sm);
+  padding: 10px;
+  word-break: break-all;
+  max-height: 64px;
+  overflow: auto;
+}
+
+.mk-theme-error {
+  color: var(--mk-danger);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.mk-theme-import-input {
+  width: 100%;
+  font-family: var(--mk-mono);
+  font-size: 13px;
+  resize: vertical;
+}
+
+.mk-theme-import-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--mk-surface-elevated);
+  border-radius: var(--mk-radius-md);
+  padding: 12px;
+  align-items: flex-start;
+}
+
+.mk-theme-sign {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--mk-text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.mk-theme-sign input {
+  margin-top: 2px;
+}
+
+.mk-theme-mode { display: flex; gap: 4px; padding: 4px; background: var(--mk-surface-high); border-radius: var(--mk-radius-md); }
+.mk-theme-mode .mk-btn { flex: 1; min-height: 44px; }
+.mk-theme-mode .mk-btn[aria-pressed='false'] { background: transparent; border-color: transparent; color: var(--mk-text-secondary); }
+.mk-theme-current { display: flex; align-items: center; gap: 10px; padding: 12px 0; color: var(--mk-text-secondary); }
+.mk-theme-current-dot { width: 12px; height: 12px; flex: 0 0 12px; border-radius: 50%; background: var(--mk-accent); }
+.mk-theme-collections { display: flex; gap: 8px; flex-wrap: wrap; }
+.mk-theme-collections button { min-height: 44px; padding: 8px 14px; border: 1px solid var(--mk-border); border-radius: var(--mk-radius-pill); color: var(--mk-text-secondary); background: var(--mk-surface); cursor: pointer; font-size: 14px; font-weight: 600; }
+.mk-theme-collections button[aria-pressed='true'] { background: var(--mk-accent); color: var(--mk-on-accent); border-color: transparent; }
+.mk-theme-count { color: var(--mk-text-secondary); font-size: 13px; margin: 8px 0 0; }
+.mk-theme-preview-heading { color: var(--mk-text); font-size: 11px; font-weight: 600; }
+.mk-theme-preview-greeting { color: var(--mk-text); font-size: 12px; line-height: 1.5; text-align: left; }
+.mk-theme-preview-pill { align-self: flex-end; padding: 5px 9px; font-weight: 500; border-radius: var(--mk-radius-sm); }
+.mk-theme-card-apply:focus-visible { outline-offset: -4px; }
+.mk-theme-row { flex-wrap: wrap; }
+.mk-theme-row-name { min-height: 44px; overflow-wrap: anywhere; }
+
+.mk-settings-group-content .mk-settings-section-title { text-transform: none; letter-spacing: 0; }
+.mk-theme-card-meta { padding: 4px 12px 8px; }
+
+@media (max-width: 520px) {
+  .mk-theme-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); }
+  .mk-theme-card-tags { gap: 4px; }
+}

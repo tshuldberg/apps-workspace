@@ -1,0 +1,1698 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MyLife + BestChef — Architecture Tour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0B10;
+  --bg-1:#0E0E13;
+  --bg-2:#131318;
+  --bg-3:#1B1B20;
+  --bg-4:#2A292F;
+  --bg-5:#35343A;
+  --text:#E4E1E9;
+  --text-2:rgba(214,195,181,0.72);
+  --text-3:rgba(214,195,181,0.48);
+  --border:rgba(255,255,255,0.07);
+  --border-strong:rgba(255,255,255,0.14);
+  --glass:rgba(255,255,255,0.03);
+  --glass-strong:rgba(255,255,255,0.07);
+  --mylife:#FFB877;
+  --mylife-2:#C9894D;
+  --bestchef:#22C55E;
+  --bestchef-2:#16A34A;
+  --info:#8BCFF0;
+  --warn:#F4A261;
+  --danger:#FFB4AB;
+  --ok:#30D158;
+  --purple:#A78BFA;
+  --pink:#F472B6;
+  --teal:#2DD4BF;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;font-feature-settings:"ss01","cv11";-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+code,pre,.mono{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace}
+a{color:var(--info);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Layout */
+.shell{max-width:1320px;margin:0 auto;padding:48px 28px 120px}
+header.hero{
+  position:relative;padding:96px 32px 72px;border-radius:28px;overflow:hidden;
+  background:
+    radial-gradient(1200px 600px at 20% 0%, rgba(255,184,119,0.18), transparent 60%),
+    radial-gradient(900px 500px at 90% 30%, rgba(34,197,94,0.16), transparent 65%),
+    linear-gradient(180deg, #131318 0%, #0E0E13 100%);
+  border:1px solid var(--border);
+}
+header.hero h1{font-size:clamp(34px,5vw,64px);line-height:1.05;letter-spacing:-0.02em;margin:0 0 16px;font-weight:800}
+header.hero .eyebrow{font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-3);margin-bottom:18px;font-weight:600}
+header.hero p.lede{font-size:18px;color:var(--text-2);max-width:780px;line-height:1.6}
+header.hero .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+header.hero .pill{padding:8px 14px;border-radius:999px;background:var(--glass);border:1px solid var(--border);font-size:12px;color:var(--text-2);font-weight:500}
+header.hero .pill.mylife{border-color:rgba(255,184,119,0.4);color:#FFD3A8;background:rgba(255,184,119,0.08)}
+header.hero .pill.bestchef{border-color:rgba(34,197,94,0.45);color:#86EFAC;background:rgba(34,197,94,0.10)}
+
+section{margin-top:80px}
+section h2{font-size:32px;letter-spacing:-0.02em;margin:0 0 6px;font-weight:700}
+section h2 .num{display:inline-block;color:var(--text-3);margin-right:14px;font-weight:600;font-feature-settings:"tnum"}
+section .sub{color:var(--text-2);max-width:880px;margin:0 0 28px;line-height:1.6}
+section .sub strong{color:var(--text)}
+
+/* Cards & grids */
+.grid{display:grid;gap:18px}
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:900px){.grid.two,.grid.three,.grid.four{grid-template-columns:1fr}}
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:18px;padding:22px;position:relative;transition:transform .25s ease,border-color .25s ease}
+.card:hover{border-color:var(--border-strong);transform:translateY(-2px)}
+.card h3{font-size:18px;margin:0 0 8px;font-weight:600;letter-spacing:-0.01em}
+.card .kicker{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;font-weight:600}
+.card p{color:var(--text-2);font-size:14px;line-height:1.6;margin:6px 0 0}
+.card.mylife{border-color:rgba(255,184,119,0.22)}
+.card.bestchef{border-color:rgba(34,197,94,0.30)}
+.card.warn{border-color:rgba(244,162,97,0.35)}
+
+/* Legend */
+.legend{display:flex;flex-wrap:wrap;gap:10px}
+.legend .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;background:var(--glass);border:1px solid var(--border);border-radius:999px;font-size:12px;color:var(--text-2);font-weight:500}
+.legend .chip .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.legend .chip code{font-size:11px;color:var(--text);background:rgba(255,255,255,0.04);padding:1px 6px;border-radius:6px}
+
+/* 3D world */
+.world-wrap{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--border-strong);background:radial-gradient(900px 500px at 50% 30%, rgba(255,184,119,0.10), transparent 60%), #0A0A0F}
+#world{display:block;width:100%;height:680px;cursor:grab}
+#world:active{cursor:grabbing}
+.world-overlay{position:absolute;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;gap:18px;flex-wrap:wrap}
+.world-overlay .panel{background:rgba(11,11,16,0.78);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid var(--border-strong);border-radius:14px;padding:14px 16px;pointer-events:auto;max-width:380px}
+.world-overlay .panel h4{margin:0 0 6px;font-size:13px;font-weight:700;letter-spacing:0.02em}
+.world-overlay .panel p{margin:0;font-size:12px;color:var(--text-2);line-height:1.55}
+.world-overlay .panel .row{display:flex;gap:10px;align-items:center;margin-top:8px;font-size:11px;color:var(--text-3)}
+.world-overlay .panel button{background:var(--glass-strong);color:var(--text);border:1px solid var(--border-strong);border-radius:8px;padding:6px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500}
+.world-overlay .panel button:hover{background:rgba(255,184,119,0.12);border-color:rgba(255,184,119,0.5)}
+.world-overlay .panel button.active{background:rgba(255,184,119,0.18);border-color:rgba(255,184,119,0.6);color:#FFD3A8}
+.world-tooltip{position:absolute;pointer-events:none;background:rgba(11,11,16,0.92);border:1px solid var(--border-strong);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--text);max-width:280px;line-height:1.5;display:none;z-index:10;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+.world-tooltip strong{color:var(--mylife)}
+.world-tooltip .sub{display:block;color:var(--text-3);font-size:11px;margin-top:4px}
+.world-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.world-legend .chip{font-size:10px;padding:5px 9px}
+
+/* SVG diagrams */
+.diagram{background:var(--bg-2);border:1px solid var(--border);border-radius:18px;padding:24px;overflow:hidden}
+.diagram svg{width:100%;height:auto;display:block}
+.diagram .caption{font-size:12px;color:var(--text-3);margin-top:12px;text-align:center}
+
+/* ERD */
+.erd-wrap{background:var(--bg-2);border:1px solid var(--border);border-radius:18px;padding:24px}
+.erd{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.tbl{background:linear-gradient(180deg,var(--bg-3),var(--bg-2));border:1px solid var(--border-strong);border-radius:12px;overflow:hidden;font-size:12px;transition:transform .2s,border-color .2s}
+.tbl:hover{transform:translateY(-2px);border-color:var(--bestchef)}
+.tbl header{padding:10px 12px;background:rgba(34,197,94,0.10);border-bottom:1px solid var(--border-strong);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tbl.local header{background:rgba(255,184,119,0.10)}
+.tbl.cloud header{background:rgba(34,197,94,0.10)}
+.tbl.shared header{background:rgba(167,139,250,0.10)}
+.tbl header .name{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text)}
+.tbl header .scope{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-3);font-weight:600}
+.tbl ul{list-style:none;margin:0;padding:6px 0;max-height:180px;overflow:auto}
+.tbl li{padding:4px 12px;display:flex;justify-content:space-between;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-2);border-bottom:1px solid rgba(255,255,255,0.03)}
+.tbl li:last-child{border-bottom:0}
+.tbl li.pk{color:#FFD3A8;font-weight:600}
+.tbl li.fk{color:#86EFAC}
+.tbl li .type{color:var(--text-3);font-size:10px}
+
+/* Workflow timeline */
+.flow{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media(max-width:900px){.flow{grid-template-columns:1fr}}
+.flow .step{background:var(--bg-2);border:1px solid var(--border);border-radius:16px;padding:18px;position:relative}
+.flow .step .num{position:absolute;top:-14px;left:18px;width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;background:var(--bestchef);color:#062B12}
+.flow .step h4{margin:6px 0 4px;font-size:14px;font-weight:600}
+.flow .step p{font-size:12px;color:var(--text-2);line-height:1.55;margin:0}
+.flow .step .tag{display:inline-block;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 7px;border-radius:6px;background:var(--glass-strong);color:var(--text-3);margin-top:8px;font-weight:600}
+
+/* Stack columns */
+.stack-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+@media(max-width:900px){.stack-cols{grid-template-columns:1fr 1fr}}
+.stack-col{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:16px}
+.stack-col h5{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-3);margin:0 0 12px;font-weight:600}
+.stack-col ul{list-style:none;padding:0;margin:0}
+.stack-col li{padding:8px 10px;border-radius:8px;background:var(--glass);font-size:12px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid transparent;transition:border-color .15s,background .15s}
+.stack-col li:hover{border-color:var(--border-strong);background:var(--glass-strong)}
+.stack-col li .v{color:var(--text-3);font-size:11px;font-family:'JetBrains Mono',monospace}
+
+/* Modules grid */
+.modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.mod{aspect-ratio:1;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px;text-align:center;transition:transform .2s,border-color .2s,background .2s;cursor:default;position:relative}
+.mod:hover{transform:translateY(-3px);border-color:var(--mylife);background:rgba(255,184,119,0.06)}
+.mod .icon{font-size:24px;line-height:1;margin-bottom:6px}
+.mod .name{font-size:11px;font-weight:600;color:var(--text)}
+.mod .pf{font-size:9px;color:var(--text-3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.mod[data-tier="free"]{box-shadow:inset 0 -2px 0 rgba(48,209,88,0.4)}
+.mod[data-tier="premium"]{box-shadow:inset 0 -2px 0 rgba(167,139,250,0.4)}
+.mod[data-tier="hidden"]{opacity:0.55;box-shadow:inset 0 -2px 0 rgba(255,255,255,0.10)}
+.mod[data-spotlight="bestchef"]{border-color:var(--bestchef);background:rgba(34,197,94,0.10)}
+
+/* Compare table */
+.compare{width:100%;border-collapse:separate;border-spacing:0;background:var(--bg-2);border:1px solid var(--border);border-radius:16px;overflow:hidden;font-size:13px}
+.compare th,.compare td{padding:12px 16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--border)}
+.compare th{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);background:var(--bg-3);font-weight:600}
+.compare tr:last-child td{border-bottom:0}
+.compare td.dim{color:var(--text-3)}
+.compare td strong{color:var(--text)}
+.compare .yes{color:var(--ok);font-weight:600}
+.compare .no{color:var(--danger);font-weight:600}
+.compare .partial{color:var(--warn);font-weight:600}
+
+/* Risk callouts */
+.callouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.callout{padding:18px;border-radius:14px;background:var(--bg-2);border-left:3px solid var(--info)}
+.callout.warn{border-left-color:var(--warn)}
+.callout.danger{border-left-color:var(--danger)}
+.callout.ok{border-left-color:var(--ok)}
+.callout h5{margin:0 0 6px;font-size:13px;font-weight:700}
+.callout p{margin:0;font-size:13px;color:var(--text-2);line-height:1.55}
+.callout .label{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-3);font-weight:600;margin-bottom:6px}
+
+/* tooltip generic */
+[data-tip]{position:relative}
+[data-tip]:hover::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:rgba(11,11,16,0.95);color:var(--text);padding:8px 10px;border-radius:8px;font-size:11px;
+  border:1px solid var(--border-strong);white-space:nowrap;z-index:50;
+  font-weight:400;letter-spacing:0;pointer-events:none;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);
+}
+
+/* Insight box */
+.insight{background:linear-gradient(135deg,rgba(139,207,240,0.08),rgba(167,139,250,0.06));border:1px solid rgba(139,207,240,0.25);border-radius:14px;padding:18px 20px;margin-top:20px}
+.insight .label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--info);font-weight:700;margin-bottom:6px}
+.insight ul{margin:0;padding-left:18px}
+.insight li{font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:4px}
+
+/* Footer */
+footer{margin-top:96px;padding-top:32px;border-top:1px solid var(--border);color:var(--text-3);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+/* Print */
+@media print{
+  body{background:#fff;color:#111}
+  #world{display:none}
+  .card,.diagram,.erd-wrap,.stack-col,.compare,.tbl{break-inside:avoid}
+}
+
+/* Section nav */
+.toc{position:sticky;top:14px;background:rgba(11,11,16,0.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:14px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;z-index:20;margin-bottom:24px}
+.toc a{font-size:11px;color:var(--text-2);padding:6px 10px;border-radius:8px;font-weight:500;letter-spacing:0.02em}
+.toc a:hover{background:var(--glass-strong);color:var(--text);text-decoration:none}
+
+/* Misc */
+.hr{height:1px;background:var(--border);border:0;margin:48px 0}
+.kbd{font-family:'JetBrains Mono',monospace;background:var(--bg-3);border:1px solid var(--border-strong);border-bottom-width:2px;padding:1px 6px;border-radius:5px;font-size:11px;color:var(--text)}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<header class="hero">
+  <div class="eyebrow">MyLife · BestChef · Architecture Tour</div>
+  <h1>One workspace. Two data philosophies.</h1>
+  <p class="lede">
+    MyLife is a privacy-first <strong>multi-module hub</strong> built on a peer-to-peer mesh sync substrate. BestChef is a public, social, server-backed product that ships out of that same monorepo using a <strong>standard Supabase server</strong> as its source of truth. This document walks technical and non-technical teammates through both systems: the 3D mesh world, the BestChef server stack, the database, the workflows, and the reasoning behind the split.
+  </p>
+  <div class="meta">
+    <span class="pill mylife">MyLife · 39 modules · iOS · Android · Web</span>
+    <span class="pill bestchef">BestChef · standalone Expo app · public launch</span>
+    <span class="pill">SQLite local · Supabase cloud · Mesh CRDT</span>
+    <span class="pill">TypeScript · Expo · Next.js 15 · Turborepo · pnpm</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Table of contents">
+  <a href="#legend">Legend</a>
+  <a href="#mesh-world">Mesh 3D World</a>
+  <a href="#mylife-arch">MyLife Architecture</a>
+  <a href="#bestchef-arch">BestChef Architecture</a>
+  <a href="#bestchef-db">BestChef Database</a>
+  <a href="#bestchef-flows">User Workflows</a>
+  <a href="#features">Feature Map</a>
+  <a href="#stack">Tech Stack</a>
+  <a href="#modules">Module Inventory</a>
+  <a href="#compare">Mesh vs Server</a>
+  <a href="#risks">Risks &amp; Production Work</a>
+</nav>
+
+<!-- ============================================================ -->
+<!-- LEGEND -->
+<!-- ============================================================ -->
+<section id="legend">
+  <h2><span class="num">01</span>Legend</h2>
+  <p class="sub">Color and shape coding used across every diagram in this document. Hover any chip for the meaning, and watch for these conventions in the 3D world below.</p>
+
+  <div class="grid two">
+    <div class="card">
+      <div class="kicker">Color</div>
+      <div class="legend">
+        <span class="chip" data-tip="Hub orange — the MyLife shell, suite-level features, and unified dashboard."><span class="dot" style="background:var(--mylife)"></span>MyLife shell</span>
+        <span class="chip" data-tip="BestChef green — the standalone competitive recipe app and its server."><span class="dot" style="background:var(--bestchef)"></span>BestChef</span>
+        <span class="chip" data-tip="Info blue — informational nodes, tertiary state, links."><span class="dot" style="background:var(--info)"></span>Info / link</span>
+        <span class="chip" data-tip="Purple — premium-tier modules, encrypted relay, non-default privileged state."><span class="dot" style="background:var(--purple)"></span>Premium / privileged</span>
+        <span class="chip" data-tip="Pink — community workspaces and shared social surfaces."><span class="dot" style="background:var(--pink)"></span>Community workspace</span>
+        <span class="chip" data-tip="Teal — published blobs and authoritative cloud catalogs."><span class="dot" style="background:var(--teal)"></span>Published / canonical</span>
+        <span class="chip" data-tip="Warn amber — partial work, not yet shipped."><span class="dot" style="background:var(--warn)"></span>In progress</span>
+        <span class="chip" data-tip="Danger red — launch blocker, do-not-ship state."><span class="dot" style="background:var(--danger)"></span>Blocker</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="kicker">Shape / Scope</div>
+      <div class="legend">
+        <span class="chip" data-tip="Sphere = a personal device (iOS, Android, Web)."><span class="dot" style="background:#fff"></span>Device (sphere)</span>
+        <span class="chip" data-tip="Ring = a workspace boundary. Personal, group, or community."><span class="dot" style="border:2px solid #fff;background:transparent"></span>Workspace (ring)</span>
+        <span class="chip" data-tip="device_local — never leaves device. e.g. drafts, sync secrets."><code>device_local</code></span>
+        <span class="chip" data-tip="personal_replica — replicates only across this user's devices."><code>personal_replica</code></span>
+        <span class="chip" data-tip="shared_workspace — encrypted bilateral sync inside a paired workspace."><code>shared_workspace</code></span>
+        <span class="chip" data-tip="published_blob — public, server-canonical (BestChef public catalogs ride this rail)."><code>published_blob</code></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="label">★ Reading guide</div>
+    <ul>
+      <li>Every entity in MyLife declares a <code>syncPolicy</code> with a <strong>maxScope</strong> cap. Security lives in the payload, not the channel.</li>
+      <li>BestChef public users ride a <strong>standard server-backed</strong> path (Supabase Auth + Postgres/RLS + Storage + Edge Functions). Local SQLite is an offline cache, not the source of truth.</li>
+      <li>Both philosophies coexist because they have different threat models: MyLife protects private personal data; BestChef serves a public social product.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- MESH WORLD -->
+<!-- ============================================================ -->
+<section id="mesh-world">
+  <h2><span class="num">02</span>The MyLife Mesh — Living Globe</h2>
+  <p class="sub">A real Earth, fully zoomable. <strong>Drag to spin, scroll to zoom in/out.</strong> Far out, you see global <strong>clusters</strong> with device counts and dashed-cyan sync arcs jumping between regions. As you zoom in, clusters expand into individual <strong>workspace rings</strong> with personal, group, and community devices wrapped to the planet's surface. Hover any node for details. The Privileged Hub at geosynchronous orbit is the optional cloud replica that stores ciphertext blobs only.</p>
+
+  <div class="world-wrap">
+    <canvas id="world"></canvas>
+    <div class="world-overlay">
+      <div class="panel">
+        <h4>MyLife Mesh · Earth view</h4>
+        <p>Each pin is a real-world community of users. Dashed arcs are encrypted sync channels chosen by the ranked-choice transport ladder. Zoom in on a region to expand its cluster into individual devices and workspaces.</p>
+        <div class="row">
+          <button id="btn-rotate" class="active">Auto-rotate</button>
+          <button id="btn-arcs" class="active">Sync arcs</button>
+          <button id="btn-clouds">Atmosphere</button>
+          <button id="btn-night" class="active">Night side</button>
+          <button id="btn-focus">Focus random</button>
+        </div>
+        <div class="world-legend">
+          <span class="chip"><span class="dot" style="background:#FFB877"></span>Personal cluster</span>
+          <span class="chip"><span class="dot" style="background:#A78BFA"></span>Group cluster</span>
+          <span class="chip"><span class="dot" style="background:#F472B6"></span>Community cluster</span>
+          <span class="chip"><span class="dot" style="background:#2DD4BF"></span>Privileged hub</span>
+          <span class="chip"><span class="dot" style="background:#86EFAC"></span>Active sync arc</span>
+        </div>
+      </div>
+      <div class="panel" style="max-width:280px">
+        <h4>Transport ladder</h4>
+        <p style="font-size:11px;line-height:1.55">
+          1. LAN Wi-Fi / Bonjour<br>
+          2. Apple Multipeer / Wi-Fi Direct<br>
+          3. BLE wake-up pings<br>
+          4. WebRTC<br>
+          5. Encrypted relay (ciphertext only)<br>
+          6. Server replica (opt-in)
+        </p>
+        <div id="zoom-readout" style="margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-3)">zoom: globe · clusters visible</div>
+      </div>
+    </div>
+    <div id="world-tip" class="world-tooltip"></div>
+  </div>
+
+  <div class="insight">
+    <div class="label">★ What you're seeing</div>
+    <ul>
+      <li><strong>Personal ring (orange):</strong> all of one user's devices. Drafts and secrets are <code>device_local</code>; module state is <code>personal_replica</code> across these spheres only.</li>
+      <li><strong>Group ring (purple):</strong> a paired workspace (family budget, couple's dining, household). Requires fingerprint-compare pairing for sensitive modules.</li>
+      <li><strong>Community ring (pink):</strong> larger shared workspace. Modules with <code>maxScope: shared_workspace</code> can replicate here; sensitive modules cap below this scope.</li>
+      <li><strong>Privileged hub (teal core):</strong> opt-in cloud replica for durability and recovery. Stores ciphertext blobs addressed by ephemeral tokens — the server cannot read content.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- MYLIFE ARCHITECTURE -->
+<!-- ============================================================ -->
+<section id="mylife-arch">
+  <h2><span class="num">03</span>MyLife Hub Architecture</h2>
+  <p class="sub">A single Expo app and a single Next.js app render <strong>any</strong> registered module. Modules are not separate apps; they are <code>ModuleDefinition</code> records loaded by the registry at runtime. All local data lives in one SQLite file with prefixed tables, so cross-module features (Mood × Sleep × Habits) are just SQL joins.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1280 580" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MyLife layered architecture">
+      <defs>
+        <linearGradient id="lg-mylife" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#FFB877" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#FFB877" stop-opacity="0.04"/>
+        </linearGradient>
+        <linearGradient id="lg-mod" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#8BCFF0" stop-opacity="0.20"/>
+          <stop offset="100%" stop-color="#8BCFF0" stop-opacity="0.04"/>
+        </linearGradient>
+        <linearGradient id="lg-pkg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#A78BFA" stop-opacity="0.04"/>
+        </linearGradient>
+        <linearGradient id="lg-data" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0.04"/>
+        </linearGradient>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,0.45)"/>
+        </marker>
+      </defs>
+
+      <!-- Layer: Apps -->
+      <rect x="40" y="30" width="1200" height="100" rx="14" fill="url(#lg-mylife)" stroke="rgba(255,184,119,0.4)"/>
+      <text x="60" y="58" fill="#FFD3A8" font-size="11" font-weight="700" letter-spacing="2">HOST APPS</text>
+      <g class="node" transform="translate(60,72)">
+        <rect width="240" height="44" rx="10" fill="rgba(255,184,119,0.10)" stroke="rgba(255,184,119,0.5)"/>
+        <text x="16" y="20" fill="#FFE3C0" font-size="13" font-weight="600">apps/mobile</text>
+        <text x="16" y="36" fill="rgba(255,255,255,0.55)" font-size="11">Expo · iOS + Android · Expo Router v4</text>
+      </g>
+      <g class="node" transform="translate(320,72)">
+        <rect width="240" height="44" rx="10" fill="rgba(255,184,119,0.10)" stroke="rgba(255,184,119,0.5)"/>
+        <text x="16" y="20" fill="#FFE3C0" font-size="13" font-weight="600">apps/web</text>
+        <text x="16" y="36" fill="rgba(255,255,255,0.55)" font-size="11">Next.js 15 · App Router · Sidebar shell</text>
+      </g>
+      <g class="node" transform="translate(580,72)">
+        <rect width="240" height="44" rx="10" fill="rgba(34,197,94,0.10)" stroke="rgba(34,197,94,0.55)"/>
+        <text x="16" y="20" fill="#86EFAC" font-size="13" font-weight="600">apps/bestchef</text>
+        <text x="16" y="36" fill="rgba(255,255,255,0.55)" font-size="11">Standalone Expo app · public launch</text>
+      </g>
+      <g class="node" transform="translate(840,72)">
+        <rect width="380" height="44" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-dasharray="4 4"/>
+        <text x="16" y="20" fill="rgba(255,255,255,0.7)" font-size="13" font-weight="600">apps/macos · future</text>
+        <text x="16" y="36" fill="rgba(255,255,255,0.45)" font-size="11">SwiftUI native shell (planned)</text>
+      </g>
+
+      <!-- Layer: Module Registry -->
+      <rect x="40" y="150" width="1200" height="68" rx="14" fill="url(#lg-mod)" stroke="rgba(139,207,240,0.4)"/>
+      <text x="60" y="178" fill="#BFE5F5" font-size="11" font-weight="700" letter-spacing="2">MODULE REGISTRY</text>
+      <g transform="translate(280,160)">
+        <rect width="940" height="44" rx="10" fill="rgba(139,207,240,0.10)" stroke="rgba(139,207,240,0.45)"/>
+        <text x="16" y="20" fill="#BFE5F5" font-size="13" font-weight="600">@mylife/module-registry</text>
+        <text x="16" y="36" fill="rgba(255,255,255,0.6)" font-size="11">39 ModuleDefinition records · navigation · migrations · syncPolicy · enable/disable lifecycle</text>
+      </g>
+
+      <!-- Layer: Modules -->
+      <rect x="40" y="240" width="1200" height="120" rx="14" fill="url(#lg-pkg)" stroke="rgba(167,139,250,0.4)"/>
+      <text x="60" y="266" fill="#D8C9FF" font-size="11" font-weight="700" letter-spacing="2">MODULES — 30 LOCAL · 9 CLOUD/HYBRID</text>
+
+      <g font-size="10" font-family="JetBrains Mono, monospace" fill="rgba(255,255,255,0.75)">
+        <g transform="translate(60,282)">
+          <rect width="1160" height="64" rx="8" fill="rgba(167,139,250,0.06)" stroke="rgba(167,139,250,0.25)"/>
+          <text x="14" y="18" fill="#D8C9FF" font-size="10" font-weight="700">SQLite-prefixed (local-first)</text>
+          <text x="14" y="36">📚 books bk_  ·  💸 budget bg_  ·  🚗 car cr_  ·  🍽 dining dn_  ·  ⏱ fast ft_  ·  💬 forums fr_  ·  ✅ habits hb_  ·  ❤️ health hl_  ·  📓 journal  ·  ✉️ mail  ·  🛒 market mk_</text>
+          <text x="14" y="52">💊 meds md_  ·  😊 mood  ·  📝 notes  ·  🥗 nutrition nu_  ·  🐾 pets  ·  📍 presence pr_  ·  🍳 recipes rc_  ·  📅 rsvp rv_  ·  ⭐ stars  ·  🧾 subs  ·  🌊 surf sf_  ·  🔤 words wd_  ·  💪 workouts wk_</text>
+        </g>
+      </g>
+
+      <!-- Layer: shared packages -->
+      <rect x="40" y="380" width="1200" height="84" rx="14" fill="url(#lg-data)" stroke="rgba(45,212,191,0.4)"/>
+      <text x="60" y="406" fill="#9EEEDF" font-size="11" font-weight="700" letter-spacing="2">SHARED PACKAGES</text>
+      <g font-size="11" fill="rgba(255,255,255,0.85)">
+        <g transform="translate(60,418)"><rect width="170" height="38" rx="8" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.35)"/><text x="12" y="16" font-weight="600" fill="#9EEEDF">@mylife/db</text><text x="12" y="30" font-size="10" fill="rgba(255,255,255,0.6)">SQLite + migrations</text></g>
+        <g transform="translate(244,418)"><rect width="170" height="38" rx="8" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.35)"/><text x="12" y="16" font-weight="600" fill="#9EEEDF">@mylife/sync</text><text x="12" y="30" font-size="10" fill="rgba(255,255,255,0.6)">Mesh CRDT engine</text></g>
+        <g transform="translate(428,418)"><rect width="170" height="38" rx="8" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.35)"/><text x="12" y="16" font-weight="600" fill="#9EEEDF">@mylife/ui</text><text x="12" y="30" font-size="10" fill="rgba(255,255,255,0.6)">Tokens · components</text></g>
+        <g transform="translate(612,418)"><rect width="170" height="38" rx="8" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.35)"/><text x="12" y="16" font-weight="600" fill="#9EEEDF">@mylife/auth</text><text x="12" y="30" font-size="10" fill="rgba(255,255,255,0.6)">Auth wrapper</text></g>
+        <g transform="translate(796,418)"><rect width="170" height="38" rx="8" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.35)"/><text x="12" y="16" font-weight="600" fill="#9EEEDF">@mylife/subscription</text><text x="12" y="30" font-size="10" fill="rgba(255,255,255,0.6)">RevenueCat + Stripe</text></g>
+        <g transform="translate(980,418)"><rect width="240" height="38" rx="8" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.35)"/><text x="12" y="16" font-weight="600" fill="#9EEEDF">@mylife/intelligence · social · migration</text></g>
+      </g>
+
+      <!-- Storage layer -->
+      <rect x="40" y="484" width="1200" height="76" rx="14" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)"/>
+      <text x="60" y="510" fill="rgba(255,255,255,0.6)" font-size="11" font-weight="700" letter-spacing="2">STORAGE TIERS</text>
+      <g font-size="11" fill="rgba(255,255,255,0.85)">
+        <g transform="translate(60,520)"><rect width="220" height="32" rx="8" fill="rgba(255,184,119,0.08)" stroke="rgba(255,184,119,0.35)"/><text x="12" y="20" fill="#FFD3A8" font-weight="600">SQLite (one file, prefixed)</text></g>
+        <g transform="translate(294,520)"><rect width="220" height="32" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.35)"/><text x="12" y="20" fill="#D8C9FF" font-weight="600">CRDT sidecar (11 tables)</text></g>
+        <g transform="translate(528,520)"><rect width="220" height="32" rx="8" fill="rgba(45,212,191,0.08)" stroke="rgba(45,212,191,0.35)"/><text x="12" y="20" fill="#9EEEDF" font-weight="600">Supabase Postgres + RLS</text></g>
+        <g transform="translate(762,520)"><rect width="220" height="32" rx="8" fill="rgba(34,197,94,0.08)" stroke="rgba(34,197,94,0.45)"/><text x="12" y="20" fill="#86EFAC" font-weight="600">Supabase Storage (media)</text></g>
+        <g transform="translate(996,520)"><rect width="224" height="32" rx="8" fill="rgba(244,162,97,0.08)" stroke="rgba(244,162,97,0.35)"/><text x="12" y="20" fill="#F4C795" font-weight="600">Encrypted relay (ciphertext)</text></g>
+      </g>
+
+      <!-- Connectors -->
+      <g stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+        <path d="M180,116 L180,150"/>
+        <path d="M440,116 L440,150"/>
+        <path d="M700,116 L700,150"/>
+        <path d="M750,202 L750,240"/>
+        <path d="M640,346 L640,380"/>
+        <path d="M640,460 L640,484"/>
+      </g>
+    </svg>
+    <div class="caption">Layered view: host apps → registry → modules → shared packages → storage tiers. <span style="color:var(--bestchef)">apps/bestchef</span> sits beside the host apps but ships independently and uses Supabase as its public source of truth.</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- BESTCHEF ARCHITECTURE -->
+<!-- ============================================================ -->
+<section id="bestchef-arch">
+  <h2><span class="num">04</span>BestChef — Standard Server Architecture</h2>
+  <p class="sub">For BestChef's <strong>public launch</strong>, the launch-critical data path is a conventional cloud stack: Supabase Auth, Postgres with row-level security, Storage for media, and Edge Functions for moderation, ranking, leaderboards, and account-deletion workers. <strong>Local SQLite is an offline cache, draft store, and optimistic UI layer only — never the source of truth for public state.</strong> Mesh sync, BLE, and WebRTC are explicitly <em>not</em> on the launch-critical path.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1280 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BestChef server architecture">
+      <defs>
+        <linearGradient id="bc-client" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#22C55E" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#22C55E" stop-opacity="0.03"/>
+        </linearGradient>
+        <linearGradient id="bc-edge" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#A78BFA" stop-opacity="0.03"/>
+        </linearGradient>
+        <linearGradient id="bc-data" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stop-color="#8BCFF0" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#8BCFF0" stop-opacity="0.03"/>
+        </linearGradient>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="rgba(255,255,255,0.55)"/>
+        </marker>
+      </defs>
+
+      <!-- Clients -->
+      <rect x="20" y="20" width="1240" height="150" rx="14" fill="url(#bc-client)" stroke="rgba(34,197,94,0.4)"/>
+      <text x="40" y="46" fill="#86EFAC" font-size="11" font-weight="700" letter-spacing="2">CLIENT — apps/bestchef (Expo)</text>
+
+      <g transform="translate(40,62)">
+        <rect width="220" height="92" rx="10" fill="rgba(34,197,94,0.10)" stroke="rgba(34,197,94,0.5)"/>
+        <text x="14" y="22" fill="#86EFAC" font-size="13" font-weight="700">Tabs</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.7)">🏠 Home (feed + stats)</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.7)">🍽 Dishes (browser)</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.7)">🏆 Leaderboard</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.7)">🥬 Kitchen (private)</text>
+      </g>
+      <g transform="translate(280,62)">
+        <rect width="220" height="92" rx="10" fill="rgba(34,197,94,0.10)" stroke="rgba(34,197,94,0.5)"/>
+        <text x="14" y="22" fill="#86EFAC" font-size="13" font-weight="700">Capture flows</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.7)">📸 Receipt OCR</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.7)">🥕 Grocery photo</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.7)">📅 Expiration OCR</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.7)">🎬 Video import</text>
+      </g>
+      <g transform="translate(520,62)">
+        <rect width="220" height="92" rx="10" fill="rgba(34,197,94,0.10)" stroke="rgba(34,197,94,0.5)"/>
+        <text x="14" y="22" fill="#86EFAC" font-size="13" font-weight="700">Social</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.7)">💚 Submit recipe</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.7)">🗳 Vote / comment</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.7)">👨‍🍳 Chef profiles</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.7)">⭐ Follow</text>
+      </g>
+      <g transform="translate(760,62)">
+        <rect width="220" height="92" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)"/>
+        <text x="14" y="22" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="700">Local cache (SQLite)</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.6)">Drafts · saved recipes</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.6)">Pantry · grocery · receipts</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.6)">Optimistic UI mirrors</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.6)">expo-sqlite — offline only</text>
+      </g>
+      <g transform="translate(1000,62)">
+        <rect width="240" height="92" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.2)"/>
+        <text x="14" y="22" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="700">SDK clients</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.6)">@supabase/supabase-js</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.6)">expo-secure-store (sessions)</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.6)">expo-image-picker · file-system</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.6)">expo-av · gesture-handler</text>
+      </g>
+
+      <!-- Auth + Edge -->
+      <rect x="20" y="190" width="1240" height="150" rx="14" fill="url(#bc-edge)" stroke="rgba(167,139,250,0.4)"/>
+      <text x="40" y="216" fill="#D8C9FF" font-size="11" font-weight="700" letter-spacing="2">AUTH · EDGE FUNCTIONS · WORKERS</text>
+
+      <g transform="translate(40,232)">
+        <rect width="280" height="92" rx="10" fill="rgba(167,139,250,0.10)" stroke="rgba(167,139,250,0.5)"/>
+        <text x="14" y="22" fill="#D8C9FF" font-size="13" font-weight="700">Supabase Auth</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.7)">Email + magic-link · Apple · Google</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.7)">Anonymous beta sessions (current)</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.7)">Native deep-link callback</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.7)">JWT carries app_metadata.role</text>
+      </g>
+
+      <g transform="translate(340,232)">
+        <rect width="280" height="92" rx="10" fill="rgba(167,139,250,0.10)" stroke="rgba(167,139,250,0.5)"/>
+        <text x="14" y="22" fill="#D8C9FF" font-size="13" font-weight="700">Edge Functions</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.7)">moderation: media + comments</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.7)">leaderboard-snapshot (cron)</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.7)">delete-account-worker</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.7)">nutrition / dish merge jobs</text>
+      </g>
+
+      <g transform="translate(640,232)">
+        <rect width="280" height="92" rx="10" fill="rgba(167,139,250,0.10)" stroke="rgba(167,139,250,0.5)"/>
+        <text x="14" y="22" fill="#D8C9FF" font-size="13" font-weight="700">Server RPCs</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.7)">bc_submit_recipe / cast_vote</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.7)">bc_post_comment_sanitized</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.7)">bc_compute_dish_leaderboard</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.7)">bc_apply_submission_alias</text>
+      </g>
+
+      <g transform="translate(940,232)">
+        <rect width="300" height="92" rx="10" fill="rgba(244,162,97,0.10)" stroke="rgba(244,162,97,0.5)"/>
+        <text x="14" y="22" fill="#F4C795" font-size="13" font-weight="700">External providers</text>
+        <text x="14" y="40" font-size="11" fill="rgba(255,255,255,0.7)">OCR (receipts / expiration)</text>
+        <text x="14" y="55" font-size="11" fill="rgba(255,255,255,0.7)">Vision (grocery photo)</text>
+        <text x="14" y="70" font-size="11" fill="rgba(255,255,255,0.7)">Open Food Facts (nutrition)</text>
+        <text x="14" y="85" font-size="11" fill="rgba(255,255,255,0.7)">RevenueCat · Stripe (later)</text>
+      </g>
+
+      <!-- Data layer -->
+      <rect x="20" y="360" width="1240" height="270" rx="14" fill="url(#bc-data)" stroke="rgba(139,207,240,0.4)"/>
+      <text x="40" y="386" fill="#BFE5F5" font-size="11" font-weight="700" letter-spacing="2">PERSISTENCE — Supabase Postgres · RLS · Storage</text>
+
+      <!-- DB tables grouping -->
+      <g transform="translate(40,400)">
+        <rect width="380" height="220" rx="12" fill="rgba(139,207,240,0.07)" stroke="rgba(139,207,240,0.3)"/>
+        <text x="14" y="20" fill="#BFE5F5" font-size="12" font-weight="700">Public catalog (read-mostly)</text>
+        <g font-family="JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,0.85)">
+          <text x="14" y="44">bc_dishes</text>
+          <text x="14" y="62">bc_dish_aliases</text>
+          <text x="14" y="80">bc_recipe_snapshots</text>
+          <text x="14" y="98">bc_submissions</text>
+          <text x="14" y="116">bc_submission_aliases</text>
+          <text x="14" y="134">bc_leaderboards</text>
+          <text x="14" y="152">bc_dish_categories</text>
+          <text x="14" y="170">bc_cuisines</text>
+          <text x="14" y="188">bc_product_records (canonical food)</text>
+          <text x="14" y="206">bc_product_contributions</text>
+        </g>
+      </g>
+
+      <g transform="translate(440,400)">
+        <rect width="380" height="220" rx="12" fill="rgba(167,139,250,0.07)" stroke="rgba(167,139,250,0.3)"/>
+        <text x="14" y="20" fill="#D8C9FF" font-size="12" font-weight="700">Social + identity</text>
+        <g font-family="JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,0.85)">
+          <text x="14" y="44">social_profiles (handle, avatar)</text>
+          <text x="14" y="62">social_follows</text>
+          <text x="14" y="80">social_posts</text>
+          <text x="14" y="98">bc_comments (sanitized RPC)</text>
+          <text x="14" y="116">bc_votes (write via RPC only)</text>
+          <text x="14" y="134">bc_signature_dishes</text>
+          <text x="14" y="152">bc_chef_badges</text>
+          <text x="14" y="170">bc_account_lifecycle</text>
+          <text x="14" y="188">bc_account_deletion_jobs</text>
+          <text x="14" y="206">bc_creator_links</text>
+        </g>
+      </g>
+
+      <g transform="translate(840,400)">
+        <rect width="400" height="220" rx="12" fill="rgba(34,197,94,0.07)" stroke="rgba(34,197,94,0.4)"/>
+        <text x="14" y="20" fill="#86EFAC" font-size="12" font-weight="700">Media · moderation · ops</text>
+        <g font-family="JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,0.85)">
+          <text x="14" y="44">bc_media_assets (manifest)</text>
+          <text x="14" y="62">bc_media_variants (renditions)</text>
+          <text x="14" y="80">bc_moderation_queue</text>
+          <text x="14" y="98">bc_moderation_decisions</text>
+          <text x="14" y="116">bc_reports</text>
+          <text x="14" y="134">bc_audit_log</text>
+          <text x="14" y="152">bc_rate_limits</text>
+          <text x="14" y="170">storage://bc-media/  (public, signed)</text>
+          <text x="14" y="188">storage://bc-evidence/  (private)</text>
+          <text x="14" y="206">storage://bc-deletion-archive/  (TTL)</text>
+        </g>
+      </g>
+
+      <!-- Bottom bar: footer notes -->
+      <rect x="20" y="650" width="1240" height="38" rx="8" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)"/>
+      <text x="40" y="675" fill="rgba(255,255,255,0.65)" font-size="11">RLS policies: <tspan fill="#86EFAC">public read</tspan> on catalogs · <tspan fill="#FFD3A8">owner-write</tspan> on profile/recipe-owned · <tspan fill="#A78BFA">RPC-only</tspan> on votes/comments · <tspan fill="#F4C795">admin-only</tspan> on moderation/audit</text>
+
+      <!-- Connectors -->
+      <g stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none" marker-end="url(#ar2)">
+        <path d="M150,156 L150,190"/>
+        <path d="M390,156 L390,190"/>
+        <path d="M630,156 L630,190"/>
+        <path d="M870,156 L870,190"/>
+        <path d="M1100,156 L1100,190"/>
+        <path d="M180,326 L180,360"/>
+        <path d="M480,326 L480,360"/>
+        <path d="M780,326 L780,360"/>
+        <path d="M1080,326 L1080,360"/>
+      </g>
+    </svg>
+    <div class="caption">BestChef public launch path: client → Auth/Edge → Postgres + Storage. Mutations on votes and comments go through SECURITY DEFINER RPCs so RLS never has to grant raw insert.</div>
+  </div>
+
+  <div class="grid three" style="margin-top:20px">
+    <div class="card bestchef">
+      <div class="kicker">Why server-backed</div>
+      <h3>Public product, public threats</h3>
+      <p>Leaderboards, comments, and follower graphs are by definition public state. They need authoritative ordering, server-side sanitization, abuse mitigation, and discoverable URLs. Mesh sync gives none of those guarantees.</p>
+    </div>
+    <div class="card bestchef">
+      <div class="kicker">Why local SQLite still matters</div>
+      <h3>Offline kitchen, optimistic UI</h3>
+      <p>Pantry, grocery lists, saved recipes, drafts, receipt review — these stay snappy and offline-capable in expo-sqlite. The app never blocks on the network for kitchen actions. Public submissions then upload when online.</p>
+    </div>
+    <div class="card bestchef">
+      <div class="kicker">Why CRDT is off the launch path</div>
+      <h3>Convergence ≠ correctness</h3>
+      <p>An attacker on the mesh can mint synthetic votes that all peers will dutifully merge. For an adversarial public surface, the server is the policeman. We keep <code>@mylife/sync</code> available for private features, but votes/comments hit RPC endpoints only.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- BESTCHEF DATABASE -->
+<!-- ============================================================ -->
+<section id="bestchef-db">
+  <h2><span class="num">05</span>BestChef Database — Two Halves</h2>
+  <p class="sub">BestChef has two databases by design. The <strong>local SQLite half</strong> (<code>rc_*</code> + kitchen <code>rc_*</code> tables — schema v17) is the private kitchen. The <strong>cloud Postgres half</strong> (<code>bc_*</code> + <code>social_*</code> tables) is the public catalog and social graph. Both halves talk through explicit, sanitized boundaries.</p>
+
+  <div class="erd-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <strong style="font-size:13px;letter-spacing:0.06em;color:var(--mylife)">LOCAL · SQLite · device only</strong>
+      <span style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace">expo-sqlite · single file · prefix rc_</span>
+    </div>
+    <div class="erd">
+      <div class="tbl local" data-tip="Saved private recipes the user wrote or imported. Source of truth lives on device.">
+        <header><span class="name">rc_recipes</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id <span class="type">TEXT PK</span></li>
+          <li>title <span class="type">TEXT</span></li>
+          <li>servings <span class="type">INTEGER</span></li>
+          <li>prep_time_mins <span class="type">INTEGER</span></li>
+          <li>cook_time_mins <span class="type">INTEGER</span></li>
+          <li>difficulty <span class="type">TEXT</span></li>
+          <li>image_uri <span class="type">TEXT</span></li>
+          <li>is_favorite <span class="type">INTEGER</span></li>
+          <li>rating <span class="type">0..5</span></li>
+          <li>notes · created_at · updated_at</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Per-recipe ingredient rows. FK back to rc_recipes. Quantity stored as text to preserve user input.">
+        <header><span class="name">rc_ingredients</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id <span class="type">TEXT PK</span></li>
+          <li class="fk">recipe_id <span class="type">FK rc_recipes</span></li>
+          <li>name · quantity · unit</li>
+          <li>sort_order <span class="type">INTEGER</span></li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Recipe steps with optional timer.">
+        <header><span class="name">rc_steps</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id <span class="type">TEXT PK</span></li>
+          <li class="fk">recipe_id <span class="type">FK</span></li>
+          <li>step_number · instruction</li>
+          <li>timer_minutes <span class="type">INTEGER?</span></li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Pantry inventory with batch/lot tracking introduced in schema v11+. Drives use-next prompts.">
+        <header><span class="name">rc_pantry_items</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">canonical_food_id <span class="type">FK</span></li>
+          <li>quantity · unit</li>
+          <li>opened_at · expires_at</li>
+          <li>source (receipt|photo|manual)</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Per-batch lot inside a pantry item. Use-next ranking sorts by expiry.">
+        <header><span class="name">rc_pantry_batches</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">item_id <span class="type">FK rc_pantry_items</span></li>
+          <li>batch_qty · unit</li>
+          <li>added_at · expires_at</li>
+          <li>provenance (receipt_id|photo_id)</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="One row per receipt scan. Raw OCR is stripped before any sync.">
+        <header><span class="name">rc_receipts</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>captured_at · provider</li>
+          <li>status (pending|reviewed|imported)</li>
+          <li>raw_ocr_blob <span class="type">stripped pre-sync</span></li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Receipt line candidates awaiting confirmation, with optional provider-enriched nutrition.">
+        <header><span class="name">rc_receipt_lines</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">receipt_id</li>
+          <li>raw_text · matched_food_id?</li>
+          <li>quantity · unit · price</li>
+          <li>nutrition_candidate_id?</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Photos of groceries with optional crop/region evidence; per-candidate confirmation creates pantry batches.">
+        <header><span class="name">rc_grocery_photos</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>image_uri · captured_at</li>
+          <li>crop_region_json?</li>
+          <li>status</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Multiple grocery lists per user, with active/archive status and metadata.">
+        <header><span class="name">rc_grocery_lists</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>name · status (active|archived)</li>
+          <li>created_at · updated_at</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Items in a grocery list. Driven by recipe Grocery flag, manual add, or pantry low-water.">
+        <header><span class="name">rc_grocery_items</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">list_id</li>
+          <li>name · quantity · unit</li>
+          <li>checked · source_recipe_id?</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Canonical food identity rows. Resolver populates from local cache → server cache → providers.">
+        <header><span class="name">rc_canonical_foods</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>name · brand · gtin?</li>
+          <li>nutrition_source</li>
+          <li>provenance_json</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Reusable user-corrected unit conversions. Persisted so 'a pinch of salt' resolves the same next time.">
+        <header><span class="name">rc_unit_conversions</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>from_unit · to_unit · ratio</li>
+          <li>scope (food_id?|global)</li>
+          <li>corrected_by_user</li>
+        </ul>
+      </div>
+      <div class="tbl local" data-tip="Weekly meal plan rows. Unique per (week,day,slot).">
+        <header><span class="name">rc_meal_plans / rc_meal_plan_items</span><span class="scope">device_local</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>week_start_date</li>
+          <li class="fk">recipe_id</li>
+          <li>day_of_week · meal_slot · servings</li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="hr" />
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <strong style="font-size:13px;letter-spacing:0.06em;color:var(--bestchef)">CLOUD · Supabase Postgres · public</strong>
+      <span style="font-size:11px;color:var(--text-3);font-family:'JetBrains Mono',monospace">migrations/20260424000005_add_bestchef_core_hub.sql · prefix bc_</span>
+    </div>
+    <div class="erd">
+      <div class="tbl cloud" data-tip="Canonical dish catalog. Aliases let the same dish (e.g. 'pho', 'phở') merge into one entry.">
+        <header><span class="name">bc_dishes</span><span class="scope">public</span></header>
+        <ul>
+          <li class="pk">id <span class="type">UUID PK</span></li>
+          <li>name · slug · native_name</li>
+          <li>category · cuisine · region</li>
+          <li>alias_count · submission_count</li>
+          <li>status (active|pending|merged)</li>
+          <li class="fk">proposed_by → social_profiles</li>
+          <li class="fk">merged_into_dish_id</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Localized name aliases for fuzzy search and merging.">
+        <header><span class="name">bc_dish_aliases</span><span class="scope">public</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">dish_id</li>
+          <li>alias · locale</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Server snapshot of a private recipe a chef chose to publish. Original local recipe id is preserved for round-trip.">
+        <header><span class="name">bc_recipe_snapshots</span><span class="scope">public</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>original_local_recipe_id</li>
+          <li class="fk">profile_id → social_profiles</li>
+          <li>title · description · servings</li>
+          <li>ingredients_json (jsonb)</li>
+          <li>steps_json (jsonb)</li>
+          <li>tags · nutrition_json</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="A submission of a recipe to a dish leaderboard. One submission can be voted on, commented on, and ranked.">
+        <header><span class="name">bc_submissions</span><span class="scope">public</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">dish_id · profile_id</li>
+          <li class="fk">recipe_snapshot_id</li>
+          <li>title · status · score</li>
+          <li>created_at</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Maps demo/local submission ids to hosted submission ids so beta builds can vote and comment from TestFlight.">
+        <header><span class="name">bc_submission_aliases</span><span class="scope">public</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>local_submission_id (text)</li>
+          <li class="fk">submission_id</li>
+        </ul>
+      </div>
+      <div class="tbl shared" data-tip="Profile row keyed to auth.uid(). Owns submissions, votes, comments, follows.">
+        <header><span class="name">social_profiles</span><span class="scope">user-owned</span></header>
+        <ul>
+          <li class="pk">id <span class="type">= auth.uid()</span></li>
+          <li>handle · display_name</li>
+          <li>avatar_url</li>
+          <li>bio · created_at</li>
+        </ul>
+      </div>
+      <div class="tbl shared" data-tip="Follow graph. Read-public, write-owner.">
+        <header><span class="name">social_follows</span><span class="scope">user-owned</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">follower_id · followee_id</li>
+          <li>created_at</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Vote on a submission. Insertion is RPC-only so we can enforce one-vote-per-user-per-dish, role gates, and rate limits.">
+        <header><span class="name">bc_votes</span><span class="scope">RPC-only write</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">submission_id · profile_id</li>
+          <li>tier (gold|silver|bronze|like)</li>
+          <li>created_at</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Comments. Server sanitizes via bc_post_comment_sanitized RPC before insert. Moderation queue picks up flagged ones.">
+        <header><span class="name">bc_comments</span><span class="scope">RPC-only write</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">submission_id · profile_id</li>
+          <li>body · sanitized_body</li>
+          <li>status</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Storage manifest. Real bytes live in Supabase Storage; this table tracks owner, status, moderation, content hash, and dimensions.">
+        <header><span class="name">bc_media_assets</span><span class="scope">public manifest</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>owner_kind · owner_id</li>
+          <li>media_kind (image|video|recipe_bundle)</li>
+          <li>storage_bucket · storage_key</li>
+          <li>upload_status · moderation_status</li>
+          <li>visibility · content_hash</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Per-asset transcodes / renditions (thumb, hero, video qualities).">
+        <header><span class="name">bc_media_variants</span><span class="scope">public</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">asset_id</li>
+          <li>variant (thumb|hero|hls|preview)</li>
+          <li>storage_key · bytes</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Pre-rendered top-N rankings per dish + window. Refreshed by leaderboard-snapshot Edge Function.">
+        <header><span class="name">bc_leaderboards</span><span class="scope">public · cron</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">dish_id</li>
+          <li>window (day|week|all)</li>
+          <li>rankings_json</li>
+          <li>computed_at</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Server-canonical food/product cache. Backs the local rc_canonical_foods resolver fallback.">
+        <header><span class="name">bc_product_records</span><span class="scope">public canonical</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li>name · brand · gtin?</li>
+          <li>nutrition_json</li>
+          <li>source · privacy_state</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="User-contributed product data with workflow states and recursive privacy checks before public visibility.">
+        <header><span class="name">bc_product_contributions</span><span class="scope">workflow</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">product_record_id · profile_id</li>
+          <li>state (draft|review|approved|rejected)</li>
+          <li>diff_json · evidence_keys</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Account lifecycle audit log added in 20260426 migration (created/linked/recovered/deleted). Drives /settings account UI and runbook.">
+        <header><span class="name">bc_account_lifecycle</span><span class="scope">audit</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">profile_id</li>
+          <li>event (created|linked|recovered|deleted)</li>
+          <li>device · ip · created_at</li>
+        </ul>
+      </div>
+      <div class="tbl cloud" data-tip="Pending account deletions. service-role worker wipes profile, owned content, media bytes, then archives encrypted record for legal TTL.">
+        <header><span class="name">bc_account_deletion_jobs</span><span class="scope">service-role</span></header>
+        <ul>
+          <li class="pk">id</li>
+          <li class="fk">profile_id</li>
+          <li>state (queued|wiping|archived|done|failed)</li>
+          <li>scheduled_for · finished_at</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="insight">
+    <div class="label">★ Database design notes</div>
+    <ul>
+      <li><strong>Two prefixes, two trust zones.</strong> <code>rc_*</code> = local kitchen (private). <code>bc_*</code> = cloud public. Crossing the boundary requires explicit publication (recipe_snapshots) or sanitization (RPCs).</li>
+      <li><strong>Submission aliases bridge demo and prod.</strong> <code>bc_submission_aliases</code> lets the beta build's local/demo content map to a server submission so cross-anonymous votes still land correctly.</li>
+      <li><strong>Media manifest, not media.</strong> <code>bc_media_assets</code> tracks <em>where</em> bytes live and <em>what state</em> they're in (uploaded, moderated, visibility). Bytes ride Supabase Storage; the table is the index.</li>
+      <li><strong>Privacy on contributions is recursive.</strong> A contribution can include a draft that references a draft — the publish check walks the graph and refuses to surface anything still flagged private.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- BESTCHEF FLOWS -->
+<!-- ============================================================ -->
+<section id="bestchef-flows">
+  <h2><span class="num">06</span>User Workflows</h2>
+  <p class="sub">The five flows below are the spine of BestChef. Each runs through a different mix of local SQLite, server RPCs, Storage, and Edge workers. Hover any step.</p>
+
+  <h3 style="font-size:16px;color:var(--bestchef);margin:20px 0 12px;letter-spacing:0.04em">A · Submit a recipe to a dish leaderboard</h3>
+  <div class="flow">
+    <div class="step" data-tip="Local edit, no server call yet."><span class="num">1</span><h4>Draft locally</h4><p>User writes the recipe in the standalone app. Saved into <code>rc_recipes</code> + <code>rc_ingredients</code> + <code>rc_steps</code>.</p><span class="tag">SQLite · device_local</span></div>
+    <div class="step" data-tip="The user picks (or proposes) a dish. New dish proposals flow through bc_dishes status=pending."><span class="num">2</span><h4>Pick or propose dish</h4><p>App searches <code>bc_dishes</code> + <code>bc_dish_aliases</code>. New dishes are queued as <code>status=pending</code>.</p><span class="tag">Postgres · public</span></div>
+    <div class="step" data-tip="Photo or video uploaded straight to Supabase Storage with a server-issued signed URL."><span class="num">3</span><h4>Upload media</h4><p>Image/video is hashed locally, uploaded to <code>bc-media</code> bucket, and recorded in <code>bc_media_assets</code> as <code>upload_status=uploaded</code>.</p><span class="tag">Storage + manifest</span></div>
+    <div class="step" data-tip="Edge function scans media + text. Approved → public. Quarantined → review queue."><span class="num">4</span><h4>Moderation</h4><p>Edge function runs vision + text moderation. Output writes to <code>bc_moderation_decisions</code> and flips media to <code>moderation_status=approved</code>.</p><span class="tag">Edge function</span></div>
+    <div class="step" data-tip="Snapshot is created server-side via RPC. Original local id stays so the user can edit and re-publish."><span class="num">5</span><h4>Publish snapshot</h4><p>RPC creates <code>bc_recipe_snapshots</code> + <code>bc_submissions</code>. App refreshes the dish leaderboard view.</p><span class="tag">RPC · published</span></div>
+  </div>
+
+  <h3 style="font-size:16px;color:var(--bestchef);margin:32px 0 12px;letter-spacing:0.04em">B · Vote and comment</h3>
+  <div class="flow">
+    <div class="step"><span class="num">1</span><h4>Open submission</h4><p>App fetches <code>bc_submissions</code> with joined profile + media manifest + comment count.</p><span class="tag">Postgres read</span></div>
+    <div class="step"><span class="num">2</span><h4>Cast vote</h4><p>Client calls <code>bc_cast_vote(submission_id, tier)</code> RPC. Function enforces one-vote-per-user-per-dish, role gates, and rate limits.</p><span class="tag">RPC · SECURITY DEFINER</span></div>
+    <div class="step"><span class="num">3</span><h4>Score recompute</h4><p>Trigger updates <code>bc_submissions.score</code>; nightly cron refreshes <code>bc_leaderboards</code> snapshots.</p><span class="tag">Trigger + cron</span></div>
+    <div class="step"><span class="num">4</span><h4>Comment</h4><p>App calls <code>bc_post_comment_sanitized(submission_id, body)</code>. Server strips disallowed content, stores raw + sanitized.</p><span class="tag">Sanitized RPC</span></div>
+    <div class="step"><span class="num">5</span><h4>Realtime</h4><p>Subscribed clients see new votes/comments via Supabase Realtime channels filtered by RLS.</p><span class="tag">Realtime</span></div>
+  </div>
+
+  <h3 style="font-size:16px;color:var(--bestchef);margin:32px 0 12px;letter-spacing:0.04em">C · Receipt → Pantry (local-only)</h3>
+  <div class="flow">
+    <div class="step"><span class="num">1</span><h4>Capture</h4><p>User photos a grocery receipt. <code>rc_receipts</code> row is created; image saved locally.</p><span class="tag">SQLite</span></div>
+    <div class="step"><span class="num">2</span><h4>OCR</h4><p>Configured provider returns lines. Raw OCR is stripped before any sync (privacy cap).</p><span class="tag">Provider · privacy</span></div>
+    <div class="step"><span class="num">3</span><h4>Match candidates</h4><p>Each line resolves against <code>rc_canonical_foods</code> → server <code>bc_product_records</code> → providers, with confidence scores.</p><span class="tag">Resolver ladder</span></div>
+    <div class="step"><span class="num">4</span><h4>Review &amp; correct</h4><p>User confirms, edits, or merges line items. Corrections persist into <code>rc_unit_conversions</code> for reuse.</p><span class="tag">Confirmation-gated</span></div>
+    <div class="step"><span class="num">5</span><h4>Pantry batches</h4><p>Confirmed lines write <code>rc_pantry_batches</code> with provenance. Use-next prompts now know expiry &amp; quantity.</p><span class="tag">SQLite · use-next</span></div>
+  </div>
+
+  <h3 style="font-size:16px;color:var(--bestchef);margin:32px 0 12px;letter-spacing:0.04em">D · Account creation, link, delete</h3>
+  <div class="flow">
+    <div class="step"><span class="num">1</span><h4>Anonymous beta</h4><p>App opens with an anonymous Supabase session. Local kitchen works immediately — no email needed.</p><span class="tag">Auth anonymous</span></div>
+    <div class="step"><span class="num">2</span><h4>Link identity</h4><p>User links email/Apple/Google in Settings. <code>social_profiles</code> upserts; <code>bc_account_lifecycle</code> logs <code>linked</code>.</p><span class="tag">Auth link</span></div>
+    <div class="step"><span class="num">3</span><h4>Recovery</h4><p>Magic-link via deep-link URL. Native callback handler in app/_layout swaps the session.</p><span class="tag">Deep link</span></div>
+    <div class="step"><span class="num">4</span><h4>Delete account</h4><p>Settings action enqueues <code>bc_account_deletion_jobs</code>. Local SQLite is wiped immediately on the device.</p><span class="tag">Local wipe + queue</span></div>
+    <div class="step"><span class="num">5</span><h4>Worker</h4><p>service-role Edge worker wipes content, removes media bytes, archives an encrypted audit record for the legal TTL window.</p><span class="tag">Service role</span></div>
+  </div>
+
+  <h3 style="font-size:16px;color:var(--bestchef);margin:32px 0 12px;letter-spacing:0.04em">E · Leaderboard read</h3>
+  <div class="flow">
+    <div class="step"><span class="num">1</span><h4>Tab open</h4><p>App opens Leaderboard tab. Top-level fetch hits cached <code>bc_leaderboards</code> rows by window.</p><span class="tag">Cache hit</span></div>
+    <div class="step"><span class="num">2</span><h4>Hydrate top-N</h4><p>For each ranked submission id, app loads joined submission + profile + media variant in one round trip.</p><span class="tag">Joined read</span></div>
+    <div class="step"><span class="num">3</span><h4>Filter</h4><p>User filters by category/cuisine/region; app re-queries <code>bc_dishes</code> indexes.</p><span class="tag">Indexed</span></div>
+    <div class="step"><span class="num">4</span><h4>Realtime delta</h4><p>If a fresh vote arrives, the Realtime channel patches the score in place without a full reload.</p><span class="tag">Realtime</span></div>
+    <div class="step"><span class="num">5</span><h4>Open submission</h4><p>Tap drills into the submission. Detail view fetches comments + variants on demand.</p><span class="tag">Lazy</span></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- FEATURE MAP -->
+<!-- ============================================================ -->
+<section id="features">
+  <h2><span class="num">07</span>Feature Map</h2>
+  <p class="sub">BestChef's surface area divided into <strong>Public Social</strong> (server-backed) and <strong>Private Kitchen</strong> (local-first). Both are wired in the same app shell; the boundary is the network.</p>
+
+  <div class="grid two">
+    <div class="card bestchef">
+      <div class="kicker">Public Social · server-backed</div>
+      <h3>Compete · discover · follow</h3>
+      <ul style="padding-left:18px;color:var(--text-2);font-size:13px;line-height:1.7;margin:8px 0 0">
+        <li><strong>Dish browser:</strong> categories, cuisines, regions, search by alias.</li>
+        <li><strong>Submissions:</strong> publish a snapshot of a private recipe to a dish.</li>
+        <li><strong>Voting tiers:</strong> gold / silver / bronze / like, RPC-gated.</li>
+        <li><strong>Comments:</strong> server-sanitized, moderation-queued.</li>
+        <li><strong>Leaderboards:</strong> per-dish top-N for day / week / all-time.</li>
+        <li><strong>Chef profiles:</strong> stats, signature dishes, badges, follow.</li>
+        <li><strong>Creator program:</strong> creator links, future revenue share.</li>
+        <li><strong>Feed:</strong> followed-chef new submissions and signature updates.</li>
+      </ul>
+    </div>
+
+    <div class="card mylife">
+      <div class="kicker">Private Kitchen · local-first</div>
+      <h3>Plan · cook · waste less</h3>
+      <ul style="padding-left:18px;color:var(--text-2);font-size:13px;line-height:1.7;margin:8px 0 0">
+        <li><strong>Saved recipes:</strong> private recipes, full CRUD on device.</li>
+        <li><strong>Grocery lists:</strong> multiple lists, active/archive states.</li>
+        <li><strong>Pantry:</strong> per-item batches with expiry &amp; provenance.</li>
+        <li><strong>Receipt OCR:</strong> import groceries, confirm before pantry write.</li>
+        <li><strong>Grocery photo:</strong> recognize items, optional crop evidence.</li>
+        <li><strong>Expiration OCR:</strong> photo a date, confirm, set expiry.</li>
+        <li><strong>Use-next prompts:</strong> recipes that match what's about to expire.</li>
+        <li><strong>Universal nutrition:</strong> resolve once, reuse across recipes/dishes.</li>
+        <li><strong>Meal planner:</strong> week × day × slot grid.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid three" style="margin-top:18px">
+    <div class="card">
+      <div class="kicker">Crossover · publish</div>
+      <h3>Saved → Snapshot</h3>
+      <p>A private recipe stays in <code>rc_recipes</code> until the user explicitly publishes. Publication writes a sanitized snapshot to <code>bc_recipe_snapshots</code> and creates a <code>bc_submissions</code> entry. The original local recipe is never overwritten.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">Crossover · resolve</div>
+      <h3>Local food ↔ canonical record</h3>
+      <p>Nutrition resolver pulls from server <code>bc_product_records</code> when the local cache misses, then writes back into <code>rc_canonical_foods</code> with provenance. Contributions can flow upstream as <code>bc_product_contributions</code>.</p>
+    </div>
+    <div class="card warn">
+      <div class="kicker">Crossover · privacy cap</div>
+      <h3>Receipt raw OCR is stripped</h3>
+      <p>Receipt blobs and grocery candidate text never leave the device. The privacy-preserving sync policy strips raw OCR/candidates before any cross-device sync. Only confirmed pantry batches and matched canonical food references replicate.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- TECH STACK -->
+<!-- ============================================================ -->
+<section id="stack">
+  <h2><span class="num">08</span>Tech Stack</h2>
+  <p class="sub">All TypeScript, all in one Turborepo. Hover each row for the version or note.</p>
+
+  <div class="stack-cols">
+    <div class="stack-col">
+      <h5>Client</h5>
+      <ul>
+        <li data-tip="Cross-platform mobile runtime"><span>Expo</span><span class="v">~54.0.33</span></li>
+        <li data-tip="File-system routing"><span>Expo Router</span><span class="v">v6</span></li>
+        <li data-tip="React Native"><span>react-native</span><span class="v">~0.81</span></li>
+        <li data-tip="React"><span>react</span><span class="v">19.1</span></li>
+        <li data-tip="Local DB"><span>expo-sqlite</span><span class="v">~16</span></li>
+        <li data-tip="Secure session storage"><span>expo-secure-store</span><span class="v">~15</span></li>
+        <li data-tip="Image / video"><span>expo-image / expo-av</span><span class="v">3 / 16</span></li>
+        <li data-tip="Web shell"><span>Next.js</span><span class="v">15 (App Router)</span></li>
+      </ul>
+    </div>
+    <div class="stack-col">
+      <h5>Server</h5>
+      <ul>
+        <li data-tip="Auth, DB, Storage, Realtime, Edge"><span>Supabase</span><span class="v">cloud</span></li>
+        <li data-tip="Postgres with row-level security"><span>Postgres + RLS</span><span class="v">15+</span></li>
+        <li data-tip="Object storage with signed URLs"><span>Storage</span><span class="v">bc-media</span></li>
+        <li data-tip="Cron + on-demand functions"><span>Edge Functions</span><span class="v">Deno</span></li>
+        <li data-tip="WebSockets over RLS"><span>Realtime</span><span class="v">filtered</span></li>
+        <li data-tip="JS SDK"><span>@supabase/supabase-js</span><span class="v">^2.49</span></li>
+      </ul>
+    </div>
+    <div class="stack-col">
+      <h5>Shared (workspace:*)</h5>
+      <ul>
+        <li data-tip="Module contract + lifecycle"><span>@mylife/module-registry</span><span class="v">39 IDs</span></li>
+        <li data-tip="SQLite adapter + migrations"><span>@mylife/db</span><span class="v">v17</span></li>
+        <li data-tip="Mesh CRDT engine (off launch path for BestChef)"><span>@mylife/sync</span><span class="v">P0–P7</span></li>
+        <li data-tip="Tokens + components"><span>@mylife/ui</span><span class="v">Obsidian Noir</span></li>
+        <li data-tip="Auth wrapper"><span>@mylife/auth</span><span class="v">supa</span></li>
+        <li data-tip="BestChef logic"><span>@mylife/bestchef</span><span class="v">w/s</span></li>
+        <li data-tip="LLM Responses API"><span>@mylife/intelligence</span><span class="v">gpt-5.5</span></li>
+      </ul>
+    </div>
+    <div class="stack-col">
+      <h5>Tooling</h5>
+      <ul>
+        <li data-tip="Monorepo orchestrator"><span>Turborepo</span><span class="v">latest</span></li>
+        <li data-tip="Package manager"><span>pnpm</span><span class="v">9.15.x</span></li>
+        <li data-tip="Type-safe everything"><span>TypeScript</span><span class="v">5.7</span></li>
+        <li data-tip="Test runner"><span>Vitest</span><span class="v">3</span></li>
+        <li data-tip="Schema validation"><span>Zod</span><span class="v">3.24</span></li>
+        <li data-tip="Mobile build pipeline"><span>EAS Build</span><span class="v">cloud</span></li>
+        <li data-tip="Function gate / parity / artifact checks"><span>pnpm gate:* / check:*</span><span class="v">CI</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- MODULE INVENTORY -->
+<!-- ============================================================ -->
+<section id="modules">
+  <h2><span class="num">09</span>MyLife Module Inventory</h2>
+  <p class="sub">39 module IDs in the registry. The green border highlights BestChef's parent module (<strong>recipes</strong>). Tier indicator at the bottom: <span style="color:var(--ok)">free</span>, <span style="color:var(--purple)">premium</span>, <span style="color:var(--text-3)">hidden</span>.</p>
+  <div class="modules" id="modList"></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- COMPARE -->
+<!-- ============================================================ -->
+<section id="compare">
+  <h2><span class="num">10</span>Mesh (MyLife) vs Server (BestChef)</h2>
+  <p class="sub">The same monorepo ships both philosophies. This table is the cheat sheet.</p>
+
+  <table class="compare">
+    <thead>
+      <tr><th style="width:24%">Concern</th><th style="width:38%">MyLife · Mesh</th><th style="width:38%">BestChef · Server</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Source of truth</strong></td><td>Each user's device(s). CRDTs converge across the mesh.</td><td>Supabase Postgres. Devices hold a cache.</td></tr>
+      <tr><td><strong>Identity</strong></td><td>Per-device key + workspace symmetric keys.</td><td>Supabase Auth (email, Apple, Google, anonymous).</td></tr>
+      <tr><td><strong>Transport</strong></td><td>Ranked-choice ladder: LAN → Multipeer → BLE → WebRTC → encrypted relay.</td><td>HTTPS → Supabase. Realtime over WebSocket.</td></tr>
+      <tr><td><strong>Threat model</strong></td><td>Server cannot read content. Privacy-first.</td><td>Public adversarial state. Server enforces ordering, abuse mitigation, moderation.</td></tr>
+      <tr><td><strong>Offline</strong></td><td class="yes">First-class</td><td class="partial">Cached UI works; mutations queue.</td></tr>
+      <tr><td><strong>Realtime</strong></td><td class="partial">Peer-to-peer when peers are reachable.</td><td class="yes">Server fan-out, RLS-filtered.</td></tr>
+      <tr><td><strong>Authoritative ordering</strong></td><td class="no">No global order.</td><td class="yes">Postgres + cron snapshots.</td></tr>
+      <tr><td><strong>Public discovery</strong></td><td class="no">Not the goal.</td><td class="yes">Indexed dishes, cuisines, leaderboards.</td></tr>
+      <tr><td><strong>Moderation</strong></td><td class="no">Out of scope.</td><td class="yes">Edge function + queue + decisions.</td></tr>
+      <tr><td><strong>Account deletion</strong></td><td>Local wipe; mesh peers expire eventually.</td><td>Local wipe + service-role worker + storage byte purge + audit archive.</td></tr>
+      <tr><td><strong>Cost shape</strong></td><td>~zero infra; storage on user devices.</td><td>Postgres + Storage + Edge usage; scales with public traffic.</td></tr>
+      <tr><td><strong>BestChef public launch posture</strong></td><td class="no">Off launch path.</td><td class="yes">Required for launch.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- RISKS -->
+<!-- ============================================================ -->
+<section id="risks">
+  <h2><span class="num">11</span>Production Work &amp; Open Risks</h2>
+  <p class="sub">From <code>memory.md</code> + the BestChef server-launch mission control. These are the items still standing between us and a fully public launch.</p>
+
+  <div class="callouts">
+    <div class="callout danger">
+      <div class="label">Launch blocker</div>
+      <h5>Production Supabase project + env</h5>
+      <p>Staging is wired (<code>tcikvihyjetsfkjjpljv</code>). Prod project, env vars, and EAS secrets still need setup before the public-launch build can ship.</p>
+    </div>
+    <div class="callout danger">
+      <div class="label">Launch blocker</div>
+      <h5>Auth dashboard providers + templates</h5>
+      <p>Apple/Google OAuth credentials, magic-link templates, and the verified deep-link redirect domain need to be configured for production.</p>
+    </div>
+    <div class="callout danger">
+      <div class="label">Launch blocker</div>
+      <h5>service-role deletion worker</h5>
+      <p><code>bc_account_deletion_jobs</code> rows need a worker that wipes owned content, deletes media bytes, and archives the encrypted audit record per the runbook.</p>
+    </div>
+    <div class="callout warn">
+      <div class="label">Launch work</div>
+      <h5>Public seed-content approval</h5>
+      <p>Dish catalog seeds, labels, import rollback, and added-sugar schema storage need approval and migration before opening submissions to the public.</p>
+    </div>
+    <div class="callout warn">
+      <div class="label">Launch work</div>
+      <h5>Contribution + moderation UI</h5>
+      <p>End-user contribution flow + moderator console for media/comments still need to be wired against <code>bc_moderation_queue</code> and <code>bc_product_contributions</code>.</p>
+    </div>
+    <div class="callout warn">
+      <div class="label">Launch work</div>
+      <h5>Live provider credentials</h5>
+      <p>OCR, vision, OFF integration, and (later) Stripe/RevenueCat need real production credentials and rate-limit headroom.</p>
+    </div>
+    <div class="callout warn">
+      <div class="label">Launch work</div>
+      <h5>Legal URLs &amp; release evidence</h5>
+      <p>Privacy policy, terms, and account/recovery support pages need final URLs. Release-evidence packets still require legal/pilot/release-owner signatures.</p>
+    </div>
+    <div class="callout">
+      <div class="label">Observability</div>
+      <h5>Rate limits + dashboards</h5>
+      <p>Per-IP and per-user rate limits on RPCs; Sentry/Logflare wiring; cost dashboards; alerting on moderation queue depth.</p>
+    </div>
+    <div class="callout">
+      <div class="label">Mobile</div>
+      <h5>Android release verification</h5>
+      <p>Play release tracks, crash-free rate parity with iOS, and Android-specific deep-link verification still needed.</p>
+    </div>
+    <div class="callout ok">
+      <div class="label">Resolved</div>
+      <h5>Native-safe sync facade</h5>
+      <p>Hermes/Automerge <code>import.meta.url</code> failure is fixed. <code>SyncEngine</code> facades let BestChef beta builds ship without bundling the CRDT.</p>
+    </div>
+    <div class="callout ok">
+      <div class="label">Resolved</div>
+      <h5>Beta cloud bridge live</h5>
+      <p>Hosted dish catalog seeded, <code>bc_submission_aliases</code> mapping live, comments + recipe votes flowing to staging from TestFlight.</p>
+    </div>
+    <div class="callout ok">
+      <div class="label">Resolved</div>
+      <h5>Identity foundation</h5>
+      <p>Account lifecycle SQL, settings account UI, native auth callback, local/cloud delete-account wipe, and runbook all shipped on 2026-04-26.</p>
+    </div>
+  </div>
+
+  <div class="insight" style="margin-top:24px">
+    <div class="label">★ Architecture conclusions</div>
+    <ul>
+      <li><strong>The split is intentional, not accidental.</strong> Privacy-first mesh and adversarial public server have incompatible primitives. We chose the right tool per surface instead of forcing one to do both.</li>
+      <li><strong>The shared monorepo is the leverage.</strong> One UI system, one auth wrapper, one DB layer, one set of skills/agents. BestChef ships a focused Expo app on top, MyLife ships a 39-module hub — both reuse the same plumbing.</li>
+      <li><strong>RPC-only writes are the production-grade fence.</strong> Votes and comments cannot be inserted with a raw client INSERT. <code>SECURITY DEFINER</code> functions enforce auth, rate, and content rules before a row exists.</li>
+      <li><strong>Local SQLite is a feature, not a fallback.</strong> Kitchen flows are fast and offline because they don't pretend to be public. Publishing is an explicit, sanitized step.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <span>Generated for the MyLife / BestChef team · architecture-tour.html</span>
+  <span>Sources: <code>memory.md</code> · <code>docs/plans/features/recipes/bestchef-server-launch-mission-control.md</code> · <code>supabase/migrations/2026042400000{4,5,6,7}*.sql</code> · <code>modules/bestchef/src/db/schema.ts</code></span>
+</footer>
+
+</div><!-- /shell -->
+
+<!-- ============================================================ -->
+<!-- THREE.JS WORLD -->
+<!-- ============================================================ -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const canvas = document.getElementById('world');
+const tip = document.getElementById('world-tip');
+const zoomReadout = document.getElementById('zoom-readout');
+
+// ----------------------------------------------------------------
+// Constants
+// ----------------------------------------------------------------
+const EARTH_R = 10;
+const HUB_ORBIT_R = 17;          // privileged hub orbiting altitude
+const ARC_ALT = 1.8;             // how far above surface arcs bulge
+const NODE_ALT = 0.06;           // tiny float so nodes sit just above surface
+const RING_ALT = 0.04;
+const CAM_FAR = 40;              // initial camera distance
+const CAM_MIN = 11.6;            // min orbit distance (don't penetrate sphere)
+const CAM_MAX = 70;
+const ZOOM_EXPAND_START = 22;    // begin expanding clusters when closer than this
+const ZOOM_EXPAND_END   = 14;    // fully expanded by this distance
+
+// ----------------------------------------------------------------
+// Scene / camera / renderer
+// ----------------------------------------------------------------
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x05060B);
+
+const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 2000);
+camera.position.set(0, 6, CAM_FAR);
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+function resize() {
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+resize();
+new ResizeObserver(resize).observe(canvas);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 14;
+controls.maxDistance = 80;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.45;
+
+// Lights
+scene.add(new THREE.AmbientLight(0x556677, 0.55));
+const key = new THREE.DirectionalLight(0xFFCFA0, 0.9);
+key.position.set(10, 18, 12);
+scene.add(key);
+const rim = new THREE.PointLight(0x86EFAC, 1.2, 80);
+rim.position.set(-12, -6, -10);
+scene.add(rim);
+const cool = new THREE.PointLight(0x8BCFF0, 0.8, 80);
+cool.position.set(14, 4, -16);
+scene.add(cool);
+
+// Starfield
+{
+  const g = new THREE.BufferGeometry();
+  const count = 700;
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const r = 60 + Math.random() * 40;
+    const t = Math.random() * Math.PI * 2;
+    const p = Math.acos(2 * Math.random() - 1);
+    pos[i*3]   = r * Math.sin(p) * Math.cos(t);
+    pos[i*3+1] = r * Math.sin(p) * Math.sin(t) * 0.6;
+    pos[i*3+2] = r * Math.cos(p);
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const m = new THREE.PointsMaterial({ size: 0.12, color: 0xffffff, transparent: true, opacity: 0.45 });
+  scene.add(new THREE.Points(g, m));
+}
+
+// Network spec
+const colors = {
+  personal: 0xFFB877,
+  group:    0xA78BFA,
+  community:0xF472B6,
+  hub:      0x2DD4BF
+};
+
+const workspaces = [
+  { id:'personal-A', kind:'personal', label:"Avery's personal ring", radius:5,  center:new THREE.Vector3(-12, 1, 6),  members:[
+      {name:"iPhone",  desc:"All modules · personal_replica scope. Drafts stay device_local."},
+      {name:"iPad",    desc:"Selective sync. Receipt OCR raw blobs never leave this device."},
+      {name:"Mac",     desc:"Web shell. Mirrors personal_replica."},
+      {name:"Pixel 8", desc:"Cross-vendor peer; ranked-choice picks LAN first."}
+  ]},
+  { id:'personal-B', kind:'personal', label:"Sam's personal ring", radius:4.6, center:new THREE.Vector3(11, 0.5, 7), members:[
+      {name:"iPhone",  desc:"Full hub · 30 modules wired locally."},
+      {name:"Mac",     desc:"Web companion."},
+      {name:"Watch",   desc:"BLE wake-up only. Never carries content payloads."}
+  ]},
+  { id:'personal-C', kind:'personal', label:"Jordan's personal ring", radius:4.2, center:new THREE.Vector3(13, -0.5, -10), members:[
+      {name:"Pixel 8", desc:"Personal."},
+      {name:"Tablet",  desc:"Read-mostly."}
+  ]},
+  { id:'group-1',    kind:'group',    label:"Family · group workspace", radius:6,   center:new THREE.Vector3(-3, -1, -3), members:[
+      {name:"Avery iPhone",   desc:"Member of Family. Budget envelopes shared in shared_workspace scope."},
+      {name:"Sam iPhone",     desc:"Member."},
+      {name:"Family iPad",    desc:"Common device."},
+      {name:"HomeBase Mac",   desc:"Receives encrypted bilateral sync."}
+  ]},
+  { id:'community-1',kind:'community',label:"Cycling · community workspace", radius:7.5, center:new THREE.Vector3(-15, 1.5, -10), members:[
+      {name:"Member 1", desc:"Cycle data shared at maxScope = shared_workspace; sensitive overlays cap below."},
+      {name:"Member 2", desc:"Anon-handle visible to peers; device pubkey not exposed."},
+      {name:"Member 3", desc:"Receives encrypted offers; replies bilateral."},
+      {name:"Member 4", desc:"Joins via fingerprint-compare pairing."},
+      {name:"Member 5", desc:"Drops back to BLE when LAN unavailable."}
+  ]}
+];
+
+const ringGroup = new THREE.Group();
+const deviceGroup = new THREE.Group();
+const linkGroup = new THREE.Group();
+const flowGroup = new THREE.Group();
+scene.add(ringGroup, deviceGroup, linkGroup, flowGroup);
+
+// Ring meshes
+function makeRing(r, color, opacity){
+  const g = new THREE.RingGeometry(r-0.05, r+0.05, 96);
+  const m = new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide, transparent:true, opacity });
+  const mesh = new THREE.Mesh(g, m);
+  mesh.rotation.x = -Math.PI/2;
+  return mesh;
+}
+
+const allDevices = []; // for picking
+const allLinks = [];
+
+workspaces.forEach(ws => {
+  const color = colors[ws.kind];
+  const ring = makeRing(ws.radius, color, 0.45);
+  ring.position.copy(ws.center);
+  ring.userData = { kind:'workspace', ws };
+  ringGroup.add(ring);
+
+  // soft halo
+  const halo = makeRing(ws.radius * 1.04, color, 0.12);
+  halo.position.copy(ws.center);
+  ringGroup.add(halo);
+
+  // label disc (sprite) — tiny CSS-less label is hard, so we draw a glow disc
+  const discGeom = new THREE.CircleGeometry(ws.radius * 0.96, 64);
+  const discMat = new THREE.MeshBasicMaterial({ color, transparent:true, opacity:0.04 });
+  const disc = new THREE.Mesh(discGeom, discMat);
+  disc.rotation.x = -Math.PI/2;
+  disc.position.copy(ws.center);
+  disc.position.y -= 0.02;
+  ringGroup.add(disc);
+
+  // devices distributed around ring
+  ws.members.forEach((m, i) => {
+    const t = (i / ws.members.length) * Math.PI * 2 + (ws.kind === 'community' ? 0.2 : 0);
+    const p = new THREE.Vector3(
+      ws.center.x + Math.cos(t) * ws.radius,
+      ws.center.y + (Math.sin(t*1.4) * 0.5),
+      ws.center.z + Math.sin(t) * ws.radius
+    );
+    const sphereGeom = new THREE.IcosahedronGeometry(0.55, 1);
+    const sphereMat = new THREE.MeshStandardMaterial({
+      color, emissive: color, emissiveIntensity: 0.45,
+      roughness: 0.4, metalness: 0.2
+    });
+    const dev = new THREE.Mesh(sphereGeom, sphereMat);
+    dev.position.copy(p);
+    dev.userData = { kind:'device', ws, member:m, basePos: p.clone(), phase: Math.random() * Math.PI * 2 };
+    deviceGroup.add(dev);
+    allDevices.push(dev);
+  });
+});
+
+// Privileged hub at origin
+const hubGroup = new THREE.Group();
+{
+  const core = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.6, 2),
+    new THREE.MeshStandardMaterial({ color: colors.hub, emissive: colors.hub, emissiveIntensity: 0.7, roughness: 0.25, metalness: 0.4 })
+  );
+  core.userData = { kind:'hub', label:'Privileged hub (opt-in)', desc:'Optional cloud replica. Stores ciphertext blobs addressed by ephemeral tokens. Server cannot read content.' };
+  hubGroup.add(core);
+  allDevices.push(core);
+
+  // shells
+  for (let i = 0; i < 3; i++){
+    const shell = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(2 + i*0.5, 1),
+      new THREE.MeshBasicMaterial({ color: colors.hub, transparent:true, opacity: 0.06, wireframe:true })
+    );
+    shell.userData.spin = 0.002 + i*0.0015;
+    hubGroup.add(shell);
+  }
+}
+scene.add(hubGroup);
+
+// Links — within each workspace pairs, plus opt-in hub links from one device per workspace
+function makeLink(a, b, color, opacity){
+  const points = [a.clone(), b.clone()];
+  const g = new THREE.BufferGeometry().setFromPoints(points);
+  const m = new THREE.LineBasicMaterial({ color, transparent: true, opacity });
+  const line = new THREE.Line(g, m);
+  return line;
+}
+
+// Within-ring connections
+{
+  const byWs = {};
+  allDevices.forEach(d => {
+    if (d.userData.kind !== 'device') return;
+    const id = d.userData.ws.id;
+    (byWs[id] = byWs[id] || []).push(d);
+  });
+  Object.values(byWs).forEach(devs => {
+    const ws = devs[0].userData.ws;
+    const color = colors[ws.kind];
+    devs.forEach((a,i) => {
+      devs.forEach((b,j) => {
+        if (j <= i) return;
+        const l = makeLink(a.position, b.position, color, 0.22);
+        linkGroup.add(l);
+        allLinks.push({ line: l, a, b, color });
+      });
+    });
+  });
+}
+
+// Hub links (opt-in) — one device per ring connects to hub
+workspaces.forEach(ws => {
+  const dev = allDevices.find(d => d.userData.kind === 'device' && d.userData.ws.id === ws.id);
+  if (!dev) return;
+  const l = makeLink(dev.position, hubGroup.position, colors.hub, 0.28);
+  l.material.transparent = true;
+  linkGroup.add(l);
+  allLinks.push({ line: l, a: dev, b: hubGroup, color: colors.hub, hub:true });
+});
+
+// Animated data-flow particles along links
+const flowParticles = [];
+function spawnParticles(){
+  flowGroup.clear();
+  flowParticles.length = 0;
+  allLinks.forEach(link => {
+    const count = link.hub ? 4 : 2;
+    for (let k = 0; k < count; k++){
+      const g = new THREE.SphereGeometry(0.08, 8, 8);
+      const m = new THREE.MeshBasicMaterial({ color: link.color, transparent:true, opacity:0.95 });
+      const p = new THREE.Mesh(g, m);
+      flowGroup.add(p);
+      flowParticles.push({ mesh: p, link, t: Math.random(), speed: 0.0015 + Math.random()*0.0025 });
+    }
+  });
+}
+spawnParticles();
+
+// Picking
+const ray = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let hovered = null;
+
+canvas.addEventListener('pointermove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  ray.setFromCamera(pointer, camera);
+  const hits = ray.intersectObjects(allDevices, false);
+  if (hits.length){
+    const obj = hits[0].object;
+    if (hovered !== obj){
+      hovered = obj;
+      const u = obj.userData;
+      let html = '';
+      if (u.kind === 'device'){
+        const ws = u.ws;
+        html = `<strong>${u.member.name}</strong>
+          <span class="sub">${ws.label} · scope: ${ws.kind === 'personal' ? 'personal_replica' : ws.kind === 'group' ? 'shared_workspace' : 'shared_workspace (community)'}</span>
+          <span class="sub" style="color:#E4E1E9;margin-top:6px;display:block">${u.member.desc}</span>`;
+      } else if (u.kind === 'hub'){
+        html = `<strong style="color:#9EEEDF">${u.label}</strong>
+          <span class="sub">${u.desc}</span>`;
+      }
+      tip.innerHTML = html;
+      tip.style.display = 'block';
+    }
+    tip.style.left = (e.clientX - rect.left + 14) + 'px';
+    tip.style.top  = (e.clientY - rect.top + 14) + 'px';
+  } else {
+    hovered = null;
+    tip.style.display = 'none';
+  }
+});
+
+canvas.addEventListener('pointerleave', () => { tip.style.display = 'none'; });
+
+// Buttons
+const btnRotate = document.getElementById('btn-rotate');
+const btnFlow   = document.getElementById('btn-flow');
+const btnExplode= document.getElementById('btn-explode');
+
+btnRotate.addEventListener('click', () => {
+  controls.autoRotate = !controls.autoRotate;
+  btnRotate.classList.toggle('active', controls.autoRotate);
+});
+
+let flowOn = true;
+btnFlow.addEventListener('click', () => {
+  flowOn = !flowOn;
+  flowGroup.visible = flowOn;
+  btnFlow.classList.toggle('active', flowOn);
+});
+btnFlow.classList.toggle('active', flowOn);
+
+let exploded = false;
+btnExplode.addEventListener('click', () => {
+  exploded = !exploded;
+  btnExplode.classList.toggle('active', exploded);
+});
+
+// Animate
+function animate(t){
+  const time = t * 0.001;
+
+  // Hub spin
+  hubGroup.rotation.y += 0.004;
+  hubGroup.children.forEach(c => { if (c.userData.spin) c.rotation.y += c.userData.spin; });
+
+  // Devices: gentle bob + explode offset
+  allDevices.forEach(d => {
+    if (d.userData.kind !== 'device') return;
+    const u = d.userData;
+    const bob = Math.sin(time * 0.8 + u.phase) * 0.18;
+    const explodeFactor = exploded ? 2.4 : 1.0;
+    const dir = u.basePos.clone().sub(u.ws.center).normalize();
+    const r = u.basePos.distanceTo(u.ws.center) * (exploded ? 1.6 : 1.0);
+    const cy = u.ws.center.y + bob + (exploded ? dir.y * 1.6 : 0);
+    d.position.set(
+      u.ws.center.x + dir.x * r,
+      cy,
+      u.ws.center.z + dir.z * r
+    );
+  });
+
+  // Update link geometry (since devices moved)
+  allLinks.forEach(link => {
+    const aPos = link.a.position;
+    const bPos = link.b.position ? link.b.position : link.b.getWorldPosition(new THREE.Vector3());
+    const arr = link.line.geometry.attributes.position.array;
+    arr[0] = aPos.x; arr[1] = aPos.y; arr[2] = aPos.z;
+    arr[3] = bPos.x; arr[4] = bPos.y; arr[5] = bPos.z;
+    link.line.geometry.attributes.position.needsUpdate = true;
+  });
+
+  // Move flow particles along links
+  if (flowOn) flowParticles.forEach(p => {
+    p.t += p.speed;
+    if (p.t > 1) p.t = 0;
+    const aPos = p.link.a.position;
+    const bPos = p.link.b.position || p.link.b.getWorldPosition(new THREE.Vector3());
+    p.mesh.position.lerpVectors(aPos, bPos, p.t);
+    const pulse = 0.6 + Math.sin(time * 2 + p.t * 6) * 0.4;
+    p.mesh.material.opacity = pulse;
+  });
+
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+
+// ============================================================
+// Module inventory population
+// ============================================================
+const modules = [
+  ['books','📚','bk_','free'],['budget','💸','bg_','premium'],['car','🚗','cr_','premium'],
+  ['closet','👔','cl_','premium'],['cycle','🌙','cy_','premium'],['dining','🍽','dn_','premium'],
+  ['fast','⏱','ft_','free'],['flash','⚡','fl_','premium'],['forums','💬','fr_','premium'],
+  ['garden','🌱','gd_','premium'],['habits','✅','hb_','premium'],['health','❤️','hl_','premium'],
+  ['homes','🏠','hm_','premium'],['journal','📓','jr_','free'],['mail','✉️','ml_','premium'],
+  ['market','🛒','mk_','premium'],['meds','💊','md_','premium'],['mood','😊','mo_','free'],
+  ['notes','📝','nt_','free'],['nutrition','🥗','nu_','premium'],['pets','🐾','pe_','premium'],
+  ['presence','📍','pr_','premium'],['recipes','🍳','rc_','premium','bestchef'],
+  ['rsvp','📅','rv_','premium'],['stars','⭐','st_','premium'],['subs','🧾','sb_','premium'],
+  ['surf','🌊','sf_','premium'],['trails','🥾','tr_','premium'],['voice','🎙','vo_','free'],
+  ['words','🔤','wd_','free'],['workouts','💪','wk_','premium'],
+  ['friends','👥','fn_','premium'],['classes','🎓','cs_','premium'],['create','🎨','ce_','premium'],
+  ['music','🎵','mu_','premium'],['gaming','🎮','gm_','premium'],['shop','🛍','sh_','premium'],
+  ['sleep','💤','sl_','hidden'],['pay','💳','py_','hidden']
+];
+
+const list = document.getElementById('modList');
+modules.forEach(([name, icon, prefix, tier, spotlight]) => {
+  const el = document.createElement('div');
+  el.className = 'mod';
+  el.dataset.tier = tier;
+  if (spotlight) el.dataset.spotlight = spotlight;
+  el.dataset.tip = `${name} · ${prefix} · ${tier}${spotlight === 'bestchef' ? ' · BestChef parent module' : ''}`;
+  el.innerHTML = `<span class="icon">${icon}</span><span class="name">${name}</span><span class="pf">${prefix}</span>`;
+  list.appendChild(el);
+});
+</script>
+
+</body>
+</html>

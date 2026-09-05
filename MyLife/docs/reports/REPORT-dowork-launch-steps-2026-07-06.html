@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DoWork Launch Steps</title>
+<style>
+  :root {
+    --bg: #0B0B0E; --surface: #16161B; --surface2: #1F1F26;
+    --text: #E8E6EC; --muted: #A29DA8; --accent: #FF6B00; --accent-soft: #FF8B33;
+    --border: rgba(255,255,255,0.08); --danger: #FF6B6B; --ok: #30D158; --warn: #FFD60A;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.65; padding: 0 0 80px; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; }
+  header { padding: 56px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 40px; background: linear-gradient(180deg, #14100C 0%, var(--bg) 100%); }
+  .kicker { color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; }
+  h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .sub { color: var(--muted); font-size: 16px; max-width: 680px; }
+  h2 { font-size: 22px; font-weight: 750; margin: 48px 0 10px; letter-spacing: -0.01em; }
+  h2 .num { color: var(--accent); margin-right: 10px; }
+  h3 { font-size: 16px; font-weight: 700; margin: 26px 0 8px; color: var(--accent-soft); }
+  p { margin: 10px 0; }
+  .lead { color: var(--muted); }
+  ol.steps { counter-reset: step; list-style: none; margin: 16px 0; }
+  ol.steps > li { counter-increment: step; position: relative; padding: 14px 16px 14px 56px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; }
+  ol.steps > li::before { content: counter(step); position: absolute; left: 14px; top: 14px; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #16100A; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  ul { margin: 8px 0 8px 22px; }
+  li { margin: 4px 0; }
+  code { background: var(--surface2); border-radius: 5px; padding: 1px 6px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88em; color: #FFD9B8; }
+  pre { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; overflow-x: auto; margin: 12px 0; }
+  pre code { background: none; padding: 0; }
+  .callout { border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 18px 0; }
+  .callout.warn { border-left-color: var(--danger); background: #2A1A10; }
+  .callout.ok { border-left-color: var(--ok); }
+  .callout .title { font-weight: 750; margin-bottom: 4px; }
+  .callout.warn .title { color: var(--danger); }
+  .callout.ok .title { color: var(--ok); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th { text-align: left; color: var(--muted); font-weight: 650; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 22px; margin: 24px 0; }
+  .toc a { color: var(--accent-soft); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc ol { margin-left: 20px; }
+  .sev { display: inline-block; border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.06em; white-space: nowrap; }
+  .sev.crit { background: rgba(255,107,107,0.15); color: var(--danger); }
+  .sev.high { background: rgba(255,214,10,0.12); color: var(--warn); }
+  .sev.med { background: rgba(255,139,51,0.12); color: var(--accent-soft); }
+  .sev.done { background: rgba(48,209,88,0.15); color: var(--ok); }
+  .sev.open { background: rgba(162,157,168,0.15); color: var(--muted); }
+  .phase { border: 1px solid var(--border); border-radius: 16px; padding: 22px 26px; margin: 22px 0; background: var(--surface); }
+  .phase .ph-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
+  .phase .ph-title { font-size: 19px; font-weight: 800; }
+  .phase .ph-meta { color: var(--muted); font-size: 13px; }
+  .scroll { overflow-x: auto; }
+  footer { margin-top: 60px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); padding-top: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">DoWork &middot; Launch Runbook &middot; 2026-07-06</div>
+    <h1>Getting DoWork to your trainer: what's left</h1>
+    <p class="sub">Adversarial production-readiness review, git history audit, docs-vs-code comparison, and a sequenced step-by-step deployment plan. Verdict: one code blocker and a half-day of ops separate you from the trainer using it this week.</p>
+  </div>
+</header>
+<div class="wrap">
+
+<div class="callout ok">
+  <div class="title">Update: Phase 0 executed 2026-07-06 (evening)</div>
+  All codeable fixes are done, merged, and pushed. C1 is fixed (sessions boot in playing state, regression-tested, hub mobile too). The branch is merged to main (<code>0bc4152f</code>) and both main and the branch are pushed. The leaked invite codes are rotated in prod (fresh trainer code in the founder keychain as &ldquo;DoWork trainer invite (rotated 2026-07-06)&rdquo;) and scrubbed from docs. H1 (anonymous sign-out warning + email-required invite redemption), H2 (12s timeouts with retry + honest unconfigured copy), M1 (neutral Subscribe CTA), M3 (runbook mint SQL), and the share failure misclassification are all fixed and gated (417 app + 535 module tests). Start at Phase 1.
+</div>
+
+<div class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#verdict">Verdict at a glance</a></li>
+    <li><a href="#findings">Adversarial review findings</a></li>
+    <li><a href="#history">Git history and where the code lives</a></li>
+    <li><a href="#docs">Docs vs code: what drifted</a></li>
+    <li><a href="#options">Deployment options compared (the EAS decision)</a></li>
+    <li><a href="#phase0">Phase 0: code fixes (before any build)</a></li>
+    <li><a href="#phase1">Phase 1: trainer's phone this week (internal build)</a></li>
+    <li><a href="#phase2">Phase 2: clients on TestFlight</a></li>
+    <li><a href="#phase3">Phase 3: public paid launch (App Store)</a></li>
+    <li><a href="#founderops">Founder-ops F1-F8 ledger</a></li>
+  </ol>
+</div>
+
+<h2 id="verdict"><span class="num">1</span>Verdict at a glance</h2>
+<table>
+  <tr><th>Question</th><th>Answer</th></tr>
+  <tr><td>Can the trainer use it today?</td><td><strong>Code is ready; only the build is missing.</strong> C1 is fixed and merged (2026-07-06); no installable build exists yet. Phase 1 is the remaining gap.</td></tr>
+  <tr><td>Is the architecture sound?</td><td><strong>Yes.</strong> RLS on all 18 <code>dw_</code> tables, server-enforced 4-path video entitlement, signed upload/playback, honest paywall degradation, real account lifecycle. Production Supabase (<code>tgyxkoblbiacjsbmiuyn</code>) is deployed and live-verified with demo accounts.</td></tr>
+  <tr><td>Fastest path to the trainer's phone</td><td><strong>EAS internal distribution (preview profile)</strong>: no App Store Connect record needed, no review, guard-compatible today. About half a day of founder time after the code fix.</td></tr>
+  <tr><td>Fastest path to his clients</td><td>TestFlight internal group (instant once the ASC record + icon exist), external group for more clients (one-time beta review).</td></tr>
+  <tr><td>When can clients pay?</td><td>Only after RevenueCat + App Store products + hosted legal + App Review (Phase 3, roughly 1-2 weeks of ops plus review time). Not needed for the pilot: invited clients get premium included via the coaching link.</td></tr>
+  <tr><td>Code-side score</td><td>9/10 on the feature branch once C1 is fixed; the branch's own &ldquo;every finding fixed&rdquo; readiness report predates the C1 discovery and overstates readiness.</td></tr>
+</table>
+
+<h2 id="findings"><span class="num">2</span>Adversarial review findings</h2>
+<p class="lead">Reviewed at branch tip <code>836ce08c</code> (feature/dowork-trainer-launch). Full file:line evidence in the session log.</p>
+<div class="scroll">
+<table>
+  <tr><th>ID</th><th>Sev</th><th>Finding</th><th>Impact / required action</th></tr>
+  <tr><td>C1</td><td><span class="sev crit">Critical</span></td><td><strong>Live workout session is dead.</strong> <code>session.tsx:238</code> creates the player in <code>idle</code>; nothing ever dispatches <code>START</code>. &ldquo;Mark Complete&rdquo; is permanently disabled (<code>session.tsx:862</code>), Pause/Resume render null in idle, the voice coach never activates.</td><td>A client cannot log a single set. Fix: dispatch <code>START</code> after load (or add a Start button) + a screen-level test. The 20 dowork test files are all data-layer, which is how this escaped.</td></tr>
+  <tr><td>C2</td><td><span class="sev crit">Critical</span></td><td>No app icon or splash art. <code>app.json</code> has no <code>icon</code> key and no <code>assets/</code> directory exists (F8).</td><td>Store-facing builds blocked; internal builds ship a default icon (acceptable for the pilot only).</td></tr>
+  <tr><td>C3</td><td><span class="sev crit">Critical</span></td><td><code>eas.json:26</code> has <code>ascAppId: "REPLACE_WITH_ASC_APP_ID"</code>; no ASC app record exists; bundle id not registered (F2 second half).</td><td>Blocks TestFlight and submission, not internal distribution.</td></tr>
+  <tr><td>C4</td><td><span class="sev crit">Critical</span></td><td>Monetization fully dark: no RevenueCat account/products, RC env keys unset (F3). Paywall degrades honestly (&ldquo;Subscriptions aren't available yet&rdquo;).</td><td>Production-profile builds fail the pre-install guard by design. Irrelevant for the comped pilot (client-link entitlement bypasses payments).</td></tr>
+  <tr><td>C5</td><td><span class="sev crit">Critical</span></td><td>All legal links 404 (dowork.app/guidelines, /privacy, paywall terms). Drafts exist at <code>apps/dowork/legal/</code>, not hosted (F5).</td><td>Client-visible 404s; App Review rejection risk. Required before submission, tolerable during internal pilot.</td></tr>
+  <tr><td>C6</td><td><span class="sev crit">Critical</span></td><td>Never run on hardware: no EAS build ever, no APNs/FCM (F6), so push fan-out (<code>dowork-notify</code>) silently reaches nobody and voice/camera/GPS are device-untested.</td><td>Phase 1 exists to close this. Coaching loop degrades to manual refresh without push.</td></tr>
+  <tr><td>H1</td><td><span class="sev high">High</span></td><td>Anonymous-first auth: a trainer/client who redeems invites before attaching an email can lose everything on reinstall. No warning at sign-out.</td><td>Pilot rule: everyone signs in with email before redeeming anything. Consider a code-level guard later.</td></tr>
+  <tr><td>H2</td><td><span class="sev high">High</span></td><td>No timeout handling against a slow/paused Supabase; free tier pauses after 7 idle days, producing infinite spinners with no retry UI.</td><td>Keep the project warm or upgrade to Pro before the pilot. Add timeout copy later.</td></tr>
+  <tr><td>H3</td><td><span class="sev high">High</span></td><td>A live, unclaimed production trainer invite code is committed to the repo (<code>app-review-notes.md</code>), and redemption mints an auto-verified, immediately-live trainer.</td><td><strong>Burn/rotate that code</strong> before sharing the repo or building. Mint a fresh code for your trainer.</td></tr>
+  <tr><td>H4</td><td><span class="sev high">High</span></td><td>RevenueCat webhook is shared-secret only (plain header comparison).</td><td>Acceptable now; revisit before public scale.</td></tr>
+  <tr><td>H5</td><td><span class="sev high">High</span></td><td>Signed playback URLs live 60 minutes past moderation deactivation.</td><td>Known tradeoff; document.</td></tr>
+  <tr><td>H6</td><td><span class="sev high">High</span></td><td>Earnings shows gross only; payout split undecided (F4), copy says it &ldquo;will show here once it's set&rdquo;.</td><td>Tell the trainer the split verbally before he onboards clients.</td></tr>
+  <tr><td>H7</td><td><span class="sev high">High</span></td><td><strong>Branch divergence:</strong> 11 dowork commits exist only on <code>feature/dowork-trainer-launch</code> (auth-callback PKCE session exchange, paid-through cancellation, offline share binding, friendly errors, perf wave, blocked-trainer filtering) plus 2 prod-applied migrations not in main's tree.</td><td>Merge to main before building, or build from the branch. A build cut from main today ships without login-recovery fixes.</td></tr>
+  <tr><td>M1-M7</td><td><span class="sev med">Medium</span></td><td>Hardcoded USD price on the Subscribe CTA (paywall itself is store-truthful); custom-scheme-only invite links (dead if app not installed); trainer invite minting is an undocumented manual SQL step; account deletion doesn't auto-revoke RevenueCat; offline videos playable offline after revoke until next online check (honest by design); non-atomic view counts; form-check finalize TOCTOU window.</td><td>None block the pilot; M3 needs a one-line runbook INSERT snippet; M2 means &ldquo;send install link first, then code&rdquo;.</td></tr>
+</table>
+</div>
+
+<h2 id="history"><span class="num">3</span>Git history and where the code lives</h2>
+<table>
+  <tr><th>Era</th><th>Dates</th><th>What happened</th></tr>
+  <tr><td>Workouts module foundation</td><td>2026-02-24 to 03-25</td><td>Hub workouts module built inside MyLife (~50 commits).</td></tr>
+  <tr><td>DoWork standalone P0-P8</td><td>2026-04-22 to 06-22</td><td>Standalone Expo app extracted; 41 screens, parity gates; 2026-06-09 production audit (19 findings) and P7 security hardening (RLS + storage).</td></tr>
+  <tr><td>Plan 36 trainer platform</td><td>2026-07-03 to 07-04</td><td>~68 commits in 2 days: schema v2 (8 <code>dw_</code> tables), 6 edge functions, voice player engine, trainer/client UI waves, RevenueCat paywall, push + offline downloads, store-ops guard.</td></tr>
+  <tr><td>Founder-ops + merge</td><td>2026-07-04</td><td>F1 Supabase prod live-verified, F2 half (EAS project + 5 env vars), F7 demo seeding; branch merged to main (<code>d8070864</code>).</td></tr>
+  <tr><td>dp-audit fix waves</td><td>2026-07-04 (post-merge)</td><td><strong>11 further commits on the branch only</strong> (<code>c988442d..836ce08c</code>, ~2,700 lines): auth/session fixes, entitlement hardening + coaching-state migrations (already applied to prod), perf wave, pilot readiness report.</td></tr>
+  <tr><td>Walkthrough review</td><td>2026-07-05</td><td>Product walkthrough found C1 (session START). Still unfixed on both main and branch as of today.</td></tr>
+</table>
+<div class="callout warn">
+  <div class="title">Correction to the 2026-07-05 portfolio ruling</div>
+  That ruling marked the &ldquo;unmerged dp-audit wave&rdquo; claim as stale. Verified today with <code>git cherry</code> and a content diff: the branch genuinely carries 11 dowork commits main lacks, including two migrations that are <em>already live on production Supabase</em>. Main's code is behind the deployed database schema. Merging the branch is step one.
+</div>
+
+<h2 id="docs"><span class="num">4</span>Docs vs code: what drifted</h2>
+<p class="lead">13 docs inventoried; 15 key claims spot-checked. Alignment is strong (edge functions, tier ladder, voice engine, RLS entitlement paths, demo seeding all CONFIRMED). The drifts that matter:</p>
+<ul>
+  <li><strong>The branch's pilot-readiness report (2026-07-04) says &ldquo;the blocker is not code&rdquo; and scores 9/10.</strong> Stale: it predates the C1 discovery. Do not rely on it for go/no-go.</li>
+  <li><strong>Voice-restart, auth-callback, offline-queue, and cancellation fixes are documented as fixed but exist only on the branch</strong>, not main (H7).</li>
+  <li><code>apps/dowork/CLAUDE.md</code> documents an <code>upload-video.tsx</code> screen that no longer exists (folded into Studio).</li>
+  <li>Orphaned screens reachable only by deep link (programs, plans, GPS, timer, etc. have no nav entry); documented and deferred.</li>
+  <li><strong>Gap: no trainer-facing usage guide existed</strong> (closed today by the companion doc) and no first-build deployment runbook existed (this document).</li>
+</ul>
+
+<h2 id="options"><span class="num">5</span>Deployment options compared (the EAS decision)</h2>
+<div class="scroll">
+<table>
+  <tr><th>Option</th><th>Prereqs</th><th>What breaks today</th><th>Verdict</th></tr>
+  <tr><td><strong>(a) EAS internal distribution</strong> (ad-hoc, preview profile)</td><td>Apple Developer account only. Register trainer's device UDID, build, install via link.</td><td>Nothing hard: guard skips preview; env needs one eas.json line. No push until F6; paywall inert (fine); each fix needs a rebuild (no expo-updates OTA).</td><td><span class="sev done">Recommended now</span></td></tr>
+  <tr><td><strong>(b) TestFlight internal</strong></td><td>ASC app record + real <code>ascAppId</code> + icon + production build (guard requires RC keys).</td><td>Blocked twice today: guard fails (no RC keys) and no ASC record. ~2 blockers away.</td><td><span class="sev med">Phase 2</span></td></tr>
+  <tr><td><strong>(c) TestFlight external</strong></td><td>All of (b) + one-time beta review.</td><td>Same + review lead time; placeholder icon would be flagged.</td><td><span class="sev med">Phase 2, for clients</span></td></tr>
+  <tr><td><strong>(d) Dev-client build</strong></td><td>Tethered to a Metro server.</td><td>Trainer can't use it standalone.</td><td><span class="sev open">Not for a trainer</span></td></tr>
+</table>
+</div>
+<p><strong>Decision: (a) now, (b) next, (c) when clients join, App Store when payments go live.</strong> Rationale: the production-profile build guard fails today <em>by design</em> (no RevenueCat keys = dead paywall prevention), and TestFlight needs the ASC record. Internal distribution sidesteps both, ships the full live-cloud trainer platform this week, and loses only push and payments, neither of which the pilot needs. Android is app-config-ready if a client on Android appears (internal APK), but FCM/Play billing are unstarted; iOS-first confirmed.</p>
+
+<h2 id="phase0"><span class="num">6</span>Phase 0: code fixes (before any build)</h2>
+<div class="phase">
+  <div class="ph-head"><span class="ph-title">Half a day of code work</span><span class="ph-meta">COMPLETED 2026-07-06: merge 0bc4152f on main (pushed), C1 fixed + regression tests, invites rotated + runbook snippet, H1/H2 hardening included</span></div>
+  <ol class="steps">
+    <li><strong>Merge <code>feature/dowork-trainer-launch</code> into <code>main</code></strong> (11 commits). Prod Supabase already runs this branch's migrations, so main is currently behind the deployed schema. Run the standard merge gates (typecheck, dowork + workouts suites, parity).</li>
+    <li><strong>Fix C1</strong>: dispatch <code>{ type: 'START' }</code> after <code>createPlayerStatus</code> in <code>apps/dowork/app/(root)/session.tsx</code> (or render an explicit Start button for the idle state), and add a screen-level test that a freshly-opened session can complete a set. This is the entire difference between &ldquo;demo app&rdquo; and &ldquo;workout app&rdquo;.</li>
+    <li><strong>Rotate the leaked trainer invite</strong>: delete/expire code <code>DPI77V8MJY4L</code> in prod <code>dw_trainer_invites</code>, mint a fresh code for your trainer, and keep it out of the repo. Add the INSERT snippet to <code>docs/runbooks/dowork-supabase-setup.md</code> (closes M3).</li>
+    <li>Optional hardening if time allows: sign-out warning for anonymous users (H1) and a loading-timeout message for a paused backend (H2).</li>
+  </ol>
+</div>
+
+<h2 id="phase1"><span class="num">7</span>Phase 1: trainer's phone this week (EAS internal build)</h2>
+<div class="phase">
+  <div class="ph-head"><span class="ph-title">About half a day of founder time</span><span class="ph-meta">Run EAS commands from your own terminal, not a sandboxed Claude shell (eas-cli is broken there, see errors_log 2026-07-04; the GraphQL API is the fallback)</span></div>
+  <ol class="steps">
+    <li><strong>Register the trainer's iPhone</strong>: from <code>apps/dowork</code> run <code>eas device:create</code>, text the registration link to your trainer, he opens it on his phone and installs the provisioning profile.</li>
+    <li><strong>Wire cloud env into preview builds</strong>: add one line to the preview profile in <code>apps/dowork/eas.json</code>: <code>"environment": "production"</code>. The 5 EAS env vars (Supabase URL/key, cloud env, launch flag, auth redirect) already exist in the production environment; this reuses them. RC keys are not required (guard skips preview).</li>
+    <li><strong>Build</strong>: <code>eas build --profile preview --platform ios</code> from a checkout of the merged code. First run walks you through Apple login, registers the <code>com.dowork.dowork</code> bundle id, and mints the ad-hoc profile automatically.</li>
+    <li><strong>Install</strong>: send the trainer the EAS install link. He taps it on the registered iPhone and DoWork installs like a normal app.</li>
+    <li><strong>Keep Supabase awake</strong>: the free-tier project pauses after 7 idle days, which would look like a dead app mid-pilot. Upgrade to Pro (~$25/mo) or set a keep-warm ping before handing the build over.</li>
+    <li><strong>Onboard the trainer</strong>: send him the companion user guide. Order matters: email sign-in first, then redeem the fresh invite code, build the Studio, and upload 3+ videos.</li>
+    <li><strong>Run the white-glove QA checklist together</strong> (<code>apps/dowork/Tickets/white-glove-qa-checklist.md</code>, 9 sections): gym voice reality check, camera form checks, and the two-device coaching loop (use your phone as the client via <code>eas device:create</code> again or TestFlight later).</li>
+  </ol>
+</div>
+<div class="callout ok">
+  <div class="title">What works in this build</div>
+  Everything except push and payments, live against production: trainer directory, Studio uploads, signed playback, voice player, client invites, form-check loop with timestamped feedback, offline downloads, account lifecycle, reporting/blocking. His invited clients get premium included, so nothing about the pilot needs money to move.
+</div>
+
+<h2 id="phase2"><span class="num">8</span>Phase 2: clients on TestFlight (next 1-2 weeks)</h2>
+<div class="phase">
+  <div class="ph-head"><span class="ph-title">Store-facing prerequisites</span><span class="ph-meta">Owner: founder (dashboards) + designer (icon)</span></div>
+  <ol class="steps">
+    <li><strong>F8 icon + splash</strong>: produce final art, add <code>icon</code> (1024px) and splash assets to <code>apps/dowork/assets/</code> and reference them in app.json. Hard build requirement for anything store-facing.</li>
+    <li><strong>F2 second half</strong>: create the App Store Connect app record for <code>com.dowork.dowork</code> ($4.99 paid app per plan 36), then replace <code>REPLACE_WITH_ASC_APP_ID</code> in <code>eas.json:26</code> with the real ascAppId.</li>
+    <li><strong>F3 RevenueCat</strong> (also unblocks the production build guard): create the RC project, the 8 subscription products <code>dowork_trainer_tier_1..8</code> in ASC + RC, point the webhook at <code>.../functions/v1/dowork-rc-webhook</code> with the keychain secret, then set <code>EXPO_PUBLIC_DOWORK_RC_KEY_IOS</code> and <code>_ANDROID</code> in the EAS production environment. Note: sandbox IAP needs the ASC Paid Apps agreement + banking/tax completed.</li>
+    <li><strong>F6 push</strong>: <code>eas credentials</code> to set up the APNs key. This turns on the form-check/feedback notification loop.</li>
+    <li><strong>Production build + TestFlight</strong>: <code>eas build --profile production --platform ios</code> (guard now passes), <code>eas submit</code>. Add the trainer as an internal tester (instant). Clients join via an external testing group (one-time beta review). TestFlight purchases are sandbox: clients can exercise the subscribe flow but no real money moves.</li>
+  </ol>
+</div>
+
+<h2 id="phase3"><span class="num">9</span>Phase 3: public paid launch (App Store)</h2>
+<div class="phase">
+  <div class="ph-head"><span class="ph-title">Money and compliance</span><span class="ph-meta">Roughly 1-2 weeks of ops plus Apple review time</span></div>
+  <ol class="steps">
+    <li><strong>F4 revenue split</strong>: decide the trainer payout share (80/20 proposed), write it into <code>legal/trainer-license.html</code> section 4 and the earnings copy, and confirm it with your trainer.</li>
+    <li><strong>F5 legal hosting</strong>: put the 4 drafted pages live at dowork.app (terms, privacy, guidelines, trainer-license) with clean URLs matching the in-app links, and get counsel review. This closes the C5 404s.</li>
+    <li><strong>Sandbox purchase matrix</strong>: run QA checklist section D end to end (subscribe, renew, cancel with paid-through, refund, restore, webhook replay dedup, earnings ledger).</li>
+    <li><strong>M4 cleanup</strong>: automate RevenueCat deletion on account delete, or document the manual step as a support runbook.</li>
+    <li><strong>Submit for App Review</strong> using the already-written <code>Tickets/app-review-notes.md</code> (demo trainer + subscriber accounts are already seeded on prod through real pipelines; refresh their invite codes since one was rotated in Phase 0).</li>
+  </ol>
+</div>
+
+<h2 id="founderops"><span class="num">10</span>Founder-ops F1-F8 ledger</h2>
+<table>
+  <tr><th>#</th><th>Item</th><th>Status</th><th>Phase</th></tr>
+  <tr><td>F1</td><td>Supabase prod: 10 migrations (+2 branch migrations applied 07-04), 6 edge functions ACTIVE, buckets, webhooks, secrets, entitlement matrix live-verified</td><td><span class="sev done">Done</span></td><td>-</td></tr>
+  <tr><td>F2</td><td>EAS project + 5 prod env vars done; ASC app record + ascAppId</td><td><span class="sev med">Half</span></td><td>Phase 2</td></tr>
+  <tr><td>F3</td><td>RevenueCat account, 8 tier products, webhook, RC env keys</td><td><span class="sev open">Open</span></td><td>Phase 2</td></tr>
+  <tr><td>F4</td><td>Revenue split decision (80/20 proposed)</td><td><span class="sev open">Open</span></td><td>Phase 3</td></tr>
+  <tr><td>F5</td><td>Host legal at dowork.app + counsel review</td><td><span class="sev med">Drafted</span></td><td>Phase 3</td></tr>
+  <tr><td>F6</td><td>APNs key via eas credentials (push)</td><td><span class="sev open">Open</span></td><td>Phase 2</td></tr>
+  <tr><td>F7</td><td>Demo accounts + invite codes seeded through real pipelines; white-glove QA session pending a build</td><td><span class="sev med">Prep done</span></td><td>Phase 1</td></tr>
+  <tr><td>F8</td><td>Icon + splash final art</td><td><span class="sev open">Open</span></td><td>Phase 2</td></tr>
+</table>
+
+<div class="callout">
+  <div class="title">Bottom line</div>
+  Merge the branch, fix the one-line START bug plus its test, rotate the leaked invite code, then run one EAS internal-distribution build. Your trainer can be uploading videos and reviewing form checks on his own phone this week, with payments, push, and the App Store following on the Phase 2-3 track.
+</div>
+
+<footer>
+  DoWork Launch Runbook &middot; Generated 2026-07-06 &middot; Sources: adversarial code review at <code>836ce08c</code>, git history audit (174 dowork commits), docs-vs-code audit (13 docs, 15 claims), EAS config investigation &middot; Companion doc: REPORT-dowork-trainer-user-guide-2026-07-06.html
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat as a Community App Platform</title>
+<style>
+  :root{
+    --bg:#0f1512; --panel:#151d19; --panel2:#1b2621; --ink:#e7efe9; --ink2:#a9b8b0;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --accent:#58c5a5; --accent2:#0e7c66; --gold:#dfb36a; --info:#93b8e8; --violet:#b7a3e8;
+    --exist:#6fcda9; --build:#e89a96; --extend:#dfb36a;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16.5px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:940px;margin:0 auto;padding:0 22px 120px}
+  header.hero{max-width:940px;margin:0 auto;padding:64px 22px 30px}
+  .kicker{color:var(--accent);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12.5px}
+  h1{font-size:41px;line-height:1.1;margin:.3em 0 .18em;letter-spacing:-.02em}
+  .sub{color:var(--ink2);font-size:18px;max-width:72ch}
+  .meta{color:var(--ink2);font-size:13.5px;margin-top:18px;display:flex;gap:18px;flex-wrap:wrap}
+  .meta b{color:var(--ink);font-weight:600}
+  h2{font-size:27px;letter-spacing:-.01em;margin:56px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+  h3{font-size:20px;margin:34px 0 6px;color:#fff}
+  h4{font-size:16.5px;margin:22px 0 4px;color:var(--accent)}
+  p{margin:12px 0}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  code{font-family:var(--mono);font-size:.86em;background:rgba(255,255,255,.06);padding:.1em .38em;border-radius:5px;color:#d6e6de}
+  .lead{font-size:18.5px}
+  ul,ol{margin:12px 0;padding-left:22px}li{margin:7px 0}
+  strong{color:#fff}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:20px 0}
+  .callout{border-left:3px solid var(--accent);background:var(--panel2);border-radius:0 12px 12px 0;padding:14px 20px;margin:18px 0}
+  .callout.warn{border-left-color:var(--gold)}
+  .callout.big{border-left-color:var(--violet)}
+  .b{display:inline-block;font:700 11px/1.5 var(--mono);padding:2px 9px;border-radius:999px;letter-spacing:.03em;vertical-align:middle}
+  .b.exist{background:rgba(111,205,169,.15);color:var(--exist);border:1px solid rgba(111,205,169,.3)}
+  .b.extend{background:rgba(223,179,106,.14);color:var(--extend);border:1px solid rgba(223,179,106,.3)}
+  .b.build{background:rgba(232,154,150,.14);color:var(--build);border:1px solid rgba(232,154,150,.3)}
+  .tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:14.5px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--panel2);color:#fff;font-weight:600;font-size:13px;position:sticky;top:0}
+  tr:last-child td{border-bottom:0}
+  td.mono{font-family:var(--mono);font-size:12.6px}
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:26px 0}
+  nav.toc h4{margin:0 0 10px;color:var(--ink2);text-transform:uppercase;letter-spacing:.1em;font-size:12px}
+  nav.toc ol{columns:2;column-gap:28px;margin:0;padding-left:18px;font-size:14.5px}
+  nav.toc a{color:var(--ink)}
+  .fn{font-family:var(--mono);font-size:12.3px;color:var(--info)}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0;font-size:13.5px;color:var(--ink2)}
+  .blockgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin:18px 0}
+  .block{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+  .block .t{font-weight:700;color:#fff;font-size:15px}
+  .block .d{font-size:13px;color:var(--ink2);margin-top:3px}
+  .foot{color:var(--ink2);font-size:13px;margin-top:60px;padding-top:20px;border-top:1px solid var(--line)}
+  hr{border:0;border-top:1px solid var(--line);margin:40px 0}
+  @media (max-width:640px){h1{font-size:31px}nav.toc ol{columns:1}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="kicker">Meerkat &middot; Community App Platform &middot; Full-Ambition Feature Architecture</div>
+  <h1>Communities as apps you assemble</h1>
+  <p class="sub">The complete feature set required to let a Meerkat community builder compose any interface they want, video, galleries, live streams, forums, timelines, short-form, embeds, and reach functional parity with YouTube, Twitch, TikTok, Reddit, X, Discord, Patreon, and the rest. Grounded in the real code seams that already exist, honest about what must be built.</p>
+  <div class="meta">
+    <span><b>Date</b> 2026-08-24</span>
+    <span><b>Companion to</b> the full system &amp; security review</span>
+    <span><b>Posture</b> Full ambition. No MVP framing.</span>
+  </div>
+</header>
+<div class="wrap">
+
+<div class="callout big">
+<p class="lead" style="margin-top:4px"><strong>The thesis in one sentence.</strong></p>
+<p>Meerkat should not ship a fixed set of screens that imitate other apps. It should ship a <strong>composition engine</strong>: a library of interface blocks (a video player, a live stage, a short-form pager, a forum, a timeline, a gallery, a store, an embed) that a community owner arranges into their own home and channels, backed by a content model that can be hosted, peer-to-peer, live, downloadable-for-offline, or local-only, per community, per block. When you assemble the right blocks, a Meerkat community <em>is</em> a YouTube channel, or a Twitch stream, or a subreddit, or a Discord server, or all of them at once. That is the product no incumbent can offer, because their business depends on owning the one interface you are allowed to use.</p>
+</div>
+
+<nav class="toc">
+  <h4>Contents</h4>
+  <ol>
+    <li><a href="#seams">The five seams we build on</a></li>
+    <li><a href="#platform">The composition platform</a></li>
+    <li><a href="#blocks">The block catalog</a></li>
+    <li><a href="#video">The video VOD pipeline</a></li>
+    <li><a href="#live">Live broadcast (Twitch/YouTube Live)</a></li>
+    <li><a href="#short">Short-form vertical (TikTok)</a></li>
+    <li><a href="#offline">Offline download &amp; async load</a></li>
+    <li><a href="#modes">Hosted, P2P, live, local-only</a></li>
+    <li><a href="#embeds">Embeds &amp; external content</a></li>
+    <li><a href="#monetize">Creator monetization &amp; commerce</a></li>
+    <li><a href="#parity">Reference-app parity matrix</a></li>
+    <li><a href="#build">What exists vs what to build</a></li>
+    <li><a href="#sequence">Build sequence</a></li>
+  </ol>
+</nav>
+
+<!-- SEAMS -->
+<h2 id="seams">The five seams we build on</h2>
+<p>This is not a rewrite. Meerkat already has five load-bearing primitives that a composition platform plugs directly into. Understanding them is the difference between "build a new app" and "unlock the app we have."</p>
+
+<div class="tw"><table>
+<thead><tr><th>Existing seam</th><th>What it already does</th><th>What it unlocks</th></tr></thead>
+<tbody>
+<tr><td><b>Conditional canonical append</b> <span class="fn">protocol/community.ts</span></td><td>Owner-signed community descriptors can gain new optional fields without breaking older devices' signature checks. Add a field, give it a default, append it only when set.</td><td>A community can carry a <strong>layout document</strong> and a <strong>capability manifest</strong> as new signed fields, gossiped peer-to-peer, verified on every device.</td></tr>
+<tr><td><b>Channel <code>kind</code> + unknown fallback</b> <span class="fn">community.ts:526</span></td><td>Channels declare a <code>kind</code>; a device that does not recognize a kind renders read-only and never crashes.</td><td>New <strong>channel/view types</strong> (video, live, gallery, timeline, short-form, forum) ship as new kinds; old clients degrade gracefully.</td></tr>
+<tr><td><b>Owner-signed theme blob</b> <span class="fn">community-theme-core.ts</span></td><td>A community reskins its own route subtree through one fail-safe resolver; malformed themes fall back to base; chrome never leaks.</td><td>The exact model for <strong>per-community layout and block styling</strong>: a signed blob, resolved at one choke point, bounded to the community subtree.</td></tr>
+<tr><td><b>Media type registry</b> <span class="fn">library-metadata-core.ts:85</span></td><td>Each media type maps to a contract of schema + sort fields + card shape; unknown types fail safe to a generic list.</td><td>The pattern for a <strong>block registry</strong>: each block type maps to a contract of props schema + data source + renderer.</td></tr>
+<tr><td><b>Scopes + transport policy</b> <span class="fn">types.ts:24, community.ts:595</span></td><td>Every entity declares a replication scope (device-local, personal, shared, published) with per-entity caps; a community declares a transport policy (local-only, local-preferred, any).</td><td><strong>Hosted vs P2P vs local-only</strong> content modes are already expressible in data. The work is a product control, not a new mechanism.</td></tr>
+</tbody>
+</table></div>
+
+<p>Two more foundations matter: sealed content moves as verified blobs during sessions and file-requests (<span class="fn">protocol/blob-transfer.ts</span>), and every new capability ships as a pure logic "core" that is byte-identical across mobile and web, plus two thin screens, locked by the parity script. That delivery pattern is how everything below stays consistent across iPhone, Android, iPad, and desktop.</p>
+
+<!-- PLATFORM -->
+<h2 id="platform">The composition platform</h2>
+<p>Four new pieces turn Meerkat from a fixed app into a platform. Each rides an existing seam.</p>
+
+<h4>1. The block registry <span class="b build">BUILD</span></h4>
+<p>A runtime catalog mapping a declared block type to a contract: its props schema (Zod), its data source (which <code>cm_</code> tables or blobs it reads), its capability requirements, and its renderer (a pure view-core plus mobile/web screens). This is the media type registry pattern generalized from "content types" to "interface blocks." A block is sandboxed: it can only read the data its contract declares, it cannot fetch arbitrarily, and an unknown block type renders a safe placeholder on older clients.</p>
+
+<h4>2. The layout document <span class="b extend">EXTEND</span></h4>
+<p>A new owner-signed descriptor field describing the community's home and each channel's composition: an ordered tree of blocks with per-block config. It is added through conditional canonical append, so it is invisible to legacy signature verification when unset and fully gossiped when set. A community owner arranging their home in the editor produces one signed descriptor revision. This is the same mechanism the channel organizer already uses for categories and layout, widened from a binary <code>chat_first / library_first</code> toggle to an arbitrary block tree.</p>
+
+<h4>3. The capability manifest <span class="b build">BUILD</span></h4>
+<p>A signed declaration of which capabilities a community turns on: video hosting, live broadcast, short-form, commerce, offline download, external embeds, local-only storage. This gates which blocks are available, drives the honest "what this community can do" surface, and lets safety and entitlement logic reason about a community without inspecting its content. Capabilities that require deployed services (live SFU, always-on seeding) report honestly unavailable until those exist, exactly as <code>capability-status.ts</code> does today.</p>
+
+<h4>4. The community layout editor <span class="b build">BUILD</span></h4>
+<p>The MySpace-grade authoring surface. It reuses the existing theme editor's shape (a visual editor over a signed blob, shareable by deep link and QR) and extends it: drag blocks onto the home, configure each, pick the storage mode, preview live, publish as one signed revision. The theme system already handles contrast enforcement and per-community styling; the editor adds structure on top of style.</p>
+
+<div class="callout"><p style="margin:4px 0"><strong>Why this is the right shape:</strong> every hard part of a plugin platform, signing it so it cannot be forged, gossiping it so every member sees the same interface, theming it, scoping its data, moving its blobs, and degrading gracefully on old clients, <em>already exists</em> in Meerkat. The genuinely new work is the block registry and the layout composition model. Everything else is reuse.</p></div>
+
+<!-- BLOCKS -->
+<h2 id="blocks">The block catalog</h2>
+<p>These are the interface blocks a community owner assembles. Each is a channel kind, a home block, or both. The tag shows whether the block is mostly reuse of existing surfaces or genuinely new construction.</p>
+
+<div class="blockgrid">
+  <div class="block"><div class="t">Forum / Posts <span class="b exist">EXISTS</span></div><div class="d">Reddit-style threaded posts, reactions, sorts. The Posts surface already ships.</div></div>
+  <div class="block"><div class="t">Chat <span class="b exist">EXISTS</span></div><div class="d">Discord/Slack channel chat on the shared chat kit.</div></div>
+  <div class="block"><div class="t">Library / Gallery <span class="b exist">EXISTS</span></div><div class="d">Sealed media grid with poster/list/album/masonry card shapes.</div></div>
+  <div class="block"><div class="t">Video player <span class="b extend">EXTEND</span></div><div class="d">YouTube-style watch page over the loopback streaming decoder.</div></div>
+  <div class="block"><div class="t">Video gallery <span class="b extend">EXTEND</span></div><div class="d">Channel of videos with posters, durations, views.</div></div>
+  <div class="block"><div class="t">Live stage <span class="b build">BUILD</span></div><div class="d">Twitch/YouTube-Live broadcast, one host, many viewers, live chat.</div></div>
+  <div class="block"><div class="t">Short-form pager <span class="b build">BUILD</span></div><div class="d">TikTok vertical swipe, autoplay, mute-to-tap.</div></div>
+  <div class="block"><div class="t">Timeline <span class="b extend">EXTEND</span></div><div class="d">X/Twitter microblog, chronological or ranked, always-plain option.</div></div>
+  <div class="block"><div class="t">Store / commerce <span class="b build">BUILD</span></div><div class="d">Listings, checkout, digital + physical goods.</div></div>
+  <div class="block"><div class="t">Membership tiers <span class="b build">BUILD</span></div><div class="d">Patreon-style paid tiers gating channels and content.</div></div>
+  <div class="block"><div class="t">Embed <span class="b build">BUILD</span></div><div class="d">External content (YouTube et al.) under an explicit consent gate.</div></div>
+  <div class="block"><div class="t">Calendar / events <span class="b build">BUILD</span></div><div class="d">Scheduled streams, RSVP, reminders.</div></div>
+  <div class="block"><div class="t">Hero / banner <span class="b extend">EXTEND</span></div><div class="d">Custom masthead, signed banner image, links.</div></div>
+  <div class="block"><div class="t">Files / downloads <span class="b exist">EXISTS</span></div><div class="d">Community file index with bulk export.</div></div>
+  <div class="block"><div class="t">Rich text / pages <span class="b build">BUILD</span></div><div class="d">Static authored pages, wiki-style, about surfaces.</div></div>
+</div>
+
+<p>The owner picks a home layout (a masthead plus a feed of the newest videos, or a live stage plus chat, or a subreddit-style post list, or a TikTok pager) and assembles channels from the same catalog. A single community can be a creator channel on its home and a Discord server in its side channels. That composability is the whole point.</p>
+
+<!-- VIDEO -->
+<h2 id="video">The video VOD pipeline (YouTube)</h2>
+<p>Video-on-demand is the highest-leverage build because the hardest part is already done: the on-device loopback range server (<span class="fn">data/loopback-server-core.ts</span>) already streams encrypted video with per-chunk verified decrypt, real seeking over HTTP range, and no plaintext ever on disk. What is missing is everything around the player.</p>
+
+<div class="tw"><table>
+<thead><tr><th>Capability</th><th>State</th><th>What to build</th></tr></thead>
+<tbody>
+<tr><td>Streaming encrypted playback + seek</td><td><span class="b exist">EXISTS</span></td><td>Loopback range server (dev build); web MSE for fMP4/WebM. Reuse as-is.</td></tr>
+<tr><td>Poster / thumbnail generation</td><td><span class="b build">BUILD</span></td><td>Decode a video frame at seal time (or on device) to generate the poster and a scrub filmstrip sprite. Extends <span class="fn">library-extract-core.ts</span>.</td></tr>
+<tr><td>Transcode + adaptive bitrate</td><td><span class="b build">BUILD</span></td><td>Segment to an fMP4/HLS ladder at seal time so a phone on cellular gets a lower rung. Today playback is single-rendition, decode-what-you-can.</td></tr>
+<tr><td>Captions / subtitles</td><td><span class="b build">BUILD</span></td><td>Sealed sidecar track (WebVTT), rendered by the player. Sidecar rides the same blob pipeline.</td></tr>
+<tr><td>Chapters, multi-audio</td><td><span class="b build">BUILD</span></td><td>Manifest metadata + player UI.</td></tr>
+<tr><td>Watch page: views, likes, comments</td><td><span class="b extend">EXTEND</span></td><td>Views from real verified counts; comments reuse the Posts/chat kit; likes reuse the reaction model. Never fabricate a count.</td></tr>
+<tr><td>Watch progress / resume / up-next</td><td><span class="b exist">EXISTS</span></td><td><span class="fn">cm_library_progress</span> already stores personal resume, private to the device. Add an up-next queue.</td></tr>
+<tr><td>MKV and long-tail formats</td><td><span class="b build">BUILD</span></td><td>Remux to a playable container at seal time (MKV is unplayable in browsers today).</td></tr>
+</tbody>
+</table></div>
+
+<p><strong>The one real constraint:</strong> transcoding and frame extraction are heavy. On a hosted community server this is a background job. On a phone-only or local-only community it must happen on device (slower, or deferred), or the uploader's desktop seeder does it. The pipeline should be defined so the same sealed output is produced regardless of where the work ran.</p>
+
+<!-- LIVE -->
+<h2 id="live">Live broadcast (Twitch / YouTube Live)</h2>
+<p>Meerkat has symmetric calls and group rooms via a LiveKit SFU (real code, dev-build-only, unverified on device). The broadcast building block also already exists: the room membership model defines a <code>viewer</code> role that is subscribe-only. What is missing is the one-to-many product built on it.</p>
+
+<h4>What to build <span class="b build">BUILD</span></h4>
+<ul>
+  <li><strong>Go Live mode:</strong> one host publishes audio/video/screen; viewers join as subscribe-only at scale using the existing <code>viewer</code> role. The SFU fans out.</li>
+  <li><strong>Live chat overlay</strong> bound to the stream, on the existing chat kit and the live-loop cadence that already drives real-time channel updates.</li>
+  <li><strong>Honest viewer count</strong> from real subscriber events, never a fabricated number, consistent with every other count in the app.</li>
+  <li><strong>Ingress/egress:</strong> RTMP ingest so creators can stream from OBS; optional HLS egress for very large audiences; record-to-VOD that drops a finished stream straight into the community's video library as a sealed item.</li>
+  <li><strong>Stream health, low-latency mode, raid/host handoff, moderation tools</strong> (slow mode, timeouts) reusing the community role and safety model.</li>
+</ul>
+<div class="callout warn"><p style="margin:4px 0"><strong>Reality:</strong> live is deployment-gated. It needs a deployed LiveKit SFU with ingress/egress, TURN for NAT traversal, and two-device verification. The code path exists; the infrastructure and device proof do not yet. Copy must say "live" only when a real stream is connected.</p></div>
+
+<!-- SHORT -->
+<h2 id="short">Short-form vertical feed (TikTok / Reels)</h2>
+<p>This is a focused build on the existing feed. Today the feed is a card list with a closed set of item kinds and no video-first surface.</p>
+<h4>What to build <span class="b build">BUILD</span></h4>
+<ul>
+  <li>A vertical snap pager (full-bleed) with a new video-first feed item kind.</li>
+  <li>Viewport-driven autoplay: mount the loopback decoder only for the on-screen item, preload the next N, mute by default with tap-to-unmute.</li>
+  <li>Per-community and cross-community short-form sources, with the same source toggles and "why am I seeing this" transparency the feed already provides.</li>
+  <li>The pluggable-algorithm hook (see below) so a viewer can pick a ranking or keep a pure chronological pager.</li>
+</ul>
+<p>The founder promise of "pick your algorithm, always keep a plain timeline" lands here and on the timeline block. The current feed ranking is already local, deterministic, and transparent, the ideal substrate. The build is a <strong>ranking-strategy interface</strong>: named, swappable rankers (chronological, most-reacted, a follow-graph strategy, a community-authored one) with the plain chronological option always present and never removable.</p>
+
+<!-- OFFLINE -->
+<h2 id="offline">Offline download and async load</h2>
+<p>Your "download it, then watch end to end with no internet" requirement is closer than it looks. The data layer is already built: pin classes, per-library pin policy, a device storage budget with LRU eviction that only touches the fetch cache, and a "keep on this device" flag. Once sealed blocks are held locally, the loopback player plays the whole file offline.</p>
+<h4>What to build <span class="b build">BUILD</span></h4>
+<ul>
+  <li>A <strong>download manager UX</strong>: one-tap "download to watch offline," visible progress, pause/resume, a downloads queue, and wifi-only vs cellular policy.</li>
+  <li>A <strong>background pre-fetch trigger</strong> so a queued download proceeds when a holder is reachable, instead of only during a foreground sync.</li>
+  <li><strong>Progressive watch-while-downloading</strong> for the sequential case (play the ranges you have while the rest arrives).</li>
+  <li>For <strong>local-only communities</strong>, this is native: content already lives on the device, so "download" is instantaneous and "offline" is the default. That is the dynamic nature you described, a community whose storage mode makes offline the baseline rather than a feature.</li>
+</ul>
+
+<!-- MODES -->
+<h2 id="modes">The content modes: hosted, P2P, live, local-only</h2>
+<p>The same video can be delivered four ways, and a community (or a block) chooses. This dynamism is what makes Meerkat different from any single incumbent.</p>
+
+<div class="tw"><table>
+<thead><tr><th>Mode</th><th>How content moves</th><th>State</th><th>Feels like</th></tr></thead>
+<tbody>
+<tr><td><b>Hosted</b></td><td>An always-on seeder / hosted server holds and serves sealed blobs; discovery via the zero-knowledge host registry.</td><td><span class="b build">BUILD</span> deploy seeder</td><td>YouTube: always available.</td></tr>
+<tr><td><b>Peer-to-peer (torrent-style)</b></td><td>Multi-peer swarm download from everyone who has it; parallel pieces, rarest-first. The full swarm stack is written but not wired to the app.</td><td><span class="b build">BUILD</span> wire + seed</td><td>BitTorrent: resilient, no central host.</td></tr>
+<tr><td><b>Live</b></td><td>SFU fan-out from the broadcaster to viewers in real time; optional record-to-VOD after.</td><td><span class="b build">BUILD</span> deploy SFU</td><td>Twitch: watch it happen.</td></tr>
+<tr><td><b>Local-only</b></td><td>Content never leaves the device except over a direct session with an invited peer. Scope caps already enforce this.</td><td><span class="b extend">EXTEND</span> add toggle</td><td>A private vault / LAN Plex.</td></tr>
+</tbody>
+</table></div>
+
+<p><strong>The multi-peer swarm is a notable near-win.</strong> A complete torrent subsystem (swarm manager, rarest-piece downloader, piece manager, web-seed client, magnet publisher) already exists in the sync package but is not consumed by the app; the app currently does sequential single-host fetch. Wiring the swarm into the fetch path, adding a peer transport for phone-to-phone piece exchange, and deploying an always-on seeder turns "sealed-share fetch" into true torrent-style distribution for large video. Phones stay resolve-only for the open network (no inbound HTTP), so the always-on seeder is the piece that makes hosted availability real.</p>
+
+<!-- EMBEDS -->
+<h2 id="embeds">Embeds and external content (the YouTube question, honestly)</h2>
+<p>You asked for YouTube content displayed directly, both hosted-on-Meerkat and embedded-from-YouTube. Native hosting is the video pipeline above. Embedding a live YouTube player is where an honest tension appears, and it is worth stating plainly because it touches Meerkat's core privacy promise.</p>
+<div class="callout warn">
+<p style="margin:4px 0"><strong>The conflict:</strong> Meerkat has a strict rule that a receiving device never fetches from a URL a sender supplied (link previews are generated by the sender and shipped as a verified image blob; the receiver only renders it). Embedding a real YouTube player breaks that rule: every viewer's device would connect to Google's servers, handing Google each viewer's IP address and watch signal, the exact tracking Meerkat exists to escape.</p>
+</div>
+<h4>The three honest options <span class="b build">BUILD</span></h4>
+<ol>
+  <li><strong>Consent-gated embed (recommended default for embeds):</strong> the embed block shows the sender's static thumbnail and title; tapping it presents an explicit "this will connect you to YouTube and share your IP with Google" consent, then plays. Privacy stays opt-in and informed.</li>
+  <li><strong>Privacy-proxy embed:</strong> route the fetch through a Meerkat relay so Google sees the relay, not the viewer. Adds infrastructure and shifts (not removes) trust to the relay operator.</li>
+  <li><strong>Import, do not embed:</strong> a creator who owns their video hosts it natively on Meerkat as a sealed library item, gaining offline, P2P, and true privacy. This is the path that best serves the vision; embedding is the compatibility bridge for content that lives elsewhere.</li>
+</ol>
+<p>All three should exist, with import as the promoted path and consent-gating as the floor for any real external fetch. The block is honest by construction: it never silently phones home.</p>
+
+<!-- MONETIZE -->
+<h2 id="monetize">Creator monetization and commerce</h2>
+<p>These are greenfield pillars, but the primitives to gate access already exist (signed roles, epoch keys as read capability, membership tiers as key-holder sets, the entitlement/blind-credential layer).</p>
+<ul>
+  <li><strong>Membership tiers (Patreon/Twitch subs)</strong> <span class="b build">BUILD</span>: paid tiers that grant the epoch key for tier-gated channels and content. Membership is already the read capability in the crypto model; a paid tier is a membership whose grant is gated on a payment.</li>
+  <li><strong>Tips and one-time unlocks</strong> <span class="b build">BUILD</span>: the pay-to-post and app-unlock rails already prove the payment plumbing; extend to creator-directed payments.</li>
+  <li><strong>Commerce / storefront</strong> <span class="b build">BUILD</span>: a store block with listings, checkout, and fulfillment for digital goods (sealed downloads) and physical goods.</li>
+  <li><strong>Payouts</strong> <span class="b build">BUILD</span>: creator payout accounting on the hosted billing layer.</li>
+</ul>
+<p>Honesty and safety constraints carry over: real receipts only, fail-closed entitlement, and the account/identity wall stays intact (a paying viewer's account identity never links to their mesh persona).</p>
+
+<!-- PARITY -->
+<h2 id="parity">Reference-app parity matrix</h2>
+<p>How each incumbent decomposes into Meerkat blocks and what each requires.</p>
+<div class="tw"><table>
+<thead><tr><th>App</th><th>Meerkat expression</th><th>Key builds</th></tr></thead>
+<tbody>
+<tr><td><b>YouTube</b></td><td>Video channel home + video gallery + watch page + subscriptions</td><td>VOD pipeline (transcode, thumbnails, ABR), watch page, subscribe/follow graph, hosted seeding</td></tr>
+<tr><td><b>Twitch</b></td><td>Live stage + live chat + VOD archive + subs</td><td>Broadcast mode, SFU deploy, RTMP ingest, record-to-VOD, tiers</td></tr>
+<tr><td><b>TikTok / Reels</b></td><td>Short-form vertical pager + creator profiles</td><td>Snap pager, viewport autoplay, video-first feed kind, ranking strategies</td></tr>
+<tr><td><b>Reddit</b></td><td>Forum/Posts blocks + communities + sorts</td><td>Mostly exists; add community discovery, richer sorts, cross-posting</td></tr>
+<tr><td><b>Twitter / X</b></td><td>Timeline block (chronological + ranked) + follow graph</td><td>Timeline block, follow graph, plain-timeline guarantee, quote/repost</td></tr>
+<tr><td><b>Discord / Slack / Teams</b></td><td>Chat channels + voice rooms + roles</td><td>Mostly exists; rooms need SFU deploy + device proof</td></tr>
+<tr><td><b>Google Meet</b></td><td>Group rooms (symmetric A/V)</td><td>Exists as code; deploy + verify</td></tr>
+<tr><td><b>Patreon</b></td><td>Membership tiers + gated channels + posts</td><td>Paid tiers gating epoch keys, payouts</td></tr>
+<tr><td><b>Plex</b></td><td>Library blocks + streaming decode + local-only mode</td><td>Mostly exists; add offline download UX + hosted/seeder availability</td></tr>
+<tr><td><b>Online store</b></td><td>Store block + membership + downloads</td><td>Storefront, checkout, fulfillment, payouts</td></tr>
+<tr><td><b>News / open journalism</b></td><td>Timeline + articles/pages + public archive</td><td>Rich pages, durable public archive deploy, rights descriptors (exist)</td></tr>
+</tbody>
+</table></div>
+
+<!-- BUILD -->
+<h2 id="build">What exists, what extends, what to build</h2>
+<div class="legend">
+  <span><span class="b exist">EXISTS</span> ships today, reuse</span>
+  <span><span class="b extend">EXTEND</span> a known seam widens</span>
+  <span><span class="b build">BUILD</span> genuinely new</span>
+</div>
+<div class="tw"><table>
+<thead><tr><th>Layer</th><th>Component</th><th>State</th></tr></thead>
+<tbody>
+<tr><td>Platform</td><td>Descriptor signing, gossip, theming, scopes, blob transport, parity delivery</td><td><span class="b exist">EXISTS</span></td></tr>
+<tr><td>Platform</td><td>Layout document (signed descriptor field), channel-kind additions</td><td><span class="b extend">EXTEND</span></td></tr>
+<tr><td>Platform</td><td>Block registry, capability manifest, layout editor, ranking-strategy interface</td><td><span class="b build">BUILD</span></td></tr>
+<tr><td>Video</td><td>Loopback streaming decode + seek, web MSE, watch progress</td><td><span class="b exist">EXISTS</span></td></tr>
+<tr><td>Video</td><td>Watch page (views/likes/comments over existing surfaces)</td><td><span class="b extend">EXTEND</span></td></tr>
+<tr><td>Video</td><td>Transcode/ABR, thumbnails/scrub, captions, chapters, remux</td><td><span class="b build">BUILD</span></td></tr>
+<tr><td>Live</td><td>SFU rooms, viewer (subscribe-only) role, live-loop cadence</td><td><span class="b exist">EXISTS</span> (code, unverified)</td></tr>
+<tr><td>Live</td><td>Broadcast mode, ingress/egress, live chat overlay, record-to-VOD, viewer count</td><td><span class="b build">BUILD</span></td></tr>
+<tr><td>Short-form</td><td>Vertical pager, viewport autoplay, video-first feed kind</td><td><span class="b build">BUILD</span></td></tr>
+<tr><td>Offline</td><td>Pin classes, budget, LRU, keep-on-device, verified fetch-then-pin</td><td><span class="b exist">EXISTS</span></td></tr>
+<tr><td>Offline</td><td>Download manager UX, background pre-fetch, progressive watch</td><td><span class="b build">BUILD</span></td></tr>
+<tr><td>P2P</td><td>Full torrent/swarm stack (written, not wired)</td><td><span class="b build">BUILD</span> wire + seed</td></tr>
+<tr><td>Modes</td><td>Local-only community/library toggle</td><td><span class="b extend">EXTEND</span></td></tr>
+<tr><td>Embeds</td><td>Consent-gated / proxy / import embed block</td><td><span class="b build">BUILD</span></td></tr>
+<tr><td>Monetize</td><td>Membership tiers, tips, storefront, payouts</td><td><span class="b build">BUILD</span></td></tr>
+<tr><td>Social</td><td>Follow/subscribe graph, community discovery</td><td><span class="b build">BUILD</span></td></tr>
+</tbody>
+</table></div>
+
+<!-- SEQUENCE -->
+<h2 id="sequence">A build sequence that keeps every step shippable</h2>
+<p>Full ambition does not mean unordered. This sequence front-loads the platform spine and the highest-leverage media build, so each phase produces something a community can actually use.</p>
+<ol>
+  <li><strong>Platform spine:</strong> block registry + layout document + capability manifest + layout editor. Ship with the blocks that already exist (forum, chat, gallery, files). A community can now compose an interface today.</li>
+  <li><strong>Video VOD:</strong> watch page + thumbnails + transcode/ABR on top of the loopback decoder. The video and gallery blocks go live. This is the YouTube core.</li>
+  <li><strong>Offline download manager + local-only mode:</strong> the download UX and the community storage toggle. Plex-style and "watch offline" land.</li>
+  <li><strong>Short-form pager + ranking strategies:</strong> the TikTok surface and the pick-your-algorithm / always-plain-timeline promise.</li>
+  <li><strong>P2P swarm + hosted seeder:</strong> wire the existing torrent stack and deploy the always-on seeder. Hosted and torrent-style availability become real.</li>
+  <li><strong>Live broadcast:</strong> Go Live on the SFU with viewer fan-out, live chat, record-to-VOD. Twitch/YouTube-Live. (Gated on SFU deploy + device proof.)</li>
+  <li><strong>Monetization + commerce:</strong> membership tiers, tips, storefront, payouts. Creators can earn.</li>
+  <li><strong>Timeline block + follow graph + discovery:</strong> the X/Twitter surface and the connective tissue that makes creators findable.</li>
+  <li><strong>Embeds:</strong> the consent-gated external-content bridge, with import promoted as the privacy-preserving path.</li>
+</ol>
+
+<div class="callout big"><p style="margin:4px 0"><strong>The bet.</strong> No incumbent can give a community owner a video channel, a live stream, a subreddit, a Discord, a store, and a private local-only vault in one composable, end-to-end-encrypted, no-algorithm-unless-you-choose-one surface, because their entire business is owning the one interface you are allowed to use. Meerkat's architecture was, perhaps accidentally, built to make exactly this possible: signed portable descriptors, forward-compatible channel kinds, a fail-safe theming model, content-addressed sealed media, and four delivery modes for the same bytes. The composition platform is the feature that turns all of that into the product you described.</p></div>
+
+<p class="foot">
+Prepared 2026-08-24 as the full-ambition feature architecture companion to the Meerkat system &amp; security review. State tags (EXISTS / EXTEND / BUILD) grounded in a code-level audit of the community descriptor, channel-kind, theme, media-type, scope, blob-transport, loopback-playback, room/SFU, torrent, and feed subsystems, cited to source. This is a design and planning artifact, not an implementation claim; verify current status against code before building.
+</p>
+</div>
+</body>
+</html>

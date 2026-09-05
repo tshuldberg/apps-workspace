@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyLife - Own Your Digital Life</title>
+<style>
+:root {
+  --bg-primary: #07070C;
+  --bg-secondary: #0E0E18;
+  --bg-card: #141422;
+  --bg-card-hover: #1A1A2E;
+  --text-primary: #F4EDE2;
+  --text-secondary: #9B95A0;
+  --text-muted: #6B6572;
+  --accent-teal: #14B8A6;
+  --accent-teal-dim: rgba(20, 184, 166, 0.15);
+  --accent-gold: #C9894D;
+  --accent-gold-dim: rgba(201, 137, 77, 0.12);
+  --accent-red: #EF4444;
+  --accent-green: #22C55E;
+  --gradient-start: #14B8A6;
+  --gradient-end: #7C3AED;
+  --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --section-padding: clamp(80px, 12vh, 140px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-stack);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Typography ─────────────────────────────── */
+h1, h2, h3, h4 { font-weight: 700; line-height: 1.15; letter-spacing: -0.02em; }
+
+h1 { font-size: clamp(2.8rem, 6vw, 5.5rem); }
+h2 { font-size: clamp(2rem, 4vw, 3.5rem); }
+h3 { font-size: clamp(1.2rem, 2vw, 1.5rem); }
+
+p { color: var(--text-secondary); font-size: clamp(1rem, 1.2vw, 1.2rem); }
+
+.section-label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-teal);
+  margin-bottom: 16px;
+}
+
+/* ── Layout ─────────────────────────────────── */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+}
+
+section {
+  padding: var(--section-padding) 0;
+  position: relative;
+}
+
+/* ── Reveal Animations ──────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Stagger delays */
+.delay-1 { transition-delay: 0.1s; }
+.delay-2 { transition-delay: 0.2s; }
+.delay-3 { transition-delay: 0.3s; }
+.delay-4 { transition-delay: 0.4s; }
+.delay-5 { transition-delay: 0.5s; }
+.delay-6 { transition-delay: 0.6s; }
+.delay-7 { transition-delay: 0.7s; }
+.delay-8 { transition-delay: 0.8s; }
+
+/* ── Buttons ────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 36px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-teal), #0D9488);
+  color: #fff;
+  box-shadow: 0 4px 24px rgba(20, 184, 166, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(20, 184, 166, 0.45);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid rgba(244, 237, 226, 0.2);
+}
+
+.btn-secondary:hover {
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 16px 0;
+  transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
+}
+
+nav.scrolled {
+  background: rgba(7, 7, 12, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 0 rgba(244, 237, 226, 0.06);
+}
+
+nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-decoration: none;
+  letter-spacing: -0.03em;
+}
+
+.nav-logo span { color: var(--accent-teal); }
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--text-primary); }
+
+.nav-cta {
+  padding: 10px 24px;
+  font-size: 0.85rem;
+}
+
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════════ */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding-top: 80px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-gradient {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  animation: float 12s ease-in-out infinite;
+}
+
+.hero-gradient-1 {
+  background: var(--accent-teal);
+  top: -200px;
+  right: -100px;
+  animation-delay: 0s;
+}
+
+.hero-gradient-2 {
+  background: #7C3AED;
+  bottom: -300px;
+  left: -200px;
+  animation-delay: -4s;
+}
+
+.hero-gradient-3 {
+  background: var(--accent-gold);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  opacity: 0.08;
+  animation-delay: -8s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: var(--accent-teal-dim);
+  border: 1px solid rgba(20, 184, 166, 0.25);
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent-teal);
+  margin-bottom: 32px;
+}
+
+.hero-badge::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-teal);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+#hero h1 {
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-teal) 50%, var(--text-primary) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+
+#hero p {
+  font-size: clamp(1.1rem, 1.5vw, 1.35rem);
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 48px;
+  justify-content: center;
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(244, 237, 226, 0.06);
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat-number {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent-teal);
+}
+
+.hero-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+}
+
+/* ═══════════════════════════════════════════════
+   PROBLEM SECTION
+   ═══════════════════════════════════════════════ */
+#problem {
+  background: var(--bg-secondary);
+}
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  margin-top: 48px;
+}
+
+.problem-left h2 {
+  margin-bottom: 20px;
+}
+
+.problem-left p {
+  margin-bottom: 24px;
+  font-size: 1.1rem;
+}
+
+.cost-counter {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 32px 0;
+}
+
+.cost-counter .amount {
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-weight: 800;
+  color: var(--accent-red);
+  font-variant-numeric: tabular-nums;
+}
+
+.cost-counter .period {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+
+.competitor-costs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(244, 237, 226, 0.04);
+  transition: border-color 0.2s;
+}
+
+.cost-row:hover {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.cost-row .app-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.cost-row .app-price {
+  color: var(--accent-red);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.cost-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1.5px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+}
+
+.cost-total .label {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.cost-total .total-price {
+  color: var(--accent-red);
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+/* ═══════════════════════════════════════════════
+   SOLUTION SECTION
+   ═══════════════════════════════════════════════ */
+#solution {
+  text-align: center;
+}
+
+.solution-comparison {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-top: 56px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.comparison-vs {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1.5px solid rgba(244, 237, 226, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.comparison-card {
+  padding: 40px 32px;
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.comparison-old {
+  background: var(--bg-card);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.comparison-new {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.08), rgba(124, 58, 237, 0.06));
+  border: 1.5px solid rgba(20, 184, 166, 0.25);
+  box-shadow: 0 8px 40px rgba(20, 184, 166, 0.1);
+}
+
+.comparison-card .price {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 800;
+  margin: 16px 0 8px;
+}
+
+.comparison-old .price { color: var(--accent-red); text-decoration: line-through; text-decoration-thickness: 3px; }
+.comparison-new .price { color: var(--accent-teal); }
+
+.comparison-card .price-sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.comparison-card .desc {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-top: 16px;
+}
+
+.solution-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 64px;
+}
+
+.feature-card {
+  padding: 32px 24px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid rgba(244, 237, 226, 0.04);
+  text-align: center;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.feature-card:hover {
+  border-color: rgba(20, 184, 166, 0.2);
+  transform: translateY(-4px);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+
+.feature-card h3 {
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════
+   MODULE SHOWCASE
+   ═══════════════════════════════════════════════ */
+#modules {
+  background: var(--bg-secondary);
+}
+
+.modules-intro {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 56px;
+}
+
+.category-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.category-tab {
+  padding: 10px 20px;
+  border-radius: 50px;
+  background: var(--bg-card);
+  border: 1px solid rgba(244, 237, 226, 0.06);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.category-tab:hover,
+.category-tab.active {
+  background: var(--accent-teal-dim);
+  border-color: rgba(20, 184, 166, 0.3);
+  color: var(--accent-teal);
+}
+
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.module-card {
+  padding: 24px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid rgba(244, 237, 226, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.module-card:hover {
+  border-color: rgba(20, 184, 166, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.module-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.module-icon {
+  font-size: 1.6rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.module-name {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.module-tagline {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.module-replaces {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid rgba(244, 237, 226, 0.04);
+}
+
+.module-replaces strong {
+  color: var(--accent-teal);
+  font-weight: 600;
+}
+
+.module-badge-free {
+  display: inline-block;
+  padding: 2px 10px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent-green);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ═══════════════════════════════════════════════
+   THE NUMBERS
+   ═══════════════════════════════════════════════ */
+#numbers {
+  text-align: center;
+}
+
+.numbers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+}
+
+.number-card {
+  padding: 40px 24px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid rgba(244, 237, 226, 0.04);
+}
+
+.number-value {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  color: var(--accent-teal);
+  font-variant-numeric: tabular-nums;
+}
+
+.number-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════
+   PRICING
+   ═══════════════════════════════════════════════ */
+#pricing {
+  background: var(--bg-secondary);
+  text-align: center;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 56px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pricing-card {
+  padding: 40px 32px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid rgba(244, 237, 226, 0.06);
+  position: relative;
+  transition: transform 0.3s;
+}
+
+.pricing-card:hover {
+  transform: translateY(-4px);
+}
+
+.pricing-card.featured {
+  border-color: var(--accent-teal);
+  box-shadow: 0 8px 40px rgba(20, 184, 166, 0.15);
+}
+
+.pricing-popular {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 20px;
+  background: var(--accent-teal);
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.pricing-tier {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.pricing-price {
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
+  font-weight: 800;
+  margin: 16px 0 4px;
+}
+
+.pricing-card.featured .pricing-price { color: var(--accent-teal); }
+
+.pricing-period {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.pricing-features {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.pricing-features li {
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.pricing-features li::before {
+  content: '\2713';
+  color: var(--accent-teal);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pricing-savings {
+  margin-top: 64px;
+  padding: 32px;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1px solid rgba(20, 184, 166, 0.15);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pricing-savings h3 { margin-bottom: 24px; }
+
+.savings-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(244, 237, 226, 0.04);
+  font-size: 0.9rem;
+}
+
+.savings-row:last-child { border-bottom: none; }
+
+.savings-row .competitor { color: var(--text-secondary); }
+.savings-row .their-price { color: var(--accent-red); font-weight: 600; }
+
+.savings-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0 0;
+  margin-top: 8px;
+  border-top: 2px solid rgba(20, 184, 166, 0.3);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.savings-total .save-amount { color: var(--accent-teal); }
+
+/* ═══════════════════════════════════════════════
+   PRIVACY
+   ═══════════════════════════════════════════════ */
+#privacy {
+  position: relative;
+  overflow: hidden;
+}
+
+.privacy-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.privacy-left h2 { margin-bottom: 20px; }
+
+.privacy-left p {
+  font-size: 1.1rem;
+  margin-bottom: 32px;
+}
+
+.privacy-points {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.privacy-point {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.privacy-point-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--accent-teal-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.privacy-point h4 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.privacy-point p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.privacy-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.shield-container {
+  position: relative;
+  width: 240px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shield-icon {
+  font-size: 8rem;
+  filter: drop-shadow(0 0 40px rgba(20, 184, 166, 0.2));
+  animation: shield-glow 4s ease-in-out infinite;
+}
+
+@keyframes shield-glow {
+  0%, 100% { filter: drop-shadow(0 0 40px rgba(20, 184, 166, 0.2)); }
+  50% { filter: drop-shadow(0 0 60px rgba(20, 184, 166, 0.35)); }
+}
+
+.shield-ring {
+  position: absolute;
+  border: 1.5px solid rgba(20, 184, 166, 0.15);
+  border-radius: 50%;
+  animation: ring-pulse 4s ease-in-out infinite;
+}
+
+.shield-ring-1 { width: 200px; height: 200px; animation-delay: 0s; }
+.shield-ring-2 { width: 260px; height: 260px; animation-delay: 1.3s; }
+.shield-ring-3 { width: 320px; height: 320px; animation-delay: 2.6s; }
+
+@keyframes ring-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.15; transform: scale(1.05); }
+}
+
+.privacy-quote {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 300px;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════
+   CTA / FOOTER
+   ═══════════════════════════════════════════════ */
+#cta {
+  background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  text-align: center;
+  padding-bottom: 40px;
+}
+
+.cta-content h2 {
+  margin-bottom: 16px;
+}
+
+.cta-content p {
+  font-size: 1.1rem;
+  max-width: 560px;
+  margin: 0 auto 40px;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.store-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  background: var(--bg-card);
+  border: 1.5px solid rgba(244, 237, 226, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.store-btn:hover {
+  border-color: var(--accent-teal);
+  transform: translateY(-2px);
+}
+
+.store-btn-icon { font-size: 1.8rem; }
+
+.store-btn-text {
+  text-align: left;
+}
+
+.store-btn-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.store-btn-name {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.email-signup {
+  max-width: 440px;
+  margin: 0 auto 64px;
+  display: flex;
+  gap: 8px;
+}
+
+.email-signup input {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 50px;
+  border: 1.5px solid rgba(244, 237, 226, 0.1);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: var(--font-stack);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.email-signup input::placeholder { color: var(--text-muted); }
+.email-signup input:focus { border-color: var(--accent-teal); }
+
+.email-signup .btn { padding: 14px 28px; white-space: nowrap; }
+
+footer {
+  padding: 40px 0;
+  border-top: 1px solid rgba(244, 237, 226, 0.06);
+  background: var(--bg-secondary);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.footer-tagline {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--text-primary); }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 960px) {
+  .problem-grid { grid-template-columns: 1fr; gap: 40px; }
+  .solution-comparison { grid-template-columns: 1fr; gap: 24px; }
+  .comparison-vs { margin: 0 auto; }
+  .solution-features { grid-template-columns: 1fr 1fr; }
+  .numbers-grid { grid-template-columns: repeat(2, 1fr); }
+  .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+  .privacy-content { grid-template-columns: 1fr; gap: 40px; }
+  .privacy-visual { order: -1; }
+  .nav-links { display: none; }
+  .nav-cta { display: none !important; }
+  .mobile-toggle { display: block; }
+}
+
+@media (max-width: 640px) {
+  .hero-stats { flex-direction: column; gap: 24px; }
+  .solution-features { grid-template-columns: 1fr; }
+  .numbers-grid { grid-template-columns: 1fr; }
+  .module-grid { grid-template-columns: 1fr; }
+  .email-signup { flex-direction: column; }
+  .email-signup .btn { width: 100%; justify-content: center; }
+  .footer-content { flex-direction: column; text-align: center; }
+  .hero-buttons { flex-direction: column; align-items: center; }
+  .cta-buttons { flex-direction: column; align-items: center; }
+  .store-btn { width: 100%; max-width: 260px; justify-content: center; }
+  .category-tabs { gap: 6px; }
+  .category-tab { padding: 8px 14px; font-size: 0.8rem; }
+}
+
+/* ── Scrollbar ──────────────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: rgba(244, 237, 226, 0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(244, 237, 226, 0.2); }
+
+/* ── Selection ──────────────────────────────── */
+::selection { background: rgba(20, 184, 166, 0.3); color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ NAVIGATION ═══════════ -->
+<nav>
+  <div class="container">
+    <a href="#hero" class="nav-logo">My<span>Life</span></a>
+    <ul class="nav-links">
+      <li><a href="#modules">Modules</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+    </ul>
+    <a href="#cta" class="btn btn-primary nav-cta" style="padding:10px 24px;font-size:0.85rem;">Get Early Access</a>
+    <button class="mobile-toggle" aria-label="Menu">&#9776;</button>
+  </div>
+</nav>
+
+<!-- ═══════════ HERO ═══════════ -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-gradient hero-gradient-1"></div>
+    <div class="hero-gradient hero-gradient-2"></div>
+    <div class="hero-gradient hero-gradient-3"></div>
+  </div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge reveal delay-1">Privacy-first. Offline-first. Yours.</div>
+      <h1 class="reveal delay-2">Own Your Digital Life</h1>
+      <p class="reveal delay-3">20+ personal apps in one private hub. No accounts, no cloud, no telemetry. Your data stays on your device. Period.</p>
+      <div class="hero-buttons reveal delay-4">
+        <a href="#cta" class="btn btn-primary">Get Early Access</a>
+        <a href="#modules" class="btn btn-secondary">Explore Modules</a>
+      </div>
+      <div class="hero-stats reveal delay-5">
+        <div class="hero-stat">
+          <div class="hero-stat-number">20+</div>
+          <div class="hero-stat-label">Modules</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number">$0</div>
+          <div class="hero-stat-label">Data sold</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-number">100%</div>
+          <div class="hero-stat-label">On-device</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ THE PROBLEM ═══════════ -->
+<section id="problem">
+  <div class="container">
+    <div class="problem-grid">
+      <div class="problem-left">
+        <span class="section-label reveal">The Problem</span>
+        <h2 class="reveal delay-1">The App<br>Subscription Tax</h2>
+        <p class="reveal delay-2">The average person uses 10+ apps to manage their life, each with its own subscription, its own account, and its own copy of your personal data. The cost adds up fast.</p>
+        <div class="cost-counter reveal delay-3">
+          <span class="amount" id="costCounter">$0</span>
+          <span class="period">/ year</span>
+        </div>
+        <p class="reveal delay-4" style="font-size:0.9rem;color:var(--text-muted);">That is what you spend on standalone apps. And every one of them harvests your data.</p>
+      </div>
+      <div class="competitor-costs reveal-right delay-2">
+        <div class="cost-row"><span class="app-name">YNAB (Budgeting)</span><span class="app-price">$109/yr</span></div>
+        <div class="cost-row"><span class="app-name">Surfline (Surf)</span><span class="app-price">$120/yr</span></div>
+        <div class="cost-row"><span class="app-name">Strava (Fitness)</span><span class="app-price">$80/yr</span></div>
+        <div class="cost-row"><span class="app-name">Calm (Meditation)</span><span class="app-price">$70/yr</span></div>
+        <div class="cost-row"><span class="app-name">Quizlet (Flashcards)</span><span class="app-price">$96/yr</span></div>
+        <div class="cost-row"><span class="app-name">Flo (Cycle Tracking)</span><span class="app-price">$50/yr</span></div>
+        <div class="cost-row"><span class="app-name">Day One (Journal)</span><span class="app-price">$50/yr</span></div>
+        <div class="cost-row"><span class="app-name">AllTrails (Hiking)</span><span class="app-price">$36/yr</span></div>
+        <div class="cost-row"><span class="app-name">StoryGraph (Books)</span><span class="app-price">$50/yr</span></div>
+        <div class="cost-row"><span class="app-name">Daylio (Mood)</span><span class="app-price">$36/yr</span></div>
+        <div class="cost-total">
+          <span class="label">Your annual app tax</span>
+          <span class="total-price">$697/yr</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ THE SOLUTION ═══════════ -->
+<section id="solution">
+  <div class="container">
+    <span class="section-label reveal">The Solution</span>
+    <h2 class="reveal delay-1">One App. Everything You Need.</h2>
+    <p class="reveal delay-2" style="max-width:560px;margin:16px auto 0;">MyLife replaces ten standalone subscriptions with one private, offline-first hub. All your data stays on your device.</p>
+
+    <div class="solution-comparison">
+      <div class="comparison-card comparison-old reveal-left delay-2">
+        <div style="font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">10+ Separate Apps</div>
+        <div class="price">$697</div>
+        <div class="price-sub">per year</div>
+        <div class="desc">10 accounts. 10 privacy policies. 10 chances for your data to be sold, breached, or deleted.</div>
+      </div>
+      <div class="comparison-vs reveal-scale delay-3">vs</div>
+      <div class="comparison-card comparison-new reveal-right delay-2">
+        <div style="font-size:0.85rem;color:var(--accent-teal);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">MyLife Complete</div>
+        <div class="price">$20</div>
+        <div class="price-sub">one-time purchase</div>
+        <div class="desc">One app. Zero accounts. Zero data collection. 20+ modules, all on your device.</div>
+      </div>
+    </div>
+
+    <div class="solution-features">
+      <div class="feature-card reveal delay-1">
+        <div class="feature-icon">&#128274;</div>
+        <h3>Privacy by Design</h3>
+        <p>No accounts. No cloud. No analytics. No telemetry. Your data never leaves your device.</p>
+      </div>
+      <div class="feature-card reveal delay-2">
+        <div class="feature-icon">&#128268;</div>
+        <h3>Works Offline</h3>
+        <p>Every module works without an internet connection. Your data is always accessible, always yours.</p>
+      </div>
+      <div class="feature-card reveal delay-3">
+        <div class="feature-icon">&#127912;</div>
+        <h3>Cross-Module Insights</h3>
+        <p>Correlate fasting with mood, habits with sleep, workouts with energy. No standalone app can do this.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ MODULE SHOWCASE ═══════════ -->
+<section id="modules">
+  <div class="container">
+    <div class="modules-intro">
+      <span class="section-label reveal">Modules</span>
+      <h2 class="reveal delay-1">Everything You Need,<br>Nothing You Don't</h2>
+      <p class="reveal delay-2">Each module replaces a standalone app. Enable what you need, disable what you don't. Your hub, your way.</p>
+    </div>
+
+    <div class="category-tabs reveal delay-3">
+      <button class="category-tab active" data-filter="all">All</button>
+      <button class="category-tab" data-filter="health">Health</button>
+      <button class="category-tab" data-filter="finance">Finance</button>
+      <button class="category-tab" data-filter="fitness">Fitness</button>
+      <button class="category-tab" data-filter="reading">Reading</button>
+      <button class="category-tab" data-filter="home">Home</button>
+      <button class="category-tab" data-filter="lifestyle">Lifestyle</button>
+    </div>
+
+    <div class="module-grid" id="moduleGrid">
+      <!-- Health -->
+      <div class="module-card reveal" data-category="health">
+        <div class="module-card-header">
+          <div class="module-icon">&#9201;&#65039;</div>
+          <div>
+            <div class="module-name">MyFast <span class="module-badge-free">Free</span></div>
+          </div>
+        </div>
+        <div class="module-tagline">Own your fasting. Timer, streaks, and insights without an AI coach upsell.</div>
+        <div class="module-replaces">Replaces <strong>Zero</strong> ($70/yr), <strong>Simple</strong> ($60/yr)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="health">
+        <div class="module-card-header">
+          <div class="module-icon">&#127856;</div>
+          <div><div class="module-name">MyHabits</div></div>
+        </div>
+        <div class="module-tagline">Build better habits. Cross-platform streaks with no account required.</div>
+        <div class="module-replaces">Replaces <strong>Streaks</strong> ($5), <strong>Habitica</strong> ($48/yr)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="health">
+        <div class="module-card-header">
+          <div class="module-icon">&#128138;</div>
+          <div><div class="module-name">MyMeds</div></div>
+        </div>
+        <div class="module-tagline">Never miss a dose. Your medication data stays with you, not pharma companies.</div>
+        <div class="module-replaces">Replaces <strong>Medisafe</strong> (sells data to pharma)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="health">
+        <div class="module-card-header">
+          <div class="module-icon">&#128522;</div>
+          <div><div class="module-name">MyMood</div></div>
+        </div>
+        <div class="module-tagline">Understand yourself. Track emotions privately, correlate with habits and fasting.</div>
+        <div class="module-replaces">Replaces <strong>Daylio</strong> ($36/yr)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="health">
+        <div class="module-card-header">
+          <div class="module-icon">&#127800;</div>
+          <div><div class="module-name">MyCycle</div></div>
+        </div>
+        <div class="module-tagline">Track your cycle privately. Truly offline, post-Dobbs peace of mind.</div>
+        <div class="module-replaces">Replaces <strong>Flo</strong> ($50/yr), <strong>Clue</strong></div>
+      </div>
+
+      <!-- Finance -->
+      <div class="module-card reveal" data-category="finance">
+        <div class="module-card-header">
+          <div class="module-icon">&#128176;</div>
+          <div><div class="module-name">MyBudget</div></div>
+        </div>
+        <div class="module-tagline">Master your money. Envelope budgeting + subscription tracking, no bank linking.</div>
+        <div class="module-replaces">Replaces <strong>YNAB</strong> ($109/yr), <strong>Rocket Money</strong></div>
+      </div>
+
+      <!-- Fitness -->
+      <div class="module-card reveal" data-category="fitness">
+        <div class="module-card-header">
+          <div class="module-icon">&#127947;&#65039;</div>
+          <div><div class="module-name">MyWorkouts</div></div>
+        </div>
+        <div class="module-tagline">Your personal trainer. Log workouts, track progress, own your data.</div>
+        <div class="module-replaces">Replaces <strong>Strava</strong> ($80/yr), <strong>Fitbod</strong> ($156/yr)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="fitness">
+        <div class="module-card-header">
+          <div class="module-icon">&#127940;</div>
+          <div><div class="module-name">MySurf</div></div>
+        </div>
+        <div class="module-tagline">Ride better waves. AI-powered forecasts at a fraction of Surfline's price.</div>
+        <div class="module-replaces">Replaces <strong>Surfline</strong> ($120/yr)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="fitness">
+        <div class="module-card-header">
+          <div class="module-icon">&#129406;</div>
+          <div><div class="module-name">MyTrails</div></div>
+        </div>
+        <div class="module-tagline">Find your path. Offline trail maps with no account and no tracking.</div>
+        <div class="module-replaces">Replaces <strong>AllTrails</strong> ($36/yr)</div>
+      </div>
+
+      <!-- Reading -->
+      <div class="module-card reveal" data-category="reading">
+        <div class="module-card-header">
+          <div class="module-icon">&#128218;</div>
+          <div><div class="module-name">MyBooks</div></div>
+        </div>
+        <div class="module-tagline">Track your reading life. Half-star ratings, reading stats, Goodreads import.</div>
+        <div class="module-replaces">Replaces <strong>Goodreads</strong> (stagnant, Amazon-owned)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="reading">
+        <div class="module-card-header">
+          <div class="module-icon">&#128214;</div>
+          <div><div class="module-name">MyWords</div></div>
+        </div>
+        <div class="module-tagline">Expand your vocabulary. Build word collections offline, no account needed.</div>
+        <div class="module-replaces">Replaces <strong>Dictionary.com</strong> (deleted all accounts)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="reading">
+        <div class="module-card-header">
+          <div class="module-icon">&#129504;</div>
+          <div><div class="module-name">MyFlash</div></div>
+        </div>
+        <div class="module-tagline">Study smarter. Spaced repetition flashcards, fully on-device.</div>
+        <div class="module-replaces">Replaces <strong>Quizlet</strong> ($96/yr), <strong>Anki</strong> ($25)</div>
+      </div>
+
+      <!-- Home -->
+      <div class="module-card reveal" data-category="home">
+        <div class="module-card-header">
+          <div class="module-icon">&#127968;</div>
+          <div><div class="module-name">MyHomes</div></div>
+        </div>
+        <div class="module-tagline">Your real estate OS. Mortgage, maintenance, and home value in one place.</div>
+        <div class="module-replaces">Replaces scattered spreadsheets and paper files</div>
+      </div>
+
+      <div class="module-card reveal" data-category="home">
+        <div class="module-card-header">
+          <div class="module-icon">&#128663;</div>
+          <div><div class="module-name">MyCar</div></div>
+        </div>
+        <div class="module-tagline">Know your vehicle. Maintenance, fuel, costs, and recall alerts.</div>
+        <div class="module-replaces">Replaces <strong>Drivvo</strong>, <strong>CARFAX Car Care</strong></div>
+      </div>
+
+      <!-- Lifestyle -->
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#127859;</div>
+          <div><div class="module-name">MyRecipes</div></div>
+        </div>
+        <div class="module-tagline">Your digital cookbook. Collect, organize, and cook without the ads.</div>
+        <div class="module-replaces">Replaces <strong>Paprika</strong>, <strong>Yummly</strong> (shut down)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#127881;</div>
+          <div><div class="module-name">MyRSVP</div></div>
+        </div>
+        <div class="module-tagline">Host with ease. Private event planning for dinner parties and gatherings.</div>
+        <div class="module-replaces">Replaces <strong>Evite</strong>, <strong>Partiful</strong></div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#127908;&#65039;</div>
+          <div><div class="module-name">MyVoice</div></div>
+        </div>
+        <div class="module-tagline">Dictate naturally. On-device voice notes and transcription. No cloud.</div>
+        <div class="module-replaces">Replaces <strong>Otter.ai</strong> ($100/yr)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#128211;</div>
+          <div><div class="module-name">MyJournal</div></div>
+        </div>
+        <div class="module-tagline">Write your story. Private journaling with rich media, no Automattic cloud.</div>
+        <div class="module-replaces">Replaces <strong>Day One</strong> ($50/yr)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#128221;</div>
+          <div><div class="module-name">MyNotes</div></div>
+        </div>
+        <div class="module-tagline">Capture everything. Local-first notes inspired by the Obsidian philosophy.</div>
+        <div class="module-replaces">Replaces <strong>Evernote</strong> (gutted post-acquisition)</div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#128087;</div>
+          <div><div class="module-name">MyCloset</div></div>
+        </div>
+        <div class="module-tagline">Style your wardrobe. Outfit planning without sharing your shopping habits.</div>
+        <div class="module-replaces">Replaces <strong>Cladwell</strong>, <strong>Whering</strong></div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#127793;</div>
+          <div><div class="module-name">MyGarden</div></div>
+        </div>
+        <div class="module-tagline">Grow with confidence. Plant care tracking without Chinese-owned data collection.</div>
+        <div class="module-replaces">Replaces <strong>PictureThis</strong>, <strong>Planta</strong></div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#128062;</div>
+          <div><div class="module-name">MyPets</div></div>
+        </div>
+        <div class="module-tagline">Care for your companions. Vet records, meds, and health tracking on-device.</div>
+        <div class="module-replaces">Replaces scattered vet paperwork</div>
+      </div>
+
+      <div class="module-card reveal" data-category="lifestyle">
+        <div class="module-card-header">
+          <div class="module-icon">&#11088;</div>
+          <div><div class="module-name">MyStars</div></div>
+        </div>
+        <div class="module-tagline">Explore the night sky. Stargazing companion, no subscription required.</div>
+        <div class="module-replaces">Replaces <strong>Star Walk 2</strong>, <strong>SkyView</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ THE NUMBERS ═══════════ -->
+<section id="numbers">
+  <div class="container">
+    <span class="section-label reveal">The Numbers</span>
+    <h2 class="reveal delay-1">Markets Ready for Disruption</h2>
+    <p class="reveal delay-2" style="max-width:560px;margin:0 auto;">Users across every category are looking for something better. The data speaks for itself.</p>
+
+    <div class="numbers-grid">
+      <div class="number-card reveal delay-1">
+        <div class="number-value" data-target="150" data-suffix="M+">0</div>
+        <div class="number-label">Goodreads users on a stagnant platform seeking alternatives</div>
+      </div>
+      <div class="number-card reveal delay-2">
+        <div class="number-value" data-target="20" data-suffix="M+">0</div>
+        <div class="number-label">Displaced Mint users still searching for a budgeting home</div>
+      </div>
+      <div class="number-card reveal delay-3">
+        <div class="number-value" data-target="150" data-suffix="M">0</div>
+        <div class="number-label">MyFitnessPal accounts breached in a single data hack</div>
+      </div>
+      <div class="number-card reveal delay-4">
+        <div class="number-value" data-target="697" data-prefix="$" data-suffix="">0</div>
+        <div class="number-label">Average annual cost for 10 standalone app subscriptions</div>
+      </div>
+      <div class="number-card reveal delay-5">
+        <div class="number-value" data-target="61" data-suffix="%">0</div>
+        <div class="number-label">of period tracking apps have code vulnerabilities exposing user data</div>
+      </div>
+      <div class="number-card reveal delay-6">
+        <div class="number-value" data-target="100" data-suffix="B+">0</div>
+        <div class="number-label">in combined addressable market across all MyLife categories</div>
+      </div>
+      <div class="number-card reveal delay-7">
+        <div class="number-value" data-target="42" data-suffix="%">0</div>
+        <div class="number-label">of consumers have forgotten a subscription they still pay for</div>
+      </div>
+      <div class="number-card reveal delay-8">
+        <div class="number-value" data-target="0" data-suffix="">0</div>
+        <div class="number-label">bytes of your data sent to our servers. That number will never change.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ PRICING ═══════════ -->
+<section id="pricing">
+  <div class="container">
+    <span class="section-label reveal">Pricing</span>
+    <h2 class="reveal delay-1">Own It. Don't Rent It.</h2>
+    <p class="reveal delay-2" style="max-width:560px;margin:0 auto;">No subscriptions. No recurring charges. Buy once, use forever. Real software ownership in an age of endless subscriptions.</p>
+
+    <div class="pricing-grid">
+      <div class="pricing-card reveal delay-1">
+        <div class="pricing-tier">Single App</div>
+        <div class="pricing-price">$2</div>
+        <div class="pricing-period">one-time</div>
+        <ul class="pricing-features">
+          <li>Any one module of your choice</li>
+          <li>Full features, no limits</li>
+          <li>Lifetime updates</li>
+          <li>Zero data collection</li>
+        </ul>
+        <a href="#cta" class="btn btn-secondary" style="width:100%;justify-content:center;">Choose Module</a>
+      </div>
+
+      <div class="pricing-card featured reveal delay-2">
+        <div class="pricing-popular">Most Popular</div>
+        <div class="pricing-tier">5-Pack</div>
+        <div class="pricing-price">$5</div>
+        <div class="pricing-period">one-time</div>
+        <ul class="pricing-features">
+          <li>Any 5 modules you pick</li>
+          <li>Add more anytime at $2 each</li>
+          <li>Cross-module insights</li>
+          <li>Lifetime updates</li>
+          <li>Zero data collection</li>
+        </ul>
+        <a href="#cta" class="btn btn-primary" style="width:100%;justify-content:center;">Get 5-Pack</a>
+      </div>
+
+      <div class="pricing-card reveal delay-3">
+        <div class="pricing-tier">MyLife Complete</div>
+        <div class="pricing-price">$20</div>
+        <div class="pricing-period">one-time, all 20+ modules</div>
+        <ul class="pricing-features">
+          <li>Every current module</li>
+          <li>Every future module, forever</li>
+          <li>Full cross-module insights</li>
+          <li>Priority feature requests</li>
+          <li>Zero data collection</li>
+        </ul>
+        <a href="#cta" class="btn btn-secondary" style="width:100%;justify-content:center;">Get Complete</a>
+      </div>
+    </div>
+
+    <div class="pricing-savings reveal delay-4">
+      <h3>What You Save vs. Standalone Apps</h3>
+      <div class="savings-row"><span class="competitor">YNAB (Budgeting)</span><span class="their-price">$109/yr</span></div>
+      <div class="savings-row"><span class="competitor">Surfline (Surf)</span><span class="their-price">$120/yr</span></div>
+      <div class="savings-row"><span class="competitor">Strava (Fitness)</span><span class="their-price">$80/yr</span></div>
+      <div class="savings-row"><span class="competitor">Quizlet (Flashcards)</span><span class="their-price">$96/yr</span></div>
+      <div class="savings-row"><span class="competitor">StoryGraph (Books)</span><span class="their-price">$50/yr</span></div>
+      <div class="savings-row"><span class="competitor">Day One (Journal)</span><span class="their-price">$50/yr</span></div>
+      <div class="savings-row"><span class="competitor">Calm (Meditation)</span><span class="their-price">$70/yr</span></div>
+      <div class="savings-total">
+        <span>MyLife Complete (one-time)</span>
+        <span class="save-amount">$20 total vs. $575/yr recurring</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ PRIVACY ═══════════ -->
+<section id="privacy">
+  <div class="container">
+    <div class="privacy-content">
+      <div class="privacy-left">
+        <span class="section-label reveal">Privacy Promise</span>
+        <h2 class="reveal delay-1">Your Data Stays<br>on Your Device. Period.</h2>
+        <p class="reveal delay-2">In an age where every app wants your data, MyLife takes a radical stance: we do not want it. Not now. Not ever.</p>
+
+        <div class="privacy-points">
+          <div class="privacy-point reveal delay-3">
+            <div class="privacy-point-icon">&#128274;</div>
+            <div>
+              <h4>No Accounts Required</h4>
+              <p>No email, no password, no sign-up. Download and start using. Your identity is yours.</p>
+            </div>
+          </div>
+          <div class="privacy-point reveal delay-4">
+            <div class="privacy-point-icon">&#128225;</div>
+            <div>
+              <h4>No Cloud Storage</h4>
+              <p>All data stored in local SQLite on your device. Nothing uploaded, nothing synced without your explicit choice.</p>
+            </div>
+          </div>
+          <div class="privacy-point reveal delay-5">
+            <div class="privacy-point-icon">&#128200;</div>
+            <div>
+              <h4>No Analytics or Telemetry</h4>
+              <p>Zero tracking pixels. Zero usage analytics. Zero crash reporters phoning home. We literally cannot see how you use the app.</p>
+            </div>
+          </div>
+          <div class="privacy-point reveal delay-6">
+            <div class="privacy-point-icon">&#128083;</div>
+            <div>
+              <h4>Audit the Code Yourself</h4>
+              <p>Licensed FSL-1.1-Apache-2.0. Read every line. Verify our privacy claims. We have nothing to hide.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="privacy-visual reveal-scale delay-3">
+        <div class="shield-container">
+          <div class="shield-ring shield-ring-1"></div>
+          <div class="shield-ring shield-ring-2"></div>
+          <div class="shield-ring shield-ring-3"></div>
+          <div class="shield-icon">&#128737;&#65039;</div>
+        </div>
+        <p class="privacy-quote">"The most secure data is data that was never collected in the first place."</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ CTA / FOOTER ═══════════ -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-content">
+      <span class="section-label reveal">Get Started</span>
+      <h2 class="reveal delay-1">Take Back Your Digital Life</h2>
+      <p class="reveal delay-2">Built for people who value their privacy. Available on iOS, Android, and the web.</p>
+
+      <div class="cta-buttons reveal delay-3">
+        <a href="#" class="store-btn">
+          <span class="store-btn-icon">&#63743;</span>
+          <span class="store-btn-text">
+            <span class="store-btn-label">Download on the</span>
+            <span class="store-btn-name">App Store</span>
+          </span>
+        </a>
+        <a href="#" class="store-btn">
+          <span class="store-btn-icon">&#9654;</span>
+          <span class="store-btn-text">
+            <span class="store-btn-label">Get it on</span>
+            <span class="store-btn-name">Google Play</span>
+          </span>
+        </a>
+        <a href="#" class="store-btn">
+          <span class="store-btn-icon">&#127760;</span>
+          <span class="store-btn-text">
+            <span class="store-btn-label">Use on the</span>
+            <span class="store-btn-name">Web</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="reveal delay-4">
+        <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:16px;">Or get notified when we launch:</p>
+        <div class="email-signup">
+          <input type="email" placeholder="you@email.com" aria-label="Email address">
+          <button class="btn btn-primary">Notify Me</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-left">
+        <a href="#hero" class="nav-logo">My<span style="color:var(--accent-teal)">Life</span></a>
+        <div class="footer-tagline">Built for people who value their privacy.</div>
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Source Code</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Intersection Observer for reveal animations ──
+  const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -40px 0px' };
+
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Don't unobserve - allows re-triggering if needed
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ── Navbar scroll effect ──
+  var nav = document.querySelector('nav');
+  var lastScroll = 0;
+
+  window.addEventListener('scroll', function() {
+    var scrollY = window.scrollY;
+    if (scrollY > 50) {
+      nav.classList.add('scrolled');
+    } else {
+      nav.classList.remove('scrolled');
+    }
+    lastScroll = scrollY;
+  }, { passive: true });
+
+  // ── Cost counter animation ──
+  var costTarget = 697;
+  var costEl = document.getElementById('costCounter');
+  var costAnimated = false;
+
+  var costObserver = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !costAnimated) {
+      costAnimated = true;
+      animateValue(costEl, 0, costTarget, 2000, '$');
+    }
+  }, { threshold: 0.5 });
+
+  if (costEl) costObserver.observe(costEl);
+
+  // ── Number counter animations ──
+  var numberCards = document.querySelectorAll('.number-value[data-target]');
+  var numberObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !entry.target.dataset.animated) {
+        entry.target.dataset.animated = 'true';
+        var target = parseInt(entry.target.dataset.target);
+        var prefix = entry.target.dataset.prefix || '';
+        var suffix = entry.target.dataset.suffix || '';
+        animateValue(entry.target, 0, target, 1800, prefix, suffix);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  numberCards.forEach(function(card) {
+    numberObserver.observe(card);
+  });
+
+  function animateValue(el, start, end, duration, prefix, suffix) {
+    prefix = prefix || '';
+    suffix = suffix || '';
+    if (end === 0) {
+      el.textContent = prefix + '0' + suffix;
+      return;
+    }
+    var startTime = null;
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      var current = Math.floor(eased * (end - start) + start);
+      el.textContent = prefix + current.toLocaleString() + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = prefix + end.toLocaleString() + suffix;
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // ── Module category filter ──
+  var tabs = document.querySelectorAll('.category-tab');
+  var cards = document.querySelectorAll('.module-card');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      var filter = tab.dataset.filter;
+
+      cards.forEach(function(card) {
+        if (filter === 'all' || card.dataset.category === filter) {
+          card.style.display = '';
+          // Re-trigger animation
+          card.classList.remove('visible');
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              card.classList.add('visible');
+            });
+          });
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // ── Smooth scroll for anchor links ──
+  document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ── Mobile nav toggle (basic) ──
+  var mobileToggle = document.querySelector('.mobile-toggle');
+  var navLinks = document.querySelector('.nav-links');
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', function() {
+      if (navLinks.style.display === 'flex') {
+        navLinks.style.display = 'none';
+      } else {
+        navLinks.style.display = 'flex';
+        navLinks.style.position = 'absolute';
+        navLinks.style.top = '60px';
+        navLinks.style.right = '20px';
+        navLinks.style.flexDirection = 'column';
+        navLinks.style.background = 'rgba(7,7,12,0.95)';
+        navLinks.style.padding = '16px 24px';
+        navLinks.style.borderRadius = '12px';
+        navLinks.style.border = '1px solid rgba(244,237,226,0.06)';
+        navLinks.style.gap = '16px';
+        navLinks.style.backdropFilter = 'blur(20px)';
+      }
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>

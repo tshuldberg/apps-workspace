@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yearn: Exact App State Review, 2026-07-11</title>
+<style>
+  :root{
+    --inkwine:#1A0E14; --inkwine-deep:#150B11; --surface:#2A1820; --surface-el:#35202A;
+    --soft:rgba(245,230,216,0.08); --line:rgba(245,230,216,0.14);
+    --vellum:#F5E6D8; --text2:#C9A89B; --text3:#8B7268;
+    --coral:#E8856B; --coral-p:#D86A50; --sage:#A8B89B; --gold:#D4A574;
+    --alarm:#E85A6B; --success:#8FBF7F;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:linear-gradient(180deg,var(--inkwine),var(--inkwine-deep));color:var(--vellum);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:32px 20px 80px}
+  main{max-width:1180px;margin:0 auto}
+  h1{font-size:32px;line-height:1.2;font-weight:600}
+  h2{font-size:22px;font-weight:600;margin:56px 0 6px;color:var(--vellum)}
+  h3{font-size:16px;font-weight:600;margin:26px 0 8px;color:var(--gold)}
+  p{color:var(--text2);max-width:78ch}
+  .kicker{color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+  .sub{color:var(--text2);margin-top:6px;max-width:86ch}
+  .rule{border:none;border-top:1px solid var(--line);margin:14px 0 0}
+  .banner{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;background:var(--soft)}
+  .pill.good{color:var(--success);border-color:rgba(143,191,127,.4)}
+  .pill.warn{color:var(--gold);border-color:rgba(212,165,116,.4)}
+  .pill.bad{color:var(--alarm);border-color:rgba(232,90,107,.4)}
+  table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13.5px}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:var(--surface);color:var(--gold);font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  td{color:var(--text2)} td b,td strong{color:var(--vellum)}
+  code{background:var(--soft);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font:12.5px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--vellum)}
+  pre{background:#120910;border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:10px 0 18px}
+  pre code{background:none;border:none;padding:0;color:#EBD9C8;font-size:12.5px;line-height:1.55}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:26px;margin-top:18px}
+  .shot{display:flex;flex-direction:column;gap:10px}
+  .shot .cap{font-size:12.5px;color:var(--text3);line-height:1.5}
+  .shot .cap b{color:var(--text2)}
+  /* phone frame */
+  .phone{width:100%;max-width:320px;margin:0 auto;background:linear-gradient(180deg,var(--inkwine),var(--inkwine-deep));
+    border:1.5px solid rgba(245,230,216,.22);border-radius:30px;padding:14px 12px 10px;box-shadow:0 18px 44px rgba(0,0,0,.5)}
+  .notch{width:88px;height:5px;border-radius:99px;background:rgba(245,230,216,.18);margin:0 auto 12px}
+  .apphead{display:flex;justify-content:space-between;align-items:flex-start;padding:2px 4px 10px}
+  .wordmark{font-size:21px;font-weight:700;letter-spacing:.01em}
+  .tagline{font-size:10.5px;color:var(--text3)}
+  .beta{display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--soft);
+    border-radius:999px;padding:3px 9px;font-size:9.5px;font-weight:700;color:var(--sage)}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:11px}
+  .panel .k{color:var(--gold);font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .panel .t{font-size:18px;font-weight:600;line-height:1.25}
+  .icnbox{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px;
+    background:rgba(168,184,155,.12);border:1px solid rgba(168,184,155,.28)}
+  .inp{display:flex;align-items:center;gap:8px;background:var(--soft);border:1px solid var(--line);
+    border-radius:7px;min-height:40px;padding:0 11px;font-size:13px;color:var(--text3)}
+  .inp .ph{color:var(--text3)}
+  .btn{display:flex;align-items:center;justify-content:center;gap:7px;min-height:40px;border-radius:7px;
+    font-size:13px;font-weight:800;color:var(--inkwine);background:var(--coral)}
+  .btn.white{background:#fff;color:#000;font-weight:600}
+  .btn.ghost{background:var(--soft);color:var(--vellum);border:1px solid var(--line);font-weight:600}
+  .btn.green{background:var(--success)}
+  .btn.dis{opacity:.45}
+  .seg{display:flex;gap:6px}
+  .seg .opt{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line);
+    border-radius:7px;min-height:32px;font-size:11.5px;font-weight:700;color:var(--text2);background:var(--soft)}
+  .seg .opt.on{background:var(--gold);color:var(--inkwine);border-color:var(--gold)}
+  .fine{font-size:9.8px;color:var(--text3);line-height:1.5}
+  .fine a{color:var(--gold)}
+  .err{color:var(--alarm);font-size:11px}
+  .tabbar{display:flex;justify-content:space-around;border-top:1px solid var(--line);margin-top:12px;padding:9px 0 4px}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:700;color:var(--text3)}
+  .tab.on{color:var(--coral)}
+  .tab .ti{font-size:15px}
+  /* deck card */
+  .photo{position:relative;border-radius:10px;height:300px;background:var(--surface-el);overflow:hidden;
+    display:flex;flex-direction:column;justify-content:space-between}
+  .progressrow{display:flex;gap:4px;padding:9px 10px 0}
+  .progressrow i{flex:1;height:3px;border-radius:99px;background:rgba(245,230,216,.25)}
+  .progressrow i.on{background:var(--vellum)}
+  .initial{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:74px;font-weight:700;color:rgba(245,230,216,.28)}
+  .cardmeta{position:relative;padding:12px;background:linear-gradient(0deg,rgba(21,11,17,.92),transparent)}
+  .cardname{font-size:19px;font-weight:700}
+  .cardsub{font-size:11px;color:var(--text2)}
+  .chiprow{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line);background:rgba(21,11,17,.55);border-radius:999px;padding:2px 9px;font-size:9.5px;color:var(--text2)}
+  .prompt{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px;font-size:12px}
+  .prompt .q{color:var(--gold);font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+  .safety{display:flex;gap:12px;justify-content:flex-end;font-size:10.5px;color:var(--text3)}
+  .safety span{text-decoration:underline}
+  .actions{display:flex;justify-content:center;gap:16px;padding-top:12px;align-items:center}
+  .act{width:48px;height:48px;border-radius:99px;display:flex;align-items:center;justify-content:center;
+    font-size:19px;border:1px solid var(--line);background:var(--soft);color:var(--text2)}
+  .act.small{width:40px;height:40px;font-size:15px}
+  .act.coral{background:var(--coral);color:var(--inkwine);border-color:var(--coral);width:56px;height:56px}
+  .act.danger{color:var(--alarm)}
+  .listrow{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px}
+  .avatar{width:40px;height:40px;border-radius:99px;background:var(--surface-el);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text2)}
+  .listrow .nm{font-size:13.5px;font-weight:700}
+  .listrow .ds{font-size:10.5px;color:var(--text3)}
+  .rowbtn{margin-left:auto;background:var(--coral);color:var(--inkwine);font-size:10.5px;font-weight:800;border-radius:999px;padding:5px 11px}
+  .rowbtn.quiet{background:var(--soft);color:var(--text2);border:1px solid var(--line)}
+  .bubble{max-width:78%;border-radius:11px;padding:8px 11px;font-size:12px;line-height:1.45}
+  .bubble.them{background:var(--surface-el);align-self:flex-start}
+  .bubble.me{background:var(--coral);color:var(--inkwine);align-self:flex-end;font-weight:600}
+  .bubble .lock{font-size:9px;opacity:.75;display:block;margin-top:3px}
+  .warnband{background:rgba(232,90,107,.12);border:1px solid rgba(232,90,107,.4);border-radius:8px;padding:9px 11px;font-size:10.5px;color:var(--alarm)}
+  .okband{background:rgba(143,191,127,.1);border:1px solid rgba(143,191,127,.35);border-radius:8px;padding:9px 11px;font-size:10.5px;color:var(--success)}
+  .composer{display:flex;gap:7px;align-items:center}
+  .composer .inp{flex:1}
+  .sendbtn{width:38px;height:38px;border-radius:99px;background:var(--coral);display:flex;align-items:center;justify-content:center;color:var(--inkwine);font-size:15px}
+  .steps{counter-reset:s;margin:10px 0 4px;display:flex;flex-direction:column;gap:10px}
+  .step{display:flex;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .step::before{counter-increment:s;content:counter(s);flex:0 0 26px;height:26px;border-radius:99px;background:var(--gold);
+    color:var(--inkwine);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .step .who{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:2px}
+  .who.founder{background:rgba(212,165,116,.16);color:var(--gold);border:1px solid rgba(212,165,116,.4)}
+  .who.code{background:rgba(139,207,240,.12);color:#8BCFF0;border:1px solid rgba(139,207,240,.35)}
+  .who.done{background:rgba(143,191,127,.14);color:var(--success);border:1px solid rgba(143,191,127,.4)}
+  .step h4{font-size:14.5px;color:var(--vellum);margin-bottom:3px}
+  .step p{font-size:13px;max-width:none}
+  .step .check{margin-top:7px;font-size:12px;color:var(--sage)}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}
+  .flow .n{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:12px;color:var(--vellum)}
+  .flow .n.warn{border-color:rgba(232,90,107,.45);color:var(--alarm)}
+  .flow .n.ok{border-color:rgba(143,191,127,.4);color:var(--success)}
+  .flow .a{color:var(--text3);font-size:14px}
+  .note{border-left:3px solid var(--gold);background:var(--soft);border-radius:0 8px 8px 0;padding:11px 14px;font-size:13px;color:var(--text2);margin:12px 0;max-width:none}
+  .toc{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+  .toc a{color:var(--vellum);text-decoration:none;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:600}
+  .toc a:hover{border-color:var(--gold);color:var(--gold)}
+  footer{margin-top:70px;border-top:1px solid var(--line);padding-top:16px;font-size:12px;color:var(--text3)}
+  @media (max-width:640px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+
+<div class="kicker">Report · 2026-07-11 · branch feature/yearn-boost-integrity</div>
+<h1>Yearn: Exact App State Review</h1>
+<p class="sub">Yearn is an 18+ E2EE dating app (Expo iOS/Android + Supabase, schema <code>yearn</code>). Tagline in-app: <b>"Designed to be deleted."</b> This report recreates every shipped screen and workflow from the actual source, states exactly what works today, and gives step-by-step instructions to reach the App Store and first revenue.</p>
+<div class="banner">
+  <span class="pill good">Code: 166/166 tests, typecheck clean</span>
+  <span class="pill good">Boost revenue leak: CLOSED in repo (plan 50)</span>
+  <span class="pill warn">Hosted DB + edge fn: NOT yet deployed</span>
+  <span class="pill warn">Monetization UI: not built (by design, validation-first)</span>
+  <span class="pill bad">Production verdict: NO-GO until founder-ops checklist below is done</span>
+</div>
+<div class="toc">
+  <a href="#state">1 · Current state</a>
+  <a href="#screens">2 · Screen recreations</a>
+  <a href="#flows">3 · User workflows</a>
+  <a href="#backend">4 · Backend surface</a>
+  <a href="#prod">5 · Production readiness, step by step</a>
+  <a href="#revenue">6 · Revenue path</a>
+</div>
+
+<h2 id="state">1 · Current state at a glance</h2>
+<table>
+<tr><th>Area</th><th>State (verified against source, 2026-07-11)</th></tr>
+<tr><td><b>App shell</b></td><td>Single expo-router route; <code>YearnShell</code> gates: age gate &rarr; session restore &rarr; sign-in &rarr; onboarding &rarr; 4 tabs (Discover, Likes, Matches, You). Dark-only, Inkwine/Vellum/Coral palette.</td></tr>
+<tr><td><b>Auth</b></td><td>Sign in with Apple (primary), Google OAuth, email magic link, phone SMS OTP. PKCE flow enforced; sessions in Keychain (<code>WHEN_UNLOCKED_THIS_DEVICE_ONLY</code>); deep-link fixation closed.</td></tr>
+<tr><td><b>Age gate + legal</b></td><td>18+ birthdate gate before anything else, persisted; consent line links Terms, Privacy Policy, Community Guidelines (zero-tolerance wording). Legal docs exist in <code>apps/yearn/legal/</code> but are not yet hosted publicly.</td></tr>
+<tr><td><b>Onboarding</b></td><td>10 steps (Welcome, Name, Age, Identity, Photos, Prompts, Interests, Verify, Review, Done) with per-field visibility toggles, orientation save consent, draft persistence across app kill, honest unverified acknowledgement.</td></tr>
+<tr><td><b>Core loop</b></td><td>Discover deck (signed photo URLs, prompts, undo, haptics) &rarr; like (optional E2EE intro note) / pass &rarr; match &rarr; E2EE chat with realtime updates, TOFU sender-key pinning, fail-closed key warnings. Report + block on every profile.</td></tr>
+<tr><td><b>E2EE</b></td><td>tweetnacl box, per-device keys published to a key directory, CSPRNG polyfill at entry, receive-path sender-key binding, encrypt-to-self echo store so own history survives refetch. Multi-device (Y2) still open.</td></tr>
+<tr><td><b>Monetization</b></td><td>No paywall, no StoreKit UI, no RevenueCat (by design until validation live). Star/Boost buttons removed from the deck. Server: leaky <code>activate_boost</code> DROPPED; validated path exists behind the new <code>yearn-activate-boost</code> edge function which fails closed (503) without Apple credentials. Boost is therefore fully disabled everywhere today.</td></tr>
+<tr><td><b>Backend</b></td><td>20 reproducible migrations (13 base <code>20260525*</code>, 6 hardening <code>20260531*</code>, boost integrity <code>20260712000001</code>). RLS everywhere, SECURITY DEFINER RPCs pin search_path and revoke anon.</td></tr>
+<tr><td><b>Build config</b></td><td><code>eas.json</code> present (dev/preview/production profiles), bundle id <code>com.mylife.yearn</code>, privacy manifests declared, hardening plugins, mic/contacts permissions blocked. Missing: EAS <code>projectId</code>, app icon review, push entitlement.</td></tr>
+<tr><td><b>Quality</b></td><td>21 test files / 166 tests green; yearn app typecheck clean; function gate green; opus adversarial review verdict SHIP on the boost fix.</td></tr>
+</table>
+
+<h2 id="screens">2 · Screen recreations</h2>
+<p>Rebuilt in HTML from the component source (<code>YearnShell.tsx</code>, <code>AgeGatePanel.tsx</code>, <code>OnboardingWizard.tsx</code>, <code>DiscoverDeck.tsx</code>, <code>YearnSocialSurfaces.tsx</code>) using the exact <code>yearnTheme.ts</code> tokens and verbatim copy strings.</p>
+
+<div class="grid">
+
+  <!-- 1. Age gate -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="apphead">
+        <div><div class="wordmark">Yearn</div><div class="tagline">Designed to be deleted</div></div>
+        <div class="beta">&#128737; PRIVATE BETA</div>
+      </div>
+      <div class="panel">
+        <div class="icnbox">&#128737;</div>
+        <div><div class="k">Adults only</div><div class="t">Confirm you are 18+</div></div>
+        <div class="inp">&#128197; <span class="ph">2008-07-11</span></div>
+        <div class="btn">Continue</div>
+        <div class="fine">By continuing you confirm you are 18+ and agree to our <a>Terms</a>, <a>Privacy Policy</a>, and <a>Community Guidelines</a>, including our zero-tolerance policy for objectionable content and abusive behavior.</div>
+      </div>
+    </div>
+    <div class="cap"><b>Age gate.</b> First surface on every install. Numeric birthdate against an 18+ cutoff; rejection shows an inline alarm-red message; acceptance turns the button green ("Confirmed") and persists the birthdate to Keychain. Consent line opens the bundled legal docs.</div>
+  </div>
+
+  <!-- 2. Sign in -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="apphead">
+        <div><div class="wordmark">Yearn</div><div class="tagline">Designed to be deleted</div></div>
+        <div class="beta">&#128737; PRIVATE BETA</div>
+      </div>
+      <div class="panel">
+        <div><div class="t" style="font-size:15px">Private beta sign-in</div>
+        <div class="fine" style="font-size:10.5px">Apple creates or restores your Yearn session on this device.</div></div>
+        <div class="btn white">&#63743; Continue with Apple</div>
+        <div class="btn ghost">&#127760; Continue with Google</div>
+        <div class="seg"><div class="opt on">@ Email</div><div class="opt">&#9742; Phone</div></div>
+        <div class="inp"><span class="ph">name@example.com</span></div>
+        <div class="btn">@ Send link</div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><span class="ti">&#10024;</span>Discover</div>
+        <div class="tab"><span class="ti">&#9825;</span>Likes</div>
+        <div class="tab"><span class="ti">&#128488;</span>Matches</div>
+        <div class="tab"><span class="ti">&#128100;</span>You</div>
+      </div>
+    </div>
+    <div class="cap"><b>Sign-in panel.</b> Apple is primary (white AAA button, session restore); Google secondary; Email/Phone segmented toggle switches between magic-link ("Send link") and SMS OTP ("Send code" + 6-digit "000000" verify field). Auth errors render inline; a status line confirms sent links.</div>
+  </div>
+
+  <!-- 3. Onboarding -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="apphead">
+        <div><div class="wordmark">Yearn</div><div class="tagline">Designed to be deleted</div></div>
+        <div class="beta">&#128737; SESSION ACTIVE</div>
+      </div>
+      <div class="panel">
+        <div class="progressrow"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div><div class="k">Step 5 of 10 · Photos</div><div class="t">Photos</div></div>
+        <div class="photo" style="height:110px"><div class="initial" style="font-size:34px">+</div></div>
+        <div class="inp"><span class="ph">Caption</span></div>
+        <div class="seg"><div class="opt on">Show this photo</div></div>
+        <div class="btn">Continue</div>
+        <div class="fine">Steps: Welcome · Name · Age · Identity · Photos · Prompts · Interests · Verify · Review · Done. Draft auto-saves and survives an app kill.</div>
+      </div>
+    </div>
+    <div class="cap"><b>Onboarding wizard (10 steps).</b> Pronouns incl. custom, relationship structure (Monogamous / Ethical non-monogamy / Polyamorous / Open to exploring), per-field visibility toggles ("Show pronouns", "Show orientation"...), explicit "Consent to save orientation", prompt validation ("Write a real answer."), and the honest Verify step: <b>"I understand my profile will start unverified."</b></div>
+  </div>
+
+  <!-- 4. Discover deck -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="apphead">
+        <div><div class="wordmark">Yearn</div><div class="tagline">Designed to be deleted</div></div>
+        <div class="beta">&#128737; SESSION ACTIVE</div>
+      </div>
+      <div class="photo">
+        <div class="progressrow"><i class="on"></i><i></i><i></i></div>
+        <div class="initial">I</div>
+        <div class="cardmeta">
+          <div class="cardname">Iris, 29</div>
+          <div class="cardsub">she/her · Long-term · Monogamous · Active now</div>
+          <div class="chiprow"><span class="chip">climbing</span><span class="chip">film photography</span><span class="chip">natural wine</span></div>
+        </div>
+      </div>
+      <div class="prompt" style="margin-top:9px"><div class="q">A perfect Sunday</div>Farmers market, a long climb, and someone to cook with after.</div>
+      <div class="safety" style="margin-top:8px"><span>Report</span><span>Block</span></div>
+      <div class="actions">
+        <div class="act small">&#8634;</div>
+        <div class="act danger">&#10005;</div>
+        <div class="act coral">&#9825;</div>
+      </div>
+      <div class="tabbar">
+        <div class="tab on"><span class="ti">&#10024;</span>Discover</div>
+        <div class="tab"><span class="ti">&#9825;</span>Likes</div>
+        <div class="tab"><span class="ti">&#128488;</span>Matches</div>
+        <div class="tab"><span class="ti">&#128100;</span>You</div>
+      </div>
+    </div>
+    <div class="cap"><b>Discover deck.</b> Swipeable card: tap advances photos (progress segments), initial-letter placeholder when a signed URL is absent, presence ("Active now" / "Active yesterday"), interest chips, first prompt. Actions: Undo ("Last action undone" / "Nothing to undo"), Pass, Like, with haptics. <b>Star and Boost are removed</b>: the source comments they only return "once the shortlist store and the monetization paywall + server receipt validation ship." Report/Block always available.</div>
+  </div>
+
+  <!-- 5. Intro composer -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="panel">
+        <div><div class="k">Like Iris</div><div class="t">Add an intro note?</div></div>
+        <div class="inp" style="min-height:64px;align-items:flex-start;padding-top:9px"><span class="ph">Intro note</span></div>
+        <div class="btn">Send like</div>
+        <div class="btn ghost">Like without intro</div>
+        <div class="btn ghost">Cancel</div>
+        <div class="fine">Intros are end-to-end encrypted to the recipient's pinned device key. If keys are unavailable: "Encrypted intros are not available yet. Send a like without an intro."</div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="panel">
+        <div><div class="k">Report Iris</div><div class="t">Why?</div></div>
+        <div class="seg" style="flex-direction:column;gap:7px">
+          <div class="opt">Harassment</div><div class="opt">Fake profile</div><div class="opt">Underage</div><div class="opt">Sexual content</div>
+        </div>
+        <div class="btn ghost">Cancel</div>
+      </div>
+    </div>
+    <div class="cap"><b>Intro composer + report sheet.</b> Liking opens an optional encrypted intro note (send with, without, or cancel). Reporting offers four reasons (Harassment, Fake profile, Underage, Sexual content); signed-out users see "Sign in to report or block profiles."</div>
+  </div>
+
+  <!-- 6. Likes -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="apphead">
+        <div><div class="wordmark">Yearn</div><div class="tagline">Designed to be deleted</div></div>
+        <div class="beta">&#128737; SESSION ACTIVE</div>
+      </div>
+      <div class="panel" style="gap:9px">
+        <div><div class="t" style="font-size:16px">Likes</div><div class="fine">People who liked you</div></div>
+        <div class="listrow"><div class="avatar">M</div><div><div class="nm">Maya</div><div class="ds">Encrypted intro &#128274;</div></div><div class="rowbtn">Like back</div></div>
+        <div class="listrow"><div class="avatar">S</div><div><div class="nm">Sam</div><div class="ds">No intro</div></div><div class="rowbtn quiet">Dismiss</div></div>
+        <div class="fine">Empty state: "No new likes right now." · Match-cap state: "Pending match cap"</div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><span class="ti">&#10024;</span>Discover</div>
+        <div class="tab on"><span class="ti">&#9825;</span>Likes</div>
+        <div class="tab"><span class="ti">&#128488;</span>Matches</div>
+        <div class="tab"><span class="ti">&#128100;</span>You</div>
+      </div>
+    </div>
+    <div class="cap"><b>Likes.</b> Incoming likes with decrypted intro previews where the sender key verifies. "Like back" creates a match (server enforces a pending-match cap); "Dismiss" clears the like. Decrypt failures never render fake plaintext.</div>
+  </div>
+
+  <!-- 7. Chat -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="apphead">
+        <div><div class="wordmark">Yearn</div><div class="tagline">Designed to be deleted</div></div>
+        <div class="beta">&#128737; SESSION ACTIVE</div>
+      </div>
+      <div class="panel" style="gap:9px">
+        <div><div class="t" style="font-size:16px">Maya</div><div class="fine">Encrypted conversations</div></div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div class="bubble them">The climbing gym on 5th? I basically live there.<span class="lock">&#128274; Encrypted message</span></div>
+          <div class="bubble me">Saturday then. Loser buys coffee.<span class="lock">&#128274; Encrypted message</span></div>
+        </div>
+        <div class="warnband">&#9888; Maya's encryption key changed. Verify with them outside Yearn before trusting it. These messages are hidden.</div>
+        <div class="composer"><div class="inp"><span class="ph">Send an encrypted message</span></div><div class="sendbtn">&#8593;</div></div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><span class="ti">&#10024;</span>Discover</div>
+        <div class="tab"><span class="ti">&#9825;</span>Likes</div>
+        <div class="tab on"><span class="ti">&#128488;</span>Matches</div>
+        <div class="tab"><span class="ti">&#128100;</span>You</div>
+      </div>
+    </div>
+    <div class="cap"><b>Match chat (E2EE).</b> Realtime via Supabase Realtime with graceful manual-refresh fallback. Sender keys are TOFU-pinned per sender; on key change the app fails closed, hides the messages, and instructs: "Verify with them outside Yearn, then press Send again to trust the new key." Own messages persist via encrypt-to-self echoes. Empty states: "No matches yet." / "No encrypted messages yet."</div>
+  </div>
+
+  <!-- 8. You tab -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="apphead">
+        <div><div class="wordmark">Yearn</div><div class="tagline">Designed to be deleted</div></div>
+        <div class="beta">&#128737; SESSION ACTIVE</div>
+      </div>
+      <div class="panel" style="gap:9px">
+        <div><div class="t" style="font-size:16px">Profile</div></div>
+        <div class="listrow"><div class="avatar">T</div><div><div class="nm">Trey, 31</div><div class="ds">Profile visible</div></div><div class="rowbtn quiet">Pause</div></div>
+        <div class="okband">Profile visible · toggling shows "Profile paused" and removes you from every deck.</div>
+        <div><div class="k">Legal</div></div>
+        <div class="listrow" style="padding:8px 11px"><div class="ds">Terms of Service</div><div class="rowbtn quiet">Open</div></div>
+        <div class="listrow" style="padding:8px 11px"><div class="ds">Privacy Policy</div><div class="rowbtn quiet">Open</div></div>
+        <div class="listrow" style="padding:8px 11px"><div class="ds">Community Guidelines</div><div class="rowbtn quiet">Open</div></div>
+        <div class="btn ghost">Sign out</div>
+        <div class="btn" style="background:var(--alarm)">Delete account</div>
+        <div class="fine">Delete requires a second tap: "Tap again to permanently delete". Server-side <code>delete_my_account</code> purges profile, likes, matches, ciphertext, boosts (cascade).</div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><span class="ti">&#10024;</span>Discover</div>
+        <div class="tab"><span class="ti">&#9825;</span>Likes</div>
+        <div class="tab"><span class="ti">&#128488;</span>Matches</div>
+        <div class="tab on"><span class="ti">&#128100;</span>You</div>
+      </div>
+    </div>
+    <div class="cap"><b>You tab.</b> Profile summary with pause/visible toggle, Legal section (three bundled docs), sign out, and two-tap account deletion. No verified badge renders anywhere (gated until a real pipeline exists); membership shows nothing until monetization ships.</div>
+  </div>
+
+  <!-- 9. States -->
+  <div class="shot">
+    <div class="phone"><div class="notch"></div>
+      <div class="panel" style="gap:9px">
+        <div class="listrow"><div class="ds">&#8987; Loading profiles</div></div>
+        <div class="listrow"><div class="ds">&#8987; Restoring session / Checking profile</div></div>
+        <div class="listrow"><div><div class="nm" style="font-size:12.5px">No more profiles</div><div class="ds">Everyone nearby is reviewed.</div></div><div class="rowbtn">Review again</div></div>
+        <div class="listrow"><div><div class="nm" style="font-size:12.5px">Profiles unavailable</div><div class="ds">Could not load.</div></div><div class="rowbtn">Retry</div></div>
+        <div class="warnband">Encryption keys are unavailable on this device</div>
+        <div class="listrow"><div class="ds">Signed out: "Sign in to view this Yearn surface."</div></div>
+        <div class="listrow"><div class="ds">Boost deck formatter: <b style="color:var(--vellum)">"Boost isn't available yet"</b> (honest; no fake success)</div></div>
+      </div>
+    </div>
+    <div class="cap"><b>Loading, empty, error, and honesty states.</b> Every failure path is explicit; nothing pretends success. The boost copy is the plan-50 honest replacement for the old fabricated "Boost previewed" toast.</div>
+  </div>
+
+</div>
+
+<h2 id="flows">3 · User workflows as implemented</h2>
+
+<h3>First run to browsing</h3>
+<div class="flow">
+  <span class="n">Install &rarr; open</span><span class="a">&rarr;</span>
+  <span class="n">Age gate (18+, persisted)</span><span class="a">&rarr;</span>
+  <span class="n">Sign in (Apple / Google / email link / SMS, PKCE)</span><span class="a">&rarr;</span>
+  <span class="n">Restoring session</span><span class="a">&rarr;</span>
+  <span class="n">Checking profile</span><span class="a">&rarr;</span>
+  <span class="n">10-step onboarding (draft survives kill)</span><span class="a">&rarr;</span>
+  <span class="n ok">Discover deck</span>
+</div>
+<p>On sign-in the app also publishes this device's E2EE public key to the key directory. Returning users with a profile skip straight to the deck; the persisted birthdate pre-fills onboarding.</p>
+
+<h3>Like, match, chat (E2EE)</h3>
+<div class="flow">
+  <span class="n">Like on deck</span><span class="a">&rarr;</span>
+  <span class="n">Optional encrypted intro note</span><span class="a">&rarr;</span>
+  <span class="n">Recipient sees it under Likes</span><span class="a">&rarr;</span>
+  <span class="n">Like back (match cap enforced)</span><span class="a">&rarr;</span>
+  <span class="n ok">Match + realtime E2EE chat</span>
+</div>
+<div class="flow">
+  <span class="n">Sender key changes</span><span class="a">&rarr;</span>
+  <span class="n warn">Messages hidden + warning</span><span class="a">&rarr;</span>
+  <span class="n">"Verify with them outside Yearn, then press Send again to trust the new key."</span>
+</div>
+
+<h3>Safety</h3>
+<div class="flow">
+  <span class="n">Report (Harassment / Fake profile / Underage / Sexual content)</span><span class="a">&rarr;</span>
+  <span class="n">Row written server-side</span><span class="a">&rarr;</span>
+  <span class="n warn">No moderation action path yet (launch blocker, see 5.4)</span>
+</div>
+<div class="flow">
+  <span class="n">Block</span><span class="a">&rarr;</span>
+  <span class="n ok">Mutual exclusion from decks, likes, matches (RPCs re-check is_blocked)</span>
+</div>
+
+<h3>Boost (current, after plan 50)</h3>
+<div class="flow">
+  <span class="n">Deck UI</span><span class="a">&rarr;</span>
+  <span class="n ok">No Boost button; copy: "Boost isn't available yet"</span>
+</div>
+<div class="flow">
+  <span class="n">Direct RPC attempt (attacker)</span><span class="a">&rarr;</span>
+  <span class="n ok">activate_boost DROPPED; boosts table has no client write path</span>
+</div>
+<div class="flow">
+  <span class="n">Future purchase &rarr; edge fn</span><span class="a">&rarr;</span>
+  <span class="n">JWT sub + transactionId</span><span class="a">&rarr;</span>
+  <span class="n">App Store Server API verify (prod &rarr; sandbox)</span><span class="a">&rarr;</span>
+  <span class="n">bundle/product/Consumable/no-revocation/id-echo checks</span><span class="a">&rarr;</span>
+  <span class="n ok">grant_boost (service-role, one redemption per tx, YB409 on cross-user replay)</span>
+</div>
+<div class="flow">
+  <span class="n">Apple credentials unset (today)</span><span class="a">&rarr;</span>
+  <span class="n warn">503 boost_unavailable, fail closed: "Boost isn't available yet. No boost was activated..."</span>
+</div>
+
+<h3>Account deletion</h3>
+<div class="flow">
+  <span class="n">You &rarr; Delete account</span><span class="a">&rarr;</span>
+  <span class="n">"Tap again to permanently delete"</span><span class="a">&rarr;</span>
+  <span class="n ok">delete_my_account purges; boosts cascade on user delete</span>
+</div>
+
+<h2 id="backend">4 · Backend surface</h2>
+<table>
+<tr><th>Migrations</th><th>What they create</th></tr>
+<tr><td><code>20260525000001..13</code></td><td>Base schema: profiles, likes/passes, matches, messages_ciphertext, safety (blocks/reports), account deletion, push scaffolding, discovery RPC, storage/realtime, social reads, match cap, RLS hardening, entitlements (<code>current_membership</code>), boost table + ranking, custom pronouns.</td></tr>
+<tr><td><code>20260531000001..06</code></td><td>Hardening wave: validated 18+ age constraint, identity model, private photos (signed URLs), like/pass RPCs, encrypted intro messages, E2EE device key directory.</td></tr>
+<tr><td><code>20260712000001</code></td><td><b>Boost integrity (plan 50):</b> drops client-callable <code>activate_boost(text)</code>; audit columns; partial unique index on <code>original_transaction_id</code>; service-role-only <code>grant_boost(...)</code>, idempotent retry, SQLSTATE <code>YB409</code> on cross-user replay.</td></tr>
+</table>
+<p>App RPC surface: <code>discover_profiles</code>, <code>send_like</code>, <code>send_pass</code>, <code>incoming_likes</code>, <code>like_back</code>, <code>dismiss_like</code>, <code>my_matches</code>, <code>archive_match</code>, <code>current_membership</code>, <code>delete_my_account</code>. Boost activation is the <code>yearn-activate-boost</code> edge function only (gateway JWT verification ON; strict sub decode; anon bearers rejected). Adversarial review of the boost fix: verdict SHIP; 2 hardening fixes applied; 2 follow-ups documented for the StoreKit UI plan (bind redemption to <code>appAccountToken</code>; Sandbox-grant policy).</p>
+
+<h2 id="prod">5 · Production readiness: step-by-step to the App Store</h2>
+<p>Everything below is what stands between the current branch and a shipped, revenue-capable App Store app. <span class="who founder">FOUNDER</span> = requires your accounts/credentials. <span class="who code">CODE</span> = a Claude/codex session can do it. <span class="who done">DONE</span> = already complete, listed for context. Do them in order; each has an acceptance check.</p>
+
+<h3>5.1 · Merge and hosted backend (do first; kills the revenue leak in production)</h3>
+<div class="steps">
+  <div class="step"><div><h4>Merge <code>feature/yearn-boost-integrity</code> to main <span class="who founder">Founder</span></h4>
+    <p>Squash-merge per repo convention. This also lands the repo-wide fix for the tracked <code>node_modules</code> symlinks from <code>0b7358ec</code>.</p>
+    <div class="check">Check: <code>git log main --oneline -1</code> shows the merge; <code>git ls-files -s node_modules</code> on main returns nothing.</div></div></div>
+  <div class="step"><div><h4>Link the hosted Supabase project and push migrations <span class="who founder">Founder</span></h4>
+    <pre><code>supabase link --project-ref &lt;YEARN_PROJECT_REF&gt;
+supabase db push   # applies all 20 yearn migrations incl. 20260712000001</code></pre>
+    <p>Applying <code>20260712000001</code> drops the leaky <code>activate_boost</code> from the live DB the moment it runs.</p>
+    <div class="check">Check (SQL editor): <code>select proname from pg_proc join pg_namespace n on n.oid=pronamespace where nspname='yearn';</code> lists <code>grant_boost</code> and NOT <code>activate_boost</code>.</div></div></div>
+  <div class="step"><div><h4>Run the live verification checklist <span class="who founder">Founder</span></h4>
+    <p>In the SQL editor: RLS enabled on every yearn table; <code>profiles_min_age_18</code> constraint VALIDATED; no <code>grant ... to anon</code>; <code>yearn</code> present in PostgREST exposed schemas; Realtime enabled on <code>yearn.messages_ciphertext</code>; <code>delete_my_account</code> purges a test account end to end.</p>
+    <div class="check">Check: each query returns the expected state; record results in the plan 47 ledger.</div></div></div>
+  <div class="step"><div><h4>Deploy the boost validation function (leave it failing closed) <span class="who founder">Founder</span></h4>
+    <pre><code>supabase functions deploy yearn-activate-boost
+# Do NOT add it to any verify_jwt=false list. Without Apple secrets it
+# returns 503 boost_unavailable by design until step 6.4.</code></pre>
+    <div class="check">Check: calling it with a valid user JWT returns 503 <code>boost_unavailable</code>.</div></div></div>
+</div>
+
+<h3>5.2 · Legal and trust-safety operations (Apple will reject a dating app without these)</h3>
+<div class="steps">
+  <div class="step"><div><h4>Host the legal docs at public URLs <span class="who founder">Founder</span></h4>
+    <p>Publish <code>apps/yearn/legal/</code> (terms.html, privacy.html, guidelines.html) to your domain (e.g. yearn.app/legal/...). Then set the three URLs in <code>src/lib/legalLinks.ts</code> if they differ from the placeholders.</p>
+    <div class="check">Check: all three URLs load publicly over HTTPS; in-app Legal links open them.</div></div></div>
+  <div class="step"><div><h4>Build the moderation action path <span class="who code">Code</span></h4>
+    <p>Reports currently write rows with no consequence. Required: a moderation queue + admin action workflow (suspend / ban / content removal), report auto-hides reported content pending review, and 24-hour action on objectionable-content reports (Apple guideline 1.2 for UGC apps). Pattern exists in-repo: BestChef's moderation queue and edge-function workers.</p>
+    <div class="check">Check: filing a report from a test account hides the content and creates an actionable queue row; an admin action suspends the offender.</div></div></div>
+  <div class="step"><div><h4>Stand up the minor-safety escalation pathway <span class="who founder">Founder</span></h4>
+    <p>Document and wire the mandated-reporting process for underage/CSAM reports: an escalation queue with immediate takedown, and NCMEC CyberTipline reporting (the Community Guidelines already reference it). This is a legal obligation independent of Apple.</p>
+    <div class="check">Check: an "Underage" report reaches a distinct escalation queue with a documented operator runbook.</div></div></div>
+</div>
+
+<h3>5.3 · App Store Connect setup</h3>
+<div class="steps">
+  <div class="step"><div><h4>Create the app record <span class="who founder">Founder</span></h4>
+    <p>App Store Connect &rarr; New App: bundle id <code>com.mylife.yearn</code>, name "Yearn". Set age rating 17+/18+ (unrestricted web access off, mature themes on; dating category). Attach the hosted Privacy Policy URL and EULA link.</p>
+    <div class="check">Check: app record exists with 17+/18+ rating and privacy URL saved.</div></div></div>
+  <div class="step"><div><h4>Fill privacy nutrition labels <span class="who founder">Founder</span></h4>
+    <p>Declare exactly what <code>app.json</code>'s privacy manifest already declares: User ID, Photos/Videos, Sensitive Info (orientation, with in-app consent), Coarse Location, Other User Content; all "linked to you", none used for tracking (<code>NSPrivacyTracking: false</code>).</p>
+    <div class="check">Check: labels match the manifest; no tracking claimed anywhere.</div></div></div>
+  <div class="step"><div><h4>Create the reviewer demo account <span class="who founder">Founder</span></h4>
+    <p>Seed a working account (completed profile, at least one match with messages) in production; put its credentials in App Review notes, and explain the 18+ gate and E2EE (reviewer cannot read other users' messages).</p>
+    <div class="check">Check: signing in with the demo credentials on a clean device reaches the deck in under a minute.</div></div></div>
+</div>
+
+<h3>5.4 · Build, TestFlight, submit</h3>
+<div class="steps">
+  <div class="step"><div><h4>Initialize EAS project id and icon <span class="who founder">Founder</span></h4>
+    <pre><code>cd apps/yearn
+eas init            # writes extra.eas.projectId (currently missing; builds are ambiguous without it)
+eas credentials     # let EAS manage iOS distribution cert + profile</code></pre>
+    <p>Confirm <code>assets/icon.png</code> is the real launch icon (1024px, no alpha) rather than a placeholder.</p>
+    <div class="check">Check: <code>app.json</code> gains <code>extra.eas.projectId</code>; icon passes <code>eas build</code> validation.</div></div></div>
+  <div class="step"><div><h4>Production build + TestFlight <span class="who founder">Founder</span></h4>
+    <pre><code>eas build --profile production --platform ios
+eas submit --platform ios --latest</code></pre>
+    <div class="check">Check: build processes in TestFlight with no missing-compliance flags (encryption declaration is already set: <code>ITSAppUsesNonExemptEncryption: true</code>, so complete the annual self-classification export questionnaire once).</div></div></div>
+  <div class="step"><div><h4>Two-device production QA <span class="who founder">Founder</span></h4>
+    <p>The audit's GO bar requires on-device QA of the full loop with two real accounts: sign-in both, complete onboarding, mutual like with encrypted intro, chat both directions, force a key change (reinstall one side) and verify the fail-closed warning, block, report, pause, delete one account and confirm purge.</p>
+    <div class="check">Check: every step passes on physical devices against the hosted backend.</div></div></div>
+  <div class="step"><div><h4>Submit for review <span class="who founder">Founder</span></h4>
+    <p>Attach demo account, moderation policy summary, and legal URLs. Expect UGC scrutiny: Apple will test report/block and check the zero-tolerance flow from 5.2.</p>
+    <div class="check">Check: app approved; release manually or automatically.</div></div></div>
+</div>
+
+<h3>5.5 · Strongly recommended before scale (launch-feature gaps still open from plan 47)</h3>
+<div class="steps">
+  <div class="step"><div><h4>Push notifications <span class="who code">Code</span> <span class="who founder">Founder: APNs key</span></h4>
+    <p>APNs key in Supabase secrets + an edge function fanning out on new likes/matches/messages (dowork-notify is the in-repo pattern). Chat is core; retention without push is severely impaired.</p></div></div>
+  <div class="step"><div><h4>Photo URL revocation + rate limiting <span class="who code">Code</span></h4>
+    <p>Move cross-user signed-URL minting behind a definer RPC scoped to the caller's live deck/matches, revoke on unmatch; add per-(sender,recipient) like/message rate caps.</p></div></div>
+  <div class="step"><div><h4>Geolocation + filters <span class="who code">Code</span></h4>
+    <p>Coarse location capture (permission strings already shipped) + PostGIS distance ranking in <code>discover_profiles</code>; hard/soft preference filters.</p></div></div>
+  <div class="step"><div><h4>Multi-device E2EE (Y2) <span class="who code">Code</span></h4>
+    <p>Today each account is effectively single-device for readable history. Extend the key directory to per-account device sets with cross-signing before promoting multi-device sign-in.</p></div></div>
+</div>
+
+<h2 id="revenue">6 · Revenue path, step by step</h2>
+<p>Two products are designed: a membership subscription (server table + <code>current_membership</code> RPC already live) and the $0.99 consumable 7-day Boost (server side fully built and hardened by plan 50). What remains is Apple-side product setup and the client purchase UI.</p>
+<div class="steps">
+  <div class="step"><div><h4>Create IAP products in App Store Connect <span class="who founder">Founder</span></h4>
+    <p>Consumable <code>com.mylife.yearn.boost</code> ($0.99 tier) and an auto-renewing membership subscription (e.g. <code>com.mylife.yearn.member.monthly</code>) in a "Yearn" subscription group. Complete the Paid Apps agreement and banking/tax forms (nothing can be sold before this clears).</p>
+    <div class="check">Check: products show "Ready to Submit"; Paid Apps contract Active.</div></div></div>
+  <div class="step"><div><h4>Create the App Store Server API key and arm the edge function <span class="who founder">Founder</span></h4>
+    <pre><code># App Store Connect -> Users and Access -> Integrations -> In-App Purchase -> generate key
+supabase secrets set \
+  APPLE_IAP_ISSUER_ID=&lt;issuer uuid&gt; \
+  APPLE_IAP_KEY_ID=&lt;key id&gt; \
+  APPLE_IAP_PRIVATE_KEY="$(cat SubscriptionKey_XXXX.p8)"</code></pre>
+    <p>This flips <code>yearn-activate-boost</code> from fail-closed 503 to live validation. Nothing else needs redeploying.</p>
+    <div class="check">Check: a sandbox purchase's transactionId activates exactly one boost; replaying it returns duplicate; a second account replaying it gets 409.</div></div></div>
+  <div class="step"><div><h4>Build the StoreKit purchase UI <span class="who code">Code</span></h4>
+    <p>New plan (per plan 50 follow-ups): add StoreKit 2 (expo-iap or RN StoreKit wrapper), a Boost button + membership paywall with honest states, set <code>appAccountToken</code> to the signed-in user id at purchase time, send the finished transaction's id to <code>yearn-activate-boost</code>, and extend the edge function to require <code>appAccountToken == sub</code>. Surface <code>describeYearnBoostFailure</code> copy on every failure. Membership: either App Store Server Notifications to a webhook that writes the entitlements table, or RevenueCat (the dowork-rc-webhook pattern is in-repo).</p>
+    <div class="check">Check: TestFlight sandbox: purchase &rarr; boost active pill with expiry; all failure paths show the honest copy; <code>discover_profiles</code> ranks the boosted profile first on a second account.</div></div></div>
+  <div class="step"><div><h4>Decide the Sandbox policy at general availability <span class="who founder">Founder</span></h4>
+    <p>Sandbox transactions currently grant real boosts (required for App Review; environment is recorded per row). At GA, decide: reject, cap, or keep-but-monitor Sandbox grants.</p>
+    <div class="check">Check: policy recorded in plan ledger; if rejecting, the edge function change ships with the StoreKit UI plan.</div></div></div>
+</div>
+
+<div class="note"><b>Bottom line.</b> The client core loop, E2EE, safety writes, legal copy, backend schema, and the entire server side of Boost monetization are built, tested (166/166), and adversarially reviewed. No code path can fake a boost or bypass payment. What separates today from revenue is founder-operated: merge + hosted apply (5.1), legal hosting + moderation ops (5.2), App Store Connect setup (5.3), TestFlight QA + submission (5.4), then IAP products + Apple key + one StoreKit UI plan (6).</div>
+
+<footer>
+Generated 2026-07-11 by the Fable orchestrator from branch <code>feature/yearn-boost-integrity</code> (HEAD ee741f3d). Sources: apps/yearn source (yearnTheme.ts, YearnShell.tsx, AgeGatePanel.tsx, OnboardingWizard.tsx + onboarding.ts, DiscoverDeck.tsx, YearnSocialSurfaces.tsx, app.json, eas.json), supabase/migrations 20260525*/20260531*/20260712*, supabase/functions/yearn-activate-boost, docs/plans/done/50-yearn-boost-integrity.md, docs/plans/queue/47-yearn-production-readiness-remediation.md, docs/reports/REPORT-yearn-adversarial-production-audit-2026-07-11.md, docs/sessions/2026-07-11-yearn-boost-integrity.md. This HTML is a dated visual snapshot; verify implementation claims against code and git history before reuse.
+</footer>
+
+</main>
+</body>
+</html>

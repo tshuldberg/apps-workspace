@@ -1,0 +1,3601 @@
+# MyLife Mobile UI Tasks -- Mission Control
+
+> 327 granular build tasks to fully surface all hidden business logic in the mobile UI.
+> Each task is ~30 min of work. All business logic and DB operations already exist.
+> Tasks reference exact function names and file paths for autonomous execution.
+
+## Execution Guide
+
+- Tasks within a module can run in parallel unless they share a dependency
+- Cross-module tasks are fully independent
+- Each task's prompt is self-contained and executable by a Claude Code session
+- Run `pnpm gate:function:changed` after each task
+- Follow Cool Obsidian design tokens from `@mylife/ui`
+
+## Task Index
+
+| Module | Task Count | IDs |
+|--------|-----------|-----|
+| mood | 30 | MOOD-01 to MOOD-30 |
+| budget | 32 | BUDGET-01 to BUDGET-32 |
+| books | 65 | BOOKS-01 to BOOKS-65 |
+| fast | 8 | FAST-01 to FAST-08 |
+| recipes | 12 | RECIPES-01 to RECIPES-12 |
+| workouts | 12 | WORKOUTS-01 to WORKOUTS-12 |
+| car | 10 | CAR-01 to CAR-10 |
+| closet | 7 | CLOSET-01 to CLOSET-07 |
+| cycle | 6 | CYCLE-01 to CYCLE-06 |
+| flash | 6 | FLASH-01 to FLASH-06 |
+| garden | 6 | GARDEN-01 to GARDEN-06 |
+| habits | 10 | HABITS-01 to HABITS-10 |
+| health | 10 | HEALTH-01 to HEALTH-10 |
+| homes | 8 | HOMES-01 to HOMES-08 |
+| journal | 11 | JOURNAL-01 to JOURNAL-11 |
+| mail | 7 | MAIL-01 to MAIL-07 |
+| market | 7 | MARKET-01 to MARKET-07 |
+| meds | 11 | MEDS-01 to MEDS-11 |
+| notes | 9 | NOTES-01 to NOTES-09 |
+| nutrition | 6 | NUTRITION-01 to NUTRITION-06 |
+| pets | 7 | PETS-01 to PETS-07 |
+| rsvp | 10 | RSVP-01 to RSVP-10 |
+| stars | 3 | STARS-01 to STARS-03 |
+| subs | 9 | SUBS-01 to SUBS-09 |
+| surf | 8 | SURF-01 to SURF-08 |
+| trails | 7 | TRAILS-01 to TRAILS-07 |
+| voice | 5 | VOICE-01 to VOICE-05 |
+| words | 5 | WORDS-01 to WORDS-05 |
+| **Total** | **327** | |
+
+---
+
+## Mood
+
+### MOOD-01: Meditation Template Browser Screen
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/meditation.tsx`
+**Reference logic:** `modules/mood/src/db/meditation.ts` (getMeditationTemplates, getMeditationTemplatesByCategory), `modules/mood/src/types.ts` (MeditationTemplate, MeditationDifficulty)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/meditation.tsx` -- the meditation template browser screen. Import `getMeditationTemplates`, `getMeditationTemplatesByCategory`, and the `MeditationTemplate` type from `@mylife/mood`. Import `useDatabase` from `../../components/DatabaseProvider`. Use `useMemo` to load all templates grouped by category. Render a `ScrollView` with `Card` sections per category (e.g., "Breathing", "Body Scan", "Visualization"). Each template card shows: name, description, difficulty badge (beginner/intermediate/advanced with color coding), duration formatted as `Xm Ys`, and step count. Tapping a template navigates to `/(mood)/meditation-session?templateId=${t.id}` via `useRouter().push()`. Include a session history section at the bottom showing recent sessions from `getMeditationSessions(db, 10)` with template name, date, and completion status. Use `colors.modules.mood` as accent, Cool Obsidian tokens from `@mylife/ui`. Add difficulty color mapping: beginner=`colors.success`, intermediate=`colors.warning`, advanced=`colors.danger`. Empty state: "Choose a meditation to begin." Acceptance: screen loads, templates render grouped by category, tapping navigates with templateId param.
+
+### MOOD-02: Meditation Session Timer Screen
+**Depends on:** MOOD-01
+**Files to create/edit:** `apps/mobile/app/(mood)/meditation-session.tsx`
+**Reference logic:** `modules/mood/src/engine/meditation.ts` (createTimerState, tickTimer, getStepProgress, getTotalProgress, getCurrentStep, getRemainingTime, getCompletedStepCount), `modules/mood/src/db/meditation.ts` (getMeditationTemplateById, createMeditationSession, completeMeditationSession), `modules/mood/src/types.ts` (MeditationStep, TimerState)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/meditation-session.tsx`. Read `templateId` from `useLocalSearchParams`. Load the template via `getMeditationTemplateById(db, templateId)`. Build a 3-phase screen: (1) Pre-session: show template name, description, total duration, optional pre-mood score picker (1-10 dot row, same pattern as `log-mood.tsx` score picker), and a "Begin" button. (2) Active session: use `createTimerState()` and `tickTimer()` in a `useEffect` with `setInterval(1000)` to advance the timer. Display current step instruction text (from `getCurrentStep`), step progress bar (from `getStepProgress`), total progress ring or bar (from `getTotalProgress`), remaining time (from `getRemainingTime`), and completed steps count. Use `Animated.timing` for a smooth circular progress indicator. Show a "Stop Early" button. (3) Post-session: optional post-mood score picker, session summary (steps completed, duration), and a "Done" button that calls `completeMeditationSession`. On mount, call `createMeditationSession` with the template info. Use `colors.modules.mood` accent. Acceptance: timer ticks correctly, steps advance, session is persisted to DB, pre/post mood scores are optional.
+
+### MOOD-03: Meditation Navigation Wiring
+**Depends on:** MOOD-01, MOOD-02
+**Files to create/edit:** `apps/mobile/app/(mood)/_layout.tsx`, `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** existing `_layout.tsx` Stack.Screen pattern, existing `index.tsx` NavButton pattern
+**Prompt:**
+> Add two new `Stack.Screen` entries to `_layout.tsx`: `meditation` with title "Meditation" and `meditation-session` with title "Session" and `presentation: 'modal'`. In `index.tsx`, add a NavButton labeled "Meditation" that navigates to `/(mood)/meditation`. Place it after the "Breathing" button in the navRow. Acceptance: tapping "Meditation" on the today screen navigates to the template browser, and the session screen presents as a modal.
+
+### MOOD-04: Virtual Pet Dashboard Screen
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/pet.tsx`
+**Reference logic:** `modules/mood/src/db/pet.ts` (getPet, createPet, renamePet, getPetActivities, getPetActivitiesToday), `modules/mood/src/engine/pet.ts` (feedPet, applyDecay, EVOLUTION_NAMES, EVOLUTION_THRESHOLDS, FEED_REWARDS, HATCH_MOOD_ENTRIES_REQUIRED), `modules/mood/src/db/crud.ts` (getMoodEntryCount), `modules/mood/src/types.ts` (Pet, PetSpecies)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/pet.tsx`. Import `getPet`, `createPet`, `renamePet`, `getPetActivities`, `applyDecay`, `EVOLUTION_NAMES`, `EVOLUTION_THRESHOLDS`, `HATCH_MOOD_ENTRIES_REQUIRED`, `getMoodEntryCount` from `@mylife/mood`. On mount, call `getPet(db)`. If null, show an "Adopt Your Pet" card with a name input and "Hatch" button that calls `createPet(db, name)`. If pet exists: (1) Pet display area: large emoji/icon based on species and evolution stage (use a mapping from `PetSpecies` x `evolutionStage` to emoji, e.g., stage 0 = egg emoji, stage 1-5 = species emoji with size scaling), pet name (tappable to rename via `Alert.prompt`), evolution stage label from `EVOLUTION_NAMES[pet.evolutionStage]`. (2) Stats section: happiness bar (0-100, colored gradient green-to-red), experience bar showing progress to next evolution threshold, total feeds count, streak bonus. (3) Apply happiness decay on mount via `applyDecay(pet, new Date().toISOString())` and update if decay > 0. (4) Activity feed: recent `getPetActivities(db, 20)` showing type, happiness/experience deltas, and timestamps. (5) If stage 0 (egg): show progress toward hatching -- `getMoodEntryCount(db)` vs `HATCH_MOOD_ENTRIES_REQUIRED` with a progress bar and message "Log X more moods to hatch your pet!" Use Cool Obsidian tokens, `colors.modules.mood` accent. Acceptance: pet lifecycle works (create, view, rename), happiness decay applies, activity feed renders.
+
+### MOOD-05: Virtual Pet Navigation Wiring
+**Depends on:** MOOD-04
+**Files to create/edit:** `apps/mobile/app/(mood)/_layout.tsx`, `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** existing layout/index patterns
+**Prompt:**
+> Add a `Stack.Screen` for `pet` with title "My Pet" to `_layout.tsx`. In `index.tsx`, add a NavButton labeled "My Pet" that navigates to `/(mood)/pet`. Place it after the Meditation button. Acceptance: tapping "My Pet" navigates to the pet dashboard.
+
+### MOOD-06: Focus Music Preset Browser Screen
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/focus.tsx`
+**Reference logic:** `modules/mood/src/engine/soundscape.ts` (SOUND_LIBRARY, DEFAULT_PRESETS, getSoundsByCategory), `modules/mood/src/db/focus.ts` (getSoundPresets, getFocusSessions, createSoundPreset, deleteSoundPreset), `modules/mood/src/types.ts` (SoundPreset, SoundLayer, SoundDefinition)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/focus.tsx`. Load presets via `getSoundPresets(db)` and merge with `DEFAULT_PRESETS` if DB presets are empty. Display presets in a grid (2 columns) with name and layer sound names listed. Each preset card is tappable, navigating to `/(mood)/focus-session?presetId=${p.id}` (or for defaults: `/(mood)/focus-session?presetName=${p.name}&layers=${encodeURIComponent(JSON.stringify(p.layers))}`). Below presets, show a "Custom Mix" section: display `SOUND_LIBRARY` grouped by category (nature, ambient, music, noise) using `getSoundsByCategory`. Let users toggle sounds on/off and adjust volume with sliders (0-1 range). A "Save Preset" button saves via `createSoundPreset`. A "Play Custom" button navigates to focus-session with the custom layers. At the bottom, show recent session history via `getFocusSessions(db, 5)` with preset name, duration, and date. Use Cool Obsidian tokens. Acceptance: preset grid renders, custom mixer toggles work, navigation to focus-session passes layers.
+
+### MOOD-07: Focus Music Session Timer Screen
+**Depends on:** MOOD-06
+**Files to create/edit:** `apps/mobile/app/(mood)/focus-session.tsx`
+**Reference logic:** `modules/mood/src/db/focus.ts` (createFocusSession, completeFocusSession, getSoundPresetById), `modules/mood/src/engine/soundscape.ts` (mixLayers, validateLayers), `modules/mood/src/types.ts` (SoundLayer, CreateFocusSessionInput)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/focus-session.tsx`. Read `presetId`, `presetName`, and `layers` from `useLocalSearchParams`. If `presetId` is provided, load via `getSoundPresetById(db, presetId)`. Otherwise parse layers from the param. Build a 3-phase screen: (1) Pre-session: show preset name, active layers with individual volume sliders (adjustable during pre-session), duration picker (15, 30, 45, 60 min chips), optional pre-mood score (1-10 dots), and "Start" button. On start, validate via `validateLayers` and create session via `createFocusSession`. (2) Active session: display a large countdown timer (target duration minus elapsed), layer visualization (layer names with volume bars), elapsed time, a master volume slider calling `mixLayers` for display, and "Stop" button. Use `useEffect` with `setInterval(1000)` for the timer. Note: actual audio playback is out of scope; show "Audio playback coming soon" message, but track the session timer for duration logging. (3) Post-session: optional post-mood score, session summary, "Done" button calling `completeFocusSession`. Use Cool Obsidian tokens, accent `colors.modules.mood`. Acceptance: timer counts down, session persists to DB, layer display works.
+
+### MOOD-08: Focus Music Navigation Wiring
+**Depends on:** MOOD-06, MOOD-07
+**Files to create/edit:** `apps/mobile/app/(mood)/_layout.tsx`, `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** existing layout/index patterns
+**Prompt:**
+> Add two `Stack.Screen` entries to `_layout.tsx`: `focus` with title "Focus Music" and `focus-session` with title "Focus Session" and `presentation: 'modal'`. In `index.tsx`, add a NavButton labeled "Focus" that navigates to `/(mood)/focus`. Place it after the "My Pet" button. Acceptance: tapping "Focus" navigates to the preset browser.
+
+### MOOD-09: SOS Crisis Flow Trigger and Main Screen
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/sos.tsx`
+**Reference logic:** `modules/mood/src/engine/sos.ts` (getSosFlow, getRandomAffirmation, GROUNDING_SENSES, DEFAULT_AFFIRMATIONS, computeSosDuration), `modules/mood/src/db/sos.ts` (createSosSession, completeSosSession), `modules/mood/src/types.ts` (SosSession, SosStep, BreathingPattern)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/sos.tsx`. This is the 4-step SOS crisis flow. On mount, generate the flow via `getSosFlow('box')` and create a session via `createSosSession(db, id, { triggerMoodScore: null })`. Build a stepped wizard: (1) Step 1 - Breathing: display the breathing circle animation (reuse the animated circle pattern from `breathing.tsx` -- `Animated.timing` scale 0.6-1.0 for inhale/exhale). Show "Breathe In" / "Hold" / "Breathe Out" labels. Auto-advance after 60 seconds or let user tap "Next". (2) Step 2 - Grounding: iterate through `GROUNDING_SENSES` (5-4-3-2-1). Show each sense prompt one at a time with the count. User taps items as they identify them (e.g., 5 tappable circles for "see"). Auto-advance when all senses complete. (3) Step 3 - Affirmation: display `getRandomAffirmation()` in large centered text with a gentle fade-in animation. Show a "Another" button to cycle affirmations. Auto-advance after 30s or tap "Next". (4) Step 4 - Exit check-in: "How are you feeling now?" with a 1-10 score picker. "Done" button completes the session via `completeSosSession` with stepsCompleted, totalDurationSeconds (elapsed since mount), exitMoodScore, groundingCompleted. Track elapsed time with a ref + setInterval. Show a step indicator (4 dots) at top. Use calming colors: softer accent, large text, generous spacing. Acceptance: all 4 steps render, grounding sense interaction works, session persists to DB with exit score.
+
+### MOOD-10: SOS Navigation Wiring and Trigger Button
+**Depends on:** MOOD-09
+**Files to create/edit:** `apps/mobile/app/(mood)/_layout.tsx`, `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** existing layout/index patterns
+**Prompt:**
+> Add a `Stack.Screen` for `sos` with title "" (empty), `headerShown: false`, `presentation: 'fullScreenModal'` to `_layout.tsx` (similar to lock-screen). In `index.tsx`, add a prominent SOS button at the very top of the screen, BEFORE the navRow. Style it as a full-width `Pressable` with `backgroundColor: colors.danger`, `borderRadius: 12`, `padding: spacing.md`, centered text "SOS" in white, bold. It navigates to `/(mood)/sos`. Only show this button if the user has enabled it in settings (check `getSetting(db, 'sos_enabled')` -- default to showing it). Acceptance: red SOS button appears at top of dashboard, tapping opens the full-screen SOS flow.
+
+### MOOD-11: Emergency Contacts Manager Screen
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/emergency-contacts.tsx`
+**Reference logic:** `modules/mood/src/db/sos.ts` (createEmergencyContact, getEmergencyContacts, deleteEmergencyContact), `modules/mood/src/types.ts` (EmergencyContact, CreateEmergencyContactInput)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/emergency-contacts.tsx`. Load contacts via `getEmergencyContacts(db)`. Display a list of contacts with name, phone, and relationship. Each contact has a delete button (with `Alert.alert` confirmation, calls `deleteEmergencyContact`). An "Add Contact" button at the top opens an inline form (expandable card) with TextInputs for name (required), phone (optional), and relationship (optional). Save calls `createEmergencyContact(db, crypto.randomUUID(), input)`. Empty state: "Add trusted contacts who you can reach out to when you need support." Include a phone icon/link on each contact row that would open the dialer (`Linking.openURL('tel:${phone}')`). Use Cool Obsidian tokens, `colors.modules.mood` accent. Acceptance: contacts CRUD works, phone links open dialer, empty state shows.
+
+### MOOD-12: Emergency Contacts Navigation and Settings Wiring
+**Depends on:** MOOD-11
+**Files to create/edit:** `apps/mobile/app/(mood)/_layout.tsx`, `apps/mobile/app/(mood)/settings.tsx`
+**Reference logic:** existing layout/settings patterns
+**Prompt:**
+> Add a `Stack.Screen` for `emergency-contacts` with title "Emergency Contacts" to `_layout.tsx`. In `settings.tsx`, add a new section "Emergency & SOS" between Privacy and Data sections. Add two rows: (1) "Emergency Contacts" with contact count subtitle, tappable, navigates to `/(mood)/emergency-contacts`. (2) "SOS Mode" toggle (`Switch`) that reads/writes `getSetting(db, 'sos_enabled')` / `setSetting(db, 'sos_enabled', value)`. Acceptance: settings shows SOS section, contacts link works, toggle persists.
+
+### MOOD-13: Photo Picker Attachment Component
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/components/PhotoPicker.tsx`
+**Reference logic:** `modules/mood/src/db/attachments.ts` (createAttachment), `modules/mood/src/types.ts` (CreateAttachmentInput)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/components/PhotoPicker.tsx`. Export a `PhotoPicker` component that accepts `entryId: string` and `onAttach: (attachment: Attachment) => void` props. Use `expo-image-picker` to provide two buttons: "Take Photo" (launchCameraAsync) and "Choose Photo" (launchImageLibraryAsync). Configure with `mediaTypes: ImagePicker.MediaTypeOptions.Images`, `quality: 0.8`, `allowsEditing: true`. On selection, call `createAttachment(db, crypto.randomUUID(), { entryId, type: 'photo', filePath: result.assets[0].uri, fileSizeBytes: 0, mimeType: 'image/jpeg', width: result.assets[0].width, height: result.assets[0].height })` and invoke `onAttach`. Display selected photos as thumbnails in a horizontal ScrollView. Style buttons as chips matching the mood accent color. Acceptance: camera and library pickers work, attachment is created in DB, thumbnail preview renders.
+
+### MOOD-14: Voice Recorder Attachment Component
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/components/VoiceRecorder.tsx`
+**Reference logic:** `modules/mood/src/db/attachments.ts` (createAttachment), `modules/mood/src/types.ts` (CreateAttachmentInput)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/components/VoiceRecorder.tsx`. Export a `VoiceRecorder` component that accepts `entryId: string` and `onAttach: (attachment: Attachment) => void` props. Use `expo-av` Audio API: `Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY)`. Provide a record button that toggles recording state. While recording, show elapsed time and an animated red dot. On stop, get the URI from `recording.getURI()`, create the attachment via `createAttachment(db, crypto.randomUUID(), { entryId, type: 'voice', filePath: uri, fileSizeBytes: 0, durationSeconds: elapsedSeconds, mimeType: 'audio/m4a' })`, and invoke `onAttach`. Display recorded clips as small cards with duration and a play button (using `Audio.Sound.createAsync` for playback). Max recording duration: 120 seconds (auto-stop). Use Cool Obsidian tokens. Acceptance: record/stop/playback cycle works, attachment persists to DB.
+
+### MOOD-15: Attachment Gallery Component
+**Depends on:** MOOD-13, MOOD-14
+**Files to create/edit:** `apps/mobile/app/(mood)/components/AttachmentGallery.tsx`
+**Reference logic:** `modules/mood/src/db/attachments.ts` (getAttachmentsForEntry, deleteAttachment), `modules/mood/src/types.ts` (Attachment)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/components/AttachmentGallery.tsx`. Export an `AttachmentGallery` component that accepts `entryId: string` and `editable: boolean` props. Load attachments via `getAttachmentsForEntry(db, entryId)`. Render photos as a horizontal thumbnail strip using `Image` from React Native (source: `{ uri: attachment.filePath }`), each 80x80 with rounded corners. Render voice attachments as small cards with a play icon, duration text, and playback control (use `expo-av` Sound). If `editable` is true, show a delete "X" overlay on each attachment that calls `deleteAttachment(db, id)` with confirmation. Show attachment count label (e.g., "3 attachments"). Empty state: nothing rendered (no empty message needed for a gallery). Use Cool Obsidian tokens. Acceptance: photos display as thumbnails, voice clips are playable, deletion works when editable.
+
+### MOOD-16: Wire Attachments into Log Mood Screen
+**Depends on:** MOOD-13, MOOD-14
+**Files to create/edit:** `apps/mobile/app/(mood)/log-mood.tsx`
+**Reference logic:** `PhotoPicker` and `VoiceRecorder` components
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/log-mood.tsx`. After the Note card and before the Save button, add an "Attachments" `Card` section. Render the `PhotoPicker` and `VoiceRecorder` components. Since `entryId` doesn't exist until save, change the save flow: (1) Generate the entry ID upfront with `const entryId = useMemo(() => crypto.randomUUID(), [])`. (2) Pass `entryId` to both picker/recorder components so attachments can be created immediately. (3) In `handleSave`, use the pre-generated `entryId` when calling `createMoodEntry(db, entryId, {...})`. Show a count of attached items below the pickers. Acceptance: user can attach photos and voice memos before saving, attachments link to the correct entry ID.
+
+### MOOD-17: Wire Attachment Gallery into Day Detail Screen
+**Depends on:** MOOD-15
+**Files to create/edit:** `apps/mobile/app/(mood)/day-detail.tsx`
+**Reference logic:** `AttachmentGallery` component, existing `EntryCard` component
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/day-detail.tsx`. In the `EntryCard` component, after the activities `tagSection`, render `<AttachmentGallery entryId={entry.id} editable={false} />`. Import `AttachmentGallery` from `./components/AttachmentGallery`. Only render the gallery if `getAttachmentCount(db, entry.id) > 0` (import from `@mylife/mood`). Also import `getAttachmentCount` in the `EnrichedEntry` computation to add an `attachmentCount` field. Acceptance: day detail entries show photo thumbnails and voice clips when attachments exist.
+
+### MOOD-18: Wire Insights Feed to Real Generated Data
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/insights-feed.tsx`
+**Reference logic:** `modules/mood/src/engine/insight.ts` (generateInsights), `modules/mood/src/db/crud.ts` (getMoodEntries, getEmotionTagsForEntry, getActivitiesForEntry, getActivityById, getDailyAverages, getActivityCorrelations, getMoodDashboard), existing `insights.tsx` data preparation pattern
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/insights-feed.tsx`. Replace the stub `load` function with real data preparation matching the pattern in `insights.tsx`. Import `getMoodEntries`, `getEmotionTagsForEntry`, `getActivitiesForEntry`, `getActivityById`, `getDailyAverages`, `getActivityCorrelations`, `getMoodDashboard`, and `generateInsights` from `@mylife/mood`. In the `load` callback: (1) compute `thirtyDaysAgo`, `sevenDaysAgo`, `twentyEightDaysAgo`, `today` date strings; (2) fetch entries via `getMoodEntries(db, { startDate: thirtyDaysAgo, endDate: today, limit: 500 })`; (3) build `entryData` array by mapping each entry through `getEmotionTagsForEntry` and `getActivitiesForEntry`/`getActivityById` (same as insights.tsx lines 40-53); (4) compute `thisWeekAvg`, `fourWeekAvg`, `dailyAverages`; (5) call `generateInsights(input)` with the prepared `InsightInput` object; (6) set the result into `setInsights`. Acceptance: with 14+ entries, real insight cards render with correct titles, bodies, metrics, and severity badges.
+
+### MOOD-19: Suggestions Section on Dashboard
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/app/(mood)/components/SuggestionsCard.tsx`
+**Reference logic:** `modules/mood/src/engine/suggestions.ts` (generateSuggestions, SUGGESTION_CATALOG), `modules/mood/src/db/suggestions.ts` (createSuggestionHistory, updateSuggestionAction, getRecentSuggestionKeys), `modules/mood/src/db/crud.ts` (getMoodDashboard, getActivityCorrelations, getMoodEntryCount), `modules/mood/src/types.ts` (GeneratedSuggestion, SuggestionSource)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/components/SuggestionsCard.tsx`. Export a `SuggestionsCard` component that accepts `lastScore: number | null` prop. Import `generateSuggestions`, `getRecentSuggestionKeys`, `getActivityCorrelations`, `getMoodEntryCount`, `createSuggestionHistory`, `updateSuggestionAction` from `@mylife/mood`. On mount (and when `lastScore` changes), compute suggestions: get `recentSuggestionKeys` (from last 24h via ISO string), `activityCorrelations` from DB, `entryCount`, then call `generateSuggestions({ currentScore: lastScore ?? 5, activityCorrelations, recentSuggestionKeys, enabledModules: [], entryCount })`. For each rendered suggestion, call `createSuggestionHistory` to track it was shown. Each suggestion card shows title, description, category badge, and source badge (data_driven / catalog / cross_module with different colors). Two action buttons per card: "Did it" (calls `updateSuggestionAction(db, id, 'completed')`) and "Skip" (calls `updateSuggestionAction(db, id, 'dismissed')`). After action, remove from visible list. If no suggestions, render nothing. Style: glass card, category as colored chip, `colors.modules.mood` accent. Acceptance: suggestions generate based on score, actions persist, recently-shown suggestions are deduplicated.
+
+### MOOD-20: Wire Suggestions into Dashboard
+**Depends on:** MOOD-19
+**Files to create/edit:** `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** `SuggestionsCard` component, existing dashboard data
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/index.tsx`. Import `SuggestionsCard` from `./components/SuggestionsCard`. After the "Today's Entries" Card section, add `<SuggestionsCard lastScore={dashboard.todayAverage} />`. This renders data-driven, cross-module, and catalog suggestions based on the user's current mood score. Acceptance: suggestions appear on the dashboard when entries exist, cards are actionable.
+
+### MOOD-21: Pet Feeding Integration with Mood Logging
+**Depends on:** MOOD-04
+**Files to create/edit:** `apps/mobile/app/(mood)/log-mood.tsx`
+**Reference logic:** `modules/mood/src/engine/pet.ts` (feedPet, FEED_REWARDS), `modules/mood/src/db/pet.ts` (getPet, updatePetStats, createPetActivity, getPetActivitiesToday), `modules/mood/src/db/crud.ts` (getMoodEntryCount)
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/log-mood.tsx`. After calling `createMoodEntry` in `handleSave`, add pet feeding logic: (1) Call `getPet(db)`. If pet exists: (2) Get today's feed count via `getPetActivitiesToday(db, 'mood_log', today)`. (3) Get total mood entries via `getMoodEntryCount(db)`. (4) Call `feedPet(pet, 'mood_log', feedCount, totalEntries)`. (5) If `!result.dailyLimitReached`, call `updatePetStats(db, result.newHappiness, result.newExperience, result.newEvolutionStage, pet.totalFeeds + 1, result.justHatched ? new Date().toISOString() : undefined)` and `createPetActivity(db, crypto.randomUUID(), 'mood_log', result.happinessDelta, result.experienceDelta, 'mood')`. (6) If `result.justHatched`, show `Alert.alert('Your pet hatched!')`. If `result.justEvolved`, show `Alert.alert('Your pet evolved!')`. Wrap the pet logic in a try/catch so it never blocks the save. Acceptance: logging a mood feeds the pet, evolution events trigger alerts, daily limit is respected.
+
+### MOOD-22: Pet Feeding Integration with Breathing Sessions
+**Depends on:** MOOD-04
+**Files to create/edit:** `apps/mobile/app/(mood)/breathing.tsx`
+**Reference logic:** same pet imports as MOOD-21
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/breathing.tsx`. In the `finishSession` function, after creating the breathing session, add pet feeding logic: call `getPet(db)`, if exists, call `getPetActivitiesToday(db, 'breathing', today)`, then `feedPet(pet, 'breathing', feedCount)`. If not daily-limited, call `updatePetStats` and `createPetActivity` with type 'breathing'. Wrap in try/catch. Import `getPet`, `updatePetStats`, `createPetActivity`, `getPetActivitiesToday`, `feedPet` from `@mylife/mood`. Acceptance: completing a breathing session feeds the pet silently.
+
+### MOOD-23: SOS Session History on Settings
+**Depends on:** MOOD-09
+**Files to create/edit:** `apps/mobile/app/(mood)/settings.tsx`
+**Reference logic:** `modules/mood/src/db/sos.ts` (getSosSessions)
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/settings.tsx`. Import `getSosSessions` from `@mylife/mood`. Add a stat row in the "Your Stats" section showing "SOS Sessions" with the count from `getSosSessions(db).length`. Also add "Meditation Sessions" count (import `getMeditationSessionCount` from `@mylife/mood`), "Focus Sessions" count (import `getFocusSessions` from `@mylife/mood`), and "Pet Level" showing the pet's evolution stage name (import `getPet`, `EVOLUTION_NAMES` from `@mylife/mood`). Acceptance: settings stats show session counts for all new features.
+
+### MOOD-24: Dashboard Quick-Access Row for New Features
+**Depends on:** MOOD-03, MOOD-05, MOOD-08, MOOD-10
+**Files to create/edit:** `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** existing NavButton component
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/index.tsx`. Reorganize the `navRow` to include all feature entry points in a logical order. The final navRow should contain: "Log Mood", "Insights", "Breathing", "Meditation", "Focus", "My Pet", "Experiments", "Settings". Update the imports for `useRouter` push targets: `/(mood)/log-mood`, `/(mood)/insights`, `/(mood)/breathing`, `/(mood)/meditation`, `/(mood)/focus`, `/(mood)/pet`, `/(mood)/experiments`, `/(mood)/settings`. Use `flexWrap: 'wrap'` to handle the wider row. Acceptance: all 8 nav buttons render, wrap to two rows, and each navigates correctly.
+
+### MOOD-25: Insights Feed Link on Dashboard
+**Depends on:** MOOD-18
+**Files to create/edit:** `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** `insights-feed.tsx` screen
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/index.tsx`. After the metricsGrid, add a tappable card that shows a brief insight preview. Import `getMoodEntryCount` from `@mylife/mood`. If `getMoodEntryCount(db) >= 14`, render a `Pressable` `Card` with text "View Your Insights" and a right chevron, navigating to `/(mood)/insights-feed`. Style with a subtle left border in `colors.modules.mood`. If count < 14, show "Log X more entries for personalized insights" with a progress indicator. Acceptance: insight card appears on dashboard, tapping navigates to the feed, progress shows when insufficient data.
+
+### MOOD-26: Pet Status Mini-Card on Dashboard
+**Depends on:** MOOD-04
+**Files to create/edit:** `apps/mobile/app/(mood)/components/PetMiniCard.tsx`
+**Reference logic:** `modules/mood/src/db/pet.ts` (getPet), `modules/mood/src/engine/pet.ts` (EVOLUTION_NAMES, applyDecay)
+**Prompt:**
+> Create `apps/mobile/app/(mood)/components/PetMiniCard.tsx`. Export a `PetMiniCard` component that accepts `onPress: () => void`. Load pet via `getPet(db)`. If no pet exists, render a small card "Adopt a virtual pet!" with onPress. If pet exists, render a compact card showing: pet name, species emoji based on `pet.species` and `pet.evolutionStage` (egg emoji for stage 0, species emoji otherwise), happiness as a small inline bar (width percentage), and evolution stage name from `EVOLUTION_NAMES`. Apply decay via `applyDecay` to show current happiness. Tappable via `onPress`. Style: glass card, compact layout (single row), `colors.modules.mood` accent for the happiness bar. Acceptance: mini card shows pet status, tapping navigates to pet screen.
+
+### MOOD-27: Wire Pet Mini-Card into Dashboard
+**Depends on:** MOOD-26
+**Files to create/edit:** `apps/mobile/app/(mood)/index.tsx`
+**Reference logic:** `PetMiniCard` component
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/index.tsx`. Import `PetMiniCard` from `./components/PetMiniCard`. Place it between the metricsGrid and the "Today's Entries" card. Pass `onPress={() => router.push('/(mood)/pet')}`. Acceptance: pet mini-card appears on dashboard showing current pet status.
+
+### MOOD-28: Breathing Session Feed to Pet Integration
+**Depends on:** MOOD-04, MOOD-02
+**Files to create/edit:** `apps/mobile/app/(mood)/meditation-session.tsx`
+**Reference logic:** same pet imports as MOOD-21
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/meditation-session.tsx` (created in MOOD-02). In the post-session "Done" handler, after calling `completeMeditationSession`, add pet feeding logic: call `getPet(db)`, if exists, `getPetActivitiesToday(db, 'meditation', today)`, then `feedPet(pet, 'meditation', feedCount)`. If not daily-limited, call `updatePetStats` and `createPetActivity` with type 'meditation'. Wrap in try/catch. Acceptance: completing a meditation session feeds the pet.
+
+### MOOD-29: Focus Session Completion Pet Feed
+**Depends on:** MOOD-04, MOOD-07
+**Files to create/edit:** `apps/mobile/app/(mood)/focus-session.tsx`
+**Reference logic:** same pet imports as MOOD-21
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/focus-session.tsx` (created in MOOD-07). In the post-session "Done" handler, after calling `completeFocusSession`, the focus session does not have a direct pet feed type. Instead, skip pet feeding for focus sessions (there is no 'focus' PetActivityType in the enum -- only 'mood_log', 'breathing', 'meditation', 'journal', 'workout', 'experiment', 'streak_bonus'). Add a comment explaining this: `// Note: focus sessions don't map to a PetActivityType. Pet feeding is handled by mood_log, breathing, meditation, etc.` Acceptance: focus session save works without pet feed, comment documents the design.
+
+### MOOD-30: SOS Trigger from Low Mood Score
+**Depends on:** MOOD-09, MOOD-16
+**Files to create/edit:** `apps/mobile/app/(mood)/log-mood.tsx`
+**Reference logic:** `getSetting` for `sos_enabled`, router navigation
+**Prompt:**
+> Edit `apps/mobile/app/(mood)/log-mood.tsx`. After a mood entry is saved with a score of 1 or 2 (awful), check if SOS is enabled via `getSetting(db, 'sos_enabled') !== 'false'`. If enabled, show an `Alert.alert` with title "Feeling rough?", message "Would you like to try a calming exercise?", and buttons: "No thanks" (dismiss) and "Start SOS" (navigates to `/(mood)/sos`). This is a gentle nudge, not forced. Acceptance: saving a score of 1 or 2 triggers the SOS prompt when enabled, dismissing it does nothing, accepting navigates to SOS flow.
+
+
+## Budget
+
+### BUDGET-01: Net Worth Dashboard -- Snapshot Trigger + Account Breakdown Card
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/net-worth.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit -- add Stack.Screen)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/engine/net-worth.ts` -- `calculateNetWorth`, `captureSnapshot`
+- `modules/budget/src/db/net-worth.ts` -- `createNetWorthSnapshot`, `getNetWorthSnapshots`
+- `modules/budget/src/db/crud.ts` -- `listAccounts`
+**Prompt:**
+> Create the `net-worth.tsx` screen. On mount, call `listAccounts(db)` and pass them to `calculateNetWorth()` to compute total assets, total liabilities, and net worth. Display three hero stat cards (Assets green, Liabilities red, Net Worth accent). Below, show two sections: "Asset Accounts" and "Liability Accounts", each a flat list of account name + formatted balance. Add a "Take Snapshot" button that calls `captureSnapshot()` then `createNetWorthSnapshot(db, uuid(), ...)` to persist. Add the Stack.Screen to `_layout.tsx` and a "Net Worth" button to the dashboard `index.tsx` actions row. Use Cool Obsidian tokens, `Card`, `Text`, `Button` from `@mylife/ui`. Include loading skeleton, error state, and empty state.
+
+---
+
+### BUDGET-02: Net Worth Dashboard -- Timeline Chart
+**Depends on:** BUDGET-01
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/net-worth.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/net-worth.ts` -- `buildNetWorthTimeline`
+- `modules/budget/src/db/net-worth.ts` -- `getNetWorthSnapshots`
+**Prompt:**
+> Extend `net-worth.tsx` to add a timeline chart section below the hero cards. On mount, call `getNetWorthSnapshots(db)` and pass to `buildNetWorthTimeline()`. Render the timeline as a simplified SVG line chart (react-native-svg) showing net worth over time. Each point shows date on x-axis and dollar amount on y-axis. Below the chart, display a scrollable list of snapshots with date, net worth, change amount, and change percent (green for positive, red for negative). Use a `<Polyline>` for the line and `<Circle>` for data points. Cap at last 12 months. If fewer than 2 snapshots, show an empty state encouraging the user to take monthly snapshots.
+
+---
+
+### BUDGET-03: Age of Money -- FIFO Metric Display Card
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/age-of-money.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit -- add Stack.Screen)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/engine/age-of-money.ts` -- `calculateAgeOfMoney`, `getAoMStatus`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`
+**Prompt:**
+> Create `age-of-money.tsx`. On mount, load all transactions via `listTransactions(db, { limit: 500 })`, map them to `AoMTransaction[]` (amount in cents, direction, occurredOn). Call `calculateAgeOfMoney(transactions, todayISO)`. Display a large hero number showing `ageDays` with a status indicator: red dot for 'urgent' (<14 days), yellow for 'improving' (14-29), green for 'healthy' (30+) using `getAoMStatus()`. Below the hero, show `sampleSize` and whether `isEstimate`. Add explanatory text: "Age of Money measures how long your dollars sit before being spent. Higher is better." Register in `_layout.tsx` and add a button on `index.tsx`. Handle null result (no data) with empty state.
+
+---
+
+### BUDGET-04: Age of Money -- Trend Chart + History
+**Depends on:** BUDGET-03
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/age-of-money.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/age-of-money.ts` -- `calculateAoMTrend`
+- `modules/budget/src/db/age-of-money.ts` -- `getRecentAoMSnapshots`, `createAoMSnapshot`
+**Prompt:**
+> Extend `age-of-money.tsx` with a trend section. Call `getRecentAoMSnapshots(db, 30)` to get stored daily snapshots. If the current day has no snapshot, compute and persist one via `createAoMSnapshot(db, uuid(), { date, age_days, sample_size })`. Show a "Save Today's Snapshot" button if not yet saved. If at least 2 snapshots exist, call `calculateAoMTrend(current, previous)` and display the delta (e.g., "+3 days" in green or "-2 days" in red) with an arrow icon. Render a simple bar chart of the last 14 days of AoM snapshots using react-native-svg `<Rect>` bars. Each bar's height scales relative to max AoM in the range. Color bars by status (red/yellow/green thresholds).
+
+---
+
+### BUDGET-05: Spending Pulse -- Hero Card on Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/index.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/spending-pulse.ts` -- `calculateSpendingPulse`
+- `modules/budget/src/db/crud.ts` -- `listEnvelopes`, `listTransactions`
+**Prompt:**
+> Add a Spending Pulse hero card to the budget dashboard (`index.tsx`), positioned between the existing summary card and the actions row. On mount, compute `totalBudgetCents` from active envelopes, `spentThisMonthCents` from outflow transactions in the current month, and `spentLastMonthCents` from the prior month. Pass to `calculateSpendingPulse()`. Display the `summary` string as the card headline (e.g., "You're $340 ahead this month"). Below it show `safeDailySpendCents` formatted as "Safe to spend: $XX/day" and a small pill showing `monthOverMonthChange` as a percentage with green/red coloring. Use the budget accent left border style from the existing summary card pattern.
+
+---
+
+### BUDGET-06: No-Spend Streaks -- Gamification Card
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/no-spend-streaks.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/engine/no-spend-streak.ts` -- `calculateNoSpendStats`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`
+**Prompt:**
+> Create `no-spend-streaks.tsx`. On mount, query outflow transactions for the current month, extract their `occurred_on` dates into a string array, and call `calculateNoSpendStats(outflowDates, todayISO)`. Display a hero card with the `currentStreak` as a large number with a flame emoji and "day streak" label. Below, show three stat pills: `longestStreak` (trophy icon), `noSpendDaysThisMonth` out of `daysElapsed`, and `noSpendPercent`%. Include a motivational message: if currentStreak >= 3, "Keep it up!"; if 0, "Start a new streak today!". Register in layout and add nav button on dashboard. Use Cool Obsidian card + glass styling.
+
+---
+
+### BUDGET-07: No-Spend Streaks -- Calendar View
+**Depends on:** BUDGET-06
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/no-spend-streaks.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/no-spend-streak.ts` -- `getNoSpendDaysInMonth`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`
+**Prompt:**
+> Extend `no-spend-streaks.tsx` with a monthly calendar grid below the stats. Generate all dates for the current month. For each date, determine if it was a spend day (present in outflowDates) or no-spend day. Render a 7-column grid (S M T W T F S header) where each cell is a rounded square. No-spend days get a green fill with a checkmark; spend days get a subtle red/gray fill with an X. Future days are dimmed/disabled. Add month navigation (prev/next) arrows that reload data for the selected month. Use `getNoSpendDaysInMonth()` for the count label above the calendar. Pad the first row with empty cells to align with the correct day of week.
+
+---
+
+### BUDGET-08: Spending Heatmap -- Calendar Visualization
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/spending-heatmap.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/reports.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/engine/spending-heatmap.ts` -- `getSpendingHeatmap`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`
+**Prompt:**
+> Create `spending-heatmap.tsx`. On mount, query outflow transactions for the current month, aggregate by date into `DailySpendingEntry[]` (date, totalCents, transactionCount), and call `getSpendingHeatmap(dailySpending, year, month, todayISO)`. Render a 7-column calendar grid. Each cell's background opacity maps to `intensity` (0 = transparent, 1 = full budget accent color). Tapping a cell shows a tooltip/bottom sheet with the date, total spent, and transaction count. Display month stats at top: `monthTotalCents`, `averageDailyCents`, `maxDailyCents`. Add month prev/next navigation. Include a legend bar showing intensity scale from "No spending" to "Heaviest". Register in layout and add a link from the reports screen.
+
+---
+
+### BUDGET-09: Weekly Digest -- In-App Summary Card
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/weekly-digest.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/reports.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/engine/weekly-digest.ts` -- `generateWeeklyDigest`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`
+- `modules/budget/src/db/alerts.ts` -- `getAlertHistoryByMonth`
+**Prompt:**
+> Create `weekly-digest.tsx`. Calculate the current week's Monday date. Query transactions for the 7-day range and the prior week. Build `WeeklyDigestInput` and call `generateWeeklyDigest()`. Display the digest in a structured card layout: (1) Hero: `summary` string + `netCents` (surplus/deficit). (2) Top Categories: list `topCategories` (max 5) with envelope name, amount, transaction count. (3) Biggest Purchase: merchant, amount, date. (4) Stats row: `transactionCount`, `noSpendDays`, `weekOverWeekChange` as percentage pill. (5) Alerts: `alertsTriggered` count. Add week prev/next navigation to browse past digests. Register in layout and add link from reports.
+
+---
+
+### BUDGET-10: Income Estimation -- Detected Streams + Confirmation
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/income.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/engine/income-estimator.ts` -- `estimateMonthlyIncome`, `detectIncomeStreams`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`
+**Prompt:**
+> Create `income.tsx`. On mount, query the last 6 months of inflow transactions, map to `{ amount, payee, date }[]`, and call `estimateMonthlyIncome()`. Display a hero card with `totalMonthlyIncome` formatted as "Estimated Monthly Income" and an overall `confidence` percentage pill. Below, list each `IncomeStream` as a card row showing: payee name, frequency badge (weekly/biweekly/monthly/etc), average amount, monthly estimate, confidence bar (0-100% width), and occurrence count. Sort by monthlyEstimate descending. If no streams detected, show empty state explaining "We need at least 2 months of income transactions to detect patterns." Register in layout and add nav button on dashboard.
+
+---
+
+### BUDGET-11: Payday Detection -- Schedule Display + Next Payday
+**Depends on:** BUDGET-10
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/income.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/payday-detector.ts` -- `detectPaydays`, `predictNextPayday`, `getPaydaySchedule`
+**Prompt:**
+> Extend `income.tsx` with a "Payday Schedule" section below the income streams. Query inflow transactions, map to `IncomeTransaction[]`, call `detectPaydays()`. For each `PaydayPattern`, call `predictNextPayday(pattern, todayISO)` to get the next predicted date. Display a "Next Payday" hero pill at the top showing the soonest upcoming payday: payee, date, expected amount, and a countdown ("in X days"). Below, list all detected patterns as cards: payee, frequency, day of week/month, average amount, confidence, and their next predicted date. Add a "View Schedule" expand that calls `getPaydaySchedule(patterns, 6)` and shows the next 6 paydays across all sources in a timeline list sorted by date.
+
+---
+
+### BUDGET-12: Goal Projections -- Trajectory Chart on Goal Detail
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/goal/[id].tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/goals.ts` -- `calculateGoalProgress`, `calculateGoalProjection`, `suggestMonthlyContribution`
+**Prompt:**
+> Extend the goal detail screen `goal/[id].tsx` to add a projection section below the existing form card. After loading the goal, call `calculateGoalProgress(goalInput, todayISO)` and display a progress bar (current/target with percentage). Call `suggestMonthlyContribution(goalInput, todayISO)` to show "Suggested: $X/month". Call `calculateGoalProjection(goalInput, avgMonthlyContribution, todayISO)` where avgMonthlyContribution is computed from the goal's actual contribution history (completed_amount / months since created_at). Display projected completion date, months remaining, and required monthly amount. Add a simple SVG line showing the trajectory: a line from (createdAt, 0) through (today, currentAmount) projected to (projectedDate, targetAmount), with the target as a horizontal dashed line. Color the projection line green if on_track, yellow if behind.
+
+---
+
+### BUDGET-13: Debt Payoff Planner -- Plan List + Creation
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/debt-payoff.tsx` (create)
+- `apps/mobile/app/(budget)/debt-payoff/create.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit -- add 2 Stack.Screens)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/db/debt-payoff.ts` -- `getDebtPayoffPlans`, `createDebtPayoffPlan`, `createDebtPayoffDebt`, `getDebtsByPlan`
+**Prompt:**
+> Create `debt-payoff.tsx` as a list screen. On mount, call `getDebtPayoffPlans(db)`. Display each plan as a card: name, strategy (snowball/avalanche badge), number of debts, total balance. Add a FAB/button to navigate to `debt-payoff/create.tsx`. The create screen has: plan name input, strategy picker (two chips: Snowball / Avalanche), extra monthly payment input. After creating the plan shell via `createDebtPayoffPlan()`, navigate to the plan detail. Include a section to add debts: name, balance, minimum payment, interest rate (APR). Each debt added via `createDebtPayoffDebt()`. Validate that balance > 0, rate >= 0, minPayment > 0. Register both screens in layout.
+
+---
+
+### BUDGET-14: Debt Payoff Planner -- Snowball vs Avalanche Comparison
+**Depends on:** BUDGET-13
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/debt-payoff/[id].tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/debt-payoff.ts` -- `calculateSnowball`, `calculateAvalanche`
+- `modules/budget/src/db/debt-payoff.ts` -- `getDebtPayoffPlanById`, `getDebtsByPlan`
+**Prompt:**
+> Create `debt-payoff/[id].tsx` as a plan detail screen. Load the plan and its debts. Map debts to `DebtInput[]`. Run both `calculateSnowball(debts, extraPayment)` and `calculateAvalanche(debts, extraPayment)`. Display a side-by-side comparison card: Strategy name, Total Months, Total Interest Paid, Total Paid. Highlight the winner (less interest) with a green "Saves $X" badge. Below, show the plan's current strategy results: payoff order (list debt names in order they get paid off), total months, total interest. Add a toggle to switch strategy and re-save the plan via `updateDebtPayoffPlan()`.
+
+---
+
+### BUDGET-15: Debt Payoff Planner -- Amortization Schedule
+**Depends on:** BUDGET-14
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/debt-payoff/[id].tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/debt-payoff.ts` -- `generateAmortizationSchedule`, `projectPayoffDate`
+**Prompt:**
+> Extend `debt-payoff/[id].tsx` with an expandable "Amortization Schedule" section. For each debt in the plan, add an "Expand" button that calls `generateAmortizationSchedule(balance, monthlyPayment, annualRateBps)`. Display the schedule in a compact table/list: month number, payment, principal, interest, remaining balance. Format all amounts as currency. At the top of each debt's section, call `projectPayoffDate()` and show "Payoff by: YYYY-MM-DD (X months, $Y total interest)". Use alternating row backgrounds for readability. Limit initial display to 12 months with a "Show All" button to expand.
+
+---
+
+### BUDGET-16: Loan Planner -- Calculator Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/loan-planner.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/engine/loan-planner.ts` -- `calculateMonthlyPayment`, `getLoanSummary`, `generateLoanAmortization`
+- `modules/budget/src/db/loans.ts` -- `createLoan`, `getActiveLoans`
+**Prompt:**
+> Create `loan-planner.tsx`. Provide input fields: principal (dollar amount), interest rate (APR percentage), term (months), extra monthly payment (optional). On input change, call `calculateMonthlyPayment({ principal: cents, interestRate: basisPoints, termMonths })` and display the monthly payment in real time. Below, call `getLoanSummary()` and show: total payments, total interest, payoff months. Add a "View Schedule" toggle that renders `generateLoanAmortization()` as a scrollable list with month, payment, principal, interest, extra, remaining balance, cumulative interest. Add a "Save Loan" button that persists via `createLoan(db, ...)`. Register in layout and add nav.
+
+---
+
+### BUDGET-17: Loan Planner -- Scenario Comparison
+**Depends on:** BUDGET-16
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/loan-planner.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/loan-planner.ts` -- `compareScenarios`
+**Prompt:**
+> Extend `loan-planner.tsx` with a "Compare Scenarios" section. Add a second set of inputs (modified scenario) that defaults to the original values. The user can change rate, term, or extra payment. Call `compareScenarios(originalInput, modifiedInput)` and display a comparison card: two columns (Original vs Modified) showing monthly payment, total payments, total interest, payoff months. At the bottom, highlight `interestSaved` (green if positive) and `monthsSaved`. Update the comparison in real time as inputs change. Add a "Reset to Original" button for the modified inputs.
+
+---
+
+### BUDGET-18: Investment Portfolio -- Holdings List
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/investments.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/engine/investment-tracker.ts` -- `calculatePortfolioSummary`, `calculateHoldingGainLoss`
+- `modules/budget/src/db/holdings.ts` -- `getActiveHoldings`
+**Prompt:**
+> Create `investments.tsx`. On mount, call `getActiveHoldings(db)` and map to `HoldingInput[]`. Call `calculatePortfolioSummary(holdings)` for the hero card: total value, total cost basis, total gain/loss (green/red), total return percentage, holding count. Below, render a FlatList of holdings. For each holding, call `calculateHoldingGainLoss()` and show: symbol (bold), name, shares, current value, gain/loss amount, return percentage as colored pill. Sort by current value descending. Include empty state for no holdings and a "Add Holding" button (navigates to a future create screen or uses a modal with symbol, name, shares, cost basis, current price inputs calling `createHolding()`). Register in layout and add nav.
+
+---
+
+### BUDGET-19: Investment Portfolio -- Allocation Chart
+**Depends on:** BUDGET-18
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/investments.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/investment-tracker.ts` -- `calculateAllocation`
+**Prompt:**
+> Extend `investments.tsx` with an "Asset Allocation" section between the summary card and the holdings list. Call `calculateAllocation(holdings)`. Render a donut/pie chart using react-native-svg (`<Path>` arcs or `<Circle>` with stroke-dasharray). Each slice represents an asset class, colored from a predefined palette. Below the chart, show a legend: colored dot + asset class name + percentage + dollar value. If only one asset class, show a single-color ring. Handle the edge case of 0 total value gracefully.
+
+---
+
+### BUDGET-20: Investment Portfolio -- Performance Timeline
+**Depends on:** BUDGET-18
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/investments.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/investment-tracker.ts` -- `buildPerformanceTimeline`
+- `modules/budget/src/db/holdings.ts` -- `getHoldingSnapshots`
+**Prompt:**
+> Extend `investments.tsx` with a "Performance" section. For each active holding, call `getHoldingSnapshots(db, holdingId)`. Aggregate all snapshots into `{ date, totalValue }[]` grouped by date, then call `buildPerformanceTimeline()`. Render an SVG line chart showing portfolio value over time. Add period selector chips: 1M, 3M, 6M, 1Y, All. Filter the timeline data by the selected period. Show the current value and the change (amount + percentage) from the start of the selected period. If no snapshots, show "Record your first snapshot to track performance" with a button that creates snapshots for all current holdings via `createHoldingSnapshot()`.
+
+---
+
+### BUDGET-21: Family Sharing -- Invite Flow + Member List
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/family.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/settings.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/engine/family-sharing.ts` -- `generateInviteCode`, `isInviteExpired`, `MAX_FAMILY_SIZE`
+- `modules/budget/src/db/families.ts` -- `createFamily`, `getFamilyById`, `createFamilyMember`, `getFamilyMembers`
+**Prompt:**
+> Create `family.tsx`. Check if a family exists (query `bg_families` for the current user). If none, show a "Create Family" button that calls `createFamily(db, uuid(), { name, owner_id, invite_code: generateInviteCode() })`. If a family exists, display: family name, invite code (large monospace text with copy button), code expiry countdown (24h from created_at via `isInviteExpired()`), and a "Regenerate Code" button. Below, show the member list from `getFamilyMembers(db, familyId)`: name, role badge (owner/admin/member/viewer), joined date. Show member count vs `MAX_FAMILY_SIZE` (6). Add a "Join Family" flow: text input for invite code, validate via `getFamilyByInviteCode(db, code)`, then `createFamilyMember()`. Register in layout and link from settings.
+
+---
+
+### BUDGET-22: Family Sharing -- Permissions Management
+**Depends on:** BUDGET-21
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/family.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/family-sharing.ts` -- `canWriteToEnvelope`, `canViewEnvelope`
+- `modules/budget/src/db/families.ts` -- `updateFamilyMember`, `removeFamilyMember`, `setEnvelopeSharingMode`, `getEnvelopeSharingModes`
+**Prompt:**
+> Extend `family.tsx` with a permissions section visible only to owners/admins. For each member (non-owner), show a role picker (admin/member/viewer chips) that calls `updateFamilyMember(db, memberId, { role })`. Add a "Remove" button that calls `removeFamilyMember()` with a confirmation alert. Add an "Envelope Sharing" section: list all envelopes with a sharing mode picker per envelope (shared/visible/private) using `setEnvelopeSharingMode()`. Load current modes via `getEnvelopeSharingModes()`. Show an info tooltip explaining each mode: shared = everyone can edit, visible = view only, private = owner only. Use `canWriteToEnvelope()` and `canViewEnvelope()` to display permission indicators next to each envelope.
+
+---
+
+### BUDGET-23: Expense Splitting -- Calculator + Contact Management
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/splitting.tsx` (create)
+- `apps/mobile/app/(budget)/splitting/new.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit -- add Stack.Screens)
+- `apps/mobile/app/(budget)/index.tsx` (edit -- add nav button)
+**Reference logic:**
+- `modules/budget/src/engine/expense-splitting.ts` -- `calculateEqualSplit`, `calculatePercentageSplit`, `calculateSharesSplit`
+- `modules/budget/src/db/splitting.ts` -- `createContact`, `getContacts`, `createExpenseSplit`, `createSplitParticipant`
+**Prompt:**
+> Create `splitting.tsx` as the main split list/contacts screen. Display a "Contacts" section from `getContacts(db)` as a list of name + phone/email. Add "Add Contact" inline form (name required, phone/email optional) calling `createContact()`. Below contacts, show recent splits from `getExpenseSplits(db)`. Create `splitting/new.tsx` for the split calculator: amount input, split type picker (equal/percentage/shares chips), participant selector (multi-select from contacts + self). On "Calculate", call the appropriate split function. Display each participant's share amount. "Save Split" persists via `createExpenseSplit()` and `createSplitParticipant()` for each participant. Register both screens in layout.
+
+---
+
+### BUDGET-24: Expense Splitting -- Balance Tracking + Settlements
+**Depends on:** BUDGET-23
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/splitting.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/expense-splitting.ts` -- `calculateBalances`
+- `modules/budget/src/db/splitting.ts` -- `getExpenseSplits`, `getSplitParticipants`, `createSettlement`, `getSettlementsByContact`
+**Prompt:**
+> Extend `splitting.tsx` with a "Balances" section at the top. Gather all splits with participants and all settlements, build a contactNames map from contacts, and call `calculateBalances()`. Display the summary: "Owed to you: $X", "You owe: $Y", "Net: $Z". Below, list each contact's balance entry: name, net balance (green if they owe you, red if you owe them). Tapping a contact shows a bottom sheet with their split history and a "Record Settlement" button. Settlement form: amount input, direction (they paid you / you paid them). Persist via `createSettlement()`. After settlement, recalculate balances. Show "All settled up!" state when net is zero.
+
+---
+
+### BUDGET-25: Subscription ROI -- Scoring Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/subscription-roi.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/subscriptions.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/subscriptions/roi.ts` -- `getROIReport`, `scoreSubscriptionROI`
+- `modules/budget/src/db/crud.ts` -- `getSubscriptions`, `listTransactions`
+**Prompt:**
+> Create `subscription-roi.tsx`. Load active subscriptions via `getSubscriptions(db, { status: 'active' })`. For each subscription, query related transactions (matching merchant name in the last 90 days) to build `relatedTransactionDates`. Construct `ROIInput[]` and call `getROIReport()`. Display a hero section: `unusedCount` (red badge), `underusedCount` (yellow), `activeCount` (green), and total potential savings from unused subscriptions (`unusedMonthlyCostCents`/mo, `unusedAnnualCostCents`/yr). Below, list each `SubscriptionROI` as a card: icon, name, monthly cost, usage status badge (colored: active=green, underused=yellow, unused=red), days since last activity, activity count. Unused subscriptions show "Consider canceling" call-to-action. Register and link from subscriptions screen.
+
+---
+
+### BUDGET-26: Multi-Currency -- Currency Selector + Conversion Display
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/currencies.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/settings.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/engine/multi-currency.ts` -- `convertAmount`, `formatCurrencyAmount`, `convertToBase`, `RATE_PRECISION`
+- `modules/budget/src/db/currency.ts` -- `getCurrencies`, `getBaseCurrency`, `createCurrency`, `upsertExchangeRate`, `getExchangeRates`
+**Prompt:**
+> Create `currencies.tsx`. Load currencies via `getCurrencies(db)` and base currency via `getBaseCurrency(db)`. Display the base currency prominently at top with a "Change Base" option. List all configured currencies as cards: code, name, symbol, exchange rate to base. Add an "Add Currency" form: code (3-letter), name, symbol, decimal places, exchange rate. Persist via `createCurrency()` and `upsertExchangeRate()`. Include a "Convert" calculator section: amount input, from-currency picker, to-currency picker. Call `convertAmount()` and `formatCurrencyAmount()` to show the result. Display the rate used. Handle missing rate with `convertToBase()` fallback. Register and link from settings.
+
+---
+
+### BUDGET-27: Budget Alerts -- Threshold Configuration
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/alerts.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/settings.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/engine/alerts.ts` -- `checkAlerts`
+- `modules/budget/src/db/alerts.ts` -- `createBudgetAlert`, `getBudgetAlerts`, `updateBudgetAlert`, `deleteBudgetAlert`, `getAlertHistoryByMonth`
+- `modules/budget/src/db/crud.ts` -- `listEnvelopes`
+**Prompt:**
+> Create `alerts.tsx`. Load all envelopes and existing alerts via `getBudgetAlerts(db)`. Display a list of configured alerts: envelope name, threshold percentage, enabled toggle. Add "Create Alert" flow: envelope picker (dropdown/chip selector from envelopes without existing alerts), threshold slider or input (10-100%), enabled toggle. Persist via `createBudgetAlert()`. Each existing alert row has: edit (change threshold via `updateBudgetAlert()`), toggle enable/disable, delete with confirmation. At the bottom, show "Alert History" section: load `getAlertHistoryByMonth(db, currentMonth)` and list fired alerts with envelope name, spent percentage, and notification date. Register and link from settings.
+
+---
+
+### BUDGET-28: Budget Alerts -- Active Notification Display
+**Depends on:** BUDGET-27
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/index.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/alerts.ts` -- `checkAlerts`
+- `modules/budget/src/db/alerts.ts` -- `getBudgetAlerts`, `getAlertHistoryByMonth`
+- `modules/budget/src/db/transactions-v4.ts` -- `getActivityByEnvelope`
+**Prompt:**
+> Extend the budget dashboard `index.tsx` to show active alerts as a dismissible banner below the Spending Pulse card. On mount, load alert configs, compute each envelope's spending via `getActivityByEnvelope()`, build `EnvelopeSpendState[]`, load alert history for the current month, and call `checkAlerts()`. If any `AlertNotification[]` are returned, render them as a compact red/orange alert card: icon, envelope name, "X% of budget spent (threshold: Y%)" message. Tapping an alert navigates to the envelope detail. Show at most 3 alerts with "View All" link to the alerts screen. If no alerts fire, don't render the section.
+
+---
+
+### BUDGET-29: Transaction Rules -- Rule Builder
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/rules.tsx` (create)
+- `apps/mobile/app/(budget)/rules/create.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit -- add 2 Stack.Screens)
+- `apps/mobile/app/(budget)/settings.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/engine/transaction-rules.ts` -- `evaluateCondition`, `applyRules`
+- `modules/budget/src/db/transaction-rules.ts` -- `createTransactionRule`, `getTransactionRules`, `updateTransactionRule`, `deleteTransactionRule`
+**Prompt:**
+> Create `rules.tsx` list screen. Load rules via `getTransactionRules(db)`. Display each rule as a card: name, priority number, enabled toggle, condition summary (e.g., "payee contains 'Amazon'"), action summary (e.g., "Set envelope: Shopping"). Toggle enable via `updateTransactionRule(db, id, { is_enabled })`. Delete with confirmation. Add FAB to `rules/create.tsx`: name input, priority input, matchAll toggle (AND/OR), conditions builder (add/remove condition rows: field picker [payee/amount/account/memo], operator picker [contains/equals/starts_with/etc], value input), actions builder (add/remove action rows: type picker [set_envelope/rename_payee/set_memo], value input with envelope picker for set_envelope). "Test Rule" button: enter a sample payee/amount and call `evaluateCondition()` to show match/no-match. Save via `createTransactionRule()`. Register both screens.
+
+---
+
+### BUDGET-30: Transaction Rules -- Auto-Categorization Preview
+**Depends on:** BUDGET-29
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/rules.tsx` (edit)
+**Reference logic:**
+- `modules/budget/src/engine/transaction-rules.ts` -- `applyRules`
+- `modules/budget/src/db/transaction-rules.ts` -- `getEnabledTransactionRules`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`
+**Prompt:**
+> Extend `rules.tsx` with an "Auto-Categorize Preview" section. Add a button "Preview on Recent Transactions". When tapped, load enabled rules via `getEnabledTransactionRules(db)` and the last 20 uncategorized transactions (where `envelope_id` is null). For each transaction, call `applyRules(enabledRules, { payee, amount, accountId, memo })`. Display results as a list: transaction payee + amount, matched rule name (or "No match"), proposed envelope assignment. Add a "Apply All" button that bulk-updates matched transactions with the proposed envelope_id via `updateTransaction()`. Show a count summary: "X of Y transactions would be categorized".
+
+---
+
+### BUDGET-31: Cash Flow Statement -- Net Cash Analysis
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/cash-flow.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/reports.tsx` (edit -- add nav link)
+**Reference logic:**
+- `modules/budget/src/engine/net-cash.ts` -- `calculateNetCash`, `calculateCashFlowByPeriod`, `calculateRunningBalance`
+- `modules/budget/src/db/crud.ts` -- `listTransactions`, `listAccounts`
+**Prompt:**
+> Create `cash-flow.tsx`. On mount, query transactions for the selected period (month/quarter/year toggle, reuse the pattern from reports.tsx). Map to `Transaction[]` (amount: positive=inflow, negative=outflow, isTransfer from direction). Call `calculateNetCash()` for the hero card: Inflows (green), Outflows (red), Net Cash (accent, green if positive, red if negative). Add a period breakdown section: call `calculateCashFlowByPeriod(transactions, 'weekly')` for weekly view. Display each `CashFlowPeriod` as a row: period label, inflow bar, outflow bar (horizontal stacked bars), net amount. Add a "Running Balance" section: call `calculateRunningBalance(transactions, startingBalance)` where startingBalance is the sum of all account balances. Render as an SVG area chart. Register and link from reports.
+
+---
+
+### BUDGET-32: Receipt Scanner -- Camera Capture + OCR Review
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(budget)/receipt-scan.tsx` (create)
+- `apps/mobile/app/(budget)/_layout.tsx` (edit)
+- `apps/mobile/app/(budget)/transaction/create.tsx` (edit -- add "Scan Receipt" button)
+**Reference logic:**
+- `modules/budget/src/engine/receipt-parser.ts` -- `parseReceiptText`, `normalizeMerchant`
+- `modules/budget/src/db/receipts.ts` -- `createReceipt`, `updateReceipt`
+**Prompt:**
+> Create `receipt-scan.tsx`. Use `expo-camera` for the capture view: full-screen camera preview with a capture button. After capture, use `expo-image-manipulator` to crop/resize. For OCR, use `expo-ml-kit` (or a placeholder function that returns mock OCR text for now, with a TODO for real OCR integration). Pass OCR text to `parseReceiptText()`. Display the review screen: editable fields pre-filled from the parsed receipt -- merchant (normalized via `normalizeMerchant()`), date, total, tax, line items list. Show `confidence` as a percentage badge. User can correct any field. "Save Receipt" calls `createReceipt(db, uuid(), { transaction_id: null, image_uri, ocr_text, merchant, date, total_cents, tax_cents, status: 'reviewed' })`. Add a "Create Transaction" button that navigates to transaction/create pre-filled with the receipt data. Add a "Scan Receipt" button on the transaction create screen. Register in layout.
+
+
+## Books
+
+### BOOKS-01: Progress Tracking -- useProgress hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-progress.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/progress/progress-engine.ts` (updateProgress, getReadingSpeed, getProgressTimeline), `modules/books/src/db/progress-updates.ts`, `modules/books/src/db/timed-sessions.ts`
+**Prompt:**
+> Create a React hook `useProgress(bookId: string)` in `apps/mobile/hooks/books/use-progress.ts`. Import `updateProgress`, `getReadingSpeed`, `getProgressTimeline` from `@mylife/books`. Import `getLatestProgress`, `getProgressHistory` from `@mylife/books`. Import `startTimedSession`, `stopTimedSession`, `getTimedSessionsForBook` from `@mylife/books`. Use `useDatabase()` from `../../components/DatabaseProvider`. Return `{ speed: ReadingSpeed | null, timeline: ProgressTimelineEntry[], latestPage: number | null, loading: boolean, refresh(), logProgress(page, pageCount), startTimer(sessionId), stopTimer(sessionId, pagesRead) }`. `logProgress` calls `updateProgress(db, bookId, sessionId, page, pageCount)`. `startTimer` calls `startTimedSession(db, id, { book_id, session_id, started_at })`. `stopTimer` calls `stopTimedSession(db, id, { duration_ms, pages_read })`. Export from the hooks barrel `index.ts`. Use `useState` + `useCallback` + `useEffect` pattern matching existing hooks like `use-sessions.ts`.
+
+---
+
+### BOOKS-02: Progress Tracking -- ProgressLogSheet component
+**Depends on:** BOOKS-01
+**Files to create/edit:** `apps/mobile/components/books/ProgressLogSheet.tsx`
+**Reference logic:** `modules/books/src/progress/types.ts` (ReadingSpeed), `apps/mobile/components/books/ProgressSlider.tsx`
+**Prompt:**
+> Create `ProgressLogSheet` component. Props: `{ bookId: string, sessionId: string, pageCount: number | null, visible: boolean, onClose() }`. Uses `useProgress(bookId)` hook. Renders a bottom sheet (use a `Modal` with slide animation from bottom) containing: (1) a numeric page input field with label "Current page", (2) a "Log Progress" button calling `logProgress(page, pageCount)`, (3) a reading speed display showing `speed.averagePagesPerHour` formatted as "X pages/hour" if available, (4) estimated completion text: if `speed` and `pageCount`, compute `(pageCount - currentPage) / speed.averagePagesPerHour` hours remaining. Use Cool Obsidian tokens: `colors.background`, `colors.surface`, `colors.text`, `colors.modules.books` for accent, `spacing.*` for padding. Include loading and empty states.
+
+---
+
+### BOOKS-03: Progress Tracking -- ProgressTimeline chart component
+**Depends on:** BOOKS-01
+**Files to create/edit:** `apps/mobile/components/books/ProgressTimeline.tsx`
+**Reference logic:** `modules/books/src/progress/types.ts` (ProgressTimelineEntry)
+**Prompt:**
+> Create `ProgressTimeline` component. Props: `{ timeline: ProgressTimelineEntry[], accentColor?: string }`. Renders a simple line chart showing reading progress over time. X-axis is date labels (show first, middle, last), Y-axis is page number. Use `View` + `StyleSheet` to draw horizontal bars proportional to `entry.percent` (0-100). Each row shows the date (formatted as "MMM DD") on the left, a horizontal bar on the right colored with `accentColor ?? colors.modules.books`. If `timeline.length === 0`, show "Start logging progress to see your reading journey." in `colors.textTertiary`. Use Cool Obsidian tokens throughout. Max height 200px, scrollable if more than 10 entries.
+
+---
+
+### BOOKS-04: Progress Tracking -- Wire into book detail screen
+**Depends on:** BOOKS-02, BOOKS-03
+**Files to create/edit:** `apps/mobile/app/(books)/book/[id].tsx`
+**Reference logic:** existing book detail screen patterns
+**Prompt:**
+> Edit `apps/mobile/app/(books)/book/[id].tsx`. Import `useProgress` from `../../../hooks/books/use-progress`. Import `ProgressLogSheet` and `ProgressTimeline` from `../../../components/books/`. Add a "Reading Progress" section below the existing book info section. Show: (1) `ProgressTimeline` with the `timeline` from the hook, (2) a "Log Progress" button that opens the `ProgressLogSheet` modal (pass the book's `page_count`, current `session.id`, and bookId). (3) If `speed` is available, show a stat card with "Avg Speed: X pages/hr" and "Est. Completion: Y hours left" (computed from remaining pages / speed.averagePagesPerHour). Use the existing `Card` component from `@mylife/ui` and maintain Cool Obsidian styling.
+
+---
+
+### BOOKS-05: Discovery Engine -- useDiscovery hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-discovery.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/discovery/discovery-engine.ts` (discoverBooks, getBookDiscoveryProfile), `modules/books/src/discovery/types.ts` (DiscoveryFilters, BookDiscoveryProfile)
+**Prompt:**
+> Create `useDiscovery` hook in `apps/mobile/hooks/books/use-discovery.ts`. Import `discoverBooks` and `getBookDiscoveryProfile` from `@mylife/books`. Import `getDistinctMoodValues`, `getDistinctWarnings` from `@mylife/books`. Use `useDatabase()`. Return `{ results: Book[], filters: DiscoveryFilters, setFilters(f), availableMoods: string[], availablePaces: string[], availableGenres: string[], availableWarnings: string[], loading, refresh() }`. `availableMoods` calls `getDistinctMoodValues(db, 'mood')`, similarly for paces and genres. `results` calls `discoverBooks(db, filters)`. Follow the `useState` + `useCallback` + `useEffect` pattern from `use-books.ts`. Export from the hooks barrel.
+
+---
+
+### BOOKS-06: Discovery Engine -- DiscoverScreen
+**Depends on:** BOOKS-05
+**Files to create/edit:** `apps/mobile/app/(books)/discover.tsx`
+**Reference logic:** `modules/books/src/discovery/types.ts`, existing screen patterns in `apps/mobile/app/(books)/library.tsx`
+**Prompt:**
+> Create `DiscoverScreen` at `apps/mobile/app/(books)/discover.tsx`. Uses `useDiscovery()` hook. Layout: (1) Header "Discover Books" with subtitle "Find your next read by mood, pace, or genre". (2) Filter section: horizontal `ScrollView` chips for mood (from `availableMoods`), tappable to toggle. Second row for pace. Third row for genre. Each chip is a `Pressable` with `colors.surface` background, `colors.modules.books` when selected, `borderRadius: 999`, padding `spacing.xs` horizontal `spacing.sm`. (3) Optional "Exclude content warnings" expandable section showing `availableWarnings` as toggleable chips. (4) Results grid using the existing `BookGrid` component, passing `results`. Show empty state "Adjust your filters to discover books" when no results. Show skeleton loading state matching `library.tsx` pattern. Navigation: `onPress` goes to `/(books)/book/${id}`.
+
+---
+
+### BOOKS-07: Discovery Engine -- Wire into navigation
+**Depends on:** BOOKS-06
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout tab/screen definitions
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add a hidden screen entry for the discover route: `<Tabs.Screen name="discover" options={{ href: null }} />`. This keeps discover accessible via `router.push` without adding a tab bar entry. The discover screen will be linked from the home screen's action buttons.
+
+---
+
+### BOOKS-08: Reading Challenges -- useChallenges hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-challenges.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/challenges/challenge-engine.ts` (getChallengeStatus, getActiveChallengeStatuses), `modules/books/src/db/challenges.ts` (createChallenge, getAllChallenges, deleteChallenge), `modules/books/src/challenges/types.ts` (ChallengeStatus)
+**Prompt:**
+> Create `useChallenges` hook. Import `getActiveChallengeStatuses`, `getChallengeStatus` from `@mylife/books`. Import `createChallenge`, `getAllChallenges`, `deactivateChallenge`, `deleteChallenge` from `@mylife/books`. Use `useDatabase()`. Return `{ activeStatuses: ChallengeStatus[], allChallenges: Challenge[], loading, refresh(), create(input), deactivate(id), remove(id) }`. `create` calls `createChallenge(db, crypto.randomUUID(), input)` then refreshes. `activeStatuses` calls `getActiveChallengeStatuses(db)`. Follow the hook pattern from `use-sessions.ts`. Export from barrel.
+
+---
+
+### BOOKS-09: Reading Challenges -- ChallengesScreen
+**Depends on:** BOOKS-08
+**Files to create/edit:** `apps/mobile/app/(books)/challenges.tsx`
+**Reference logic:** `modules/books/src/challenges/types.ts` (ChallengeStatus), existing screen patterns
+**Prompt:**
+> Create `ChallengesScreen`. Uses `useChallenges()`. Layout: (1) Header "Reading Challenges" with a "+" button to create a new challenge. (2) Active challenges section: for each `ChallengeStatus`, render a `Card` showing challenge name, progress bar (width = `percentComplete`%), value text "X / Y books|pages|minutes", and a checkmark icon if `isComplete`. Progress bar uses `colors.modules.books` fill on `colors.surfaceElevated` track. (3) Completed challenges section (filtered where `isComplete === true`), shown below with muted styling. (4) Empty state: "No active challenges. Set a reading goal to get started!" with a "Create Challenge" button. (5) Create flow: "+" button shows a modal with fields: name (TextInput), type picker (books_count | pages_count | minutes_count | themed), target value (numeric input), and a "Start" button. Use Cool Obsidian tokens. Wire `deactivate` to a long-press menu on each card.
+
+---
+
+### BOOKS-10: Reading Challenges -- Wire into navigation
+**Depends on:** BOOKS-09
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screen: `<Tabs.Screen name="challenges" options={{ href: null }} />`. Add navigation entry point from the home screen or stats screen as a "Challenges" action button.
+
+---
+
+### BOOKS-11: Book Clubs -- useClubs hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-clubs.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/clubs/club-engine.ts` (setNextBook, getClubProgress, daysRemaining), `modules/books/src/db/clubs.ts`, `modules/books/src/db/club-notes.ts`, `modules/books/src/db/club-history.ts`, `modules/books/src/clubs/types.ts` (ClubWithProgress)
+**Prompt:**
+> Create `useClubs` hook. Import `getActiveClubs`, `getAllClubs`, `createClub`, `deleteClub` from `@mylife/books`. Import `getClubProgress`, `setNextBook` from `@mylife/books`. Import `createClubNote`, `getNotesForClub`, `getHistoryForClub` from `@mylife/books`. Use `useDatabase()`. Return `{ clubs: ClubWithProgress[], loading, refresh(), create(input), remove(id), setBook(clubId, bookId, start?, end?), addNote(clubId, input), getNotes(clubId), getHistory(clubId) }`. `clubs` maps `getActiveClubs(db)` through `getClubProgress(db, club.id)`. Export from barrel.
+
+---
+
+### BOOKS-12: Book Clubs -- ClubsScreen (list)
+**Depends on:** BOOKS-11
+**Files to create/edit:** `apps/mobile/app/(books)/clubs.tsx`
+**Reference logic:** `modules/books/src/clubs/types.ts`, existing card/list patterns
+**Prompt:**
+> Create `ClubsScreen`. Uses `useClubs()`. Layout: (1) Header "Book Clubs" with "+" create button. (2) For each `ClubWithProgress`: a `Card` showing club name, current book title + cover (using `BookCover` from `@mylife/ui`), days remaining badge (red if `isOverdue`), progress bar for `readingProgress`. (3) Tap a club card to navigate to `/(books)/club/${club.club.id}`. (4) Empty state: "Start a book club to read together. Track your group's pace and share notes." with "Create Club" button. (5) Create modal: name (TextInput), description (TextInput), "Create" button. Use Cool Obsidian tokens.
+
+---
+
+### BOOKS-13: Book Clubs -- ClubDetailScreen
+**Depends on:** BOOKS-11
+**Files to create/edit:** `apps/mobile/app/(books)/club/[id].tsx`
+**Reference logic:** `modules/books/src/clubs/club-engine.ts`, `modules/books/src/db/club-notes.ts`, `modules/books/src/db/club-history.ts`
+**Prompt:**
+> Create `ClubDetailScreen` at `apps/mobile/app/(books)/club/[id].tsx`. Uses `useClubs()` filtered to the route param `id`. Layout: (1) Club name header. (2) Current book section: cover image, title, author, progress bar, days remaining text (or "Overdue" badge in `colors.danger`). (3) "Set Next Book" button opening a book picker (list from `useBooks()`, tap to call `setBook`). (4) Club Notes section: list of notes for this club (call `getNotes(clubId)`), each showing content + created_at. "Add Note" button opens a TextInput modal. (5) Reading History section: past books list from `getHistory(clubId)`, showing title and date range. Use `Card` from `@mylife/ui`, Cool Obsidian tokens.
+
+---
+
+### BOOKS-14: Book Clubs -- Wire into navigation
+**Depends on:** BOOKS-12, BOOKS-13
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screens: `<Tabs.Screen name="clubs" options={{ href: null }} />` and `<Tabs.Screen name="club/[id]" options={{ href: null }} />`.
+
+---
+
+### BOOKS-15: Badge System -- useBadges hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-badges.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/badges/badge-engine.ts` (evaluateBadges, gatherBadgeStats, getBadgeProgress), `modules/books/src/badges/types.ts` (BadgeProgress, BadgeEvaluationResult, BadgeStats), `modules/books/src/badges/definitions.ts` (BADGE_CATEGORIES), `modules/books/src/db/badges.ts` (getAllBadges, getEarnedBadges, getBadgesByCategory)
+**Prompt:**
+> Create `useBadges` hook. Import `evaluateBadges`, `gatherBadgeStats` from `@mylife/books`. Import `getAllBadges`, `getEarnedBadges`, `getBadgesByCategory` from `@mylife/books`. Import `BADGE_CATEGORIES` from `@mylife/books`. Use `useDatabase()`. Return `{ evaluation: BadgeEvaluationResult | null, stats: BadgeStats | null, categories: typeof BADGE_CATEGORIES, badgesByCategory: Record<string, BadgeProgress[]>, loading, refresh(), evaluate() }`. `evaluate` calls `evaluateBadges(db)` and sets the result. `badgesByCategory` groups `evaluation.allProgress` by `badge.category`. Export from barrel.
+
+---
+
+### BOOKS-16: Badge System -- BadgeCard component
+**Depends on:** BOOKS-15
+**Files to create/edit:** `apps/mobile/components/books/BadgeCard.tsx`
+**Reference logic:** `modules/books/src/badges/types.ts` (BadgeProgress), `modules/books/src/db/badges.ts` (Badge type with name, icon, description, category, tier)
+**Prompt:**
+> Create `BadgeCard` component. Props: `{ progress: BadgeProgress }`. Renders a card showing: (1) badge icon (emoji from `badge.icon`) at 36px, (2) badge name, (3) badge description in `colors.textSecondary`, (4) progress bar: if `isEarned`, fill is 100% with a gold tint `#FFD700`, else fill width is `(currentValue / badge.threshold) * 100`%, (5) progress text from `progressText` ("5/10"), (6) earned date if `isEarned` formatted as "Earned MMM DD, YYYY", (7) tier indicator: bronze/silver/gold/platinum as a small colored dot. Unearned badges show slightly muted opacity (0.7). Card background is `colors.surface`, border `colors.border`. Size is ~160px wide for a 2-column grid.
+
+---
+
+### BOOKS-17: Badge System -- BadgeGalleryScreen
+**Depends on:** BOOKS-15, BOOKS-16
+**Files to create/edit:** `apps/mobile/app/(books)/badges.tsx`
+**Reference logic:** `modules/books/src/badges/definitions.ts` (BADGE_CATEGORIES, BADGE_IDS)
+**Prompt:**
+> Create `BadgeGalleryScreen`. Uses `useBadges()`. Layout: (1) Header "Achievements" with earned count "X / 31 earned". (2) Stats summary row: total books, total pages, current streak, genres explored (from `stats`). (3) Category sections: for each category in `BADGE_CATEGORIES`, render a section header (capitalize category name) followed by a 2-column `FlatList` of `BadgeCard` components for that category's badges. (4) Newly earned celebration: if `evaluate()` returns `newlyEarned.length > 0`, show a brief toast/animation with the badge icon and "Badge unlocked: [name]!". (5) Call `evaluate()` on mount and on pull-to-refresh. Skeleton loading: 6 placeholder cards in a grid. Use Cool Obsidian tokens.
+
+---
+
+### BOOKS-18: Badge System -- Wire into navigation
+**Depends on:** BOOKS-17
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screen: `<Tabs.Screen name="badges" options={{ href: null }} />`. The badge gallery is accessible from the stats screen or home screen via an "Achievements" link.
+
+---
+
+### BOOKS-19: Reading Journal -- useJournal hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-journal.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/journal/journal-engine.ts` (createEntry, getDecryptedEntry, getReflectionsForBook, getJournalStats, exportJournalToMarkdown), `modules/books/src/journal/types.ts` (JournalStats, CreateEntryOptions), `modules/books/src/db/journal-entries.ts`, `modules/books/src/db/journal-photos.ts`, `modules/books/src/db/journal-book-links.ts`
+**Prompt:**
+> Create `useJournal` hook. Import `createEntry`, `getDecryptedEntry`, `getJournalStats`, `getReflectionsForBook`, `exportJournalToMarkdown` from `@mylife/books`. Import `getJournalEntries`, `deleteJournalEntry`, `searchJournalEntries` from `@mylife/books`. Import `addJournalPhoto`, `getPhotosForEntry`, `removeJournalPhoto` from `@mylife/books`. Use `useDatabase()`. Return `{ entries: JournalEntry[], stats: JournalStats | null, loading, refresh(), create(content, options?: CreateEntryOptions), decrypt(entryId, passphrase?), getForBook(bookId), search(query), remove(id), addPhoto(entryId, uri), getPhotos(entryId), removePhoto(photoId), exportMarkdown(entryIds?) }`. The `create` function is async because encryption is async. Follow existing hook patterns. Export from barrel.
+
+---
+
+### BOOKS-20: Reading Journal -- JournalEntryCard component
+**Depends on:** BOOKS-19
+**Files to create/edit:** `apps/mobile/components/books/JournalEntryCard.tsx`
+**Reference logic:** `modules/books/src/models/schemas.ts` (JournalEntry type)
+**Prompt:**
+> Create `JournalEntryCard` component. Props: `{ entry: JournalEntry, onPress(), onLongPress?() }`. Renders: (1) date header formatted "MMM DD, YYYY" from `entry.created_at`, (2) title if present in bold, (3) content preview (first 120 chars, truncated with ellipsis), (4) if `entry.content_encrypted === 1`, show a lock icon and "Encrypted" badge instead of content preview, (5) mood badge if `entry.mood` is set (colored pill), (6) word count in `colors.textTertiary` ("X words"), (7) favorite star indicator if `entry.is_favorite`. Background `colors.surface`, border `colors.border`, borderRadius 14. Pressable with subtle opacity feedback.
+
+---
+
+### BOOKS-21: Reading Journal -- JournalScreen (list + create)
+**Depends on:** BOOKS-19, BOOKS-20
+**Files to create/edit:** `apps/mobile/app/(books)/journal.tsx`
+**Reference logic:** `modules/books/src/journal/types.ts`, existing screen patterns
+**Prompt:**
+> Create `JournalScreen`. Uses `useJournal()`. Layout: (1) Header "Reading Journal" with stats summary (total entries, current streak, entries this month from `stats`). (2) Search bar using `SearchBar` from `@mylife/ui`, calls `search(query)`. (3) "New Entry" FAB button (bottom-right, circular, `colors.modules.books` background). (4) Entry list: `FlatList` of `JournalEntryCard` components, newest first. Tap navigates to `/(books)/journal/${entry.id}`. (5) Empty state: "Your reading journal is private and encrypted. Start writing about what you read." (6) "New Entry" flow: navigate to `/(books)/journal/new`. (7) Pull-to-refresh. Skeleton loading. Cool Obsidian tokens.
+
+---
+
+### BOOKS-22: Reading Journal -- JournalEntryScreen (view/edit)
+**Depends on:** BOOKS-19
+**Files to create/edit:** `apps/mobile/app/(books)/journal/[id].tsx`
+**Reference logic:** `modules/books/src/journal/journal-engine.ts` (getDecryptedEntry), `modules/books/src/journal/encryption.ts`
+**Prompt:**
+> Create `JournalEntryScreen` at `apps/mobile/app/(books)/journal/[id].tsx`. Uses `useJournal()`. On mount, call `decrypt(id, passphrase)` if encrypted. Layout: (1) If encrypted and no passphrase provided, show a passphrase input screen with "Enter your passphrase to decrypt this entry" and a `TextInput` + "Unlock" button. (2) Once decrypted: show title (editable), full content (editable `TextInput` multiline), mood selector (horizontal chip row), linked books (from `getLinkedBooks`). (3) Photo gallery: horizontal scroll of photos from `getPhotos(id)`. "Add Photo" button triggers image picker. (4) Action buttons: "Export as Markdown", "Delete" (with confirmation alert). (5) Auto-save on blur. Cool Obsidian tokens.
+
+---
+
+### BOOKS-23: Reading Journal -- JournalNewScreen (create)
+**Depends on:** BOOKS-19
+**Files to create/edit:** `apps/mobile/app/(books)/journal/new.tsx`
+**Reference logic:** `modules/books/src/journal/types.ts` (CreateEntryOptions)
+**Prompt:**
+> Create `JournalNewScreen`. Uses `useJournal()`. Layout: (1) Title input (optional TextInput, placeholder "Entry title (optional)"). (2) Content input (multiline TextInput, placeholder "Write about what you're reading...", auto-focus, min height 200). (3) Mood selector: horizontal row of mood chips ("reflective", "excited", "sad", "inspired", "confused", "peaceful"). (4) Book linker: "Link to a book" button opens a picker from `useBooks()`, multi-select, shows selected books as pills. (5) Encryption toggle: Switch labeled "Encrypt this entry" with a passphrase input that appears when toggled on. (6) "Save" button calls `create(content, { title, mood, bookIds, passphrase })`. Navigate back on success. Cool Obsidian tokens. Word count displayed in real-time at bottom.
+
+---
+
+### BOOKS-24: Reading Journal -- Wire into navigation
+**Depends on:** BOOKS-21, BOOKS-22, BOOKS-23
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screens: `<Tabs.Screen name="journal" options={{ href: null }} />`, `<Tabs.Screen name="journal/[id]" options={{ href: null }} />`, `<Tabs.Screen name="journal/new" options={{ href: null }} />`.
+
+---
+
+### BOOKS-25: Reading Insights -- useInsights hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-insights.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/insights/insights-engine.ts` (computeInsights), `modules/books/src/insights/genre-evolution.ts` (computeGenreEvolution), `modules/books/src/insights/on-this-day.ts` (getOnThisDay), `modules/books/src/insights/types.ts` (InsightSet, GenreEvolutionTimeline, OnThisDayEvent)
+**Prompt:**
+> Create `useInsights` hook. Import `computeInsights`, `computeGenreEvolution`, `getOnThisDay` from `@mylife/books`. Use `useDatabase()`. Return `{ insights: InsightSet | null, genreEvolution: GenreEvolutionTimeline | null, onThisDay: OnThisDayEvent[], loading, refresh() }`. All three are computed on mount and refresh. `onThisDay` calls `getOnThisDay(db)` with no args (defaults to today). Follow existing hook patterns. Export from barrel.
+
+---
+
+### BOOKS-26: Reading Insights -- InsightCard component
+**Depends on:** BOOKS-25
+**Files to create/edit:** `apps/mobile/components/books/InsightCard.tsx`
+**Reference logic:** `modules/books/src/insights/types.ts` (ReadingInsight)
+**Prompt:**
+> Create `InsightCard` component. Props: `{ insight: ReadingInsight }`. Renders a `Card` from `@mylife/ui` containing: (1) category icon (map: speed -> stopwatch, timing -> clock, diversity -> palette, consistency -> flame, milestones -> trophy), (2) `insight.title` as subheading, (3) `insight.description` as body text in `colors.textSecondary`, (4) if `insight.comparisonValue` exists, show a comparison badge: "[value] [comparisonLabel]" in a pill with `colors.modules.books` background. Card has a subtle left border accent matching the category color. Cool Obsidian tokens.
+
+---
+
+### BOOKS-27: Reading Insights -- InsightsScreen
+**Depends on:** BOOKS-25, BOOKS-26
+**Files to create/edit:** `apps/mobile/app/(books)/insights.tsx`
+**Reference logic:** `modules/books/src/insights/types.ts`
+**Prompt:**
+> Create `InsightsScreen`. Uses `useInsights()`. Layout: (1) Header "Reading Insights". (2) If `insights.insufficientData`, show "Read at least 5 books to unlock personalized insights" with a book icon and `colors.textTertiary`. (3) "On This Day" section at top: if `onThisDay.length > 0`, show a horizontal card carousel of events. Each card shows book cover thumbnail, event type badge ("Started", "Finished", "Added", "Reviewed"), book title, year. If no events: "Nothing on this day in years past." (4) Insights list: vertical `FlatList` of `InsightCard` for each insight in `insights.insights`. (5) Genre Evolution section: for each period in `genreEvolution.periods`, show the period label (year) and top 3 genres as horizontal bars. If `dominantGenreShifts.length > 0`, show shift cards "Your top genre shifted from [from] to [to] in [period]". (6) Pull-to-refresh. Skeleton loading. Cool Obsidian tokens.
+
+---
+
+### BOOKS-28: Reading Insights -- Wire into navigation
+**Depends on:** BOOKS-27
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screen: `<Tabs.Screen name="insights" options={{ href: null }} />`. Link from the stats screen with a "View Insights" button or card.
+
+---
+
+### BOOKS-29: Quote Collection -- useQuotes hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-quotes.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/db/quotes.ts` (createQuote, getQuotes, getQuoteById, updateQuote, deleteQuote, getRandomQuote, getFavoriteQuotes, getQuoteCount), `modules/books/src/quotes/types.ts` (Quote, CreateQuoteInput, QuoteFilter, QuoteWithBook)
+**Prompt:**
+> Create `useQuotes` hook. Import all quote CRUD from `@mylife/books`: `createQuote`, `getQuotes`, `getQuoteById`, `updateQuote`, `deleteQuote`, `getRandomQuote`, `getFavoriteQuotes`, `getQuoteCount`. Use `useDatabase()`. Return `{ quotes: QuoteWithBook[], random: QuoteWithBook | null, favorites: QuoteWithBook[], count: number, loading, refresh(), create(input: CreateQuoteInput), update(id, updates), remove(id), search(text: string), toggleFavorite(id, current), refreshRandom() }`. `quotes` calls `getQuotes(db, filter)`. `search` calls `getQuotes(db, { searchText })`. `toggleFavorite` calls `updateQuote(db, id, { is_favorite: current ? 0 : 1 })`. Export from barrel.
+
+---
+
+### BOOKS-30: Quote Collection -- QuoteCard component
+**Depends on:** BOOKS-29
+**Files to create/edit:** `apps/mobile/components/books/QuoteCard.tsx`
+**Reference logic:** `modules/books/src/quotes/types.ts` (QuoteWithBook)
+**Prompt:**
+> Create `QuoteCard` component. Props: `{ item: QuoteWithBook, onPress?(), onToggleFavorite?(), showBookInfo?: boolean }`. Renders: (1) large opening quotation mark in `colors.modules.books` at 32px, (2) quote content in italic serif-style text (`fontStyle: 'italic'`), (3) attribution line: book title in bold + author in regular, (4) page reference if `quote.page_number` ("p. X"), chapter if `quote.chapter`, (5) personal note if `quote.note` in `colors.textTertiary`, (6) favorite heart icon (filled if `is_favorite === 1`, outline otherwise), tappable calling `onToggleFavorite`. Card: `colors.surface` background, `colors.border` border, borderRadius 14, padding `spacing.md`. If `showBookInfo` is true, include small `BookCover` thumbnail.
+
+---
+
+### BOOKS-31: Quote Collection -- QuotesScreen
+**Depends on:** BOOKS-29, BOOKS-30
+**Files to create/edit:** `apps/mobile/app/(books)/quotes.tsx`
+**Reference logic:** existing screen patterns
+**Prompt:**
+> Create `QuotesScreen`. Uses `useQuotes()`. Layout: (1) Header "Quotes" with count badge showing `count`. (2) "Random Quote" hero card at top: shows `random` quote in a larger `QuoteCard`, with a "Shuffle" button to call `refreshRandom()`. (3) Search bar using `SearchBar` from `@mylife/ui`, calls `search(text)`. (4) Filter tabs: "All", "Favorites", tappable to switch between `quotes` and `favorites`. (5) Quote list: `FlatList` of `QuoteCard` components. Tap opens a detail/edit modal (inline edit: content, note, page, chapter, toggle favorite). Swipe-to-delete calls `remove(id)` with confirmation. (6) "Add Quote" FAB button (bottom-right) navigating to `/(books)/quotes/new`. (7) Empty state: "Save your favorite passages. Quotes you save will appear here." Cool Obsidian tokens.
+
+---
+
+### BOOKS-32: Quote Collection -- QuoteNewScreen
+**Depends on:** BOOKS-29
+**Files to create/edit:** `apps/mobile/app/(books)/quotes/new.tsx`
+**Reference logic:** `modules/books/src/quotes/types.ts` (CreateQuoteInput)
+**Prompt:**
+> Create `QuoteNewScreen`. Uses `useQuotes()` and `useBooks()`. Layout: (1) Book selector: "Select Book" button opens a book picker list from `useBooks()`, shows selected book title + cover. (2) Quote content: multiline `TextInput`, placeholder "Enter the quote...", required. (3) Page number: numeric `TextInput`, optional. (4) Chapter: `TextInput`, optional. (5) Personal note: multiline `TextInput`, optional. (6) Favorite toggle: Switch. (7) "Save Quote" button calls `create({ book_id, content, page_number, chapter, note, is_favorite, source: 'manual' })`, navigates back on success. Validate: book must be selected, content must not be empty. Cool Obsidian tokens.
+
+---
+
+### BOOKS-33: Quote Collection -- Wire into navigation
+**Depends on:** BOOKS-31, BOOKS-32
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screens: `<Tabs.Screen name="quotes" options={{ href: null }} />`, `<Tabs.Screen name="quotes/new" options={{ href: null }} />`.
+
+---
+
+### BOOKS-34: Sharing Cards -- useSharing hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-sharing.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/sharing/card-renderer.ts` (getTemplateAvailability, buildCardData, getCardThemeColors, getCardDimensions), `modules/books/src/sharing/templates.ts` (CARD_TEMPLATES), `modules/books/src/sharing/types.ts` (CardData, CardTemplateId, ColorTheme, TemplateAvailability)
+**Prompt:**
+> Create `useSharing` hook. Import `getTemplateAvailability`, `buildCardData`, `getCardThemeColors`, `getCardDimensions` from `@mylife/books`. Import `CARD_TEMPLATES` from `@mylife/books`. Import `calculateReadingStats` from `@mylife/books`. Import `gatherBadgeStats` from `@mylife/books`. Use `useDatabase()`. Return `{ templates: TemplateAvailability[], buildCard(templateId, theme, displayName, showName): CardData, themeColors(theme): ReturnType<typeof getCardThemeColors>, dimensions: { width, height } }`. `templates` computes from `calculateReadingStats(db)` + `gatherBadgeStats(db)` for genre/author counts. Export from barrel.
+
+---
+
+### BOOKS-35: Sharing Cards -- ShareCardPreview component
+**Depends on:** BOOKS-34
+**Files to create/edit:** `apps/mobile/components/books/ShareCardPreview.tsx`
+**Reference logic:** `modules/books/src/sharing/types.ts` (CardData)
+**Prompt:**
+> Create `ShareCardPreview` component. Props: `{ data: CardData, width?: number }`. Renders a visual preview of the share card matching the template. The component scales to fit the given width (default 300) while maintaining 9:16 aspect ratio. Background uses `getCardThemeColors(data.theme)`. Layout varies by `data.templateId`: (1) `year_summary`: display name, total books count, total pages, average rating, top books list. (2) `monthly_chart`: bar chart of monthly books. (3) `genre_breakdown`: horizontal bars for genre distribution. (4) `top_authors`: ranked list with counts. (5) `reading_streak`: current/longest streak numbers with dot grid for recent days. Use `View` + `StyleSheet` for layout. Text colors from theme. "MyBooks" watermark at bottom.
+
+---
+
+### BOOKS-36: Sharing Cards -- ShareScreen
+**Depends on:** BOOKS-34, BOOKS-35
+**Files to create/edit:** `apps/mobile/app/(books)/share.tsx`
+**Reference logic:** `modules/books/src/sharing/types.ts`
+**Prompt:**
+> Create `ShareScreen`. Uses `useSharing()`. Layout: (1) Header "Share Your Reading". (2) Template selector: horizontal scroll of template cards. Each shows template name, a mini preview, and "Available" / "Locked" badge based on `templates` availability. Locked templates show the `reason` text. (3) Theme picker: 3 tappable circles for dark/accent/light themes. (4) Display name input and "Show name" toggle. (5) Full-size `ShareCardPreview` of the selected template + theme. (6) "Share" button: uses `expo-sharing` to capture the preview as an image (via `react-native-view-shot` or `captureRef`) and share via system share sheet. No data sent to any server. Cool Obsidian tokens.
+
+---
+
+### BOOKS-37: Sharing Cards -- Wire into navigation
+**Depends on:** BOOKS-36
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screen: `<Tabs.Screen name="share" options={{ href: null }} />`. Accessible from the stats screen via a "Share Stats" button.
+
+---
+
+### BOOKS-38: Recommendations -- useRecommendations hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-recommendations.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/recommendations/engine.ts` (computeRecommendations), `modules/books/src/recommendations/types.ts` (RecommendationSet, Recommendation)
+**Prompt:**
+> Create `useRecommendations` hook. Import `computeRecommendations` from `@mylife/books`. Use `useDatabase()`. Return `{ recommendations: RecommendationSet | null, loading, refresh() }`. Calls `computeRecommendations(db)` on mount and refresh. The computation is synchronous (all local SQLite), so wrap in `useEffect` with a loading state. Export from barrel.
+
+---
+
+### BOOKS-39: Recommendations -- RecommendationCard component
+**Depends on:** BOOKS-38
+**Files to create/edit:** `apps/mobile/components/books/RecommendationCard.tsx`
+**Reference logic:** `modules/books/src/recommendations/types.ts` (Recommendation)
+**Prompt:**
+> Create `RecommendationCard` component. Props: `{ recommendation: Recommendation, onPress() }`. Renders: (1) `BookCover` from `@mylife/ui` with `coverUrl`, size "medium". (2) Book title (bold, 1 line). (3) Authors joined by ", ". (4) Reason badge: `recommendation.reason` in a pill with `colors.modules.books` background at 0.15 opacity, text in `colors.modules.books`. (5) Source indicator: small text "Author match" / "Genre match" / "Similar taste" based on `recommendation.source`. Pressable, navigates to book detail. Card style: horizontal layout, `colors.surface` background, borderRadius 14.
+
+---
+
+### BOOKS-40: Recommendations -- RecommendationsScreen
+**Depends on:** BOOKS-38, BOOKS-39
+**Files to create/edit:** `apps/mobile/app/(books)/recommendations.tsx`
+**Reference logic:** `modules/books/src/recommendations/types.ts`
+**Prompt:**
+> Create `RecommendationsScreen`. Uses `useRecommendations()`. Layout: (1) Header "For You" with subtitle "Personalized recommendations based on your reading". (2) If `insufficientData`, show "Rate at least 5 books to unlock recommendations" with a rating icon and progress text "You've rated X books". (3) Three sections with headers: "More from authors you love" (`authorAffinity`), "Popular in your favorite genres" (`genreAffinity`), "Similar to books you liked" (`similarBooks`). (4) Each section: horizontal `FlatList` of `RecommendationCard` components, snap-to-item scrolling. (5) Tap navigates to `/(books)/book/${bookId}`. (6) Pull-to-refresh calls `refresh()`. Empty sections are hidden. Skeleton loading. Cool Obsidian tokens.
+
+---
+
+### BOOKS-41: Recommendations -- Wire into navigation
+**Depends on:** BOOKS-40
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screen: `<Tabs.Screen name="recommendations" options={{ href: null }} />`. Accessible from the home screen as a "For You" card/button.
+
+---
+
+### BOOKS-42: Series Tracking -- useSeries hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-series.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/db/series.ts` (createSeries, getSeries, getAllSeries, updateSeries, deleteSeries), `modules/books/src/db/series-books.ts` (addBookToSeries, removeBookFromSeries, getBooksInSeries, getSeriesForBook, reorderSeriesBook, getNextUnread)
+**Prompt:**
+> Create `useSeries` hook. Import series CRUD from `@mylife/books`: `createSeries`, `getAllSeries`, `getSeries`, `updateSeries`, `deleteSeries`, `addBookToSeries`, `removeBookFromSeries`, `getBooksInSeries`, `reorderSeriesBook`, `getNextUnread`. Use `useDatabase()`. Return `{ allSeries: Series[], loading, refresh(), create(name, author?), remove(id), addBook(seriesId, bookId, order), removeBook(seriesId, bookId), getBooks(seriesId), nextUnread(seriesId) }`. Follow existing hook patterns. Export from barrel.
+
+---
+
+### BOOKS-43: Series Tracking -- SeriesScreen (list)
+**Depends on:** BOOKS-42
+**Files to create/edit:** `apps/mobile/app/(books)/series.tsx`
+**Reference logic:** `modules/books/src/models/schemas.ts` (Series type)
+**Prompt:**
+> Create `SeriesScreen`. Uses `useSeries()`. Layout: (1) Header "Series" with "+" create button. (2) Series list: for each series, show a `Card` with series name, author (if set), book count (from `getBooks(seriesId).length`). Tap navigates to `/(books)/series/${series.id}`. (3) Empty state: "Track book series to keep your reading order straight." with "Create Series" button. (4) Create modal: name TextInput, author TextInput (optional), "Create" button. (5) Swipe-to-delete with confirmation. Skeleton loading. Cool Obsidian tokens.
+
+---
+
+### BOOKS-44: Series Tracking -- SeriesDetailScreen
+**Depends on:** BOOKS-42
+**Files to create/edit:** `apps/mobile/app/(books)/series/[id].tsx`
+**Reference logic:** `modules/books/src/db/series-books.ts` (getBooksInSeries, getNextUnread)
+**Prompt:**
+> Create `SeriesDetailScreen` at `apps/mobile/app/(books)/series/[id].tsx`. Uses `useSeries()`. Layout: (1) Series name as header, author subtitle. (2) "Next Unread" hero card: calls `nextUnread(seriesId)`, shows the book cover + title + "Start Reading" button navigating to `/(books)/book/${id}`. If all read, show "Series Complete!" badge. (3) Ordered book list: numbered list (1, 2, 3...) of books from `getBooks(seriesId)`, each showing cover, title, author, and status badge (read = green checkmark, unread = gray circle). Tap navigates to book detail. (4) "Add Book" button opens a picker from `useBooks()` to add a book with the next sort_order. (5) Reorder: long-press to drag-reorder (or up/down arrow buttons). Cool Obsidian tokens.
+
+---
+
+### BOOKS-45: Series Tracking -- Wire into navigation
+**Depends on:** BOOKS-43, BOOKS-44
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screens: `<Tabs.Screen name="series" options={{ href: null }} />`, `<Tabs.Screen name="series/[id]" options={{ href: null }} />`.
+
+---
+
+### BOOKS-46: Social Feed -- useSocialFeed hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-social.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/social/feed-engine.ts` (assembleFeed, sendFriendRequest, acceptFriendRequest, rejectFriendRequest, blockUser, removeFriend, getFriendConnections, syncShareEvent, MAX_FRIENDS), `modules/books/src/social/types.ts` (FeedItem, FeedResult, FriendConnection, FeedFilter, SyncShareEventInput)
+**Prompt:**
+> Create `useSocialFeed` hook. This hook requires a Supabase client injected from the app layer. Accept optional `supabaseClient` prop (type `SocialSupabaseClient` from `@mylife/books`). Import all social functions from `@mylife/books`. Return `{ feed: FeedResult | null, friends: FriendConnection[], loading, error: string | null, enabled: boolean, refresh(), sendRequest(responderId), acceptRequest(connectionId), rejectRequest(connectionId), block(connectionId), unfriend(connectionId), syncEvent(input: SyncShareEventInput) }`. `enabled` is `!!supabaseClient`. If not enabled, all functions are no-ops and feed is null. Wrap all async calls in try/catch setting `error`. Export from barrel.
+
+---
+
+### BOOKS-47: Social Feed -- FeedItemCard component
+**Depends on:** BOOKS-46
+**Files to create/edit:** `apps/mobile/components/books/FeedItemCard.tsx`
+**Reference logic:** `modules/books/src/social/types.ts` (FeedItem)
+**Prompt:**
+> Create `FeedItemCard` component. Props: `{ item: FeedItem, onBookPress?(bookId: string) }`. Renders: (1) User row: avatar circle (first letter of `displayName` if no `avatarUrl`), display name, time ago string from `createdAt`. (2) Event content varies by `eventType`: `book_finished` -> "Finished [title]" with cover, `book_rating` -> "Rated [title]" with star display, `book_review` -> "Reviewed [title]" with excerpt preview, `book_started` -> "Started reading [title]", `book_added` -> "Added [title] to library". (3) Book cover thumbnail from `bookCoverUrl` if available. (4) Author text from `bookAuthors`. Card: `colors.surface` background, borderRadius 14, padding `spacing.md`.
+
+---
+
+### BOOKS-48: Social Feed -- SocialScreen
+**Depends on:** BOOKS-46, BOOKS-47
+**Files to create/edit:** `apps/mobile/app/(books)/social.tsx`
+**Reference logic:** `modules/books/src/social/types.ts`
+**Prompt:**
+> Create `SocialScreen`. Uses `useSocialFeed()`. Layout: (1) If `!enabled`, show opt-in screen: "Social features require signing in and enabling Supabase sync. Your data stays private by default." with "Enable Social" button (which would trigger auth flow -- for now, show placeholder). (2) If enabled: Header "Reading Feed" with friends count. (3) Feed: `FlatList` of `FeedItemCard` components from `feed.items`. Load more on scroll if `feed.hasMore`. (4) "Friends" tab: list of `friends` with accept/reject buttons for pending requests, remove button for accepted. Friend count / MAX_FRIENDS shown. (5) "Add Friend" button at top. (6) Empty feed: "Your feed is empty. Connect with friends to see what they're reading." (7) Stale indicator if `feed.isStale`. Pull-to-refresh. Cool Obsidian tokens.
+
+---
+
+### BOOKS-49: Social Feed -- Wire into navigation
+**Depends on:** BOOKS-48
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screen: `<Tabs.Screen name="social" options={{ href: null }} />`.
+
+---
+
+### BOOKS-50: Community Challenges -- useCommunity hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-community-challenges.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/community-challenges/engine.ts` (getCommunityChallengesWithProgress, updateCommunityProgress, getChallengeTimeStatus), `modules/books/src/db/community-challenges.ts` (getPresetChallenges, joinChallenge, abandonParticipation, getAllCommunityChallenge), `modules/books/src/community-challenges/types.ts` (CommunityChallengeWithProgress)
+**Prompt:**
+> Create `useCommunityChallenge` hook. Import `getCommunityChallengesWithProgress`, `getPresetChallenges`, `joinChallenge`, `abandonParticipation` from `@mylife/books`. Use `useDatabase()`. Return `{ challenges: CommunityChallengeWithProgress[], presets: CommunityChallenge[], loading, refresh(), join(challengeId), abandon(participationId) }`. `challenges` calls `getCommunityChallengesWithProgress(db)`. `presets` calls `getPresetChallenges(db)`. `join` calls `joinChallenge(db, crypto.randomUUID(), { challenge_id, current_value: 0, status: 'active' })`. Export from barrel.
+
+---
+
+### BOOKS-51: Community Challenges -- CommunityScreen
+**Depends on:** BOOKS-50
+**Files to create/edit:** `apps/mobile/app/(books)/community.tsx`
+**Reference logic:** `modules/books/src/community-challenges/types.ts`, `modules/books/src/community-challenges/templates.ts` (PRESET_IDS)
+**Prompt:**
+> Create `CommunityScreen`. Uses `useCommunityChallenge()`. Layout: (1) Header "Community Challenges". (2) "Your Challenges" section: active participations from `challenges` where `participation !== null`. Each card shows: challenge name, type badge, progress bar (`percentComplete`), days remaining (or "Expired" badge if `isExpired`), "Abandon" action on long-press. (3) "Browse Challenges" section: `presets` list showing available challenges. Each shows name, description, type, target value. "Join" button calls `join(challengeId)`. Already-joined challenges show "Joined" badge instead. (4) Completed challenges section (muted). (5) Empty state: "Join community reading challenges and track your progress." Cool Obsidian tokens.
+
+---
+
+### BOOKS-52: Community Challenges -- Wire into navigation
+**Depends on:** BOOKS-51
+**Files to create/edit:** `apps/mobile/app/(books)/_layout.tsx`
+**Reference logic:** existing layout
+**Prompt:**
+> Edit `apps/mobile/app/(books)/_layout.tsx`. Add hidden screen: `<Tabs.Screen name="community" options={{ href: null }} />`.
+
+---
+
+### BOOKS-53: Reader Notes/Highlights -- useReaderHighlights hook enhancement
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-reader-notes.ts`
+**Reference logic:** `modules/books/src/db/reader-notes.ts` (createReaderNote, getReaderNotes, updateReaderNote, deleteReaderNote), existing `apps/mobile/hooks/books/use-reader-notes.ts`
+**Prompt:**
+> Review and enhance the existing `use-reader-notes.ts` hook. Ensure it exports: `{ notes: ReaderNote[], loading, refresh(), create(input), update(id, updates), remove(id), getForDocument(docId) }`. Import `createReaderNote`, `getReaderNotes`, `updateReaderNote`, `deleteReaderNote` from `@mylife/books`. If the hook already covers basic CRUD, add a `getForDocument(docId)` method that filters notes by document_id. Also add a `highlights` computed property that filters notes where `note_type = 'highlight'` (vs `note_type = 'note'`). Update the barrel export in `index.ts` if needed.
+
+---
+
+### BOOKS-54: Reader Notes/Highlights -- HighlightViewer component
+**Depends on:** BOOKS-53
+**Files to create/edit:** `apps/mobile/components/books/HighlightViewer.tsx`
+**Reference logic:** `modules/books/src/db/reader-notes.ts`
+**Prompt:**
+> Create `HighlightViewer` component. Props: `{ documentId: string }`. Uses `useReaderNotes()` hook, calls `getForDocument(documentId)`. Layout: (1) Section header "Highlights & Notes" with count badge. (2) List of highlights: each shows the highlighted text excerpt in italic with a yellow left border (4px, `#FFD700`), the personal note below in regular text, and a page/position reference. (3) Notes (non-highlight type) show with a blue left border (`colors.modules.books`). (4) "Add Note" inline button at bottom. (5) Swipe to delete with confirmation. (6) Empty state: "No highlights yet. Highlight text while reading to save passages." Cool Obsidian tokens.
+
+---
+
+### BOOKS-55: Reader Notes/Highlights -- Wire into reader view
+**Depends on:** BOOKS-54
+**Files to create/edit:** `apps/mobile/app/(books)/reader/[id].tsx`
+**Reference logic:** existing reader view
+**Prompt:**
+> Edit `apps/mobile/app/(books)/reader/[id].tsx`. Import `HighlightViewer` from `../../../components/books/HighlightViewer`. Add a "Notes" tab or expandable section at the bottom of the reader view that renders `<HighlightViewer documentId={id} />`. Also add text selection handling: when the user selects text in the reader content, show a floating toolbar with "Highlight" and "Note" buttons that create reader notes via the hook. The highlight saves `{ document_id, position, text_excerpt, note_type: 'highlight' }`.
+
+---
+
+### BOOKS-56: Reader Preferences -- useReaderPreferences hook enhancement
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-reader-preferences.ts`
+**Reference logic:** `modules/books/src/db/reader-preferences.ts` (getReaderPreferences, upsertReaderPreferences), `modules/books/src/models/schemas.ts` (ReaderDocumentPreference, ReaderTheme), existing `apps/mobile/hooks/books/use-reader-preferences.ts`
+**Prompt:**
+> Review and enhance the existing `use-reader-preferences.ts` hook. Ensure it exports: `{ preferences: ReaderDocumentPreference | null, loading, refresh(), update(input: Partial<ReaderDocumentPreferenceInsert>) }`. The `update` function should call `upsertReaderPreferences(db, { document_id, ...mergedPrefs })` merging current preferences with the partial update. Defaults from the DB layer: font_size 20, line_height 1.6, font_family 'serif', theme 'sepia', margin_size 20. Available themes: 'light', 'dark', 'sepia'. Available font families: 'serif', 'sans-serif', 'monospace'. Update barrel export if needed.
+
+---
+
+### BOOKS-57: Reader Preferences -- ReaderSettingsSheet component
+**Depends on:** BOOKS-56
+**Files to create/edit:** `apps/mobile/components/books/ReaderSettingsSheet.tsx`
+**Reference logic:** `modules/books/src/models/schemas.ts` (ReaderTheme)
+**Prompt:**
+> Create `ReaderSettingsSheet` component. Props: `{ documentId: string, visible: boolean, onClose() }`. Uses `useReaderPreferences(documentId)`. Renders a bottom sheet modal containing: (1) Font size slider: range 12-48, current value displayed, +/- buttons for fine control. (2) Line height slider: range 1.0-3.0, step 0.1. (3) Font family picker: three buttons for 'serif', 'sans-serif', 'monospace' with preview text in each. (4) Theme picker: three theme swatches -- light (#F5F5F0 bg), dark (#1A1A24 bg), sepia (#F5E6C8 bg). (5) Margin size slider: range 0-64. Each change calls `update({...})` immediately (no save button needed). Use Cool Obsidian tokens for the sheet itself. Show a live preview text block that reflects current settings.
+
+---
+
+### BOOKS-58: Reader Preferences -- Wire into reader view
+**Depends on:** BOOKS-57
+**Files to create/edit:** `apps/mobile/app/(books)/reader/[id].tsx`
+**Reference logic:** existing reader view
+**Prompt:**
+> Edit `apps/mobile/app/(books)/reader/[id].tsx`. Import `ReaderSettingsSheet` from `../../../components/books/ReaderSettingsSheet`. Add a settings gear icon button in the header that toggles the `ReaderSettingsSheet` visibility. Apply the reader preferences to the reading content view: set `fontSize` from `preferences.font_size`, `lineHeight` from `preferences.line_height`, `fontFamily` from `preferences.font_family`, background color from theme mapping (light -> #F5F5F0, dark -> #1A1A24, sepia -> #F5E6C8), text color accordingly, and padding from `preferences.margin_size`.
+
+---
+
+### BOOKS-59: Content Warnings & Mood Tags -- useContentWarnings hook
+**Depends on:** None
+**Files to create/edit:** `apps/mobile/hooks/books/use-content-warnings.ts`, `apps/mobile/hooks/books/index.ts`
+**Reference logic:** `modules/books/src/db/content-warnings.ts` (addContentWarning, removeContentWarning, getContentWarningsForBook, getDistinctWarnings), `modules/books/src/db/mood-tags.ts` (addMoodTag, removeMoodTag, getMoodTagsForBook, getDistinctMoodValues)
+**Prompt:**
+> Create `useContentWarnings` hook. Import from `@mylife/books`: `addContentWarning`, `removeContentWarning`, `getContentWarningsForBook`, `getDistinctWarnings`, `addMoodTag`, `removeMoodTag`, `getMoodTagsForBook`, `getDistinctMoodValues`. Use `useDatabase()`. Return `{ warnings: ContentWarning[], moods: MoodTag[], distinctWarnings: string[], distinctMoods: string[], distinctPaces: string[], distinctGenres: string[], loading, refresh(), addWarning(bookId, warning, severity?), removeWarning(bookId, warning), addMood(bookId, type, value), removeMood(bookId, type, value) }`. `moods` calls `getMoodTagsForBook(db, bookId)`. `distinctMoods` calls `getDistinctMoodValues(db, 'mood')`. Export from barrel.
+
+---
+
+### BOOKS-60: Content Warnings & Mood Tags -- TagEditor component
+**Depends on:** BOOKS-59
+**Files to create/edit:** `apps/mobile/components/books/TagEditor.tsx`
+**Reference logic:** `modules/books/src/models/schemas.ts` (ContentWarning, MoodTag types)
+**Prompt:**
+> Create `TagEditor` component. Props: `{ bookId: string }`. Uses `useContentWarnings(bookId)`. Layout: (1) "Mood Tags" section: three sub-sections for mood, pace, genre. Each shows existing tags as colored pills (mood = purple, pace = blue, genre = green). "+" button opens a picker with `distinctMoods`/`distinctPaces`/`distinctGenres` as suggestions, plus a TextInput for custom values. Tap a tag to remove it. (2) "Content Warnings" section: existing warnings shown as red-tinted pills with severity indicator (1-3 dots). "+" button to add from `distinctWarnings` suggestions or custom input with severity picker (low/medium/high). Tap to remove. (3) All add/remove operations call the hook methods. Cool Obsidian tokens. Compact design to fit within book detail view.
+
+---
+
+### BOOKS-61: Content Warnings & Mood Tags -- Wire into book detail
+**Depends on:** BOOKS-60
+**Files to create/edit:** `apps/mobile/app/(books)/book/[id].tsx`
+**Reference logic:** existing book detail screen
+**Prompt:**
+> Edit `apps/mobile/app/(books)/book/[id].tsx`. Import `TagEditor` from `../../../components/books/TagEditor`. Add a "Tags & Warnings" section below the existing book metadata section. Render `<TagEditor bookId={id} />`. This section should be collapsible (default collapsed to save space), with a section header showing tag count and warning count.
+
+---
+
+### BOOKS-62: Home Screen -- Feature Discovery Hub
+**Depends on:** BOOKS-07, BOOKS-10, BOOKS-14, BOOKS-18, BOOKS-24, BOOKS-28, BOOKS-33, BOOKS-37, BOOKS-41, BOOKS-45, BOOKS-49, BOOKS-52
+**Files to create/edit:** `apps/mobile/app/(books)/index.tsx`
+**Reference logic:** all new screens
+**Prompt:**
+> Edit `apps/mobile/app/(books)/index.tsx` to add feature discovery cards below the existing sections. Add a "Quick Actions" section with a 2x3 grid of action cards linking to new features: (1) "Challenges" -> `/(books)/challenges`, icon target emoji, (2) "Journal" -> `/(books)/journal`, icon notebook emoji, (3) "Insights" -> `/(books)/insights`, icon lightbulb emoji, (4) "Quotes" -> `/(books)/quotes`, icon quote emoji, (5) "For You" -> `/(books)/recommendations`, icon sparkle emoji, (6) "Series" -> `/(books)/series`, icon books emoji. Each card is a `Pressable` with `colors.surface` background, icon at 28px, label text below, borderRadius 14, width ~30%. Also add conditional cards: "Clubs" if any clubs exist, "Badges" showing earned count, "Community" for community challenges, "Share" for sharing cards, "Social" for the feed. Import `useRouter` for navigation. Cool Obsidian tokens.
+
+---
+
+### BOOKS-63: Home Screen -- On This Day card
+**Depends on:** BOOKS-25
+**Files to create/edit:** `apps/mobile/app/(books)/index.tsx`
+**Reference logic:** `modules/books/src/insights/on-this-day.ts`
+**Prompt:**
+> Edit `apps/mobile/app/(books)/index.tsx`. Import `useInsights` from the insights hook. Add an "On This Day" card above the "Currently Reading" section. If `onThisDay.length > 0`, show a `Card` with header "On This Day" and a horizontal scroll of events: each event shows a small book cover, event type ("Started", "Finished"), book title, and year. Style event type badges: `started` = blue, `finished` = green, `added` = gray, `reviewed` = amber. If no events, hide the section entirely (do not show empty state for this one). Use `BookCover` from `@mylife/ui` at size "tiny". Cool Obsidian tokens.
+
+---
+
+### BOOKS-64: Home Screen -- Random Quote card
+**Depends on:** BOOKS-29
+**Files to create/edit:** `apps/mobile/app/(books)/index.tsx`
+**Reference logic:** `modules/books/src/db/quotes.ts` (getRandomQuote)
+**Prompt:**
+> Edit `apps/mobile/app/(books)/index.tsx`. Import `useQuotes` from the quotes hook. Add a "Daily Quote" card between the reading goal and currently reading sections. If `random` is not null, show a `Card` with: opening quote mark in `colors.modules.books`, quote content in italic (truncated to 120 chars), attribution "-- [bookTitle]", and a "Shuffle" button. Tap the card navigates to `/(books)/quotes`. If no quotes exist, hide the section. Cool Obsidian tokens.
+
+---
+
+### BOOKS-65: Stats Screen -- Feature links
+**Depends on:** BOOKS-17, BOOKS-27, BOOKS-36, BOOKS-09
+**Files to create/edit:** `apps/mobile/app/(books)/stats.tsx`
+**Reference logic:** existing stats screen
+**Prompt:**
+> Edit `apps/mobile/app/(books)/stats.tsx`. Below the existing "View Year in Review" button, add a row of navigation cards: (1) "Achievements" showing earned badge count -> `/(books)/badges`, (2) "Reading Insights" -> `/(books)/insights`, (3) "Share Stats" -> `/(books)/share`, (4) "Challenges" showing active count -> `/(books)/challenges`. Each card uses the existing `Card` component with an icon, label, and optional count badge. Import `useBadges`, `useChallenges` hooks to get the earned/active counts. Arrange in a 2-column grid matching the existing `statGrid` style. Cool Obsidian tokens.
+
+
+## Fast
+
+### FAST-01: Caffeine Tracker Dashboard -- Server Actions + Data Layer
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add caffeine server actions)
+- `apps/web/app/fast/caffeine/page.tsx` (new)
+**Reference logic:**
+- `modules/fast/src/engines/caffeine-engine.ts` (`buildCaffeineSummary`, `calculateClearByTime`, `hasLateCaffeine`)
+- `modules/fast/src/db/beverages.ts` (`getCaffeineLogsForDate`, `getBeverageLogs`, `getDailyHydration`)
+**Prompt:**
+> Add server actions to `apps/web/app/fast/actions.ts`: `fetchCaffeineSummary(date?)` that calls `getCaffeineLogsForDate` then `buildCaffeineSummary` with the user's `caffeineDailyLimitMg` and `caffeineCutoffTime` settings, and `fetchBeverageLogs(date?)`. Then create `apps/web/app/fast/caffeine/page.tsx` as a `'use client'` page that calls these actions on mount and renders: (1) a "Daily Caffeine" header showing totalMg / dailyLimit and the CaffeineStatus badge (empty/normal/high/late/critical with color coding), (2) a vertical metabolization timeline showing each drink with logged time, caffeine amount, and a decay curve visualization (use a simple CSS bar that shrinks proportionally to remainingFromDose), (3) a "Clear by" time display from `clearByTime`, (4) a late-caffeine warning banner when `status === 'late'`. Use Cool Obsidian glass cards and the `var(--accent-fast)` accent. Add a nav link in the fast layout.
+
+### FAST-02: Quality Score Display
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add quality score action)
+- `apps/web/app/fast/history/page.tsx` (edit to add score badges)
+- `apps/mobile/app/(health)/fasting.tsx` (edit to add score to recent fasts)
+**Reference logic:**
+- `modules/fast/src/engines/quality-score.ts` (`computeFastQualityScore`)
+- `modules/fast/src/db/beverages.ts` (`getDailyHydration`)
+- `modules/fast/src/db/fasts.ts` (`listFasts`)
+- `modules/fast/src/stats/streaks.ts`
+**Prompt:**
+> Add a server action `fetchFastQualityScores(fastIds: string[])` to `apps/web/app/fast/actions.ts` that, for each completed fast, gathers the four inputs (`hitTarget` from `fast.hit_target`, `hydrationMet` by checking `getDailyHydration` for the fast's date against the user's target, `noLateCaffeine` from `getCaffeineLogsForDate` + `hasLateCaffeine`, `streakMaintained` from streak cache) and calls `computeFastQualityScore`. Return an array of `{ fastId, score: FastQualityScore }`. Then edit the web history page (`apps/web/app/fast/history/page.tsx`) to call this action for the displayed fasts and render a circular score badge (0-100) with the letter grade (A/B/C/D/F) next to each fast row. Use color: A=green, B=blue, C=yellow, D=orange, F=red. Also add the score badge to the mobile fasting screen's recent fasts list.
+
+### FAST-03: Protocol Progression Card
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add progression action)
+- `apps/web/app/fast/page.tsx` (edit to add progression card)
+- `apps/mobile/app/(health)/fasting.tsx` (edit to add progression banner)
+**Reference logic:**
+- `modules/fast/src/engines/protocol-progression.ts` (`suggestNextProtocol`)
+- `modules/fast/src/protocols.ts` (`PROTOCOL_PROGRESSION`, `PRESET_PROTOCOLS`)
+- `modules/fast/src/stats/streaks.ts`
+**Prompt:**
+> Add server action `fetchProtocolProgression()` to `apps/web/app/fast/actions.ts`. It reads the user's `defaultProtocol` setting, calculates consecutive successes from `listFasts` (count consecutive fasts where `hit_target === 1` from newest backward), and calls `suggestNextProtocol`. Return the `ProtocolSuggestion`. Edit `apps/web/app/fast/page.tsx` to display a progression card below the stats grid: show a progress bar from 0 to threshold (e.g., "5/7 successful fasts"), the current protocol name, and if `suggestedProtocolId` is not null, a "Ready to level up" banner with the next protocol name and a "Try it" button that updates the default protocol setting. On mobile, add a compact banner above the protocol selector showing "X more fasts to unlock [next protocol]" or "Ready to level up!" if threshold is met.
+
+### FAST-04: Week-in-Review Summary Card
+**Depends on:** FAST-02
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add week-in-review action)
+- `apps/web/app/fast/stats/page.tsx` (edit to add weekly card)
+- `apps/mobile/app/(health)/fasting.tsx` (edit to add weekly summary)
+**Reference logic:**
+- `modules/fast/src/engines/week-in-review.ts` (`computeWeekInReview`, `WeekInReviewInput`)
+- `modules/fast/src/db/fasts.ts` (`listFasts`)
+- `modules/fast/src/db/beverages.ts` (`getBeverageLogs`, `getCaffeineLogsForDate`)
+- `modules/fast/src/db/water.ts` (`getWaterIntake`)
+**Prompt:**
+> Add server action `fetchWeekInReview()` that computes the current week's Monday-Sunday range, queries fasts for that period, aggregates daily hydration from beverage logs, daily caffeine from caffeine logs, weight entries, and passes all inputs to `computeWeekInReview`. Return the `WeekInReview` object. Edit `apps/web/app/fast/stats/page.tsx` to render a "Week in Review" glass card showing: total fasting hours, completed vs started fasts, average hydration (with target comparison), average caffeine, weight delta (if available, with green/red arrow), average quality score, best day highlight, and current streak. On mobile, add a compact weekly summary card below the timer section showing key metrics (fasting hours, quality score, streak).
+
+### FAST-05: Weight Logging + Trends
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add weight server actions)
+- `apps/web/app/fast/weight/page.tsx` (new)
+- `apps/web/app/fast/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/fast/src/db/fasts.ts` (weight functions: `createWeightEntry`, `getWeightEntries`, `deleteWeightEntry`)
+- `modules/fast/src/engines/healthkit-sync.ts` (`shouldImportWeight`, `mergeWeightEntries`)
+- `modules/fast/src/types.ts` (`WeightEntry`)
+**Prompt:**
+> Add server actions for weight: `fetchWeightEntries(days?: number)`, `doCreateWeightEntry(value, unit, date?, notes?)`, `doDeleteWeightEntry(id)`. Create `apps/web/app/fast/weight/page.tsx` as a `'use client'` page with: (1) a manual entry form (weight input, unit toggle lbs/kg, date picker defaulting to today, optional notes), (2) a weight trend chart using a simple SVG line chart -- plot entries over the last 30/60/90 days (toggle), show min/max/current annotations, (3) a sortable weight log table below the chart showing date, value, unit, source (manual/healthkit badge), and delete button. Add a "Weight" nav link in the fast layout. Style with Cool Obsidian tokens. The chart should use `var(--accent-fast)` for the line color and `var(--glass)` for the background.
+
+### FAST-06: Beverage Type Manager
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add beverage type actions)
+- `apps/web/app/fast/settings/page.tsx` (edit to add beverage section)
+**Reference logic:**
+- `modules/fast/src/db/beverages.ts` (`getBeverageTypes`, `createBeverageType`, `updateBeverageType`, `deleteBeverageType`)
+- `modules/fast/src/db/schema.ts` (`SEED_BEVERAGE_TYPES` for the 12 presets)
+- `modules/fast/src/types.ts` (`BeverageType`)
+**Prompt:**
+> Add server actions: `fetchBeverageTypes()`, `doCreateBeverageType(input)`, `doUpdateBeverageType(id, updates)`, `doDeleteBeverageType(id)`. Edit `apps/web/app/fast/settings/page.tsx` to add a "Beverage Types" management section. Display all 12 built-in types in a grid (icon, name, default oz, coefficient, caffeine mg) with edit buttons (built-in types can only edit defaultOz). Add a "Custom Type" form at the bottom with fields: name, icon picker (emoji), default oz, hydration coefficient (slider 0.0-2.0 with labels like "dehydrating" at -1.0 to "super hydrating" at 2.0), optional caffeine mg. Show a preview of the new type before saving. Custom types show a delete button (with confirmation). Use Cool Obsidian glass cards.
+
+### FAST-07: Container Presets Manager
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add container actions)
+- `apps/web/app/fast/settings/page.tsx` (edit to add container section)
+**Reference logic:**
+- `modules/fast/src/db/containers.ts` (`getContainerPresets`, `createContainerPreset`, `updateContainerPreset`, `deleteContainerPreset`, `reorderContainerPresets`, `volumeToGlasses`)
+- `modules/fast/src/db/schema.ts` (`SEED_CONTAINER_PRESETS` for 5 built-ins)
+- `modules/fast/src/types.ts` (`ContainerPreset`)
+**Prompt:**
+> Add server actions: `fetchContainerPresets()`, `doCreateContainerPreset(input)`, `doUpdateContainerPreset(id, updates)`, `doDeleteContainerPreset(id)`, `doReorderContainerPresets(orderedIds)`. Edit `apps/web/app/fast/settings/page.tsx` to add a "Container Presets" section below Beverage Types. Show the 5 built-in presets and any custom ones in a draggable list (icon, name, volume oz, glass equivalent via `volumeToGlasses`). Built-in presets allow editing volume and icon. Custom presets allow full edit and delete. Add a "New Container" form: name (max 30 chars), volume oz (slider 4-128), icon picker. Show glass equivalent preview next to volume input. Style as Cool Obsidian cards.
+
+### FAST-08: Smart Water Reminders Settings
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/fast/actions.ts` (add reminder settings actions)
+- `apps/web/app/fast/settings/page.tsx` (edit to add reminders section)
+**Reference logic:**
+- `modules/fast/src/engines/water-reminder-engine.ts` (`calculatePersonalizedTarget`, `generateReminderSlots`, `shouldSendReminder`)
+- `modules/fast/src/db/water.ts` (`setWaterTarget`)
+- `modules/fast/src/types.ts` (`WaterReminderConfig`)
+**Prompt:**
+> Add server actions: `fetchWaterReminderConfig()` (reads settings keys: `waterRemindersEnabled`, `waterReminderInterval`, `waterWakeStart`, `waterWakeEnd`, `waterPauseDuringDryFast`, `waterPersonalizedGoal`), `updateWaterReminderConfig(config)` (writes each setting key), `calculateTarget(weight, unit)` (calls `calculatePersonalizedTarget`). Edit `apps/web/app/fast/settings/page.tsx` to add a "Smart Water Reminders" section. Show: (1) enable/disable toggle, (2) interval picker (30/45/60/90/120 min), (3) waking hours range (two time pickers for wake start/end), (4) "Pause during dry fast" toggle, (5) "Personalized target" toggle that reveals a weight input + unit selector, showing the calculated target from `calculatePersonalizedTarget`, (6) a preview of all reminder slots for today via `generateReminderSlots`, displayed as a horizontal timeline. Save button persists all settings and optionally updates the daily water target.
+
+
+## Recipes
+
+### RECIPES-01: Collections -- Server Actions
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/actions.ts` (add collection server actions)
+**Reference logic:**
+- `modules/recipes/src/db/collections.ts` (`getCollections`, `createCollection`, `updateCollection`, `deleteCollection`, `addRecipeToCollection`, `removeRecipeFromCollection`)
+- `modules/recipes/src/types.ts` (`Collection`, `CreateCollection`)
+**Prompt:**
+> Add server actions to `apps/web/app/recipes/actions.ts`: `fetchCollections()`, `doCreateCollection(name, description?)`, `doUpdateCollection(id, updates)`, `doDeleteCollection(id)`, `doAddRecipeToCollection(recipeId, collectionId)`, `doRemoveRecipeFromCollection(recipeId, collectionId)`, `fetchCollectionRecipes(collectionId)` (query `rc_recipe_collections` joined with `rc_recipes` to get recipes in a collection). Follow the existing error handling pattern (try/catch returning empty array or null on failure). Generate UUID for new collections using the same pattern as existing actions.
+
+### RECIPES-02: Collections -- Browse + Organize UI
+**Depends on:** RECIPES-01
+**Files to create/edit:**
+- `apps/web/app/recipes/collections/page.tsx` (new)
+- `apps/web/app/recipes/collections/[id]/page.tsx` (new)
+- `apps/web/app/recipes/page.tsx` (edit to add collections link)
+- `apps/web/app/recipes/library/[id]/page.tsx` (edit to add "Add to Collection" button)
+**Reference logic:**
+- `modules/recipes/src/db/collections.ts`
+- `modules/recipes/src/types.ts` (`Collection`)
+**Prompt:**
+> Create `apps/web/app/recipes/collections/page.tsx`: list all collections as grid cards (name, description, cover image from cover_recipe_id, recipe count). Include a "New Collection" button that opens an inline form (name, optional description). Each card links to the collection detail page. Create `apps/web/app/recipes/collections/[id]/page.tsx`: show collection header (editable name/description, delete button with confirmation), then a recipe grid identical to the library page but filtered to the collection. Include a "Remove" button per recipe. Edit the recipe detail page (`library/[id]/page.tsx`) to add an "Add to Collection" dropdown that lists available collections and calls `doAddRecipeToCollection`. Edit the recipes landing page to add a "Collections" nav card. Use Cool Obsidian glass cards throughout.
+
+### RECIPES-03: Nutrition Display on Recipe Detail
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/actions.ts` (add nutrition actions)
+- `apps/web/app/recipes/library/[id]/page.tsx` (edit to add nutrition section)
+**Reference logic:**
+- `modules/recipes/src/db/nutrition.ts` (`getNutritionForItem`, `getNutritionByBarcode`, `createNutritionData`)
+- `modules/recipes/src/types.ts` (`NutritionBreakdown`, `RecipeNutritionSummary`)
+- `modules/recipes/src/db/pantry.ts`
+**Prompt:**
+> Add server actions: `fetchRecipeNutrition(recipeId)` that queries ingredients for the recipe, looks up each ingredient's pantry item match, checks for nutrition data via `getNutritionForItem`, and aggregates into a `RecipeNutritionSummary` (per-serving and total macros: calories, fat, carbs, protein, fiber, sodium). Return `{ perServing, total, coverage, missingIngredients }`. Edit `apps/web/app/recipes/library/[id]/page.tsx` to add a "Nutrition" collapsible section below ingredients. Display per-serving macros in a horizontal bar chart (calories prominent, macros as colored bars: fat=yellow, carbs=blue, protein=red, fiber=green). Show coverage percentage ("Based on X of Y ingredients"). If coverage < 50%, show a "Limited data" disclaimer. If no nutrition data exists, show "No nutrition data available" with a prompt to add pantry items with barcodes.
+
+### RECIPES-04: Recipe Print Page
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/library/[id]/print/page.tsx` (edit -- likely skeleton exists)
+- `apps/web/app/recipes/actions.ts` (add print action if needed)
+**Reference logic:**
+- `modules/recipes/src/print/recipe-template.ts` (`generatePrintHtml`)
+- `modules/recipes/src/db/crud.ts` (`getRecipeById`, `getIngredients`)
+- `modules/recipes/src/types.ts` (`StructuredIngredient`, `Step`)
+**Prompt:**
+> Edit `apps/web/app/recipes/library/[id]/print/page.tsx` to be a dedicated print-optimized page. Add a server action `fetchPrintHtml(recipeId)` that calls `getRecipeById`, gets structured ingredients and steps, gets tags, and calls `generatePrintHtml` with `{ includePhoto: true }`. The page should render: (1) a "Print" button at the top (hidden in print media), (2) the generated HTML rendered via `dangerouslySetInnerHTML` inside a print-friendly container, (3) `@media print` CSS that hides the sidebar, header, and button, sets white background, and optimizes for A4/Letter paper. Add a print button to the recipe detail page that links to this route. The print template already exists in the module -- just wire it to the web UI.
+
+### RECIPES-05: Recipe Sharing -- Token + Card UI
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/actions.ts` (add share actions)
+- `apps/web/app/recipes/library/[id]/page.tsx` (edit to add share button)
+- `apps/web/app/recipes/share/[token]/page.tsx` (new)
+**Reference logic:**
+- `modules/recipes/src/types.ts` (`ShareToken`, `ShareableRecipe`, `ShareFormat`)
+- `modules/recipes/src/db/schema.ts` (`rc_share_tokens` table)
+- `modules/recipes/src/db/crud.ts`
+**Prompt:**
+> Add server actions: `doCreateShareToken(recipeId)` that generates a random token, inserts into `rc_share_tokens` with 30-day expiry, and returns the token string; `fetchSharedRecipe(token)` that looks up the token, increments view_count, checks expiry, and returns the full recipe with ingredients and steps; `doRevokeShareToken(tokenId)`. Edit the recipe detail page to add a "Share" button that creates a token and shows a modal with: (1) a copy-to-clipboard share URL (`/recipes/share/[token]`), (2) a recipe card preview (title, image, description, servings, cook time). Create `apps/web/app/recipes/share/[token]/page.tsx` as a public page (no auth required) that fetches the shared recipe and renders it in a clean, branded read-only view with "Made with MyLife" footer. Handle expired/invalid tokens with a friendly message.
+
+### RECIPES-06: Voice Commands in Cooking Mode
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/library/[id]/cook/page.tsx` (edit to add voice integration)
+**Reference logic:**
+- `modules/recipes/src/voice/voice-commands.ts` (`parseVoiceCommand`)
+- `modules/recipes/src/types.ts` (`VoiceCommand`, `ParsedVoiceCommand`)
+**Prompt:**
+> Edit `apps/web/app/recipes/library/[id]/cook/page.tsx` to add voice command support. Add a "Voice" toggle button in the cooking mode toolbar. When enabled, use the Web Speech API (`SpeechRecognition`) to listen continuously for voice input. On each recognized phrase, call `parseVoiceCommand(transcript)` and dispatch the result: `next_step` advances the step, `previous_step` goes back, `start_timer`/`stop_timer` controls the step timer, `repeat_step` uses `SpeechSynthesis` to read the current step aloud, `read_ingredients` reads the ingredient list, `go_to_step N` jumps to step N. Show a floating voice indicator (pulsing microphone icon when listening, recognized command text briefly). Handle `null` returns (unrecognized) with a gentle "Didn't catch that" toast. Add a "Supported commands" help tooltip listing all 7 command types.
+
+### RECIPES-07: Ingredient Substitutions Display
+**Depends on:** None
+**Files to create/edit:**
+- `modules/recipes/src/substitutions/suggestions.ts` (new)
+- `modules/recipes/src/__tests__/substitutions.test.ts` (new)
+- `apps/web/app/recipes/library/[id]/page.tsx` (edit to add substitution display)
+**Reference logic:**
+- `modules/recipes/src/types.ts` (`SubstitutionSuggestion`)
+- `modules/recipes/src/pantry/matching.ts`
+- `modules/recipes/src/db/pantry.ts`
+**Prompt:**
+> Create `modules/recipes/src/substitutions/suggestions.ts` with a pure function `getSubstitutionSuggestions(ingredientName: string, pantryItems?: string[]): SubstitutionSuggestion[]`. Build a static substitution map covering 30+ common ingredients (e.g., butter -> coconut oil/applesauce, eggs -> flax egg/banana, milk -> almond milk/oat milk, all-purpose flour -> whole wheat/almond flour). For each match, return `{ substitute, quantity_hint, reason, in_pantry }` where `in_pantry` is true if the substitute exists in the user's pantry items list. Write tests for 10+ ingredient lookups. Then edit the recipe detail page to show a small "Swap" icon next to each ingredient that, on click, reveals a dropdown of substitution suggestions. Highlight in-pantry substitutes with a green badge.
+
+### RECIPES-08: Barcode Pantry Lookup
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/pantry/page.tsx` (edit to add barcode scanner)
+- `apps/web/app/recipes/actions.ts` (add barcode action)
+**Reference logic:**
+- `modules/recipes/src/pantry/open-food-facts.ts` (`lookupBarcode`)
+- `modules/recipes/src/db/pantry.ts` (`createPantryItem`)
+- `modules/recipes/src/db/nutrition.ts` (`createNutritionData`)
+**Prompt:**
+> Add server action `doBarcodeLookup(barcode: string)` that calls `lookupBarcode` from the Open Food Facts module, returns the product info (name, brand, category, nutrition data). Edit `apps/web/app/recipes/pantry/page.tsx` to add a "Scan Barcode" button that opens a text input for manual barcode entry (camera scanning is mobile-only). On submit, call the action. If found, show a preview card (product name, brand, category, nutrition summary) with "Add to Pantry" button that creates the pantry item and nutrition data record in one action. If not found, show "Not found in database" with a manual entry fallback. On mobile, this should use the device camera for barcode scanning via `expo-camera` BarCodeScanner.
+
+### RECIPES-09: AI Food Recognition for Pantry
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/pantry/page.tsx` (edit to add photo capture)
+- `apps/web/app/recipes/actions.ts` (add recognition action)
+**Reference logic:**
+- `modules/recipes/src/pantry/food-recognition.ts` (`identifyFood`)
+- `modules/recipes/src/db/pantry.ts` (`createPantryItem`)
+- `modules/recipes/src/pantry/open-food-facts.ts` (`mapOffCategoryToSection`)
+**Prompt:**
+> Add server action `doIdentifyFood(imageBase64: string)` that reads the user's Claude API key from `rc_settings` and calls `identifyFood`. Return the `FoodRecognitionResult`. Edit `apps/web/app/recipes/pantry/page.tsx` to add an "Identify Food" button that opens a file picker for image upload. On selection, convert to base64, call the action. If the API key is not set, prompt the user to add it in settings. If identified (confidence > 0.5), show: suggested name (editable), category, confidence bar, and all detected labels. "Add to Pantry" button creates the item with pre-filled fields. If low confidence or no result, show "Could not identify" with manual entry. Privacy note: "Photo is sent to Claude API for identification and is not stored."
+
+### RECIPES-10: Pantry Deduction -- "I Cooked This" Button
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/actions.ts` (add deduction actions)
+- `apps/web/app/recipes/library/[id]/page.tsx` (edit to add button)
+**Reference logic:**
+- `modules/recipes/src/pantry/deduction.ts` (`previewDeduction`, `deductPantryForRecipe`)
+- `modules/recipes/src/types.ts` (`DeductionResult`)
+**Prompt:**
+> Add server actions: `doPreviewDeduction(recipeId, servings?)` that calls `previewDeduction` and returns the `DeductionResult`; `doDeductPantry(recipeId, servings?)` that calls `deductPantryForRecipe`. Edit the recipe detail page to add an "I Cooked This" button (with a pot icon). On click, first call preview and show a confirmation modal listing: each matched ingredient with before/after quantities (green for partial deduction, red for "will be removed"), and any unmatched ingredients. Include a servings multiplier input. On confirm, call `doDeductPantry`. Show a success toast with summary: "Updated X pantry items, Y unmatched." The preview step prevents surprise pantry changes.
+
+### RECIPES-11: Expiring Item Recipe Suggestions
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/pantry/page.tsx` (edit to add expiring section)
+- `apps/web/app/recipes/actions.ts` (add suggestion action)
+**Reference logic:**
+- `modules/recipes/src/pantry/expiration.ts` (`classifyExpiration`, `daysUntilExpiration`)
+- `modules/recipes/src/pantry/matching.ts` (recipe matching by pantry ingredients)
+- `modules/recipes/src/types.ts` (`ExpiringRecipeSuggestion`, `RecipeMatch`)
+**Prompt:**
+> Add server action `fetchExpiringItemSuggestions()` that: (1) gets all pantry items, (2) filters to `expiring_soon` status (within 3 days), (3) for each expiring item, finds recipes that use that ingredient via fuzzy matching against `rc_ingredients`, (4) returns `ExpiringRecipeSuggestion[]` (recipe match + which expiring items it uses + days left). Edit `apps/web/app/recipes/pantry/page.tsx` to add an "Use It Up" section at the top when there are expiring items. Show a card per expiring item with: item name, days left (color coded), and suggested recipes as clickable links. If no recipes match, show "No recipe matches -- consider adding a recipe with [item]." Sort by urgency (fewest days first).
+
+### RECIPES-12: Recipe Tags Management
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/recipes/actions.ts` (add tag actions)
+- `apps/web/app/recipes/library/[id]/page.tsx` (edit to add tag UI)
+- `apps/web/app/recipes/library/page.tsx` (edit to add tag filter)
+**Reference logic:**
+- `modules/recipes/src/db/crud.ts` (`addTag`, `getTags`, `deleteTag`)
+- `modules/recipes/src/types.ts` (`RecipeTag`)
+**Prompt:**
+> Add server actions: `fetchTags(recipeId)`, `doAddTag(recipeId, tag)`, `doDeleteTag(tagId)`, `fetchAllTags()` (SELECT DISTINCT tag from rc_recipe_tags). Edit the recipe detail page to show tags below the title as colored pills. Add an inline "Add tag" input with autocomplete from existing tags. Tags can be deleted by clicking an "x" on the pill. Edit the recipe library page to add a tag filter bar at the top -- show all unique tags as toggleable pills, clicking one filters the recipe list to that tag. Multiple tags can be active (AND filter). Style tags with `var(--glass-strong)` background and `var(--accent-recipes)` text when active.
+
+
+## Workouts
+
+### WORKOUTS-01: Progressive Overload -- Rule Display in Settings
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/actions.ts` (add overload actions)
+- `apps/web/app/workouts/settings/page.tsx` (new)
+- `apps/web/app/workouts/layout.tsx` (add settings nav link)
+**Reference logic:**
+- `modules/workouts/src/db/crud.ts` (overload rule CRUD)
+- `modules/workouts/src/types.ts` (`OverloadRule`)
+**Prompt:**
+> Add server actions: `fetchOverloadRules()`, `doCreateOverloadRule(rule)`, `doUpdateOverloadRule(id, updates)`, `doDeleteOverloadRule(id)`. Create `apps/web/app/workouts/settings/page.tsx` with an "Overload Rules" section. Show existing rules in a list: each row shows the rule type (weight/rep/set/percentage increment), trigger condition (all_sets_hit/any_set_hit/average_reps_hit), target reps, increment value+unit, minimum sessions, and active toggle. Add a "New Rule" form with: optional exercise selector (null = global), rule type dropdown, trigger condition dropdown, target reps input, increment value input, unit dropdown, min sessions input. Rules can be edited inline or deleted. Add a nav link in the workouts layout.
+
+### WORKOUTS-02: Progressive Overload -- Suggestions During Session
+**Depends on:** WORKOUTS-01
+**Files to create/edit:**
+- `apps/web/app/workouts/session/page.tsx` (edit to add suggestion display)
+- `apps/web/app/workouts/actions.ts` (add suggestion action)
+**Reference logic:**
+- `modules/workouts/src/overload/engine.ts` (not yet read -- reference `evaluateTrigger`, `calculateSuggestion`, `generateOverloadSuggestion`)
+- `modules/workouts/src/types.ts` (`ExercisePerformanceHistory`, `OverloadRule`)
+**Prompt:**
+> Add server action `fetchOverloadSuggestions(exerciseId)` that gets the effective overload rule for the exercise, queries the last N sessions of set weights for that exercise, and calls `generateOverloadSuggestion`. Return `{ suggestion: string | null, currentWeight, suggestedWeight, suggestedReps }`. Edit the session page to show an overload suggestion banner for each exercise that has one: "Increase to X lbs" or "Try X+2 reps" with an "Accept" button that pre-fills the weight/reps for the next set. Show the suggestion in a subtle accent-colored bar above the set entry row. If no suggestion (not enough data or threshold not met), show nothing.
+
+### WORKOUTS-03: Muscle Recovery Heatmap
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/recovery/page.tsx` (new)
+- `apps/web/app/workouts/actions.ts` (add recovery actions)
+- `apps/web/app/workouts/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/workouts/src/recovery/engine.ts` (`buildRecoveryMap`, `getBestToTrain`)
+- `modules/workouts/src/recovery/types.ts`
+- `modules/workouts/src/body-map.ts` (`BODY_MAP_MUSCLE_GROUPS`, `buildHighlightData`)
+**Prompt:**
+> Add server actions: `fetchRecoveryMap()` that queries recent sessions (last 14 days), builds `SessionMuscleData[]` from set weights joined with exercise muscle groups, and calls `buildRecoveryMap`; `fetchTrainingSuggestion()` that calls `getBestToTrain`. Create `apps/web/app/workouts/recovery/page.tsx` rendering: (1) a body outline SVG (front and back views) where each muscle group is colored by recovery score (green=fresh 80-100, yellow=recovering 50-79, red=fatigued 0-49), (2) a legend showing the three states, (3) a list of all 13 muscle groups with score, status, hours since last trained, hours until recovered, volume last session, and frequency in last 7 days, (4) a "What to train today" suggestion card from `getBestToTrain` showing recommended split type and which muscles are fresh. Use `buildHighlightData` to map muscle groups to SVG regions.
+
+### WORKOUTS-04: Workout Intelligence Insight Cards
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/actions.ts` (add intelligence action)
+- `apps/web/app/workouts/page.tsx` (edit to add insight section)
+**Reference logic:**
+- `modules/workouts/src/intelligence/insight.ts` (`generateWorkoutInsights`)
+- `modules/workouts/src/intelligence/data-bridge.ts` (`getWorkoutDaysForInsights`, `getMoodDaysForInsights`, `getNutritionDaysForInsights`, `getFastingDaysForInsights`)
+- `modules/workouts/src/intelligence/types.ts` (`WorkoutInsight`)
+**Prompt:**
+> Add server action `fetchWorkoutInsights()` that uses the data bridge to gather the last 14 days of workout, mood, nutrition, and fasting data, then calls `generateWorkoutInsights`. Return the array of `WorkoutInsight[]`. Edit `apps/web/app/workouts/page.tsx` to add an "Insights" section below the dashboard stats. Render each insight as a glass card with: severity icon (green checkmark for positive, yellow info for neutral, red alert for negative), title, body text, metric badge, and recommendation. Cap display at 4 insights (show "See all" if more). Insights with cross-module data (mood, fasting, nutrition) get a subtle "Cross-module" badge. Cards should be dismissible (hide for the session, not persisted).
+
+### WORKOUTS-05: GPS Activity Tracking -- Route Recording
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/actions.ts` (add GPS actions)
+- `apps/web/app/workouts/gps/page.tsx` (new)
+- `apps/web/app/workouts/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/workouts/src/gps/metrics.ts` (`calculateTotalDistance`, `calculatePace`, `calculateSpeed`, `calculateElevationGain`, `estimateCalories`, `filterByAccuracy`, `filterNoise`, `downsampleRoute`, `formatPace`)
+- `modules/workouts/src/types.ts` (`GpsRoute`, `GpsPoint`, `GpsActivityType`)
+- `modules/workouts/src/db/crud.ts` (GPS route CRUD)
+**Prompt:**
+> Add server actions for GPS: `doStartGpsRoute(activityType, name?)`, `doAddGpsPoints(routeId, points[])`, `doCompleteGpsRoute(routeId)` that computes metrics (distance, pace, speed, elevation, calories) from points using the metrics engine and updates the route record, `fetchGpsRoutes(limit?)`, `fetchGpsRouteWithPoints(routeId)`. Create `apps/web/app/workouts/gps/page.tsx` with: (1) activity type selector (run/cycle/hike/walk/other), (2) a "Start" button that uses the Geolocation API to begin watching position, recording points at ~1s interval, (3) live stats panel showing distance, duration, current pace, (4) "Pause" / "Resume" / "Stop" controls (pause increments segment counter), (5) on stop, compute final metrics and save. Add a route history list showing past routes with date, activity type, distance, duration, pace. Note: map display is deferred to a separate task; this task focuses on recording + metrics.
+
+### WORKOUTS-06: AI Workout Generation
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/generate/page.tsx` (new)
+- `apps/web/app/workouts/actions.ts` (add generation actions)
+- `apps/web/app/workouts/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/workouts/src/ai/generator.ts` (`generateLocalWorkout`, `GenerationRequest`, `GeneratedWorkout`)
+- `modules/workouts/src/db/crud.ts` (`getWorkoutExercises`, `createWorkout`)
+- `modules/workouts/src/types.ts` (`WorkoutExerciseLibraryItem`)
+**Prompt:**
+> Add server actions: `doGenerateWorkout(request: GenerationRequest)` that fetches all exercises from the library, gets recently used exercise IDs from the last 5 sessions, and calls `generateLocalWorkout`; `doSaveGeneratedWorkout(workout)` that creates a new workout definition from the generated result. Create `apps/web/app/workouts/generate/page.tsx` with a multi-step form: Step 1 -- Goal (strength/hypertrophy/endurance/general as cards), Step 2 -- Muscle focus (multi-select from MUSCLE_GROUPS with body map visual), Step 3 -- Equipment (checkboxes: barbell, dumbbells, cables, machines, bodyweight, bands, kettlebell), Step 4 -- Duration (15/30/45/60/75/90 min slider) + Difficulty (beginner/intermediate/advanced). On submit, call the action and show the generated workout preview: exercise list with sets/reps/rest, estimated duration, title. "Save & Start" button saves the workout and navigates to session. "Regenerate" button creates a new variation.
+
+### WORKOUTS-07: 1RM Calculator + History Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/calculator/page.tsx` (new)
+- `apps/web/app/workouts/actions.ts` (add 1RM actions)
+- `apps/web/app/workouts/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/workouts/src/workout/oneRM.ts` (`calculate1RM`, `calculateEpley1RM`, `calculateBrzycki1RM`)
+- `modules/workouts/src/db/crud.ts` (`get1RMHistory`, `getLatest1RM`, `record1RM`)
+- `modules/workouts/src/types.ts` (`OneRMFormula`, `Exercise1RMRow`)
+**Prompt:**
+> Add server actions: `fetch1RMHistory(exerciseId)`, `fetchLatest1RM(exerciseId)`, `doRecord1RM(input)`, `fetchAllExercises()`. Create `apps/web/app/workouts/calculator/page.tsx` with: (1) a 1RM calculator form -- exercise dropdown, weight input, reps input, formula toggle (Epley/Brzycki) -- showing the calculated 1RM in real-time as the user types, plus a percentage table (95%/90%/85%/.../50% of 1RM), (2) a "Save" button that records the 1RM to history, (3) a trend chart (SVG line) showing 1RM history over time for the selected exercise, (4) exercise picker that shows latest 1RM for each exercise in the dropdown. Style with Cool Obsidian. The calculator should show both Epley and Brzycki side by side for comparison.
+
+### WORKOUTS-08: Body Measurements Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/measurements/page.tsx` (new)
+- `apps/web/app/workouts/actions.ts` (add measurement actions)
+- `apps/web/app/workouts/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/workouts/src/db/crud.ts` (`createBodyMeasurement`, `getBodyMeasurements`, `deleteBodyMeasurement`)
+- `modules/workouts/src/types.ts` (`BodyMeasurementInput`, `BodyMeasurementRow`)
+**Prompt:**
+> Add server actions: `fetchBodyMeasurements(type?, days?)`, `doCreateBodyMeasurement(input)`, `doDeleteBodyMeasurement(id)`. Create `apps/web/app/workouts/measurements/page.tsx` with: (1) measurement type tabs (weight, body_fat, chest, waist, hips, arms, thighs, neck), (2) an entry form per type (value input, unit selector, date picker), (3) a trend chart (SVG line) for the selected type showing last 30/60/90 days, (4) a data table below showing all entries for the type (date, value, unit, delete button), (5) a summary card showing latest value, change over 30 days (with green/red arrow), min/max in the period. Style with Cool Obsidian glass cards and `var(--accent-workouts)`.
+
+### WORKOUTS-09: Workout Plans + Periodization
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/plans/page.tsx` (new)
+- `apps/web/app/workouts/plans/[id]/page.tsx` (new)
+- `apps/web/app/workouts/actions.ts` (add plan actions)
+- `apps/web/app/workouts/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/workouts/src/db/crud.ts` (`createWorkoutPlan`, `getWorkoutPlans`, `getWorkoutPlanById`, `updateWorkoutPlan`, `deleteWorkoutPlan`, `subscribeToPlan`, `unsubscribeFromPlan`, `getActivePlanSubscription`)
+- `modules/workouts/src/workout/plan-helpers.ts` (`getWeekSchedule`, `getCurrentPlanPosition`, `getTodaysWorkout`, `getPlanProgress`)
+- `modules/workouts/src/types.ts` (`WorkoutPlan`, `WorkoutPlanWeek`, `WorkoutPlanDay`)
+**Prompt:**
+> Add server actions for plan CRUD, subscription, and progress. Create `apps/web/app/workouts/plans/page.tsx` listing all plans as cards (title, description, weeks, sessions/week) with "Subscribe" / "Unsubscribe" buttons and a "New Plan" button. Create `apps/web/app/workouts/plans/[id]/page.tsx` with: (1) plan header (title, description, edit/delete), (2) a weekly calendar view -- for each week, show 7 day columns with workout assignments or "Rest" markers, (3) plan builder UI: click a day cell to assign an existing workout from a dropdown or mark as rest, (4) progress bar showing completed vs total plan days via `getPlanProgress`, (5) "Today's Workout" highlight card using `getTodaysWorkout` with a "Start Session" button. The plan builder serializes weeks as JSON via the `weeksJson` field.
+
+### WORKOUTS-10: Progress Photos
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/photos/page.tsx` (new)
+- `apps/web/app/workouts/actions.ts` (add photo actions)
+- `apps/web/app/workouts/layout.tsx` (add nav link)
+**Reference logic:**
+- `modules/workouts/src/db/crud.ts` (progress photo CRUD)
+- `modules/workouts/src/types.ts` (`ProgressPhoto`, `ProgressPhotoInput`, `PhotoViewType`, `PHOTO_VIEW_TYPES`)
+**Prompt:**
+> Add server actions: `fetchProgressPhotos(viewType?, limit?)`, `doUploadProgressPhoto(input)`, `doDeleteProgressPhoto(id)`. Create `apps/web/app/workouts/photos/page.tsx` with: (1) view type filter tabs (front/side_left/side_right/back), (2) upload area with file picker, view type selector, optional notes, date picker, (3) photo gallery grid showing thumbnails sorted by date, (4) click a photo to open a lightbox, (5) "Compare" mode -- select two photos and display them side-by-side with date labels for before/after comparison. Store photos as local file URIs (web can use base64 data URLs or object URLs). On mobile, use `expo-image-picker`. Show total photo count and date range in the header. Privacy note: "Photos are stored locally and never uploaded."
+
+### WORKOUTS-11: Plate Loading Calculator Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/calculator/page.tsx` (edit to add plates tab)
+**Reference logic:**
+- `modules/workouts/src/workout/plates.ts` (`calculatePlates`, `STANDARD_PLATES_LBS`, `STANDARD_PLATES_KG`)
+- `modules/workouts/src/types.ts` (`PlateResult`, `WeightUnit`, `PLATE_COLORS`, `BAR_PRESETS`)
+**Prompt:**
+> Edit `apps/web/app/workouts/calculator/page.tsx` to add a "Plates" tab alongside the 1RM calculator (or create it if WORKOUTS-07 hasn't been done yet). The plate calculator shows: (1) target weight input, (2) bar weight selector (Standard 45lb, Women's 35lb, EZ Curl 15lb from `BAR_PRESETS`), (3) unit toggle (lbs/kg), (4) the plate diagram -- a horizontal barbell SVG with plates rendered per side using `PLATE_COLORS` for each plate weight, proportionally sized (45lb plates are largest, 2.5lb smallest), (5) a text summary: "Per side: 1x45, 1x25, 1x10 = 225 lbs total", (6) remainder warning if the target can't be exactly hit ("Closest loadable: 222.5 lbs, 2.5 lbs short"). Call `calculatePlates` on every input change for real-time updates. The visual barbell diagram is the key UX element.
+
+### WORKOUTS-12: Social Sharing -- Post-Workout Summary Card
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/workouts/session/page.tsx` (edit to add share button on completion)
+- `apps/web/app/workouts/actions.ts` (add sharing actions)
+**Reference logic:**
+- `modules/workouts/src/social/privacy.ts` (`applyPrivacyFilter`, `normalizePrivacySettings`)
+- `modules/workouts/src/types.ts` (`WorkoutSummaryCard`, `SocialPrivacySettings`, `DEFAULT_SOCIAL_PRIVACY`)
+- `modules/workouts/src/db/crud.ts` (build summary from session data)
+**Prompt:**
+> Add server action `buildSessionSummaryCard(sessionId)` that queries the completed session, its set weights, exercise details, and builds a `WorkoutSummaryCard` (title, date, duration, exercise count, total sets/reps/volume, PRs hit, muscle groups). Add `doShareWorkout(sessionId, privacySettings)` that applies `applyPrivacyFilter` and returns the filtered card. Edit the session page: after completing a workout, show a "Workout Complete" modal with the summary card (animated entrance). The card displays: title, date, duration, exercise count, total volume, any new PRs (highlighted), muscle groups trained. Below the card, show privacy toggles (share title, exercises, weight details, PRs, duration) from `DEFAULT_SOCIAL_PRIVACY`. "Share" button copies a text summary to clipboard or triggers the Web Share API. "Done" dismisses. Style the summary card as a dark gradient card suitable for screenshot sharing.
+
+
+## Car
+
+### CAR-01: OBD-II Diagnostics Dashboard Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/diagnostics.tsx`
+- `apps/web/app/car/diagnostics/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/obd-engine.ts`
+- `modules/car/src/engines/dtc-database.ts`
+- `modules/car/src/db/diagnostics.ts`
+- `modules/car/src/types.ts`
+**Prompt:**
+> Build the OBD-II diagnostics screen showing a list of past diagnostic snapshots per vehicle, with a "New Scan" button. Each snapshot row shows date, vehicle name, code count, and severity badge (green/yellow/red). Tapping a snapshot navigates to CAR-02's detail. Use `getDiagnosticSnapshots` from `db/diagnostics.ts` and `classifySnapshotSeverity` from `obd-engine.ts`. Apply Cool Obsidian tokens: surface cards, glassBorder, danger/success for severity. Wrap web server actions in try/catch/finally per the web error handling rule.
+
+### CAR-02: OBD-II Diagnostic Snapshot Detail Screen
+**Depends on:** CAR-01
+**Files to create/edit:**
+- `apps/mobile/app/(car)/diagnostics/[id].tsx`
+- `apps/web/app/car/diagnostics/[id]/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/obd-engine.ts`
+- `modules/car/src/engines/dtc-database.ts`
+- `modules/car/src/db/diagnostics.ts`
+**Prompt:**
+> Build the snapshot detail screen. Show snapshot metadata (date, protocol, VIN). List each DiagnosticCode with its code string, system (engine/transmission/body/chassis), severity icon, and human-readable description from `lookupDTC` in `dtc-database.ts`. Include a section for live data readings at scan time from `getLiveDataForSnapshot`. Use colored severity badges: P0xxx=engine, B0xxx=body, etc. Add a "Clear Codes" action button. Cool Obsidian surfaceElevated cards per code group.
+
+### CAR-03: OBD-II Live Data Dashboard
+**Depends on:** CAR-01
+**Files to create/edit:**
+- `apps/mobile/app/(car)/live-data.tsx`
+- `apps/web/app/car/live-data/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/obd-engine.ts`
+- `modules/car/src/db/diagnostics.ts`
+**Prompt:**
+> Build a real-time OBD-II live data dashboard. Show gauge-style visualizations for key PIDs: RPM, coolant temp, speed, MAF, throttle position, fuel system status. Use `parsePIDResponse` and `ELM327_COMMANDS` from `obd-engine.ts`. On mobile, use animated circular gauges. On web, use SVG gauge components. Include a "Start Recording" toggle that logs readings to `cr_live_data_logs` via `insertLiveDataLog`. Display last-updated timestamp per reading.
+
+### CAR-04: VIN Decoder Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/vin-decoder.tsx`
+- `apps/web/app/car/vin-decoder/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/vin-engine.ts`
+- `modules/car/src/db/recalls.ts`
+**Prompt:**
+> Build a VIN decoder screen. Show a VIN input field with real-time validation using `isValidVIN` and `validateCheckDigit` from `vin-engine.ts`. On decode, display parsed vehicle attributes (year, make, model, engine, plant) from `decodeVINResponse`. Below the decode results, show a "Check Recalls" section that calls `parseRecallResponse` and lists any NHTSA recalls. Include a "Save to Vehicle" button that auto-fills the vehicle's VIN field. Handle the offline case by showing only VIN validation without NHTSA data.
+
+### CAR-05: GPS Trip Dashboard and Map View
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/gps-dashboard.tsx`
+- `apps/web/app/car/gps/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/gps-engine.ts`
+- `modules/car/src/db/gps-trips.ts`
+**Prompt:**
+> Build a GPS trip dashboard. Show a list of recorded GPS trips with distance (from `calculateTripDistance`), duration, start/end addresses, and average speed. Include a map view using Mapbox (mobile: `@rnmapbox/maps`, web: `mapbox-gl`) that renders the trip polyline from `decodePolyline`. Add a "Start Trip" floating action button that begins GPS recording. Show monthly distance summary and most-traveled routes. Use `filterDriftPoints` to clean displayed paths.
+
+### CAR-06: Tire Scheduler and Health Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/tires.tsx`
+- `apps/web/app/car/tires/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/tire-engine.ts`
+- `modules/car/src/db/tires.ts`
+**Prompt:**
+> Build the tire management screen. Show each tire set with brand, size, and a tread health score badge from `scoreTreadHealth` in `tire-engine.ts`. Display a 4-corner diagram (FL/FR/RL/RR) with tread depth color coding (green >5mm, yellow 3-5mm, red <3mm). Show the next rotation date from `nextRotationDate` and wear rate prediction from `predictWearRate`. Include buttons to "Log Measurement" (opens a form for 4 tread depths) and "Log Rotation". List rotation history.
+
+### CAR-07: Registration and Insurance Alerts Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/documents.tsx`
+- `apps/web/app/car/documents/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/insurance-engine.ts`
+- `modules/car/src/engines/registration-engine.ts`
+- `modules/car/src/db/insurance.ts`
+- `modules/car/src/db/registrations.ts`
+**Prompt:**
+> Build a combined documents/alerts screen. Show two sections: Insurance and Registration. Each policy/registration card shows expiration status from `getExpirationStatus` (valid/expiring-soon/expired), next due date, and cost summary. Insurance cards show `annualizePremium` value and masked policy number via `maskPolicyNumber`. Registration cards show inspection type and last inspection date. Add red/yellow/green status indicators. Include "Add Policy" and "Add Registration" action buttons linking to existing add forms.
+
+### CAR-08: Parking History Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/parking-history.tsx`
+- `apps/web/app/car/parking/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/parking-engine.ts`
+- `modules/car/src/db/parking.ts`
+**Prompt:**
+> Build a parking history screen. Show a list of saved parking locations sorted by recency. Each card shows address, date/time parked, meter status from `getMeterStatus` (active countdown/expired/no-meter), and a mini map thumbnail. Include a "Park Here" button that saves current location. Show walking time estimate from `estimateWalkingTime`. Stale locations (>24h) get a dimmed style via `isStaleLocation`. Add a full-screen map view toggle showing all parking pins.
+
+### CAR-09: Trip Cost Analytics Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/cost-analytics.tsx`
+- `apps/web/app/car/costs/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/cost-engine.ts`
+- `modules/car/src/engines/trip-engine.ts`
+**Prompt:**
+> Build the trip cost analytics dashboard. Show cost-per-mile from `computeCostPerMile`, monthly expense breakdown by category (fuel/maintenance/insurance/registration) from `getMonthlyBreakdown`, and a 12-month trend chart. Include IRS mileage deduction estimate from `estimateIRSDeduction` in `trip-engine.ts`. Show trip purpose pie chart (personal/commute/business/medical). Display total annual ownership cost projection. Use bar charts for monthly trends and donut chart for category breakdown.
+
+### CAR-10: Fuel Price Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(car)/fuel-prices.tsx`
+- `apps/web/app/car/fuel-prices/page.tsx`
+**Reference logic:**
+- `modules/car/src/engines/fuel-price-engine.ts`
+- `modules/car/src/db/crud.ts`
+**Prompt:**
+> Build a fuel price tracking screen. Show the user's recent fuel fill-ups with per-gallon price, total cost, and station name. Display an average price trend line over the last 6 months from `getAveragePrice`. Show station analysis from `getStationBreakdown` ranking cheapest stations. Include a cost projection section from `projectFuelCost` estimating next month's fuel spend based on driving patterns. Add a "Log Fill-Up" button that opens a form with gallons, price, odometer, and station fields.
+
+
+## Closet
+
+### CLOSET-01: Color Palette Analysis Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(closet)/color-analysis.tsx`
+- `apps/web/app/closet/colors/page.tsx`
+**Reference logic:**
+- `modules/closet/src/engine/color.ts`
+- `modules/closet/src/db/crud.ts`
+- `modules/closet/src/types.ts`
+**Prompt:**
+> Build a color palette analysis screen. Display the user's wardrobe color distribution as a visual palette grid using data from the color engine. Show seasonal color analysis (which colors dominate per season), color harmony suggestions, and a "your palette" summary. Each color swatch shows the count of items in that color. Include a color wheel visualization showing complementary and analogous colors in the wardrobe. Use the color engine's analysis functions to generate recommendations for missing palette gaps.
+
+### CLOSET-02: Cost Per Wear Calculator Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(closet)/cpw.tsx`
+- `apps/web/app/closet/cpw/page.tsx`
+**Reference logic:**
+- `modules/closet/src/engine/cpw.ts`
+- `modules/closet/src/db/crud.ts`
+**Prompt:**
+> Build the CPW (Cost Per Wear) calculator screen. Show a ranked list of clothing items sorted by CPW value (purchase price / number of wears). Each item card shows photo thumbnail, name, purchase price, wear count, and calculated CPW with color coding (green <$1, yellow $1-5, red >$5). Include a "best value" highlight section for top 5 lowest CPW items. Show total wardrobe value and average CPW. Add a "Log Wear" quick action per item that increments the wear count and recalculates CPW.
+
+### CLOSET-03: Seasonal Rotation Manager
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(closet)/rotation.tsx`
+- `apps/web/app/closet/rotation/page.tsx`
+**Reference logic:**
+- `modules/closet/src/engine/seasonal.ts`
+- `modules/closet/src/db/capsules.ts`
+**Prompt:**
+> Build a seasonal rotation screen. Show current season's active wardrobe vs stored items. Use the seasonal engine to recommend which items to rotate in/out based on weather data and seasonal categories. Display a 4-season grid (Spring/Summer/Fall/Winter) with item counts. Include a "Rotate Now" action that marks selected items as stored/active. Show capsule wardrobe suggestions per season from the capsule engine. Add packing tips for seasonal transitions.
+
+### CLOSET-04: Outfit Suggestion Refinement Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(closet)/suggestions.tsx`
+- `apps/web/app/closet/suggestions/page.tsx`
+**Reference logic:**
+- `modules/closet/src/engine/outfit-suggest.ts`
+- `modules/closet/src/engine/weather.ts`
+- `modules/closet/src/db/suggestions.ts`
+**Prompt:**
+> Build an outfit suggestion screen. Show today's weather-responsive outfit suggestion from the outfit-suggest engine, with a visual clothing stack (top/bottom/shoes/accessories). Include a "Regenerate" button, a "Like/Dislike" feedback mechanism that trains future suggestions, and a history of past suggestions. Show weather conditions (temp, rain, wind) that influenced the suggestion. Allow tapping individual items to swap alternatives. Save liked outfits to a favorites collection.
+
+### CLOSET-05: Wishlist Management Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(closet)/wishlist.tsx`
+- `apps/web/app/closet/wishlist/page.tsx`
+**Reference logic:**
+- `modules/closet/src/db/wishlist.ts`
+- `modules/closet/src/engine/cpw.ts`
+**Prompt:**
+> Build a wishlist screen. Show saved wishlist items with photo, name, price, retailer, and URL link. Include "Add to Wishlist" form with fields for item details and optional photo upload. Show a projected CPW estimate (price / estimated wears based on similar items). Add priority sorting (high/medium/low) and price drop alerts toggle. Include a "Move to Wardrobe" action when an item is purchased. Display total wishlist value.
+
+### CLOSET-06: Weather-Responsive Outfit Scoring
+**Depends on:** CLOSET-04
+**Files to create/edit:**
+- `apps/mobile/app/(closet)/weather-score.tsx`
+- `apps/web/app/closet/weather/page.tsx`
+**Reference logic:**
+- `modules/closet/src/engine/weather.ts`
+- `modules/closet/src/engine/outfit-suggest.ts`
+**Prompt:**
+> Build a weather-responsive scoring screen. Show today's weather forecast and score each of the user's recent outfits on weather appropriateness (0-100 scale). Display a 7-day forecast with outfit recommendations per day. Use the weather engine's scoring functions to rate warmth, rain protection, and breathability. Show color-coded scores (green >80, yellow 50-80, red <50). Include a "What to Wear" quick view for the next 3 days.
+
+### CLOSET-07: Trend Analysis Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(closet)/trends.tsx`
+- `apps/web/app/closet/trends/page.tsx`
+**Reference logic:**
+- `modules/closet/src/engine/analytics.ts`
+- `modules/closet/src/db/crud.ts`
+**Prompt:**
+> Build a trend analysis dashboard. Show wearing frequency trends over time (most/least worn items, weekly/monthly patterns), category distribution (tops/bottoms/shoes/accessories), brand preferences, and spending trends. Include charts for: items added per month, average wears per item, most-worn colors, and cost trends. Use the analytics engine to generate insights like "You wear 80% of your wardrobe" or "Consider donating 12 unworn items." Display a wardrobe health score.
+
+
+## Cycle
+
+### CYCLE-01: Pregnancy Mode Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(cycle)/pregnancy.tsx`
+- `apps/web/app/cycle/pregnancy/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/cycle/src/engine/pregnancy.ts`
+- `modules/cycle/src/data/pregnancy-weeks.ts`
+- `modules/cycle/src/types.ts`
+**Prompt:**
+> Build the full pregnancy mode dashboard. Show current week/trimester with a progress bar, due date countdown, and baby size comparison from `pregnancy-weeks.ts` data. Display weekly development milestones, common symptoms for the current week, and upcoming appointments section. Include a weight gain tracker with recommended range bands. Add a "Kick Counter" section with session logging. Show trimester summary cards (first/second/third) with key milestones. Use the pregnancy engine's calculation functions for gestational age and due date.
+
+### CYCLE-02: Pregnancy Symptom and Appointment Tracker
+**Depends on:** CYCLE-01
+**Files to create/edit:**
+- `apps/mobile/app/(cycle)/pregnancy-log.tsx`
+- `apps/web/app/cycle/pregnancy/log/page.tsx`
+**Reference logic:**
+- `modules/cycle/src/engine/pregnancy.ts`
+- `modules/cycle/src/db/crud.ts`
+**Prompt:**
+> Build a pregnancy symptom and appointment logging screen. Show a daily symptom checklist (nausea, fatigue, cravings, swelling, etc.) with severity toggles. Include an appointments list with date, provider, type (ultrasound/checkup/lab), and notes. Add a "Birth Plan" notes section. Show symptom frequency trends over the pregnancy timeline. Include quick-log buttons for common symptoms.
+
+### CYCLE-03: Temperature Analysis Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(cycle)/temperature.tsx`
+- `apps/web/app/cycle/temperature/page.tsx`
+**Reference logic:**
+- `modules/cycle/src/engine/temperature.ts`
+- `modules/cycle/src/db/crud.ts`
+**Prompt:**
+> Build a BBT (Basal Body Temperature) analysis dashboard. Show a biphasic temperature chart with the thermal shift line from the temperature engine. Display daily BBT readings as a line graph overlaid on cycle phases. Highlight the predicted ovulation point based on temperature shift detection. Show the coverline calculation and luteal phase temperature plateau. Include a "Log Temperature" form with time, temp, and notes. Display cycle-over-cycle temperature overlay comparison. Add statistics: average follicular temp, average luteal temp, shift magnitude.
+
+### CYCLE-04: Sharing and Partner View
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(cycle)/sharing.tsx`
+- `apps/web/app/cycle/sharing/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/cycle/src/engine/sharing.ts`
+- `modules/cycle/src/types.ts`
+**Prompt:**
+> Build the sharing/partner view screen. Show sharing settings: what data categories to share (cycle dates, symptoms, fertility window, mood), who to share with (partner name/email), and share link generation from the sharing engine. Include a "Partner View" preview showing what the shared recipient sees: a simplified cycle calendar with fertility window, expected period dates, and mood indicators. No raw symptom data unless explicitly enabled. Add a toggle for push notification sharing (e.g., "Period starting soon"). Include a revoke access button.
+
+### CYCLE-05: Detailed Cycle Insights Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(cycle)/insights-detail.tsx`
+- `apps/web/app/cycle/insights/detail/page.tsx`
+**Reference logic:**
+- `modules/cycle/src/engine/insights.ts`
+- `modules/cycle/src/engine/prediction.ts`
+- `modules/cycle/src/db/crud.ts`
+**Prompt:**
+> Build a detailed cycle insights screen expanding on the existing insights tab. Show: average cycle length with standard deviation, luteal phase length analysis, period duration trends, PMS symptom patterns (which symptoms appear how many days before period), flow intensity patterns, and ovulation prediction confidence. Display each insight as an expandable card with a chart and explanation text. Use the insights engine to generate personalized observations like "Your cycles have become more regular over the last 6 months."
+
+### CYCLE-06: Cycle Comparison View
+**Depends on:** CYCLE-05
+**Files to create/edit:**
+- `apps/mobile/app/(cycle)/compare.tsx`
+- `apps/web/app/cycle/compare/page.tsx`
+**Reference logic:**
+- `modules/cycle/src/engine/insights.ts`
+- `modules/cycle/src/engine/prediction.ts`
+**Prompt:**
+> Build a cycle-over-cycle comparison screen. Show a horizontal timeline overlay of the last 3-6 cycles aligned by period start date. Each cycle row shows color-coded phases (menstruation=red, follicular=green, ovulation=blue, luteal=yellow). Display symptom dots on the timeline for each cycle. Show a comparison table: cycle length, period duration, heaviest flow day, PMS start day. Highlight anomalies (e.g., "Cycle 4 was 5 days longer than average"). Allow selecting specific cycles to compare side-by-side.
+
+
+## Flash
+
+### FLASH-01: Spaced Repetition Scheduler UI
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(flash)/schedule.tsx`
+- `apps/web/app/flash/schedule/page.tsx`
+**Reference logic:**
+- `modules/flash/src/engine/scheduler.ts`
+- `modules/flash/src/engine/session.ts`
+- `modules/flash/src/db/crud.ts`
+**Prompt:**
+> Build a spaced repetition schedule overview screen. Show today's due card count, upcoming reviews for the next 7 days as a bar chart, and overdue cards count in red. Display per-deck review schedule with next review date and card counts (new/learning/review/overdue). Use `getNextReviewDate` and interval calculations from `scheduler.ts`. Include a "Study Now" button per deck that launches the session engine. Show streak days and daily review goal progress bar.
+
+### FLASH-02: Cross-Module Study Signals Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(flash)/signals.tsx`
+- `apps/web/app/flash/signals/page.tsx`
+**Reference logic:**
+- `modules/flash/src/engine/cross-module.ts`
+- `modules/flash/src/types.ts`
+**Prompt:**
+> Build a cross-module study signals screen. Show suggested flashcards generated from other modules: vocabulary from Words, medication names from Meds, plant care facts from Garden, recipe ingredients from Recipes. Each signal shows the source module icon, suggested card content, and a "Create Card" button. Use the cross-module engine to detect study opportunities. Display a feed of recent cross-module suggestions sorted by relevance. Include a toggle to enable/disable signals per module.
+
+### FLASH-03: Anki Import/Export Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(flash)/import-export.tsx`
+- `apps/web/app/flash/import-export/page.tsx`
+**Reference logic:**
+- `modules/flash/src/engine/anki-import.ts`
+- `modules/flash/src/engine/export.ts`
+**Prompt:**
+> Build an import/export screen for Anki format. Import section: file picker for .apkg files, preview of detected decks with card count, field mapping UI (front/back/tags), and "Import" button. Use `parseAnkiPackage` and `mapAnkiFields` from `anki-import.ts`. Export section: deck selector, format choice (Anki .apkg, CSV, JSON), include/exclude scheduling data toggle, and "Export" button using the export engine. Show import/export history with timestamps and card counts.
+
+### FLASH-04: Forgetting Curve Visualization
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(flash)/forgetting-curve.tsx`
+- `apps/web/app/flash/forgetting/page.tsx`
+**Reference logic:**
+- `modules/flash/src/engine/forgetting-curve.ts`
+- `modules/flash/src/engine/analytics.ts`
+**Prompt:**
+> Build a forgetting curve visualization screen. Show an interactive chart of the user's actual retention rate vs. the theoretical Ebbinghaus forgetting curve. Use `calculateRetentionRate` and `getRetentionCurve` from `forgetting-curve.ts`. Display per-deck retention curves with different colors. Show key metrics: current retention rate, optimal review timing, memory strength distribution. Include an explanation section describing how spaced repetition combats the forgetting curve. Add a card-level view showing individual cards' retention trajectories.
+
+### FLASH-05: Session Intelligence Analytics
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(flash)/session-analytics.tsx`
+- `apps/web/app/flash/session-analytics/page.tsx`
+**Reference logic:**
+- `modules/flash/src/engine/analytics.ts`
+- `modules/flash/src/engine/session.ts`
+**Prompt:**
+> Build a session intelligence analytics screen. Show study session history with duration, cards reviewed, accuracy rate, and difficulty distribution per session. Display a calendar heatmap of study activity. Include time-of-day analysis (when the user studies best). Show average response time per difficulty level. Display a "focus score" per session based on response time consistency. Chart weekly review volume and accuracy trends. Include "best streak" and "total cards mastered" lifetime stats.
+
+### FLASH-06: Card Performance Stats Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(flash)/card-stats.tsx`
+- `apps/web/app/flash/card-stats/page.tsx`
+**Reference logic:**
+- `modules/flash/src/engine/analytics.ts`
+- `modules/flash/src/db/crud.ts`
+**Prompt:**
+> Build a per-card performance statistics screen. Show a searchable/filterable list of cards with: ease factor, interval, lapse count, average response time, and retention status (mature/learning/new). Sort options: hardest, most lapsed, longest interval, newest. Each card row is tappable to show a detail modal with review history timeline, response time chart, and ease factor progression. Include "Problem Cards" section highlighting leeches (cards with >X lapses). Add actions: reset card, suspend, delete.
+
+
+## Garden
+
+### GARDEN-01: Companion Planting Matrix Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(garden)/companion-matrix.tsx`
+- `apps/web/app/garden/companion-matrix/page.tsx`
+**Reference logic:**
+- `modules/garden/src/engine/companion.ts`
+- `modules/garden/src/engine/companion-data.ts`
+**Prompt:**
+> Build a full companion planting matrix screen. Display an interactive grid/table where rows and columns are plant types from `companion-data.ts`. Each cell shows a colored indicator: green (beneficial), red (antagonistic), gray (neutral). Tapping a cell shows the relationship reason. Include a search/filter to find specific plant combinations. Add a "Check My Garden" mode that highlights only the plants the user has added, showing any conflicts. Use the companion engine's `getCompanionScore` and `getRelationship` functions.
+
+### GARDEN-02: Plant Diagnosis Engine UI
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(garden)/diagnose.tsx` (exists, enhance)
+- `apps/web/app/garden/diagnose/page.tsx`
+**Reference logic:**
+- `modules/garden/src/engine/diagnosis.ts`
+- `modules/garden/src/engine/diagnosis-db.ts`
+**Prompt:**
+> Enhance the plant diagnosis screen. Build a step-by-step diagnostic wizard: 1) Select plant, 2) Choose affected part (leaf/stem/root/fruit/flower), 3) Describe symptoms via checklist (yellowing, spots, wilting, holes, mold), 4) Upload optional photo. Use the diagnosis engine to match symptoms to conditions from `diagnosis-db.ts`. Show ranked results with confidence score, condition name, description, treatment options, and prevention tips. Include a diagnosis history log per plant. Add a "Common Issues" quick-reference section.
+
+### GARDEN-03: Light Classification Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(garden)/light-meter.tsx` (exists, enhance)
+- `apps/web/app/garden/light/page.tsx`
+**Reference logic:**
+- `modules/garden/src/engine/light.ts`
+- `modules/garden/src/engine/light-classification.ts`
+**Prompt:**
+> Enhance the light meter screen with classification results. After measuring light levels, show the classification result from `light-classification.ts`: full sun / partial sun / partial shade / full shade, with lux ranges. Display a visual meter gauge. Show which of the user's plants are suitable for this light level and which are mismatched. Include a "Map Your Garden" feature where the user can save light readings per garden zone. Show plant recommendations sorted by light requirement match.
+
+### GARDEN-04: Propagation Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(garden)/propagation/[id].tsx` (exists, enhance)
+- `apps/web/app/garden/propagation/[id]/page.tsx`
+**Reference logic:**
+- `modules/garden/src/engine/propagation.ts`
+- `modules/garden/src/db/crud-v2.ts`
+**Prompt:**
+> Enhance the propagation detail screen. Show a timeline tracker for each propagation attempt: method (cutting/seed/division/layering), start date, current stage (planted/rooting/sprouting/established), expected timeline milestones from the propagation engine. Include a photo journal per propagation with dated entries. Show success rate statistics per method and plant type. Add stage transition buttons ("Mark as Rooted", "Mark as Sprouting"). Display care instructions specific to the propagation method and current stage.
+
+### GARDEN-05: Seasonal Task Generation Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(garden)/seasonal.tsx` (exists, enhance)
+- `apps/web/app/garden/seasonal/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/garden/src/engine/seasonal-data.ts`
+- `modules/garden/src/engine/frost.ts`
+**Prompt:**
+> Enhance the seasonal tasks screen. Generate a personalized task list based on the user's garden zone, current month, and planted items using `seasonal-data.ts`. Each task card shows: task name, affected plants, urgency (overdue/due-soon/upcoming), and instructions. Group tasks by category (planting/pruning/harvesting/preparation). Include frost date awareness from the frost engine: show days until first/last frost and frost-sensitive plant alerts. Add a "Complete" checkbox per task that tracks completion history.
+
+### GARDEN-06: Frost Date Calculator Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(garden)/frost.tsx` (exists, enhance)
+- `apps/web/app/garden/frost/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/garden/src/engine/frost.ts`
+- `modules/garden/src/engine/frost-data.ts`
+**Prompt:**
+> Enhance the frost date calculator. Show first and last frost dates for the user's zone from `frost-data.ts`. Display a visual timeline showing the frost-free growing season. Include a planting calendar that shows safe outdoor planting dates for each plant type based on frost dates. Show "start indoors" dates (X weeks before last frost). Add a frost alert section for upcoming cold snaps with plant protection recommendations. Display growing degree days calculation.
+
+
+## Habits
+
+### HABITS-01: Sobriety Clock Detail Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/sobriety-clock.tsx` (exists, enhance)
+- `apps/web/app/habits/sobriety/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/habits/src/sobriety/engine.ts`
+- `modules/habits/src/sobriety/craving-engine.ts`
+- `modules/habits/src/db/sobriety.ts`
+**Prompt:**
+> Enhance the sobriety clock screen with rich detail. Show a large animated counter (days/hours/minutes/seconds since sobriety date). Display milestone badges earned and upcoming milestones. Add a "Money Saved" calculator based on daily spend before sobriety. Show health recovery timeline (e.g., "After 72 hours: nicotine leaves body"). Include a motivational quote rotation. Display a calendar view highlighting sober days. Add an emergency "I'm Struggling" button linking to craving analysis (HABITS-02).
+
+### HABITS-02: Craving Analysis Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/craving-insights.tsx` (exists, enhance)
+- `apps/web/app/habits/cravings/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/habits/src/sobriety/craving-engine.ts`
+- `modules/habits/src/db/cravings.ts`
+**Prompt:**
+> Enhance the craving insights screen. Show craving frequency chart over time (daily/weekly/monthly). Display trigger analysis: most common triggers, time-of-day patterns, location patterns, and intensity trends. Use the craving engine to identify peak craving times and suggest coping strategies. Show a "Craving Surfing" timer (cravings typically pass in 15-20 min). Include distraction suggestions. Display stats: average craving intensity trend, longest craving-free streak, total cravings resisted.
+
+### HABITS-03: Focus Timer Analytics Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/focus-analytics.tsx`
+- `apps/web/app/habits/focus/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/habits/src/focus/engine.ts`
+- `modules/habits/src/db/focus.ts`
+- `modules/habits/src/db/timed-sessions.ts`
+**Prompt:**
+> Build a focus timer analytics screen. Show total focus time (today/week/month), session count, average session duration, and longest session. Display a calendar heatmap of focus activity. Chart focus time by tag/project. Show time-of-day productivity analysis (when the user focuses best). Include Pomodoro stats: completed pomodoros, average break adherence. Display a "deep work" score based on uninterrupted sessions >25min. Compare current week to previous week with delta indicators.
+
+### HABITS-04: Habit Stacking Recommendations
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/stacking.tsx`
+- `apps/web/app/habits/stacking/page.tsx`
+**Reference logic:**
+- `modules/habits/src/stacking/engine.ts`
+- `modules/habits/src/db/stacking.ts`
+**Prompt:**
+> Build a habit stacking screen. Show current habit stacks (chains of habits linked together, e.g., "After morning coffee -> meditate -> journal"). Use the stacking engine to suggest new stacks based on habit timing patterns and completion correlations. Each stack shows the chain of habits with completion rates. Include a builder UI to create new stacks by dragging habits into sequence. Show stack success rate vs individual habit success rate. Display a "best time to stack" recommendation based on historical data.
+
+### HABITS-05: Location-Based Reminders Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/locations.tsx`
+- `apps/web/app/habits/locations/page.tsx`
+**Reference logic:**
+- `modules/habits/src/location/engine.ts`
+- `modules/habits/src/db/location.ts`
+**Prompt:**
+> Build a location-based reminders screen. Show a map with geofence circles for each location reminder. Each pin shows the associated habit and trigger type (enter/exit/dwell). Include an "Add Location Reminder" form: search for location, set radius, pick habit, choose trigger type. Show location reminder history (triggered/missed). Display a list view as alternative to the map. Use the location engine for geofence calculations. Include a "Home" and "Work" quick-set for common locations.
+
+### HABITS-06: RPG Progression Detail Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/rpg.tsx`
+- `apps/web/app/habits/rpg/page.tsx`
+**Reference logic:**
+- `modules/habits/src/rpg/engine.ts`
+- `modules/habits/src/db/rpg.ts`
+**Prompt:**
+> Build an RPG progression detail screen. Show character avatar, level, XP bar (current/next level), and stat breakdown (consistency, streak power, diversity, social). Display a skill tree visualization where completing habits unlocks abilities/perks. Show recent XP gains with source habit. Include a leaderboard (local/global toggle). Display achievements/titles earned. Use the RPG engine's leveling calculations and stat formulas. Add a "Quest Board" showing active daily/weekly quests tied to habit goals.
+
+### HABITS-07: Pet Companion Detail Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/pet-detail.tsx` (exists, enhance)
+- `apps/web/app/habits/pet/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/habits/src/pet/engine.ts`
+- `modules/habits/src/db/pet.ts`
+**Prompt:**
+> Enhance the pet companion screen. Show a larger animated pet with mood states (happy/neutral/sad/sleeping) driven by habit completion rates from the pet engine. Display pet stats: happiness, energy, hunger (all tied to habit metrics). Show pet growth stages unlocked by streak milestones. Include a "Feed" action (triggered by completing habits) with animation. Display pet history timeline showing mood changes. Add pet customization (name, accessories earned from achievements). Show "pet needs" alerts when habits are falling behind.
+
+### HABITS-08: Program Curriculum Detail Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/program-detail.tsx` (exists, enhance)
+- `apps/web/app/habits/programs/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/habits/src/challenges/engine.ts`
+- `modules/habits/src/db/challenges.ts`
+**Prompt:**
+> Enhance the program curriculum screen. Show program overview (name, duration, description), current day/week progress, daily tasks checklist, and upcoming milestones. Each day shows required habits with completion status. Include a weekly review summary showing adherence percentage. Display a progress path visualization (day 1 -> graduation). Show community stats (how many users completed this program). Add program curriculum browser with categories (30-day challenges, wellness programs, productivity programs). Include a "Restart Program" option.
+
+### HABITS-09: Badge Gallery Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/badge-gallery.tsx` (exists, enhance)
+- `apps/web/app/habits/badges/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/habits/src/badges/engine.ts`
+- `modules/habits/src/db/badges.ts`
+**Prompt:**
+> Enhance the badge gallery screen. Show all badges in a grid layout, earned badges in full color and locked badges grayed out with progress toward unlock. Each badge shows: icon, name, description, earned date (or progress percentage). Group badges by category: streaks, milestones, challenges, social, special events. Include a "Featured" section for rarest badges. Tapping a badge shows a detail modal with full-size badge art, earn conditions, date earned, and share button. Show total badges count and completion percentage.
+
+### HABITS-10: HealthKit Integration Settings
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(habits)/healthkit.tsx`
+**Reference logic:**
+- `modules/habits/src/healthkit/bridge.ts`
+- `modules/habits/src/healthkit/data-sources.ts`
+- `modules/habits/src/db/healthkit-links.ts`
+**Prompt:**
+> Build a HealthKit integration settings screen (mobile only). Show a list of available HealthKit data types (steps, sleep, water, workouts, mindful minutes) with toggle switches. Each enabled type shows the linked habit and sync status. Include "Link Habit" picker per data type that maps HealthKit data to automatic habit completion. Show sync history (last sync time, records synced). Use the HealthKit bridge for permission requests and data reading. Display a "Test Sync" button and sync conflict resolution options.
+
+
+## Health
+
+### HEALTH-01: HRV Analytics Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/hrv.tsx`
+- `apps/web/app/health/hrv/page.tsx`
+**Reference logic:**
+- `modules/health/src/hrv/analysis.ts`
+- `modules/health/src/healthkit/adapter.ts`
+**Prompt:**
+> Build an HRV analytics dashboard. Show current HRV reading, 7-day average, 30-day trend line, and personal baseline. Use the HRV analysis module for RMSSD, SDNN, and pNN50 calculations. Display HRV in context: stress level indicator (low HRV = high stress), recovery status, and training readiness. Show time-of-day HRV patterns. Include a correlation section showing HRV vs sleep quality, exercise, and alcohol/caffeine. Display a "Your HRV Explained" educational card.
+
+### HEALTH-02: Sleep Stage Breakdown Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/sleep-stages.tsx`
+- `apps/web/app/health/sleep/stages/page.tsx`
+**Reference logic:**
+- `modules/health/src/sleep/analysis.ts`
+- `modules/health/src/sleep/hr-analysis.ts`
+- `modules/health/src/sleep/crud.ts`
+**Prompt:**
+> Build a sleep stage breakdown screen. Show a hypnogram (sleep stage timeline: awake/REM/light/deep) for last night with color coding. Display stage duration percentages and compare to ideal ranges (Deep: 15-20%, REM: 20-25%). Show sleep efficiency score from the analysis engine. Include heart rate overlay on the hypnogram from `hr-analysis.ts`. Display a 7-day sleep composition stacked bar chart. Show a "Sleep Score" breakdown explaining each component. Add time-in-bed vs actual sleep comparison.
+
+### HEALTH-03: Breathing Coach Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/breathing.tsx`
+- `apps/web/app/health/breathing/page.tsx`
+**Reference logic:**
+- `modules/health/src/breathing/engine.ts`
+- `modules/health/src/breathing/crud.ts`
+**Prompt:**
+> Build an interactive breathing coach screen. Show animated breathing circle that expands (inhale) and contracts (exhale) with configurable patterns from the breathing engine: 4-7-8, box breathing, coherent breathing, Wim Hof. Display session timer, breath count, and estimated heart rate effect. Include haptic feedback on mobile. Show session history with duration and pattern used. Add a "Quick Calm" 1-minute preset. Display a post-session calm score. Include ambient sound options (ocean, rain, silence).
+
+### HEALTH-04: Readiness Score Explanation Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/readiness.tsx`
+- `apps/web/app/health/readiness/page.tsx`
+**Reference logic:**
+- `modules/health/src/readiness/engine.ts`
+- `modules/health/src/readiness/crud.ts`
+**Prompt:**
+> Build a readiness score explanation screen. Show the overall readiness score (0-100) as a large gauge with color zones. Break down the score into contributing factors from the readiness engine: sleep quality, HRV, recovery time, activity balance, resting heart rate. Each factor shows its sub-score, trend arrow (improving/declining), and weight in the overall calculation. Include daily readiness history chart. Show actionable recommendations ("Your sleep was short; consider a rest day"). Display readiness vs actual activity correlation.
+
+### HEALTH-05: HealthKit Granular Controls Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/health-sync-settings.tsx` (exists, enhance)
+- `apps/web/app/health/sync/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/health/src/healthkit/permissions.ts`
+- `modules/health/src/healthkit/sync.ts`
+- `modules/health/src/settings/index.ts`
+**Prompt:**
+> Enhance the HealthKit sync settings with granular per-data-type controls. Show a categorized list of data types (Activity, Body, Heart, Sleep, Nutrition, Mindfulness) with individual read/write toggle switches per type. Display sync frequency options (real-time, hourly, daily). Show data source priority ordering (which app's data takes precedence). Include a "Sync Now" button per category with progress indicator. Display last sync timestamp and record count per type. Show storage usage. Add a "Data Quality" indicator per type based on dedup results from `aggregation/dedup.ts`.
+
+### HEALTH-06: Grounding Techniques Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/grounding.tsx`
+- `apps/web/app/health/grounding/page.tsx`
+**Reference logic:**
+- `modules/health/src/sos/grounding.ts`
+- `modules/health/src/sos/crud.ts`
+**Prompt:**
+> Build a grounding techniques screen for anxiety/panic management. Show a collection of guided grounding exercises from `grounding.ts`: 5-4-3-2-1 sensory technique (with step-by-step prompts), body scan, progressive muscle relaxation, cold water technique. Each exercise shows estimated duration and difficulty. Include an "I Need Help Now" emergency quick-access that starts the 5-4-3-2-1 exercise immediately. Track completed exercises with timestamps. Show a calming color palette and large, readable text. Include a favorites system for preferred techniques.
+
+### HEALTH-07: Smart Alarm Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/smart-alarm.tsx`
+**Reference logic:**
+- `modules/health/src/smart-alarm/engine.ts`
+- `modules/health/src/smart-alarm/crud.ts`
+**Prompt:**
+> Build a smart alarm configuration screen (mobile only, needs background wake). Show alarm time with a "smart window" slider (e.g., wake me between 6:30-7:00 during light sleep). Use the smart alarm engine to configure wake conditions: light sleep detection, movement detection, optimal wake phase. Display tomorrow's predicted best wake time based on typical sleep patterns. Show alarm history with actual wake times and sleep phase at wake. Include sound/vibration customization, snooze settings, and weekday/weekend schedule. Display a "sleep debt" indicator suggesting optimal alarm time.
+
+### HEALTH-08: Snore Detection Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/snore.tsx`
+- `apps/web/app/health/snore/page.tsx`
+**Reference logic:**
+- `modules/health/src/snore/engine.ts`
+- `modules/health/src/snore/crud.ts`
+**Prompt:**
+> Build a snore detection results screen. Show last night's snore detection results: total snoring duration, snoring episodes count, intensity levels (mild/moderate/severe), and audio clips of detected snoring events. Display a night timeline showing when snoring occurred overlaid on sleep stages. Show 7-day and 30-day snoring trends. Include body position correlation if available. Display snoring score (0-100, lower is better). Add recommendations based on patterns (e.g., "Snoring increases when sleeping on your back"). Include a "Record Tonight" setup button.
+
+### HEALTH-09: Body Composition Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/body-composition.tsx`
+- `apps/web/app/health/body/page.tsx`
+**Reference logic:**
+- `modules/health/src/body/engine.ts`
+- `modules/health/src/body/crud.ts`
+**Prompt:**
+> Build a body composition tracking screen. Show current measurements: weight, body fat %, muscle mass, BMI, waist circumference, and derived metrics from the body engine. Display trend charts for each metric over 3/6/12 month views. Include a body silhouette visualization with measurement points. Show goal tracking with target weight/body fat and progress percentage. Add a "Log Measurement" form. Include BMI category indicator and healthy range bands on charts. Display rate of change (e.g., "-0.5 lbs/week") and projected goal date.
+
+### HEALTH-10: Activity Analytics Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(health)/activity.tsx`
+- `apps/web/app/health/activity/page.tsx`
+**Reference logic:**
+- `modules/health/src/activity/engine.ts`
+- `modules/health/src/activity/crud.ts`
+**Prompt:**
+> Build an activity analytics dashboard. Show daily step count with goal ring, active calories, exercise minutes, standing hours (Apple Watch style rings). Display weekly activity summary with day-by-day comparison. Include activity type breakdown (walking, running, cycling, etc.) with duration and calorie charts. Show movement alerts history (hourly stand reminders). Display personal records (most steps, longest workout, highest calorie burn). Include a 30-day activity trend with goal adherence percentage. Integrate with the health score engine for activity's contribution to overall health.
+
+
+## Homes
+
+### HOMES-01: Maintenance Cost Predictor Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/cost-predictor.tsx`
+- `apps/web/app/homes/cost-predictor/page.tsx`
+**Reference logic:**
+- `modules/homes/src/engines/cost-engine.ts`
+- `modules/homes/src/db/cost-entries.ts`
+**Prompt:**
+> Build a maintenance cost predictor screen. Show predicted annual maintenance costs broken down by category (HVAC, plumbing, electrical, structural, landscaping) using the cost engine's forecasting functions. Display a timeline of upcoming predicted expenses based on appliance ages and maintenance schedules. Show historical spending vs predicted spending chart. Include a "1% rule" indicator (annual maintenance should be ~1% of home value). Display a 5-year cost forecast. Add per-appliance replacement cost estimates based on age and expected lifespan.
+
+### HOMES-02: Contractor Management Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/contractor/[id].tsx` (exists, enhance)
+- `apps/web/app/homes/contractors/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/homes/src/engines/contractor-engine.ts`
+- `modules/homes/src/db/contractors.ts`
+- `modules/homes/src/db/contractor-services.ts`
+**Prompt:**
+> Enhance the contractor management screen. Show a contractor directory with name, specialty, rating, phone, email, and job history. Each contractor card shows total spent, number of jobs, average rating. Include a search/filter by specialty (plumber, electrician, HVAC, general). Add a "Rate Contractor" form with star rating and notes. Show contractor availability and preferred contact method. Link contractors to completed projects and maintenance records. Use the contractor engine for rating aggregation and recommendation sorting. Add a "Find Contractor" section for needed specialties.
+
+### HOMES-03: Insurance Tracker Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/insurance/[id].tsx` (exists, enhance)
+- `apps/web/app/homes/insurance/page.tsx`
+**Reference logic:**
+- `modules/homes/src/engines/insurance-engine.ts`
+- `modules/homes/src/db/insurance.ts`
+**Prompt:**
+> Enhance the insurance tracker. Show all insurance policies per property with: policy number, provider, coverage amount, deductible, premium (monthly/annual), renewal date, and status (active/expiring/expired). Display coverage gap analysis from the insurance engine. Show claim history with date, amount, status, and resolution. Include premium comparison over time chart. Add document storage for policy PDFs. Show a renewal timeline for the next 12 months. Include a "Coverage Review" checklist suggesting common coverage gaps (flood, earthquake, umbrella).
+
+### HOMES-04: Inventory Asset Tagging Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/inventory/item/[id].tsx` (exists, enhance)
+- `apps/web/app/homes/inventory/page.tsx`
+**Reference logic:**
+- `modules/homes/src/engines/inventory-engine.ts`
+- `modules/homes/src/db/inventory.ts`
+**Prompt:**
+> Enhance the inventory item detail with asset tagging. Show item photo, name, category, purchase date, purchase price, current estimated value, serial number, model number, and room location. Add a barcode/QR scanner for quick item lookup. Include warranty information with expiration tracking from HOMES-05. Display depreciation estimate based on item age and category. Add custom tag fields for organization. Include a "For Insurance" flag that marks high-value items for insurance documentation. Show a room-by-room inventory summary with total value per room.
+
+### HOMES-05: Warranty Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/warranties.tsx`
+- `apps/web/app/homes/warranties/page.tsx`
+**Reference logic:**
+- `modules/homes/src/engines/appliance-engine.ts`
+- `modules/homes/src/db/appliances.ts`
+**Prompt:**
+> Build a warranty tracking screen. Show all appliances and major items with warranty status: item name, purchase date, warranty end date, days remaining, and status badge (active/expiring-soon/expired). Sort by "expiring soonest" by default. Each warranty card shows manufacturer, model, serial number, and warranty document link. Include an "Add Warranty" form with photo capture for warranty cards/receipts. Show a calendar view of warranty expirations. Add notification settings for approaching expirations (30/60/90 day alerts). Display extended warranty options tracking.
+
+### HOMES-06: Project Dependencies Visualization
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/project/dependencies.tsx`
+- `apps/web/app/homes/projects/dependencies/page.tsx`
+**Reference logic:**
+- `modules/homes/src/engines/project-engine.ts`
+- `modules/homes/src/db/projects.ts`
+- `modules/homes/src/db/project-phases.ts`
+**Prompt:**
+> Build a project dependencies screen. Show a Gantt-style timeline of active home improvement projects with phase dependencies. Each project shows phases with start/end dates, status (planned/in-progress/blocked/complete), and dependency arrows. Use the project engine to detect dependency conflicts (e.g., "Kitchen tile can't start until plumbing is done"). Include a critical path highlight. Show budget tracking per project phase. Add a "What-If" slider to see how delaying one phase affects downstream tasks. Display a combined timeline across all projects.
+
+### HOMES-07: Cost Forecasting Dashboard
+**Depends on:** HOMES-01
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/forecasting.tsx`
+- `apps/web/app/homes/forecasting/page.tsx`
+**Reference logic:**
+- `modules/homes/src/engines/cost-engine.ts`
+- `modules/homes/src/db/cost-entries.ts`
+**Prompt:**
+> Build a cost forecasting dashboard. Show monthly/annual spending projections based on historical data and scheduled maintenance. Display category-level forecasts (routine maintenance, repairs, improvements, utilities). Include a budget vs actual comparison with variance highlighting. Show a "surprise expense" reserve recommendation (based on home age and historical unexpected costs). Display ROI estimates for improvement projects. Add a savings goal calculator for planned renovations with monthly savings targets.
+
+### HOMES-08: Document Organization Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(homes)/document/index.tsx` (exists, enhance)
+- `apps/web/app/homes/documents/page.tsx`
+**Reference logic:**
+- `modules/homes/src/engines/document-engine.ts`
+- `modules/homes/src/db/documents.ts`
+**Prompt:**
+> Enhance the document management screen. Show documents organized by category: deeds/titles, insurance policies, warranties, permits, receipts, inspection reports, floor plans, photos. Each document shows thumbnail, name, date, category, and linked property. Include a multi-file upload with auto-categorization suggestions from the document engine. Add full-text search across document names and tags. Show a "Missing Documents" checklist per property (common documents every homeowner should have). Include document expiration tracking for time-sensitive docs (permits, insurance).
+
+
+## Journal
+
+### JOURNAL-01: Voice Recording UI
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/voice-entry.tsx`
+- `apps/web/app/journal/voice/page.tsx`
+**Reference logic:**
+- `modules/journal/src/voice/recorder.ts`
+- `modules/journal/src/voice/transcriber.ts`
+- `modules/journal/src/db/voice.ts`
+**Prompt:**
+> Build a voice journal entry screen. Show a large record button with waveform visualization during recording. Display recording duration timer. After recording, show playback controls with waveform scrubber. Include a transcription section that converts speech to text using the transcriber engine. Allow editing the transcription before saving. Show a "Save as Entry" button that creates a journal entry with both audio attachment and text transcription. Display voice entry history with duration and transcription preview.
+
+### JOURNAL-02: CBT Thought Records Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/cbt.tsx`
+- `apps/web/app/journal/cbt/page.tsx`
+**Reference logic:**
+- `modules/journal/src/cbt/cbt-engine.ts`
+- `modules/journal/src/cbt/distortions.ts`
+- `modules/journal/src/db/cbt.ts`
+**Prompt:**
+> Build a CBT thought record screen. Guide the user through a step-by-step thought record process: 1) Situation (what happened), 2) Automatic thought (what you thought), 3) Emotion (what you felt, intensity 0-100), 4) Cognitive distortion identification (checklist from `distortions.ts`: all-or-nothing, catastrophizing, mind-reading, etc.), 5) Rational response (balanced alternative thought), 6) New emotion (re-rated intensity). Use the CBT engine for distortion detection suggestions. Show thought record history with distortion frequency analysis.
+
+### JOURNAL-03: Therapy Templates Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/therapy-templates.tsx`
+- `apps/web/app/journal/therapy/page.tsx`
+**Reference logic:**
+- `modules/journal/src/therapy/templates.ts`
+- `modules/journal/src/therapy/session-engine.ts`
+- `modules/journal/src/db/therapy.ts`
+**Prompt:**
+> Build a therapy templates screen. Show a categorized grid of therapy journal templates from `templates.ts`: gratitude practice, anxiety log, mood diary, relationship reflection, grief processing, self-compassion letter, anger management, goal setting. Each template shows a preview with guided prompts. Tapping a template opens a pre-structured entry form with the template's sections. Include a "My Templates" section for user-created custom templates. Track template usage stats (most used, completion rates). Add a session log for therapy appointments with notes.
+
+### JOURNAL-04: AI Writing Prompts Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/ai-prompts.tsx`
+- `apps/web/app/journal/prompts/page.tsx`
+**Reference logic:**
+- `modules/journal/src/ai-prompts/prompt-engine.ts`
+- `modules/journal/src/ai-prompts/themes.ts`
+**Prompt:**
+> Build an AI writing prompts screen. Show a daily featured prompt from the prompt engine, themed by category from `themes.ts` (self-discovery, creativity, gratitude, future-self, relationships, challenges). Include a "Shuffle" button for new prompt, category filter tabs, and a "Favorites" bookmark system. Display prompt history showing which prompts the user has written about. Show a "Streak" indicator for consecutive days of prompted writing. Include seasonal/holiday themed prompts. Add difficulty levels (light reflection, deep exploration, creative challenge).
+
+### JOURNAL-05: Philosophy Quotes and Affirmations Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/philosophy.tsx`
+- `apps/web/app/journal/philosophy/page.tsx`
+**Reference logic:**
+- `modules/journal/src/philosophy/quote-engine.ts`
+- `modules/journal/src/affirmations/index.ts`
+- `modules/journal/src/affirmations/selection.ts`
+**Prompt:**
+> Build a philosophy quotes and affirmations screen. Show a daily quote from the quote engine with author attribution and philosophical tradition tag (Stoicism, Buddhism, Existentialism, etc.). Include a "Reflect on This" button that opens a journal entry pre-filled with the quote. Show an affirmations section with daily affirmations from the selection engine, customizable per user preference. Include a quote collection/favorites system. Display a "Quote of the Day" widget-style card on the journal home. Add categories: morning affirmations, evening reflections, anxiety relief, confidence building.
+
+### JOURNAL-06: Grid Layouts Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/grid.tsx`
+- `apps/web/app/journal/grid/page.tsx`
+**Reference logic:**
+- `modules/journal/src/grid/grid-engine.ts`
+- `modules/journal/src/grid/types.ts`
+**Prompt:**
+> Build a grid layout journal view. Show entries in a Pinterest-style masonry grid with photo thumbnails, entry titles, mood indicators, and date stamps. Use the grid engine for layout calculations. Include filter options: by date range, mood, tags, and entry type (text/voice/photo). Add a "Gallery Mode" toggle for photo-heavy entries. Show mood color coding on grid cards. Include search within the grid view. Display entry word count and reading time on each card. Support drag-to-rearrange for custom curation of featured entries.
+
+### JOURNAL-07: Vision Board Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/vision-board.tsx`
+- `apps/web/app/journal/vision-board/page.tsx`
+**Reference logic:**
+- `modules/journal/src/vision-board/board-engine.ts`
+- `modules/journal/src/vision-board/types.ts`
+**Prompt:**
+> Build a vision board screen. Show a freeform canvas where users can add: images (from camera/library), text blocks, stickers, and color backgrounds. Use the board engine for layout persistence and item positioning. Include zoom/pan on the canvas. Show multiple boards with thumbnails in a gallery. Add a "New Board" wizard with theme templates (career goals, travel dreams, fitness goals, relationships). Include a "Daily Inspiration" view that shows a random board item. Support board sharing as image export.
+
+### JOURNAL-08: Book Builder Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/book-builder.tsx`
+- `apps/web/app/journal/book/page.tsx`
+**Reference logic:**
+- `modules/journal/src/book-builder/index.ts`
+- `modules/journal/src/book-builder/page-layout.ts`
+**Prompt:**
+> Build a journal book builder screen. Allow users to compile journal entries into a printable/exportable book. Show a book outline with chapters (auto-grouped by month or custom). Include page layout options from `page-layout.ts`: single entry per page, collage, timeline. Display a book preview with page thumbnails. Add a cover designer with title, subtitle, and cover image. Include export options: PDF, print-ready format. Show book statistics (pages, word count, photo count, date range). Allow reordering entries within chapters via drag-and-drop.
+
+### JOURNAL-09: Writing Insights Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/writing-insights.tsx`
+- `apps/web/app/journal/insights/page.tsx`
+**Reference logic:**
+- `modules/journal/src/engine/writing-insights.ts`
+- `modules/journal/src/engine/stats.ts`
+**Prompt:**
+> Build a writing insights dashboard. Show word count trends (daily/weekly/monthly), average entry length, vocabulary diversity score, and most-used words (word cloud). Use the writing insights engine for tone analysis (positive/negative/neutral trend over time). Display writing streaks and consistency metrics. Show time-of-day writing patterns. Include readability scores. Display emotional vocabulary evolution (are entries becoming more nuanced?). Add "writing goals" with daily word count targets and progress tracking. Show a "Year in Review" summary.
+
+### JOURNAL-10: Therapeutic Progress Tracker
+**Depends on:** JOURNAL-02
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/therapy-progress.tsx`
+- `apps/web/app/journal/therapy/progress/page.tsx`
+**Reference logic:**
+- `modules/journal/src/engine/therapeutic-progress.ts`
+- `modules/journal/src/therapy/session-engine.ts`
+**Prompt:**
+> Build a therapeutic progress tracking screen. Show progress metrics over time: mood trend, anxiety level trend, thought record completion rate, cognitive distortion frequency changes, and coping skill usage. Use the therapeutic progress engine to generate insights like "Your catastrophizing has decreased 40% this month." Display a therapy session log with notes and homework tracking. Show goal progress (therapy goals set by user). Include a "Progress Report" export function for sharing with a therapist. Display milestone celebrations (e.g., "50th thought record completed").
+
+### JOURNAL-11: On-This-Day Nostalgia Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(journal)/on-this-day.tsx`
+- `apps/web/app/journal/on-this-day/page.tsx`
+**Reference logic:**
+- `modules/journal/src/engine/nostalgia.ts`
+- `modules/journal/src/db/crud.ts`
+**Prompt:**
+> Build an "On This Day" nostalgia screen. Show journal entries from the same date in previous years, displayed as a timeline. Each entry card shows the year, a preview snippet, mood, and any photos. Use the nostalgia engine for content selection and ranking. Include a "Memories" notification setting for daily reminders. Show a "This Week in History" section for nearby dates. Add a "Rediscover" random entry feature. Include sharing capabilities for individual memories. Display a yearly comparison of how the user's writing has evolved on this date.
+
+
+## Mail
+
+### MAIL-01: Email Filters and Rules Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(mail)/filters/index.tsx` (exists, enhance)
+- `apps/mobile/app/(mail)/filters/edit.tsx` (exists, enhance)
+- `apps/web/app/mail/filters/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/mail/src/engine/filters.ts`
+- `modules/mail/src/db/crud-v2.ts`
+**Prompt:**
+> Enhance the email filters screen. Show a list of active filter rules with: name, conditions summary, action summary, enabled/disabled toggle, and match count. The filter editor shows condition builder: from/to/subject/body contains/matches fields with AND/OR logic. Actions: move to folder, apply label, mark read, archive, delete, forward. Use the filters engine for rule evaluation logic. Include a "Test Rule" button that previews which existing emails would match. Add rule priority ordering via drag-and-drop. Show recently triggered rules with timestamps.
+
+### MAIL-02: Calendar Integration Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(mail)/calendar-events.tsx` (exists, enhance)
+- `apps/web/app/mail/calendar/page.tsx`
+**Reference logic:**
+- `modules/mail/src/engine/calendar.ts`
+- `modules/mail/src/types.ts`
+**Prompt:**
+> Enhance the calendar integration screen. Show extracted calendar events from emails: flight confirmations, meeting invites, appointment reminders, delivery dates. Use the calendar engine to parse event data from email content. Each event card shows: title, date/time, location, source email link, and "Add to Calendar" button. Display a month calendar view with email-derived events marked. Include auto-detection settings (which email patterns to scan). Show a feed of newly detected events awaiting confirmation.
+
+### MAIL-03: Contacts Extraction Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(mail)/contacts/index.tsx` (exists, enhance)
+- `apps/web/app/mail/contacts/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/mail/src/engine/contacts.ts`
+- `modules/mail/src/db/crud-v2.ts`
+**Prompt:**
+> Enhance the contacts screen. Show a smart contacts list extracted from email correspondence using the contacts engine. Each contact shows: name, email, last contact date, message count, and relationship strength indicator. Include search and alphabetical index. Show recent contacts, frequent contacts, and "Haven't heard from" sections. Display contact detail with conversation history, extracted phone numbers, and organization. Add a "Merge Duplicates" feature for contacts detected as same person. Include contact groups and export to vCard.
+
+### MAIL-04: Encryption Key Management Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(mail)/encryption/index.tsx` (exists, enhance)
+- `apps/mobile/app/(mail)/encryption/add.tsx` (exists, enhance)
+- `apps/web/app/mail/encryption/page.tsx`
+**Reference logic:**
+- `modules/mail/src/engine/encryption.ts`
+**Prompt:**
+> Enhance the encryption key management screen. Show a list of PGP/GPG keys: user's own keys (public + private) and imported contact public keys. Each key shows: fingerprint, email, expiration date, trust level, and key size. Include "Generate New Key Pair" wizard with key size selection and passphrase. Add "Import Key" from file or keyserver search. Show encryption status per contact (encrypted/unencrypted). Include a key verification flow (fingerprint comparison). Display key expiration warnings. Add "Export Public Key" and "Revoke Key" actions. Use the encryption engine for key operations.
+
+### MAIL-05: Multi-Account Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(mail)/accounts/index.tsx` (exists, enhance)
+- `apps/web/app/mail/accounts/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/mail/src/engine/imap.ts`
+- `modules/mail/src/db/crud-v2.ts`
+**Prompt:**
+> Enhance the multi-account dashboard. Show a unified inbox view with account color-coding and per-account sidebar sections. Each account card shows: email address, provider icon, unread count, storage usage, and sync status. Include account health indicators (connection status, last sync, error flags). Display a combined statistics view: total emails, response rate, busiest hours. Add "Unified Search" across all accounts. Show a "Switch Account" quick-select in the inbox toolbar. Include account-specific settings (signature, sync frequency, notification preferences). Handle IMAP connection errors gracefully with retry UI.
+
+### MAIL-06: Email Templates Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(mail)/templates.tsx`
+- `apps/web/app/mail/templates/page.tsx`
+**Reference logic:**
+- `modules/mail/src/engine/search.ts`
+- `modules/mail/src/db/crud-v2.ts`
+**Prompt:**
+> Build an email templates screen. Show a grid of saved email templates with: name, preview, category (business/personal/follow-up/thank-you), and last used date. Include a template editor with subject, body (rich text), and variable placeholders ({{name}}, {{date}}, {{company}}). Add "Use Template" action that opens compose with template pre-filled. Include built-in starter templates for common scenarios. Show template usage statistics. Add duplicate and edit functionality. Support organizing templates into folders/categories.
+
+### MAIL-07: Draft Scheduling Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(mail)/schedule-send.tsx`
+- `apps/web/app/mail/scheduled/page.tsx`
+**Reference logic:**
+- `modules/mail/src/engine/notifications.ts`
+- `modules/mail/src/db/crud-v2.ts`
+**Prompt:**
+> Build a draft scheduling screen. Show a list of scheduled drafts with: recipient, subject, scheduled send time, and status (pending/sent/failed). Include a scheduler in the compose flow: "Send Later" button with date/time picker and suggested optimal times (based on recipient's timezone and typical response patterns). Display a calendar view of scheduled sends. Add "Reschedule" and "Cancel Schedule" actions per draft. Show sent confirmation with delivery status. Include a "Snooze" feature for received emails that resurfaces them at a chosen time.
+
+
+## Market
+
+### MARKET-01: Encrypted Messaging Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(market)/messages.tsx` (exists, enhance)
+- `apps/web/app/market/messages/page.tsx`
+**Reference logic:**
+- `modules/market/src/crypto/secure-messaging.ts`
+- `modules/market/src/encryption.ts`
+**Prompt:**
+> Enhance the marketplace messaging screen with end-to-end encryption. Show a conversation list with buyer/seller, listing thumbnail, last message preview, and encryption status badge. Each conversation thread shows messages with sender avatar, timestamp, and read receipts. Use the secure-messaging engine for E2E encryption. Include a message composer with text, image attachment, and offer/counter-offer actions. Show a "Make Offer" button that sends a structured price offer within the chat. Display a security indicator showing encryption is active. Include listing context card at the top of each conversation.
+
+### MARKET-02: Payment Flow Screen (Stripe Connect)
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(market)/checkout.tsx`
+- `apps/web/app/market/checkout/page.tsx`
+**Reference logic:**
+- `modules/market/src/payments/stripe-connect.ts`
+- `modules/market/src/payments/orchestrator.ts`
+**Prompt:**
+> Build the marketplace payment flow screen. Show a checkout summary: item photo, title, price, shipping cost, total. Include Stripe payment form integration (card input, Apple Pay, Google Pay) using the Stripe Connect flow. Display seller info and buyer protection policy. Use the payment orchestrator for escrow flow: payment held until delivery confirmed. Show payment processing states (pending/processing/complete/failed). Include a receipt view after payment. Add a "Pay with Wallet" option for stored payment methods. Display estimated delivery date.
+
+### MARKET-03: Dispute Resolution Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(market)/dispute/[id].tsx`
+- `apps/web/app/market/disputes/page.tsx`
+**Reference logic:**
+- `modules/market/src/disputes/engine.ts`
+- `modules/market/src/disputes/index.ts`
+**Prompt:**
+> Build a dispute resolution screen. Show open disputes with: order info, dispute reason (item not received, item not as described, damaged, etc.), status timeline (opened/under-review/resolved), and messages between parties. Use the disputes engine for status management and resolution flow. Include a "File Dispute" wizard: select order, choose reason, describe issue, upload evidence photos. Show resolution options (refund, partial refund, return item). Display dispute history with outcomes. Add a 72-hour auto-escalation countdown for unresponsive parties.
+
+### MARKET-04: Shipping Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(market)/tracking/[id].tsx`
+- `apps/web/app/market/tracking/page.tsx`
+**Reference logic:**
+- `modules/market/src/shipping/tracking.ts`
+- `modules/market/src/shipping/index.ts`
+**Prompt:**
+> Build a shipping tracking screen. Show all active shipments with: order info, carrier, tracking number, current status, and estimated delivery date. Each shipment shows a step-by-step tracking timeline (label created -> picked up -> in transit -> out for delivery -> delivered) with timestamps and locations. Use the shipping tracking engine for carrier API integration. Include a map view showing current package location. Display delivery confirmation with signature/photo if available. Add push notification preferences for tracking updates.
+
+### MARKET-05: Seller Verification Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(market)/verification.tsx`
+- `apps/web/app/market/verification/page.tsx`
+**Reference logic:**
+- `modules/market/src/verification/engine.ts`
+- `modules/market/src/verification/index.ts`
+**Prompt:**
+> Build a seller verification screen. Show the verification process steps: 1) Email verification, 2) Phone verification (SMS code), 3) ID verification (photo upload), 4) Payment method setup. Each step shows completion status. Use the verification engine for verification level logic. Display current verification level badge (unverified, basic, verified, trusted). Show trust score breakdown: verification level, transaction history, response rate, dispute rate. Include a "View My Seller Profile" preview showing how buyers see the profile. Display verification benefits per level.
+
+### MARKET-06: Service Offerings Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(market)/services.tsx`
+- `apps/web/app/market/services/page.tsx`
+**Reference logic:**
+- `modules/market/src/db/crud.ts`
+- `modules/market/src/types.ts`
+**Prompt:**
+> Build a service offerings screen (beyond physical items). Show a service listing form: title, category (tutoring, repair, design, etc.), description, pricing model (flat rate, hourly, per project), availability calendar, location/remote toggle, and portfolio photos. Display active service listings in a card grid. Include a service search with filters: category, price range, distance, rating. Show service provider profile with reviews and booking calendar. Add a "Request Quote" flow for custom services. Display booked appointments with status tracking.
+
+### MARKET-07: Advanced Search Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(market)/search.tsx`
+- `apps/web/app/market/search/page.tsx`
+**Reference logic:**
+- `modules/market/src/db/crud.ts`
+- `modules/market/src/types.ts`
+**Prompt:**
+> Build an advanced marketplace search screen. Show a search bar with auto-complete suggestions. Include filter panel: category, price range (min/max), condition (new/like-new/good/fair), distance radius slider, sort order (newest/price/distance/relevance), seller rating minimum. Display results in a grid with toggle to list view. Each result card shows: photo, title, price, condition badge, distance, seller rating. Include "Save Search" with notification on new matches. Show recent searches and trending searches. Add a category browser with subcategory drill-down.
+
+
+## Meds
+
+### MEDS-01: Drug Interaction Checker Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/interactions.tsx`
+- `apps/web/app/meds/interactions/page.tsx`
+**Reference logic:**
+- `modules/meds/src/interactions/checker.ts`
+- `modules/meds/src/interactions/database.ts`
+**Prompt:**
+> Build a drug interaction checker screen. Show a medication selector (from user's active meds) and an "Add Medication" field for checking new drugs. Display interaction results from the checker engine: severity (major/moderate/minor/none), affected drugs, interaction description, and clinical recommendation. Use the interaction database for lookup. Show a matrix view of all current medications with interaction indicators. Color code severity (red/orange/yellow/green). Include a "Full Report" export for doctor visits. Display food-drug interactions (grapefruit, dairy, etc.).
+
+### MEDS-02: Refill Tracking and Burn Rate Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/refills.tsx`
+- `apps/web/app/meds/refills/page.tsx`
+**Reference logic:**
+- `modules/meds/src/medication/refill-tracker.ts`
+- `modules/meds/src/medication/crud.ts`
+**Prompt:**
+> Build a refill tracking screen. Show each medication with: current supply level (pills remaining), daily burn rate, estimated run-out date, and days until refill needed. Use the refill tracker for burn rate calculations and refill predictions. Display a visual supply gauge per medication (full/half/low/critical). Include a "Refill Reminder" notification setting per medication (notify when X days supply remaining). Show refill history with dates and quantities. Add pharmacy information per medication. Include a "Refill All" quick action for medications due within 7 days.
+
+### MEDS-03: Adherence Calendar Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/adherence.tsx`
+- `apps/web/app/meds/adherence/page.tsx`
+**Reference logic:**
+- `modules/meds/src/reminders/adherence.ts`
+- `modules/meds/src/reminders/calendar.ts`
+**Prompt:**
+> Build a medication adherence calendar screen. Show a monthly calendar view where each day is color-coded: green (all doses taken), yellow (partial), red (missed), gray (future/no data). Tapping a day shows the detailed dose log for that day: each medication, scheduled time, actual taken time, and status. Display adherence percentage for the current month and trend over 3/6/12 months. Use the adherence engine for calculations. Show per-medication adherence rates. Include a weekly adherence bar chart. Add a "Perfect Week" streak counter and celebratory milestones.
+
+### MEDS-04: Measurement Trending Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/measurement-trends.tsx`
+- `apps/web/app/meds/measurements/trends/page.tsx`
+**Reference logic:**
+- `modules/meds/src/measurements/trends.ts`
+- `modules/meds/src/measurements/crud.ts`
+**Prompt:**
+> Build a measurement trending screen. Show interactive line charts for each tracked measurement type: blood pressure, blood glucose, weight, temperature, heart rate, SpO2. Each chart shows: data points, trend line, normal range bands, and annotation markers for medication changes. Use the measurement trends engine for trend calculations and anomaly detection. Allow selecting different time ranges (7d/30d/90d/1y). Show min/max/average stats per period. Include correlation highlights between measurement changes and medication adjustments. Add a "Log Measurement" quick-add per type.
+
+### MEDS-05: Mood/Symptom Correlation Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/correlation.tsx`
+- `apps/web/app/meds/correlation/page.tsx`
+**Reference logic:**
+- `modules/meds/src/analytics/correlation.ts`
+- `modules/meds/src/mood/index.ts`
+**Prompt:**
+> Build a mood/symptom correlation dashboard. Show a dual-axis chart overlaying mood scores with medication timing. Use the correlation engine to detect patterns: "Mood improves 2 hours after taking [medication]", "Symptom X worsens on days when [medication] is missed." Display correlation strength indicators (strong/moderate/weak). Show a heatmap of symptom frequency vs medication adherence. Include mood check-in integration (link to mood logging). Display a "Medication Effectiveness" score per medication based on symptom response. Add a symptom diary view grouped by date with medication context.
+
+### MEDS-06: Wellness Score Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/wellness.tsx`
+- `apps/web/app/meds/wellness/page.tsx`
+**Reference logic:**
+- `modules/meds/src/engine/wellness-score.ts`
+- `modules/meds/src/analytics/stats.ts`
+**Prompt:**
+> Build a wellness score dashboard. Show an overall wellness score (0-100) with contributing factors from the wellness score engine: medication adherence, symptom management, vital signs stability, mood trend, and sleep quality. Display each factor as a sub-score with a mini trend chart. Show a daily/weekly wellness score trend line. Include actionable recommendations per low-scoring factor. Display a "streak" for days above target wellness score. Add a comparison to previous month. Include a morning check-in prompt that captures key daily metrics.
+
+### MEDS-07: Doctor Reports Export Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/reports.tsx`
+- `apps/web/app/meds/reports/page.tsx`
+**Reference logic:**
+- `modules/meds/src/export/markdown-report.ts`
+- `modules/meds/src/export/index.ts`
+**Prompt:**
+> Build a doctor reports screen. Show report templates: "Full Medical Summary", "Medication History", "Blood Pressure Report", "Glucose Management Report", "Adherence Summary". Each report shows a preview with customizable date range. Use the markdown report generator to produce formatted reports. Include export options: PDF, print, share. Show generated report history with dates. Add custom report builder: select which sections to include (medications, vitals, adherence, symptoms, mood, measurements). Display a "Prepare for Visit" checklist with questions to ask the doctor.
+
+### MEDS-08: Caregiver Alerts Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/caregivers.tsx` (exists, enhance)
+- `apps/web/app/meds/caregivers/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/meds/src/caregiver/engine.ts`
+- `modules/meds/src/models/caregiver.ts`
+**Prompt:**
+> Enhance the caregiver alerts screen. Show a list of designated caregivers with name, relationship, contact info, and notification preferences. Use the caregiver engine for alert rules: missed dose alerts (after X minutes), low supply alerts, abnormal measurement alerts (BP/glucose out of range), and wellness score drops. Each alert rule shows enabled/disabled toggle and trigger threshold. Display alert history showing what was sent and when. Include a "Caregiver View" preview showing what caregivers see in their notifications. Add a "Share Report" action to send a summary to a caregiver.
+
+### MEDS-09: FODMAP Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/fodmap.tsx` (exists, enhance)
+- `apps/web/app/meds/fodmap/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/meds/src/fodmap/engine.ts`
+- `modules/meds/src/fodmap/seed.ts`
+**Prompt:**
+> Enhance the FODMAP tracking screen. Show a food diary with FODMAP classification per food item from the seed database. Display a color-coded food list: green (low FODMAP), yellow (moderate), red (high FODMAP). Include phase tracking: elimination, reintroduction (with specific FODMAP group testing), and maintenance. Show symptom correlation with food entries (bloating, pain, etc. vs food groups). Use the FODMAP engine for food classification and tolerance scoring. Add a barcode scanner for packaged food FODMAP lookup. Display a "Safe Foods" quick reference list.
+
+### MEDS-10: Pain Heatmap Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/pain-map.tsx` (exists, enhance)
+- `apps/web/app/meds/pain/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/meds/src/pain/engine.ts`
+- `modules/meds/src/models/pain.ts`
+**Prompt:**
+> Enhance the pain heatmap screen. Show a body silhouette diagram where users can tap to mark pain locations. Each point captures: location, intensity (1-10 scale), type (sharp/dull/burning/aching/throbbing), and timestamp. Use the pain engine to generate heatmap overlays showing pain frequency/intensity per body region. Display a timeline view showing pain patterns over days/weeks. Include a medication correlation view showing which medications were taken before/after pain events. Show weather correlation if weather data is available. Add a "Pain Journal" for detailed descriptions and trigger notes.
+
+### MEDS-11: CGM Integration Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(meds)/cgm.tsx` (exists, enhance)
+- `apps/web/app/meds/cgm/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/meds/src/cgm/engine.ts`
+- `modules/meds/src/models/cgm.ts`
+**Prompt:**
+> Enhance the CGM (Continuous Glucose Monitor) screen. Show a real-time glucose line graph with color zones (low/target/high). Display current glucose reading, trend arrow, and time-in-range percentages. Use the CGM engine for trend analysis and alert thresholds. Show daily overlay charts comparing multiple days. Include meal markers and insulin dose markers on the timeline. Display statistics: time in range, time below range, time above range, GMI (glucose management indicator), coefficient of variation. Show patterns: dawn phenomenon detection, post-meal spikes. Include alert settings for high/low thresholds.
+
+
+## Notes
+
+### NOTES-01: Canvas/Whiteboard Editor
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/canvas.tsx` (exists, enhance)
+- `apps/web/app/notes/canvas/[id]/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/notes/src/canvas/engine.ts`
+- `modules/notes/src/canvas/layout.ts`
+- `modules/notes/src/canvas/serializer.ts`
+- `modules/notes/src/canvas/types.ts`
+**Prompt:**
+> Enhance the canvas/whiteboard editor. Build an infinite canvas with: freehand drawing (pen/marker/highlighter), shape tools (rectangle/circle/arrow/line), text blocks, image embeds, and sticky notes. Use the canvas engine for element management and the serializer for persistence. Include a toolbar with tool selection, color picker, stroke width, and eraser. Support zoom/pan gestures. Add node connection lines between text blocks (for mind mapping). Include snap-to-grid and alignment guides from the layout engine. Support undo/redo. Show a minimap for navigation on large canvases.
+
+### NOTES-02: Plugins Management Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/plugins.tsx` (exists, enhance)
+- `apps/web/app/notes/plugins/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/notes/src/db/plugins.ts`
+**Prompt:**
+> Enhance the plugins management screen. Show a list of installed plugins with: name, description, version, author, enabled/disabled toggle. Include a plugin browser/marketplace for discovering new plugins. Each plugin card shows: icon, name, rating, install count, and "Install" button. Display plugin settings per plugin. Show a "Plugin Sandbox" for safe execution. Include plugin categories: formatting, import/export, integrations, themes, productivity. Display plugin changelog and update notifications. Add a "Develop Plugin" section with API documentation link.
+
+### NOTES-03: Web Clipper Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/web/app/notes/clipper/page.tsx` (exists, enhance)
+- `apps/mobile/app/(notes)/clipper.tsx`
+**Reference logic:**
+- `modules/notes/src/engine/web-clipper.ts`
+**Prompt:**
+> Enhance the web clipper screen. Show a URL input field and "Clip" button. After clipping, display the extracted content preview: title, main text, images, and metadata. Use the web clipper engine for content extraction and cleaning. Include clip format options: full page, simplified article, selection only, screenshot, bookmark only. Show a target notebook/folder selector. Add tag input for organization. Display clip history with thumbnails and source URLs. Include a "Quick Clip" mode that saves with minimal interaction. Show storage usage for clipped content.
+
+### NOTES-04: Relational Database CRUD Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/databases.tsx` (exists, enhance)
+- `apps/web/app/notes/databases/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/notes/src/db/databases.ts`
+**Prompt:**
+> Enhance the relational database screen (Notion-style databases within notes). Show a table view with sortable/filterable columns. Support column types: text, number, date, select, multi-select, checkbox, URL, relation (link to other database rows). Include views: table, board (Kanban), calendar, gallery. Add a "New Database" wizard with template options (task tracker, CRM, inventory, reading list). Support row detail view as an expandable card. Include formula columns for computed values. Show database statistics (row count, last updated, column count). Add CSV import/export.
+
+### NOTES-05: Template Variables and Management
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/templates.tsx` (exists, enhance)
+- `apps/web/app/notes/templates/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/notes/src/templates/variables.ts`
+- `modules/notes/src/templates/built-in.ts`
+**Prompt:**
+> Enhance the templates screen with variable support. Show a template gallery with built-in templates from `built-in.ts`: meeting notes, project plan, daily standup, brainstorm, etc. Each template shows a preview and "Use" button. Include a template editor with variable insertion: `{{date}}`, `{{time}}`, `{{title}}`, custom user-defined variables. Use the variables engine for variable resolution at creation time. Support template sections with collapsible blocks. Add user-created custom templates with "Save as Template" from any note. Show template usage statistics and favorites.
+
+### NOTES-06: Knowledge Graph Visualization
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/graph.tsx` (exists, enhance)
+- `apps/web/app/notes/graph/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/notes/src/engine/graph.ts`
+- `modules/notes/src/engine/link-intelligence.ts`
+**Prompt:**
+> Enhance the knowledge graph visualization. Show an interactive force-directed graph where nodes are notes and edges are wiki-links/backlinks between them. Use the graph engine for layout and the link intelligence engine for relationship detection. Node size reflects connection count. Node color reflects note category/tag. Include zoom/pan and node click to preview note content. Show a sidebar with selected note's connections list. Include graph filters: by tag, date range, notebook. Display orphan nodes (notes with no connections). Add a "Local Graph" view showing connections for a single note within N hops.
+
+### NOTES-07: Knowledge Discovery Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/discovery.tsx`
+- `apps/web/app/notes/discovery/page.tsx`
+**Reference logic:**
+- `modules/notes/src/engine/knowledge-discovery.ts`
+- `modules/notes/src/engine/tag-intelligence.ts`
+**Prompt:**
+> Build a knowledge discovery dashboard. Show AI-generated insights from the knowledge discovery engine: suggested connections between unlinked notes that share themes, related notes clusters, topic evolution over time, and knowledge gaps (topics with few notes). Display a "Daily Discovery" card highlighting a forgotten note. Show tag co-occurrence analysis from the tag intelligence engine. Include a "Random Note" button for serendipitous rediscovery. Display a timeline of note creation showing topic diversity. Show a "Most Connected" leaderboard of heavily-linked notes.
+
+### NOTES-08: Writing Analytics Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/analytics.tsx`
+- `apps/web/app/notes/analytics/page.tsx`
+**Reference logic:**
+- `modules/notes/src/engine/writing-analytics.ts`
+**Prompt:**
+> Build a writing analytics dashboard for notes. Show total note count, total word count, average note length, and notes-per-day trend. Use the writing analytics engine for: readability scores, vocabulary richness, writing consistency (daily/weekly patterns), most productive times. Display a calendar heatmap of note creation activity. Show top tags and their growth over time. Include a "writing streak" counter. Display note type distribution (text/canvas/database). Show a word cloud of most-used terms. Add a "Year in Notes" summary with monthly highlights.
+
+### NOTES-09: AI Writing Assistant
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(notes)/ai-assistant.tsx`
+- `apps/web/app/notes/ai/page.tsx`
+**Reference logic:**
+- `modules/notes/src/ai/local-engine.ts`
+- `modules/notes/src/ai/index.ts`
+**Prompt:**
+> Build an AI writing assistant screen accessible from note editor. Show a sidebar/panel with AI actions: summarize selection, expand text, fix grammar, change tone (formal/casual/academic), translate, generate outline, brainstorm ideas, and continue writing. Use the local AI engine for on-device text operations where possible. Include a chat-style interface for asking questions about the note's content. Display AI suggestions inline with accept/reject actions. Show action history with undo capability. Include a "Quick Actions" toolbar that attaches to the note editor with common AI operations.
+
+
+## Nutrition
+
+### NUTRITION-01: Barcode Scanner Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(nutrition)/scan.tsx` (exists, enhance)
+- `apps/web/app/nutrition/scan/page.tsx`
+**Reference logic:**
+- `modules/nutrition/src/barcode/scanner.ts`
+- `modules/nutrition/src/barcode/index.ts`
+- `modules/nutrition/src/db/barcode-cache.ts`
+**Prompt:**
+> Enhance the barcode scanner screen. Show a live camera viewfinder with barcode scanning overlay. On successful scan, display the matched food item from the barcode cache or API lookup (Open Food Facts). Show: product name, brand, photo, serving size, calories, macros (protein/carbs/fat), and nutrition label. Include a "Log This Food" button with quantity/serving adjustment. Add a manual barcode entry field for when camera fails. Show recent scans list. Cache successful lookups for offline use via `barcode-cache.ts`. Display a "Not Found" flow for unrecognized barcodes with manual food entry option.
+
+### NUTRITION-02: AI Photo Analysis Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(nutrition)/photo.tsx` (exists, enhance)
+- `apps/web/app/nutrition/photo/page.tsx`
+**Reference logic:**
+- `modules/nutrition/src/ai/photo-log.ts`
+- `modules/nutrition/src/ai/prompts.ts`
+- `modules/nutrition/src/ai/types.ts`
+**Prompt:**
+> Enhance the AI photo food analysis screen. Show a camera capture or photo picker. After photo submission, display the AI-identified foods with estimated portions and nutrition breakdown using the photo-log engine. Show confidence level per identified food item. Include an editable results view where users can correct food identification, adjust portions, and add missed items. Display macro summary (calories, protein, carbs, fat) with a "Log Meal" button. Show analysis history with photo thumbnails and timestamps. Include a "Retake" option for unclear photos.
+
+### NUTRITION-03: Macro Dashboard
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(nutrition)/dashboard.tsx` (exists, enhance)
+- `apps/web/app/nutrition/dashboard/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/nutrition/src/stats/daily-summary.ts`
+- `modules/nutrition/src/stats/micronutrients.ts`
+- `modules/nutrition/src/db/goals.ts`
+**Prompt:**
+> Enhance the macro dashboard. Show daily macro progress rings: calories (total), protein, carbs, and fat with target vs actual. Display a meal-by-meal breakdown (breakfast, lunch, dinner, snacks) with calorie contribution. Include micronutrient panel from `micronutrients.ts` showing vitamin and mineral intake vs RDA. Show a "remaining budget" indicator for calories and each macro. Display macronutrient ratio pie chart (actual vs target). Include a water intake tracker. Show a calorie balance indicator (intake vs estimated burn). Add a "Quick Add" for common foods/meals.
+
+### NUTRITION-04: Daily Tracking Log Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(nutrition)/log.tsx`
+- `apps/web/app/nutrition/log/page.tsx`
+**Reference logic:**
+- `modules/nutrition/src/db/food-log.ts`
+- `modules/nutrition/src/search/food-search.ts`
+**Prompt:**
+> Build a daily food tracking log screen. Show a chronological list of logged food entries for the selected day. Each entry shows: time, food name, portion size, calories, and quick macros. Include an "Add Food" button that opens food search (by name or barcode). Support meal categorization (breakfast/lunch/dinner/snack). Show running totals as the user scrolls. Include a "Copy Meal" feature to duplicate meals from previous days. Add a "Quick Log" for frequently eaten foods. Display a date navigator to browse past days. Include swipe-to-delete per entry and edit capability.
+
+### NUTRITION-05: Trends and History Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(nutrition)/trends.tsx` (exists, enhance)
+- `apps/web/app/nutrition/trends/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/nutrition/src/stats/trends.ts`
+- `modules/nutrition/src/engine/insight.ts`
+**Prompt:**
+> Enhance the nutrition trends screen. Show weekly/monthly calorie intake trend line with goal target overlay. Display macro trends (protein/carbs/fat) as stacked area chart. Include a compliance score: percentage of days meeting macro targets. Use the insight engine for personalized observations ("You tend to under-eat protein on weekends"). Show a 7-day average comparison to previous 7 days. Display meal timing patterns (average breakfast/lunch/dinner time). Include a weight correlation chart if weight data is available. Add a "Nutrition Score" calculated from overall diet quality.
+
+### NUTRITION-06: Goal Progress Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(nutrition)/goals.tsx`
+- `apps/web/app/nutrition/goals/page.tsx`
+**Reference logic:**
+- `modules/nutrition/src/db/goals.ts`
+- `modules/nutrition/src/stats/daily-summary.ts`
+**Prompt:**
+> Build a nutrition goals screen. Show active goals: calorie target, macro targets (g protein/carbs/fat), water intake goal, and custom nutrient goals. Each goal shows a progress bar with current vs target. Include a goal editor with options: weight loss, weight gain, maintenance, custom. Display TDEE calculator based on activity level, age, weight, and height. Show goal adherence over time (percentage of days meeting each goal). Include a "Goal Wizard" that recommends macro splits based on selected objective. Display projected weight change timeline based on calorie deficit/surplus.
+
+
+## Pets
+
+### PETS-01: Vaccination Reminders Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(pets)/vaccinations.tsx`
+- `apps/web/app/pets/vaccinations/page.tsx`
+**Reference logic:**
+- `modules/pets/src/engine/reminders.ts`
+- `modules/pets/src/engine/alerts.ts`
+- `modules/pets/src/db/crud.ts`
+**Prompt:**
+> Build a vaccination reminders screen. Show each pet's vaccination history and upcoming vaccinations. Each vaccine card shows: vaccine name, date administered, next due date, veterinarian, and status (current/due soon/overdue). Use the reminders engine for scheduling logic. Display a combined timeline view for multi-pet households. Include an "Add Vaccination" form with vaccine name, date, lot number, and vet name. Show notification preferences per vaccine type. Display a vaccination schedule template by pet type (dog/cat standard vaccines). Color code status (green/yellow/red).
+
+### PETS-02: Medication Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(pets)/medications.tsx`
+- `apps/web/app/pets/medications/page.tsx`
+**Reference logic:**
+- `modules/pets/src/engine/reminders.ts`
+- `modules/pets/src/db/crud.ts`
+**Prompt:**
+> Build a pet medication tracking screen. Show active medications per pet with: medication name, dosage, frequency, start date, end date, and remaining supply. Include a "Give Dose" quick action with timestamp logging. Display a dose history log per medication. Add an "Add Medication" form with: name, dosage amount, frequency (daily/twice daily/weekly/as needed), and instructions. Show reminders configuration per medication. Display a medication calendar view showing all pets' medication schedules. Include a supply tracker with refill alerts.
+
+### PETS-03: Weight Trends Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(pets)/weight.tsx`
+- `apps/web/app/pets/weight/page.tsx`
+**Reference logic:**
+- `modules/pets/src/engine/weight.ts`
+- `modules/pets/src/db/crud.ts`
+**Prompt:**
+> Build a pet weight trends screen. Show a line chart of weight over time per pet with healthy weight range bands (based on breed/species). Display current weight, goal weight, and rate of change. Use the weight engine for trend calculations and health assessments. Include a "Log Weight" form with weight value and date. Show weight milestones (puppy/kitten growth milestones for young pets). Display multi-pet comparison chart option. Include a BMI/body condition score guide with visual reference images. Show alerts for sudden weight changes.
+
+### PETS-04: Feeding Schedule Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(pets)/feeding.tsx`
+- `apps/web/app/pets/feeding/page.tsx`
+**Reference logic:**
+- `modules/pets/src/engine/feeding.ts`
+- `modules/pets/src/db/crud.ts`
+**Prompt:**
+> Build a feeding schedule screen. Show daily feeding schedule per pet: meal times, food type, portion size, and fed status (fed/pending). Include a "Mark Fed" quick action with timestamp. Display feeding history log. Use the feeding engine for calorie recommendations based on weight and activity level. Include an "Add Feeding Schedule" form with food brand, portion size, meal frequency, and special diet notes. Show a multi-pet feeding overview for households with multiple pets. Add a food supply tracker with auto-reorder reminders.
+
+### PETS-05: Vet Visit History Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(pets)/vet-history.tsx`
+- `apps/web/app/pets/vet-history/page.tsx`
+**Reference logic:**
+- `modules/pets/src/db/crud.ts`
+- `modules/pets/src/engine/reminders.ts`
+**Prompt:**
+> Build a vet visit history screen. Show a chronological list of vet visits per pet with: date, clinic/vet name, reason (checkup/illness/injury/dental/surgery), diagnosis, treatment, cost, and follow-up date. Include an "Add Visit" form with all fields plus photo capture for receipts/records. Display a cost summary chart by visit type. Show upcoming scheduled visits with reminders. Include a vet directory per pet showing preferred clinics. Display a "Annual Checkup Due" alert based on last checkup date. Add a notes section per visit for treatment instructions.
+
+### PETS-06: Expense Tracking Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(pets)/expenses.tsx`
+- `apps/web/app/pets/expenses/page.tsx`
+**Reference logic:**
+- `modules/pets/src/engine/expenses.ts`
+- `modules/pets/src/db/crud.ts`
+**Prompt:**
+> Build a pet expense tracking screen. Show expense categories: food, vet, grooming, supplies, insurance, toys, training. Display monthly/annual totals with a trend chart. Each expense entry shows: date, amount, category, pet, and description. Include an "Add Expense" form with receipt photo capture. Use the expenses engine for budget analysis and cost projections. Show per-pet cost comparison for multi-pet households. Display a monthly budget vs actual chart. Include a "Lifetime Cost" calculator per pet. Add cost projections for the next 12 months based on recurring expenses.
+
+### PETS-07: Pet Age Calculator Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(pets)/age-calc.tsx`
+- `apps/web/app/pets/age/page.tsx`
+**Reference logic:**
+- `modules/pets/src/db/crud.ts`
+- `modules/pets/src/types.ts`
+**Prompt:**
+> Build a pet age calculator screen. Show each pet's age in human years using species-specific and breed-adjusted conversion (not the simple 7x rule). Display a visual age comparison showing the pet's life stage: puppy/kitten, adolescent, adult, senior. Show life expectancy range for the breed and percentage of expected lifespan. Include a birthday countdown. Display age-appropriate care recommendations (e.g., "At senior age, consider bi-annual vet checkups"). Show a growth timeline for young pets with milestone markers. Add a multi-pet age comparison chart.
+
+
+## RSVP
+
+### RSVP-01: iCal Sync Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/calendar-sync.tsx`
+- `apps/web/app/rsvp/calendar/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/ical.ts`
+- `modules/rsvp/src/db/crud.ts`
+**Prompt:**
+> Build an iCal sync screen. Show a toggle to enable iCal sync with platform calendar app. Display a list of RSVP events with sync status (synced/pending/error). Use the iCal engine for .ics generation and parsing. Include a "Sync Now" button and auto-sync frequency setting. Show a conflict resolution UI when events overlap. Include an "Export Event" action per event that generates an .ics file. Display an import section for .ics files received via email. Show calendar subscription URL for external calendar apps.
+
+### RSVP-02: Expense Splitting Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/expenses.tsx`
+- `apps/web/app/rsvp/expenses/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/settlement.ts`
+- `modules/rsvp/src/db/crud.ts`
+**Prompt:**
+> Build an event expense splitting screen. Show event expenses with: item, amount, paid by, and split method (equal, by portion, custom amounts). Use the settlement engine to calculate who owes whom. Display a balance summary per guest. Include an "Add Expense" form with payer, amount, description, and split configuration. Show a settlement plan (simplified debts: "Alice pays Bob $15, Carol pays Alice $10"). Include a "Mark Settled" action per debt. Display total event cost and per-person cost. Add a receipt photo attachment per expense.
+
+### RSVP-03: Event Templates Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/templates.tsx`
+- `apps/web/app/rsvp/templates/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/templates.ts`
+- `modules/rsvp/src/types.ts`
+**Prompt:**
+> Build an event templates screen. Show a gallery of event templates from the templates engine: dinner party, birthday, wedding, potluck, game night, movie night, holiday gathering, baby shower, BBQ. Each template includes: pre-filled event details, suggested guest list size, timeline template, supply checklist, and invitation design. Include a "Use Template" button that creates a new event pre-populated. Add a "Create Custom Template" option from any past event. Show template categories and a search function. Display user's saved custom templates.
+
+### RSVP-04: Dietary Response Collection Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/dietary.tsx`
+- `apps/web/app/rsvp/dietary/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/dietary.ts`
+- `modules/rsvp/src/db/crud.ts`
+**Prompt:**
+> Build a dietary response collection screen. Show a guest list with dietary requirements collected via RSVP: allergies (nuts, dairy, gluten, shellfish, etc.), dietary preferences (vegetarian, vegan, halal, kosher), and custom restrictions. Use the dietary engine for requirement aggregation. Display a summary panel: total guests, dietary breakdown by type, and "menu compatibility" suggestions. Include the guest-facing RSVP form with dietary checkboxes and free-text field. Show a "Shopping List" generator that accounts for all dietary requirements. Display potential allergen conflicts with menu items.
+
+### RSVP-05: Recurrence Rules Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/recurrence.tsx`
+- `apps/web/app/rsvp/recurrence/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/recurrence.ts`
+**Prompt:**
+> Build a recurrence rules configuration screen. Show a recurrence builder for repeating events: frequency (daily, weekly, bi-weekly, monthly, annually), day selection, end condition (never, after N occurrences, until date), and exceptions. Use the recurrence engine for RRULE generation and preview. Display a preview calendar showing the next 10 occurrences. Include "Skip This Occurrence" and "Edit This Occurrence Only" actions. Show a recurrence history (past occurrences with attendance). Include a "Book Club", "Game Night", and "Team Meeting" preset patterns.
+
+### RSVP-06: Location and Maps Integration
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/location.tsx`
+- `apps/web/app/rsvp/location/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/location.ts`
+**Prompt:**
+> Build an event location screen. Show a map with event pin and venue details: name, address, phone, website, parking info, and accessibility notes. Use the location engine for geocoding and directions. Include a venue search with autocomplete. Display travel time estimates from guests' locations (if shared). Show nearby amenities (parking, transit, hotels). Include a "Share Location" button that generates a directions link. Display a venue photo gallery. Add indoor venue notes (floor/suite/room number). Include a weather forecast for outdoor events.
+
+### RSVP-07: Invitation Design Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/invitation-design.tsx`
+- `apps/web/app/rsvp/invitations/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/designs.ts`
+- `modules/rsvp/src/types.ts`
+**Prompt:**
+> Build an invitation design screen. Show a template gallery from the designs engine with themed invitation designs (formal, casual, festive, minimal). Each design shows: preview, color scheme, and font style. Include a customization editor: edit text (event name, details, host name), change colors, upload a custom header image, and adjust layout. Display a live preview of the invitation. Add a "Send Preview" to self. Include output options: digital share link, email, SMS, printable PDF. Show sent invitation tracking (opened, RSVP'd, pending).
+
+### RSVP-08: Guest Messaging Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/messaging.tsx`
+- `apps/web/app/rsvp/messaging/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/db/crud.ts`
+- `modules/rsvp/src/types.ts`
+**Prompt:**
+> Build a guest messaging screen. Show a message composer for event-wide announcements or individual guest messages. Include message templates: "Reminder", "Update", "Thank You", "Directions", "What to Bring". Display a message history with delivery status per guest. Add guest group messaging (e.g., message only "Attending" guests). Include a guest Q&A thread where guests can ask questions visible to all attendees. Show read receipts per message. Add scheduling for future message delivery (e.g., "Send reminder 24 hours before event").
+
+### RSVP-09: Gift Registry Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/registry.tsx`
+- `apps/web/app/rsvp/registry/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/db/crud.ts`
+- `modules/rsvp/src/types.ts`
+**Prompt:**
+> Build a gift registry screen. Show a wish list of gift items with: name, photo, price, link, and claimed/available status. Include an "Add Item" form with URL auto-fill (scrape product details from link). Display a guest view where guests can claim items (preventing duplicates). Show a fund/cash gift option with contribution tracking. Include multiple registry support (link to external registries: Amazon, Target, etc.). Display total registry value and percentage claimed. Add a "Thank You" tracking list for received gifts with sent/pending status.
+
+### RSVP-10: Seating Arrangement Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(rsvp)/seating.tsx`
+- `apps/web/app/rsvp/seating/page.tsx`
+**Reference logic:**
+- `modules/rsvp/src/engines/seating.ts`
+**Prompt:**
+> Build a seating arrangement screen. Show a visual floor plan editor with draggable table shapes (round, rectangular, long). Assign guests to seats via drag-and-drop. Use the seating engine for: auto-assign suggestions (keep groups together, separate conflicts), capacity validation per table, and guest relationship awareness. Display an unassigned guests panel. Include table naming/numbering. Show dietary requirements per seat for catering. Export seating chart as printable PDF. Include a "Shuffle" button for auto-optimization. Display a guest-facing "Find My Seat" view.
+
+
+## Stars
+
+### STARS-01: Birth Chart Display Improvements
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(stars)/birth-chart.tsx` (exists, enhance)
+- `apps/web/app/stars/birth-chart/page.tsx`
+**Reference logic:**
+- `modules/stars/src/engine/astro.ts`
+- `modules/stars/src/engine/interpretations.ts`
+- `modules/stars/src/db/crud.ts`
+**Prompt:**
+> Enhance the birth chart display. Show an interactive zodiac wheel with accurate planet positions from the astro engine. Display: ascendant, midheaven, planets in signs and houses, and major aspects (conjunction, sextile, square, trine, opposition) with aspect lines on the wheel. Each planet is tappable to show its interpretation from the interpretations engine: sign placement meaning, house placement meaning, and aspect descriptions. Include a table view alternative listing all placements. Show element/modality balance (fire/earth/air/water, cardinal/fixed/mutable). Add a "Save Chart" action for non-user profiles.
+
+### STARS-02: Compatibility Results Visualization
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(stars)/compatibility.tsx` (exists, enhance)
+- `apps/web/app/stars/compatibility/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/stars/src/engine/compatibility.ts`
+- `modules/stars/src/engine/astro.ts`
+**Prompt:**
+> Enhance the compatibility results screen. Show an overall compatibility score (0-100) with a visual gauge. Break down into categories: emotional (Moon compatibility), communication (Mercury), love (Venus), passion (Mars), growth (Jupiter/Saturn). Display a synastry chart overlay showing both charts. List key aspects between the two charts with interpretation text from the compatibility engine. Show a "strengths" and "challenges" summary. Include a comparison table of both profiles' key placements. Add a "Compatibility History" section showing past comparisons with scores.
+
+### STARS-03: Transit Logging History
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(stars)/transit-history.tsx`
+- `apps/web/app/stars/transits/page.tsx`
+**Reference logic:**
+- `modules/stars/src/engine/transits.ts`
+- `modules/stars/src/db/crud.ts`
+**Prompt:**
+> Build a transit logging history screen. Show a chronological log of significant planetary transits that have affected the user's natal chart. Each transit entry shows: transiting planet, natal planet/point aspected, aspect type, date range (applying/exact/separating), and interpretation text from the transits engine. Include a "How did this feel?" journal note per transit. Display a calendar view of past and upcoming transits. Show a transit intensity graph over time. Include filters by planet and aspect type. Add a "Major Transits This Year" summary with the most impactful transits highlighted.
+
+
+## Subs
+
+### SUBS-01: Module Layout and Dashboard Screen (Mobile)
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/_layout.tsx`
+- `apps/mobile/app/(subs)/index.tsx`
+**Reference logic:**
+- `modules/subs/src/definition.ts`
+- `modules/subs/src/engines/cost-analysis.ts`
+- `modules/subs/src/db/crud.ts`
+- `modules/subs/src/types.ts`
+**Prompt:**
+> Build the subs module mobile layout and dashboard screen. The layout should follow the tab navigation from the module definition: Dashboard, Subs, Calendar, Settings. The dashboard screen shows: total monthly subscription cost, cost trend (last 6 months), next upcoming renewal, most expensive subscription, and a cost breakdown by category (streaming, software, news, fitness, etc.) using the cost analysis engine. Include a large "Monthly Total" hero number with comparison to previous month. Add a "Quick Add" floating action button.
+
+### SUBS-02: Subscription List Screen (Mobile)
+**Depends on:** SUBS-01
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/subscriptions.tsx`
+**Reference logic:**
+- `modules/subs/src/db/crud.ts`
+- `modules/subs/src/types.ts`
+**Prompt:**
+> Build the subscription list screen. Show all tracked subscriptions in a scrollable list. Each subscription card shows: service name, icon/logo, price, billing frequency (monthly/annual/weekly), next billing date, and category badge. Include sort options (price, renewal date, name, category). Add swipe actions: edit, delete, pause. Include a filter by category and status (active/paused/cancelled). Display a total count and total monthly equivalent cost header. Add a search bar for finding subscriptions. Use Cool Obsidian surface cards with accent color borders.
+
+### SUBS-03: Add Subscription Screen (Mobile)
+**Depends on:** SUBS-01
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/add-sub.tsx`
+**Reference logic:**
+- `modules/subs/src/db/crud.ts`
+- `modules/subs/src/types.ts`
+**Prompt:**
+> Build the add subscription form screen. Show fields: service name (with autocomplete from catalog), price, billing frequency (weekly/monthly/quarterly/annual), start date, category (dropdown), payment method, and notes. Include a "Detect from Bank" link to SUBS-05's detection flow. Show a "From Catalog" picker with popular services pre-filled. Include a trial period toggle with trial end date. Add a custom icon/color picker. Validate all required fields with Zod. Save via CRUD's `insertSubscription`.
+
+### SUBS-04: Subscription Calendar Screen (Mobile)
+**Depends on:** SUBS-01
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/calendar.tsx`
+**Reference logic:**
+- `modules/subs/src/engines/renewal-calendar.ts`
+- `modules/subs/src/db/crud.ts`
+**Prompt:**
+> Build the subscription renewal calendar screen. Show a monthly calendar view with renewal dates marked with colored dots (one color per category). Tapping a day shows the subscriptions renewing that day with amounts. Use the renewal calendar engine for date calculations. Display a monthly total below the calendar. Show a list view alternative with upcoming renewals sorted by date. Include a "This Month's Total" summary. Add notification settings: how many days before renewal to alert. Show a year view heat map of spending intensity per month.
+
+### SUBS-05: Bank Detection / Find Subscriptions Screen (Mobile)
+**Depends on:** SUBS-01
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/detect.tsx`
+**Reference logic:**
+- `modules/subs/src/engines/bank-detection.ts`
+- `modules/subs/src/db/detection.ts`
+**Prompt:**
+> Build the subscription detection screen. Show a Plaid bank connection flow to scan transaction history for recurring charges. Display detected subscriptions with: merchant name, amount, frequency, last charge date, and confidence score. Each detected sub shows "Add" to confirm or "Dismiss" to ignore. Use the bank detection engine for pattern recognition. Show a detection progress indicator. Display dismissed payees (with "Undismiss" option). Include a manual refresh button. Show a "New Detections" section for charges detected since last visit.
+
+### SUBS-06: Subscription Detail Screen (Mobile)
+**Depends on:** SUBS-02
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/[id].tsx`
+**Reference logic:**
+- `modules/subs/src/db/crud.ts`
+- `modules/subs/src/engines/price-comparison.ts`
+- `modules/subs/src/engines/alternatives-catalog.ts`
+**Prompt:**
+> Build the subscription detail screen. Show full subscription info: name, price, frequency, category, payment method, start date, total spent to date, and notes. Display a payment history timeline. Include a price history chart showing any price changes over time. Show alternative services from the alternatives catalog with price comparison from the price comparison engine. Add action buttons: Edit, Pause, Cancel (with cancellation assist link), and Share. Display a "Worth It?" score based on usage frequency if available.
+
+### SUBS-07: Cost Report and Insights Screen (Mobile)
+**Depends on:** SUBS-01
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/cost-report.tsx`
+**Reference logic:**
+- `modules/subs/src/engines/cost-analysis.ts`
+**Prompt:**
+> Build a cost report screen. Show annual subscription spending with monthly breakdown chart. Display category spending pie chart. Use the cost analysis engine for: year-over-year comparison, projected annual cost, "most expensive" and "longest held" highlights. Include a "potential savings" section showing subscriptions with cheaper alternatives or unused subscriptions. Show a cost-per-day calculation for each subscription. Add an export option (CSV/PDF). Display a "Subscription Creep" metric showing how spending has grown over time.
+
+### SUBS-08: Price Comparison Screen (Mobile)
+**Depends on:** SUBS-06
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/compare.tsx`
+**Reference logic:**
+- `modules/subs/src/engines/price-comparison.ts`
+- `modules/subs/src/engines/alternatives-catalog.ts`
+**Prompt:**
+> Build a price comparison screen. Show the current subscription alongside alternatives from the catalog. Each alternative shows: name, price, features comparison, and savings if switched. Use the price comparison engine to calculate monthly/annual savings. Include a feature comparison table (checkmarks for features each service offers). Display user ratings from the catalog. Show a "Switch" action with cancellation link and sign-up link. Include a "Compare Any Two" selector for ad-hoc comparisons.
+
+### SUBS-09: Settings Screen (Mobile)
+**Depends on:** SUBS-01
+**Files to create/edit:**
+- `apps/mobile/app/(subs)/settings.tsx`
+**Reference logic:**
+- `modules/subs/src/db/crud.ts`
+- `modules/subs/src/types.ts`
+**Prompt:**
+> Build the subs settings screen. Show: notification preferences (renewal reminders, price changes, new detections), default currency, budget limit with alert threshold, bank connection management (connected accounts, reconnect, disconnect), data export (CSV of all subscriptions), and category management (add/edit/delete custom categories). Include a "Reset All Data" danger zone. Display app version and storage usage.
+
+
+## Surf
+
+### SURF-01: Forecast Narratives Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/spot/[id].tsx` (exists, enhance)
+- `apps/web/app/surf/spot/[slug]/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/surf/src/cloud/forecasts.ts`
+- `modules/surf/src/rating/rating.ts`
+**Prompt:**
+> Enhance the spot detail screen with forecast narratives. Add a human-readable forecast summary paragraph below the raw data: "Morning will see clean 4-6ft waves from the WNW with light offshore winds, dropping to 3-4ft by afternoon as winds shift onshore." Generate narratives from forecast data (swell height, period, direction, wind speed/direction, tide). Show a multi-day forecast timeline with a narrative per time block (dawn, morning, afternoon, evening). Include a "Best Time to Go" recommendation highlighting the optimal window.
+
+### SURF-02: Spot Rating Breakdown Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/rating-detail.tsx`
+- `apps/web/app/surf/spot/[slug]/rating/page.tsx`
+**Reference logic:**
+- `modules/surf/src/rating/rating.ts`
+- `modules/surf/src/rating/energy.ts`
+- `modules/surf/src/rating/wind.ts`
+- `modules/surf/src/rating/tide.ts`
+**Prompt:**
+> Build a spot rating breakdown screen. Show the overall surf rating (1-10 or stars) decomposed into sub-ratings: swell quality (from energy engine), wind conditions (from wind engine), tide suitability (from tide engine), and crowd factor. Each sub-rating shows a gauge with explanation. Use the rating engine's scoring functions. Display how each factor contributes to the overall score. Show a "Ideal Conditions" reference panel for the specific spot. Include a historical rating chart showing rating trends over the past week.
+
+### SURF-03: Alert Rule Builder Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/alerts.tsx`
+- `apps/web/app/surf/alerts/page.tsx`
+**Reference logic:**
+- `modules/surf/src/utils/alerts.ts`
+- `modules/surf/src/cloud/alerts.ts`
+**Prompt:**
+> Build a surf alert rule builder screen. Show a condition builder: spot selector, minimum wave height, maximum wind speed, preferred wind direction, tide range, minimum rating threshold, and time window (e.g., only morning alerts). Use the alerts utilities for condition evaluation. Display active alerts with their conditions summary and recent trigger history. Include notification channel preferences (push, email, SMS). Show a "Test Alert" that evaluates current conditions. Add template alerts: "Epic Day" (>6ft, offshore, good tide), "Beginner Friendly" (<3ft, light wind). Support multiple alerts per spot.
+
+### SURF-04: Crew Management Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/crew.tsx`
+- `apps/web/app/surf/crew/page.tsx`
+**Reference logic:**
+- `modules/surf/src/cloud/social.ts`
+- `modules/surf/src/cloud/community.ts`
+**Prompt:**
+> Build a surf crew management screen. Show a friends/crew list with: name, avatar, home break, last session date, and current status (surfing/available/busy). Include an "Add to Crew" invite flow. Display a crew session planner: propose a session (spot, date/time) and see who's in. Show a crew activity feed of recent sessions. Include a chat thread per crew. Display crew statistics: total sessions together, favorite shared spots. Use the social and community cloud modules for crew data. Add a "Session Check" broadcast asking who's available.
+
+### SURF-05: Wave Detection Integration
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/wave-detect.tsx`
+- `apps/web/app/surf/waves/page.tsx`
+**Reference logic:**
+- `modules/surf/src/utils/waves.ts`
+- `modules/surf/src/rating/energy.ts`
+**Prompt:**
+> Build a wave detection screen. Show real-time or near-real-time wave data from buoy readings: significant wave height, dominant period, mean direction, and wave energy spectrum. Use the waves utility and energy rating engine for data processing. Display a wave height chart over the last 24 hours. Show a spectral analysis visualization (energy by period/direction). Include a "Wave of the Day" highlight showing peak conditions. Display current vs forecast comparison. Add buoy selector for nearby monitoring stations.
+
+### SURF-06: Trail Tracking Integration
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/trail.tsx`
+- `apps/web/app/surf/trails/page.tsx`
+**Reference logic:**
+- `modules/surf/src/cloud/trails.ts`
+- `modules/surf/src/utils/trails.ts`
+**Prompt:**
+> Build a surf trail tracking screen for coastal hiking to surf spots. Show a trail list with: name, distance, difficulty, elevation gain, and estimated time. Use the trails cloud module and utilities. Each trail shows a map preview with the route. Include a "Navigate to Spot" feature linking a hiking trail to a surf break. Display trail conditions and access notes. Show photos from the trail. Include offline map download for remote breaks. Add a trip log that combines hike + surf session data.
+
+### SURF-07: Buoy Explorer Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/buoys.tsx`
+- `apps/web/app/surf/buoys/page.tsx`
+**Reference logic:**
+- `modules/surf/src/data/noaa-stations.ts`
+- `modules/surf/src/utils/waves.ts`
+**Prompt:**
+> Build a buoy explorer screen. Show a map with NOAA buoy positions from `noaa-stations.ts`. Each buoy pin shows latest reading: wave height, period, water temp. Tapping a buoy opens a detail panel with: 24-hour wave height graph, swell components (primary/secondary), water temperature trend, and wind readings. Include a favorites system for frequently checked buoys. Display buoy status (active/maintenance/offline). Show a table view alternative sorted by nearest buoys. Include a "Compare Buoys" feature to overlay readings from multiple stations.
+
+### SURF-08: Tide Charts Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(surf)/tides.tsx`
+- `apps/web/app/surf/tides/page.tsx`
+**Reference logic:**
+- `modules/surf/src/rating/tide.ts`
+- `modules/surf/src/utils/geo.ts`
+**Prompt:**
+> Build a tide charts screen. Show a smooth tide curve for the selected location with high/low tide times and heights marked. Display current tide level with a marker on the curve. Use the tide engine for tide calculations. Include a 7-day tide table with sunrise/sunset times. Show a multi-day tide chart overlay. Display solunar feeding periods for fishing enthusiasts. Include a "Best Tide for This Spot" indicator showing which tide stage produces the best waves for each saved spot. Add tide station selector for nearby locations.
+
+
+## Trails
+
+### TRAILS-01: Recording Playback Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(trails)/recording/[id].tsx` (exists, enhance)
+- `apps/web/app/trails/recordings/[id]/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/trails/src/engine/geo.ts`
+- `modules/trails/src/engine/segment-matcher.ts`
+- `modules/trails/src/db/crud.ts`
+**Prompt:**
+> Enhance the recording playback screen. Show an animated map replay of the recorded hike with a moving position marker along the GPS track. Include playback controls: play/pause, speed (1x/2x/4x), scrub timeline. Display real-time stats during playback: elevation, speed, distance covered, and heart rate if available. Use the geo engine for track rendering. Show a split-view with elevation profile synced to the map playback position. Include photos taken during the recording placed at their GPS positions on the map. Display segment times from the segment matcher.
+
+### TRAILS-02: Waypoint Detail Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(trails)/waypoint/[id].tsx`
+- `apps/web/app/trails/waypoints/[id]/page.tsx`
+**Reference logic:**
+- `modules/trails/src/db/crud.ts`
+- `modules/trails/src/engine/geo.ts`
+**Prompt:**
+> Build a waypoint detail screen. Show waypoint info: name, coordinates, elevation, description, category (summit, junction, water source, campsite, viewpoint, hazard), and photos. Display a map centered on the waypoint with nearby trail context. Include a distance indicator showing how far the waypoint is from the trail start. Add an "Edit" form for name, description, category, and photo. Show user notes and ratings. Include a "Navigate Here" button with bearing and distance from current location. Display weather forecast for the waypoint location.
+
+### TRAILS-03: Photo Gallery Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(trails)/photos.tsx`
+- `apps/web/app/trails/photos/page.tsx`
+**Reference logic:**
+- `modules/trails/src/db/crud.ts`
+**Prompt:**
+> Build a trail photo gallery screen. Show a grid of photos from all trail recordings, organized by hike date. Each photo shows: thumbnail, date, trail name, and GPS location tag. Tapping opens a full-screen viewer with swipe navigation. Include a map view toggle showing all photo locations as pins on a map. Add photo filters: by trail, date range, and location. Display a "Cover Photo" selection per trail. Include a slideshow mode. Show EXIF data (camera info, location, altitude). Support photo sharing and export. Display a "Memories" section showing photos from this date in previous years.
+
+### TRAILS-04: Elevation Profile Export
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(trails)/elevation-profile.tsx` (exists, enhance)
+- `apps/web/app/trails/elevation/page.tsx`
+**Reference logic:**
+- `modules/trails/src/engine/geo.ts`
+- `modules/trails/src/engine/difficulty-calculator.ts`
+**Prompt:**
+> Enhance the elevation profile screen with export capabilities. Show an interactive elevation chart with: distance on X-axis, elevation on Y-axis, gradient coloring (green=flat, yellow=moderate, red=steep). Display key metrics: total ascent, total descent, max elevation, min elevation, and grade distribution. Use the difficulty calculator for grade analysis. Include waypoint markers on the elevation profile. Add export options: image (PNG), GPX with elevation data, CSV of elevation points, and shareable link. Show a "Difficulty Rating" based on elevation changes. Compare elevation profiles between trails.
+
+### TRAILS-05: Calorie Estimation Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(trails)/calories.tsx`
+- `apps/web/app/trails/calories/page.tsx`
+**Reference logic:**
+- `modules/trails/src/engine/difficulty-calculator.ts`
+- `modules/trails/src/engine/geo.ts`
+**Prompt:**
+> Build a calorie estimation screen. Show estimated calories burned per recording based on: distance, elevation gain, pace, body weight, and pack weight. Use the difficulty calculator for terrain factor and the geo engine for accurate distance/elevation. Display a breakdown: base calories + elevation bonus + terrain factor + pack weight factor. Include a user profile editor for weight and fitness level. Show calorie comparison across hikes (bar chart). Display a monthly/yearly calorie burn total from hiking. Include a "Pre-Hike Estimate" mode using planned route data.
+
+### TRAILS-06: Segment Analysis Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(trails)/segment/[id].tsx` (exists, enhance)
+- `apps/web/app/trails/segments/page.tsx`
+**Reference logic:**
+- `modules/trails/src/engine/segment-matcher.ts`
+- `modules/trails/src/engine/geo.ts`
+**Prompt:**
+> Enhance the segment analysis screen. Show individual trail segments (detected by the segment matcher) with: distance, time, pace, elevation change, and difficulty grade. Display a ranked leaderboard per segment (personal best times). Include a segment-over-segment comparison showing improvement or regression. Use the segment matcher for automatic segment detection based on known waypoints or GPS patterns. Show a segment map with color-coded pace overlay. Display split times table (per-km or per-mile). Add a "Strava-style" PR indicator for personal records on segments.
+
+### TRAILS-07: GPX Import Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(trails)/import.tsx`
+- `apps/web/app/trails/import/page.tsx`
+**Reference logic:**
+- `modules/trails/src/db/crud.ts`
+- `modules/trails/src/engine/geo.ts`
+**Prompt:**
+> Build a GPX import screen. Show a file picker for .gpx files (from file system, email, or URL). After import, display a preview: map with the route rendered, basic stats (distance, elevation gain, duration if available), and waypoints detected. Use the geo engine for track parsing and stats calculation. Include field mapping for custom GPX extensions. Show import validation (check for GPS drift, gap detection). Add batch import for multiple files. Display import history with file source and date. Include a "Clean Track" option that filters GPS noise before saving. Support KML import alongside GPX.
+
+
+## Voice
+
+### VOICE-01: Transcription Detail Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(voice)/transcription/[id].tsx`
+- `apps/web/app/voice/transcriptions/[id]/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/voice/src/engine/text.ts`
+- `modules/voice/src/engine/speaker.ts`
+- `modules/voice/src/db/crud.ts`
+**Prompt:**
+> Build a transcription detail screen. Show the full transcription text with speaker labels (if multi-speaker detected by the speaker engine). Include timestamp markers synced to audio playback. Display a confidence indicator per segment from the text engine. Show word-level highlighting during playback. Include an "Edit" mode for correcting transcription errors. Display metadata: recording duration, word count, speaker count, language detected. Add export options: text, SRT subtitles, formatted document. Include a "Copy All" button and section-by-section copy.
+
+### VOICE-02: Voice Note Editor Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(voice)/editor.tsx`
+- `apps/web/app/voice/editor/page.tsx`
+**Reference logic:**
+- `modules/voice/src/db/crud.ts`
+- `modules/voice/src/engine/text.ts`
+**Prompt:**
+> Build a voice note editor screen. Show a waveform visualization of the audio with trim handles for cutting start/end. Include split/merge tools for combining or dividing recordings. Display the transcription alongside the waveform with click-to-seek. Add a title, tags, and folder/category assignment. Include a "Highlight" tool to mark important sections of the audio with colored markers and notes. Show recording metadata (date, duration, size). Add playback speed control (0.5x, 1x, 1.5x, 2x). Include a "Re-transcribe" button for updated transcription.
+
+### VOICE-03: Keyword Extraction Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(voice)/keywords.tsx`
+- `apps/web/app/voice/keywords/page.tsx`
+**Reference logic:**
+- `modules/voice/src/engine/text.ts`
+- `modules/voice/src/db/crud.ts`
+**Prompt:**
+> Build a keyword extraction screen. Show automatically extracted keywords and key phrases from voice transcriptions using the text engine. Display keywords as a tag cloud weighted by frequency and relevance. Include a per-recording keyword list with context (surrounding sentence for each keyword occurrence). Show keyword trends across all recordings (which topics come up most). Add a "Topics" view grouping related keywords into themes. Include a keyword-based search that finds all recordings containing a specific keyword. Display a timeline of when keywords first and last appeared.
+
+### VOICE-04: Summarization Preview Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(voice)/summary.tsx`
+- `apps/web/app/voice/summary/page.tsx`
+**Reference logic:**
+- `modules/voice/src/engine/text.ts`
+- `modules/voice/src/db/crud.ts`
+**Prompt:**
+> Build a summarization preview screen. Show an auto-generated summary of a voice recording's transcription from the text engine. Display: one-sentence TLDR, bullet-point key takeaways, action items detected, and decisions mentioned. Include length controls (brief/detailed). Show the summary alongside the full transcription for verification. Add "Edit Summary" for corrections. Include a "Generate Meeting Minutes" mode for meeting-style recordings. Display a sentiment overview of the recording. Add export and share options for the summary. Show summary history if the recording has been re-summarized.
+
+### VOICE-05: Search Interface Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(voice)/search.tsx`
+- `apps/web/app/voice/search/page.tsx`
+**Reference logic:**
+- `modules/voice/src/engine/text.ts`
+- `modules/voice/src/db/crud.ts`
+**Prompt:**
+> Build a voice notes search interface. Show a search bar with real-time results as the user types. Search across transcription text, titles, tags, and keywords. Display results with: recording title, date, duration, and highlighted matching text snippet. Include filters: date range, speaker, duration range, folder/category, and tags. Add a "Voice Search" option using the device microphone to search by speaking. Show recent searches and suggested searches. Display result count and sort options (relevance, date, duration). Include a "Search Within" mode for searching within a single long recording.
+
+
+## Words
+
+### WORDS-01: Multi-Language Lookup Detail
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(words)/word/[id].tsx` (exists, enhance)
+- `apps/web/app/words/[word]/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/words/src/api/wiktionary.ts`
+- `modules/words/src/api/free-dictionary.ts`
+- `modules/words/src/service.ts`
+**Prompt:**
+> Enhance the word detail screen for multi-language support. Show word definition with language selector (English, Spanish, French, German, Japanese, etc.) using the Wiktionary API. Display per-language: definitions, part of speech, gender (for gendered languages), conjugation tables (for verbs), and example sentences. Use the service layer for multi-source lookup. Show cross-language translations below the primary definition. Include a "Compare Languages" toggle showing the word in all available languages side by side. Add a "Save to List" action with language tag.
+
+### WORDS-02: Alphabetical Browse Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(words)/browse.tsx`
+- `apps/web/app/words/browse/page.tsx`
+**Reference logic:**
+- `modules/words/src/search.ts`
+- `modules/words/src/db/crud.ts`
+**Prompt:**
+> Build an alphabetical browse screen. Show a dictionary-style alphabetical index (A-Z sidebar for quick jumping). Display a scrollable word list with: word, brief definition, part of speech, and saved/unsaved indicator. Use the search module for filtering and the CRUD for saved words. Include a "Word of the Day" featured card at the top. Add filters: by part of speech, by language, by recently looked up. Display a "Recently Added" section showing words the user has recently saved. Include infinite scroll for large word sets. Show word difficulty level if available.
+
+### WORDS-03: Word Helper Screen (Synonyms/Rhymes)
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(words)/helper.tsx` (exists, enhance)
+- `apps/web/app/words/helper/page.tsx` (exists, enhance)
+**Reference logic:**
+- `modules/words/src/api/datamuse.ts`
+- `modules/words/src/service.ts`
+**Prompt:**
+> Enhance the word helper screen. Show a search input and result tabs: Synonyms, Antonyms, Rhymes, Near-Rhymes, Homophones, and Related Words. Use the Datamuse API integration for all lookups. Each result shows the word with: relevance score, part of speech, and brief definition on tap. Include a "Use in Sentence" example per result. Add a "Writers' Tools" section: alliteration finder, words that fit a pattern (crossword helper), words with specific syllable count. Display a "Similar Sounding" section for near-misses. Include a frequency indicator showing how common each word is.
+
+### WORDS-04: Etymology Viewer Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(words)/etymology.tsx`
+- `apps/web/app/words/etymology/page.tsx`
+**Reference logic:**
+- `modules/words/src/api/wiktionary.ts`
+- `modules/words/src/service.ts`
+**Prompt:**
+> Build an etymology viewer screen. Show the word's origin story: language of origin, root words, historical evolution path (e.g., Latin -> Old French -> Middle English -> Modern English). Use the Wiktionary API for etymology data. Display a visual timeline of the word's journey through languages. Show related words that share the same root (cognates). Include a "Word Family" section showing derived forms (prefixes/suffixes). Display first known usage date. Add a "Random Etymology" feature for exploring interesting word histories. Include a "Favorites" system for fascinating etymologies.
+
+### WORDS-05: Pronunciation Playback Screen
+**Depends on:** None
+**Files to create/edit:**
+- `apps/mobile/app/(words)/pronunciation.tsx`
+- `apps/web/app/words/pronunciation/page.tsx`
+**Reference logic:**
+- `modules/words/src/api/free-dictionary.ts`
+- `modules/words/src/service.ts`
+**Prompt:**
+> Build a pronunciation playback screen. Show the word with IPA (International Phonetic Alphabet) transcription and a play button for audio pronunciation. Use the Free Dictionary API for audio URLs. Include multiple pronunciation variants: US English, UK English, Australian English (where available). Display a syllable breakdown with stress markers. Include a "Record Yourself" feature to compare the user's pronunciation with the reference audio. Show a waveform comparison between reference and user recordings. Add a "Pronunciation Guide" section explaining IPA symbols. Include a "Practice" mode that presents words to pronounce in sequence.
+

@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat Investor and Technical Review - GPT - 2026-07-05</title>
+<style>
+  :root {
+    --paper: #f7f1e8;
+    --paper2: #efe4d6;
+    --ink: #17211d;
+    --muted: #5d6a61;
+    --line: rgba(23, 33, 29, 0.14);
+    --green: #1f6f5b;
+    --green2: #0f4a3d;
+    --mint: #dceee7;
+    --blue: #265f7e;
+    --gold: #9a6a24;
+    --red: #a33b30;
+    --white: #fffaf3;
+    --shadow: 0 20px 60px rgba(35, 25, 15, 0.10);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--green2); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  .hero {
+    min-height: 78vh;
+    padding: 42px 28px 36px;
+    background:
+      linear-gradient(180deg, rgba(247,241,232,0.84), rgba(247,241,232,0.98)),
+      radial-gradient(circle at 15% 10%, rgba(31,111,91,0.18), transparent 32%),
+      linear-gradient(135deg, #e2efe8, #f7f1e8 54%, #ead7bd);
+    border-bottom: 1px solid var(--line);
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .eyebrow {
+    color: var(--green2);
+    font-size: 13px;
+    letter-spacing: 0;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0 0 18px;
+  }
+  h1 {
+    margin: 0;
+    max-width: 980px;
+    font-size: clamp(40px, 7vw, 76px);
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+  .subtitle {
+    max-width: 820px;
+    margin: 24px 0 0;
+    color: #34433c;
+    font-size: clamp(18px, 2.4vw, 24px);
+    line-height: 1.45;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 32px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 7px 11px;
+    border: 1px solid rgba(31,111,91,0.24);
+    background: rgba(255,250,243,0.72);
+    color: var(--green2);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 42px;
+  }
+  .metric {
+    background: rgba(255,250,243,0.76);
+    border: 1px solid var(--line);
+    padding: 18px 16px;
+    min-height: 132px;
+    box-shadow: var(--shadow);
+  }
+  .metric strong {
+    display: block;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--green2);
+    margin-bottom: 10px;
+  }
+  .metric span { color: var(--muted); font-size: 13px; }
+  main { padding: 42px 28px 96px; }
+  section {
+    max-width: 1120px;
+    margin: 0 auto 48px;
+    border-top: 1px solid var(--line);
+    padding-top: 30px;
+  }
+  h2 {
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.08;
+    letter-spacing: 0;
+    margin: 0 0 14px;
+  }
+  h3 {
+    font-size: 19px;
+    line-height: 1.28;
+    margin: 28px 0 8px;
+    color: var(--green2);
+  }
+  p { margin: 0 0 16px; color: #26322d; }
+  .lead { font-size: 20px; line-height: 1.48; max-width: 900px; color: #24342d; }
+  .two {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 22px;
+    margin-top: 22px;
+  }
+  .three {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--line);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .panel h3:first-child { margin-top: 0; }
+  ul, ol { padding-left: 21px; margin: 10px 0 0; }
+  li { margin: 7px 0; color: #26322d; }
+  code {
+    font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: rgba(31,111,91,0.10);
+    color: #143d33;
+    border: 1px solid rgba(31,111,91,0.16);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .table-wrap {
+    margin-top: 18px;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    background: var(--white);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 13px;
+  }
+  th {
+    background: #e7f1eb;
+    color: var(--green2);
+    font-weight: 800;
+  }
+  tr:last-child td { border-bottom: 0; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.6;
+  }
+  .tag.good { background: #dceee7; color: var(--green2); }
+  .tag.partial { background: #f2dfbd; color: #714b16; }
+  .tag.open { background: #f4d2cc; color: #7a2b24; }
+  .tag.watch { background: #dce9f0; color: var(--blue); }
+  .quote {
+    border-left: 4px solid var(--green);
+    padding: 14px 18px;
+    background: rgba(31,111,91,0.08);
+    color: #24342d;
+    margin: 18px 0;
+  }
+  .source-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 18px;
+    margin-top: 18px;
+    padding-left: 18px;
+  }
+  .risk-high { color: var(--red); font-weight: 800; }
+  .risk-med { color: var(--gold); font-weight: 800; }
+  .risk-low { color: var(--green2); font-weight: 800; }
+  .small { color: var(--muted); font-size: 13px; }
+  .bar {
+    height: 10px;
+    background: #e4d8ca;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .bar span { display: block; height: 100%; background: var(--green); border-radius: inherit; }
+  footer {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  @media (max-width: 900px) {
+    .hero-grid, .three, .two, .source-list { grid-template-columns: 1fr; }
+    .hero { min-height: auto; }
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Investor and technical audit review - GPT - July 5, 2026</p>
+    <h1>Meerkat is a private social cloud, not another chat app.</h1>
+    <p class="subtitle">A local-first encrypted network for trusted groups that combines private messaging, community spaces, public reading, self-hostable relays, and paid hosted storage. The strongest story is not "we made a messenger." It is "we made a user-owned social substrate that can monetize like cloud storage without selling attention."</p>
+    <div class="meta">
+      <span class="chip">Repo: MyLife / apps/meerkat</span>
+      <span class="chip">Branch: feature/meerkat-launch-completion</span>
+      <span class="chip">Review base: aaa8bace</span>
+      <span class="chip">Audience: investors + technical auditors</span>
+    </div>
+    <div class="hero-grid" aria-label="Key metrics">
+      <div class="metric"><strong>5.79B</strong><span>Global social media user identities at the start of April 2026, according to DataReportal.</span></div>
+      <div class="metric"><strong>77%</strong><span>Americans with little or no trust that social media leaders will responsibly handle data misuse, per Pew.</span></div>
+      <div class="metric"><strong>306</strong><span>Meerkat-related test files across mobile, web, sync, and relay source trees.</span></div>
+      <div class="metric"><strong>$4.99</strong><span>Founder-locked (2026-07-05): the app is $4.99 once; the optional hosted subscription, storage included, is $4.99/month.</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="verdict">
+    <h2>1. Executive Verdict</h2>
+    <p class="lead">Meerkat has the shape of a credible privacy infrastructure company: local-first product design, real cryptography, honest network claims, a dual mobile/web surface, self-hostable server components, and a monetization path based on storage and relay capacity rather than ads. The market timing is favorable because social usage is enormous, trust in centralized social platforms is weak, and consumers already understand small monthly storage subscriptions.</p>
+    <div class="quote"><strong>Investor thesis:</strong> Meerkat can win if it owns a focused wedge: private groups that need durable shared memory, strong control, and low-friction publishing without handing their entire graph to an advertising platform.</div>
+    <div class="two">
+      <div class="panel">
+        <h3>What is already compelling</h3>
+        <ul>
+          <li>Real device identity, encrypted local storage, content-addressed sealed shares, and signed community events through <code>@mylife/sync</code>.</li>
+          <li>Invite-only communities, channel chat, posts, replies, reactions, attachments, DMs, member removal, public reading, and relay-backed flows have substantial implementation and tests.</li>
+          <li>The product repeatedly chooses transport honesty: no fake connected state, no fabricated peer counts, no fake delivery receipt, and default relay URL remains empty until a real deployment exists.</li>
+          <li>The business model can be simple: paid app for aligned customers, free public reading for distribution, hosted storage/relay capacity for recurring revenue, and self-hosting for trust.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>What auditors will press on</h3>
+        <ul>
+          <li>Launch-completion work remains: Plan 23 readiness, Plan 24 route enforcement/wallet UX, Plan 27 policy UX/gossip completion, Plan 29 mobile/web auto-connect, calls, and open participation.</li>
+          <li>Payment, account deletion, legal pages, app-store metadata, moderation operations, CSAM scanning, relay deployment, default relay health, app assets, and two-device QA must be finished before public launch.</li>
+          <li>Pricing is founder-locked: $4.99 one-time for the app plus a $4.99/month hosted subscription with storage included. Auditors will press on storage margin and fair-use allowances at that price; allowances should be finalized from real provider invoices before launch.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="product">
+    <h2>2. Product Definition</h2>
+    <p class="lead">Meerkat is best described as a private-network social app. Users create a local encrypted node on their phone, join trusted communities, exchange signed content, and use relays only as ciphertext carriers or public distribution infrastructure. A hosted service can improve reach and storage, but the trust story lives in the client and protocol.</p>
+    <div class="three">
+      <div class="panel">
+        <h3>For users</h3>
+        <p>A calmer place for family, close friends, clubs, teams, creator communities, neighborhood groups, and privacy-conscious publics. The promise is not virality. It is durable shared memory with explicit membership and fewer platform incentives to harvest behavior.</p>
+      </div>
+      <div class="panel">
+        <h3>For operators</h3>
+        <p>A self-hostable relay and community-node stack that forwards ciphertext, stores public signed artifacts, and can be run without claiming authority over private content. This is the enterprise/compliance wedge.</p>
+      </div>
+      <div class="panel">
+        <h3>For investors</h3>
+        <p>A subscription path that resembles cloud storage more than social ads: users pay for hosted relay, storage, recovery, public distribution, and family/community capacity while the core app remains aligned with privacy.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="market">
+    <h2>3. Market and Demand</h2>
+    <p class="lead">The total social market is not the issue. Distribution and trust are. DataReportal reports 5.79 billion social media user identities globally at the start of April 2026 and 254 million active social media user identities in the United States in October 2025. Pew's privacy research shows the emotional opening: Americans have low trust in social-media data stewardship, with 77% expressing little or no trust in leaders of social media companies to take responsibility for data misuse.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Segment</th><th>Why it hurts today</th><th>Meerkat fit</th><th>Go-to-market motion</th></tr></thead>
+        <tbody>
+          <tr><td>Families and close friend groups</td><td>Photos, memories, and chats are fragmented across ads-driven platforms, iCloud albums, messaging apps, and group texts.</td><td>Private communities, shared files, DMs, local-first storage, invite links, and honest recovery.</td><td>Paid app + family storage plan + invitation loops.</td></tr>
+          <tr><td>Clubs, teams, mutual-aid groups, schools with consent controls</td><td>Discord/Slack are powerful but overbuilt, noisy, and centrally operated. Messaging apps lack durable group knowledge.</td><td>Channels, posts, public/private surfaces, roles, member removal, local-only policies, and self-hosting.</td><td>Admin-led communities and storage bundles.</td></tr>
+          <tr><td>Creators and small publications</td><td>Creators want reach without fully surrendering audience identity, archives, or moderation boundaries to a feed algorithm.</td><td>Public reader, signed publications, request-to-join, private member rooms, and portable archives.</td><td>Free public web reader + paid private communities.</td></tr>
+          <tr><td>Privacy and sovereignty adopters</td><td>Existing private tools split between simple messengers and technically heavy federated systems.</td><td>Real encryption, self-hostable relay, signed content, local storage, and protocol-level transport honesty.</td><td>Technical docs, audits, self-host bundles, and trust reports.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="quote"><strong>Why now:</strong> consumers know storage subscriptions, app stores force clearer privacy disclosures, regulators demand stronger UGC controls, and "private by design" has moved from niche preference to board-level risk language.</div>
+  </section>
+
+  <section id="competition">
+    <h2>4. Competitive Landscape</h2>
+    <p class="lead">Meerkat should not compete head-on with WhatsApp, Signal, Discord, iCloud, Dropbox, or Matrix on their strongest axis. It should combine pieces they do not combine: private groups, signed durable content, public read surfaces, self-hostable relay, and storage-backed monetization.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Alternative</th><th>What users get</th><th>Where Meerkat differs</th><th>Pricing signal</th></tr></thead>
+        <tbody>
+          <tr><td>Signal / WhatsApp</td><td>Excellent default private messaging. WhatsApp explicitly markets end-to-end encrypted personal messages and calls; Signal positions around no ads, no trackers, no surveillance.</td><td>Meerkat adds local node storage, public/private community publishing, storage economics, self-hostable infrastructure, and community transport policy.</td><td>Free messaging sets a hard expectation that the basic chat surface cannot be the only paid value.</td></tr>
+          <tr><td>Discord / Telegram</td><td>Large social/community surfaces with optional premium subscriptions. Discord Nitro Basic is $2.99/month and Nitro is $9.99/month in the US. Telegram Premium is positioned as optional user-supported monetization.</td><td>Meerkat should be quieter, ownership-first, and privacy-first, with fewer platform-growth incentives.</td><td>$4.99 one-time is cheap next to premium communities; the $4.99/month hosted subscription (storage included) funds the network.</td></tr>
+          <tr><td>iCloud / Google One / Dropbox / Proton Drive</td><td>Consumer storage, file sync, backups, and sharing.</td><td>Meerkat storage is attached to private social memory, signed publishing, and communities, not generic file sync alone.</td><td>iCloud is the right consumer anchor. Dropbox and Proton support higher willingness to pay for collaboration/privacy bundles.</td></tr>
+          <tr><td>Matrix / Element and self-hosted tools</td><td>Open/federated communication and admin control.</td><td>Meerkat can be less admin-heavy and more consumer-native while preserving a self-host path.</td><td>Self-hosters will pay for convenience, managed relay, and storage if trust is explicit.</td></tr>
+          <tr><td>Slack / Circle / Mighty Networks style communities</td><td>Hosted collaboration/community SaaS.</td><td>Meerkat's wedge is end-user trust and storage ownership, not workplace workflow depth.</td><td>These products prove admins pay, but Meerkat should begin with consumer-simple pricing.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="technology">
+    <h2>5. Technical Architecture Review</h2>
+    <p class="lead">The implementation is deeper than a prototype. Across Meerkat mobile, Meerkat web, <code>@mylife/sync</code>, and <code>meerkat-relay</code>, the reviewed source set contains 808 tracked files, about 92,499 TypeScript/TSX lines in the core surfaces, and 306 test files. The current commit has a clean working tree and the latest Plan 37 foundation commit is <code>aaa8bace</code>.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Evidence</th><th>Auditor interpretation</th></tr></thead>
+        <tbody>
+          <tr><td>Identity and crypto</td><td><code>@mylife/sync</code> owns identity, signed bundles, sealed shares, share links, session engine, mailbox, group keys, public snapshots, DMs, and humanity credentials.</td><td>Correct boundary. The app does not invent ad hoc crypto in UI code.</td></tr>
+          <tr><td>Local persistence</td><td>Expo SQLite, Secure Store, file-system block storage, browser IndexedDB equivalents, and explicit table prefixes <code>mk_</code>, <code>cm_</code>, <code>sync_</code>, <code>dm_</code>.</td><td>Good local-first substrate. Migration, recovery, and backup flows remain central diligence items.</td></tr>
+          <tr><td>Transport</td><td>Manual relay sessions, LAN dev build path, relay mailbox, session tokens, auto-connect engine foundation, and policy-aware local join handoff.</td><td>Architecture supports the product thesis. Auto-connect UI/background behavior is not complete yet.</td></tr>
+          <tr><td>Community model</td><td>Signed community descriptors, roles, channels, messages, reactions, post threads, attachments, public join requests, member removal, and transport policies.</td><td>Feature surface is broad and unusually complete for a privacy-first app.</td></tr>
+          <tr><td>Hosted node</td><td>Relay, community node, public directory, public archive moderation queue, humanity verification service foundation, body caps, bounded state, and rate limits.</td><td>Deployable direction is credible. Production operations, storage backend, scanning, backups, and monitoring need the same rigor as the protocol.</td></tr>
+          <tr><td>Tests and gates</td><td>Recent verification included sync, relay, web, app tests; four typechecks; Meerkat parity; and changed-function gates.</td><td>Good engineering discipline. Investors should treat the test suite as a key asset.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Current launch state</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Area</th><th>Status after 2026-07-05 work</th><th>Remaining launch-completion work</th></tr></thead>
+        <tbody>
+          <tr><td>Core communities, DMs, feed, public social, member removal</td><td><span class="tag good">Substantial code complete</span></td><td>Device QA, server deployment, legal/compliance, and app-store readiness.</td></tr>
+          <tr><td>Web attachment safety and node resource bounds</td><td><span class="tag good">Fixed in aaa8bace</span></td><td>Include the fixes in the next full launch gate and external security review.</td></tr>
+          <tr><td>Humanity verification</td><td><span class="tag partial">Foundation built</span></td><td>Route enforcement, wallet UX, service deployment, App Attest / Play Integrity / Turnstile configuration.</td></tr>
+          <tr><td>Transport policies</td><td><span class="tag partial">Protocol + local join foundation</span></td><td>Policy-change UX, production gossip caller, red-team closeout.</td></tr>
+          <tr><td>Seamless auto-connect</td><td><span class="tag partial">Engine foundation</span></td><td>Mobile/web trigger wiring, honest UI, background graduation, opt-in signed presence.</td></tr>
+          <tr><td>Calls and rooms</td><td><span class="tag open">Not built yet</span></td><td>Full signaling/media stack, SFU decision, moderation, and device QA.</td></tr>
+          <tr><td>Monetization</td><td><span class="tag partial">Pricing decided, purchase paths pending</span></td><td>Founder-locked 2026-07-05: $4.99 one-time app + $4.99/month hosted with storage included (guarded by a billing-config test). Remaining: IAP/restore path, hosted checkout UI, hosted billing service, and account deletion.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <h2>6. Pricing and Storage Strategy</h2>
+    <p class="lead">Pricing is founder-locked (2026-07-05) at exactly two numbers: the app is $4.99 one-time, and the optional hosted subscription is $4.99 per month with storage included. The one-time price is the alignment and anti-spam wedge: buy the app, own your local node, use every private/local/self-hosted feature forever. The subscription exists only for people who want Meerkat to run the servers, and it bundles relay, community node, and encrypted storage into one number.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Benchmark</th><th>Current pricing signal</th><th>Meaning for Meerkat</th></tr></thead>
+        <tbody>
+          <tr><td>Apple iCloud+</td><td>Apple lists 50GB at $0.99/month, 200GB at $2.99/month, 2TB at $9.99/month, 6TB at $29.99/month, and 12TB at $59.99/month in the US.</td><td>This is the consumer anchor. Users understand it and will compare against it.</td></tr>
+          <tr><td>Google One</td><td>Google's current US page shows 15GB free, 100GB at $1.99/month, 200GB at $2.99/month, and higher AI/storage bundles including 5TB at $19.99/month.</td><td>Google validates low-end consumer storage pricing, but AI bundles muddy the 2TB comparison.</td></tr>
+          <tr><td>Dropbox</td><td>Dropbox lists a 2TB Family plan at $16.99/month and team plans starting at $15/user/month with 3TB team storage.</td><td>Collaboration/privacy workflows support a premium over raw iCloud storage.</td></tr>
+          <tr><td>Cloudflare R2</td><td>R2 standard storage is $0.015/GB-month with no egress fee, plus request charges.</td><td>A true 2TB hot-storage customer costs about $30.72/month before requests. R2 is not compatible with iCloud-parity 2TB pricing unless average usage is much lower.</td></tr>
+          <tr><td>Backblaze B2 / Wasabi</td><td>Backblaze lists B2 storage at $6.95/TB-month; Wasabi lists hot storage starting at $7.99/TB-month.</td><td>These make iCloud-like high-tier pricing more plausible, but margins still require fair use, low egress, lifecycle management, or oversubscription.</td></tr>
+          <tr><td>Discord Nitro</td><td>Discord's current US pricing is $2.99/month for Nitro Basic and $9.99/month for Nitro.</td><td>Consumers will pay recurring for community perks, but storage/reliability must be clear and tangible.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Founder-locked packaging (2026-07-05)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tier</th><th>Price</th><th>What it includes</th><th>Why this works</th></tr></thead>
+        <tbody>
+          <tr><td>App unlock</td><td>$4.99 one time</td><td>Native app, local encrypted node, private communities, manual/local sync, self-host compatibility, no ads. No subscription is ever required for private/local/self-hosted use.</td><td>Low-friction paid identity. It filters spam and signals alignment without promising lifetime server cost.</td></tr>
+          <tr><td>Free public reader</td><td>$0</td><td>Read public Meerkat publications on web, anonymously.</td><td>Distribution cannot sit behind a paid app wall.</td></tr>
+          <tr><td>Meerkat Hosted</td><td>$4.99/month</td><td>The single hosted subscription: always-on zero-knowledge relay, always-on community node, and encrypted hosted storage included. No storage tier ladder, no upsell funnel. Fair-use allowances to be finalized from real provider invoices before launch.</td><td>One consumer-legible number that matches Telegram Premium while bundling what iCloud charges $2.99 for (storage alone) plus infrastructure neither offers. A billing-config test locks the price and the bundled storage entitlement.</td></tr>
+          <tr><td>Self-host</td><td>Free software + optional support</td><td>Run relay/community-node/directory yourself; optional managed DNS/monitoring/support add-on.</td><td>Builds trust and creates a premium support motion without forcing all data into Meerkat's cloud.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="quote"><strong>Pricing rule:</strong> say "storage" only for hosted bytes Meerkat actually stores. Local encrypted storage on the user's device is part of the app. With storage included in the $4.99/month subscription, the economics live in fair-use allowances (set from real provider invoices), content-addressed dedupe, lifecycle tiers, and peer-first egress rather than in tier pricing.</div>
+  </section>
+
+  <section id="standards">
+    <h2>7. Modern Standards for This Category</h2>
+    <p class="lead">A privacy-first social/storage company is judged on more than encryption. The current standard is a combined trust program: mobile security verification, clear privacy nutrition labels, account deletion, UGC controls, content reporting, moderation response, child-safety escalation, operational transparency, and precise product claims.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Standard area</th><th>Current external benchmark</th><th>Meerkat status</th><th>Investor/auditor ask</th></tr></thead>
+        <tbody>
+          <tr><td>Mobile security</td><td>OWASP MASVS is widely treated as the mobile app security verification baseline.</td><td><span class="tag partial">Strong test culture, needs mapped audit</span></td><td>Produce a MASVS mapping, external mobile assessment, and release-blocking security checklist.</td></tr>
+          <tr><td>Security governance</td><td>NIST CSF 2.0 gives a shared language for governing, identifying, protecting, detecting, responding, and recovering.</td><td><span class="tag partial">Engineering-led today</span></td><td>Add incident response, asset inventory, dependency/SBOM process, key-rotation runbooks, and audit cadence.</td></tr>
+          <tr><td>Secure by design</td><td>CISA emphasizes ownership of customer security outcomes, transparency, and security by default.</td><td><span class="tag good">Product philosophy aligns</span></td><td>Publish a threat model, security whitepaper, and transparency report template.</td></tr>
+          <tr><td>App Store UGC</td><td>Apple requires filtering objectionable material, reporting, timely responses, blocking, and published contact info for UGC apps.</td><td><span class="tag partial">Local/report flows exist</span></td><td>Complete public moderation operations, contact pages, scanner vendor, escalation policy, and review tooling.</td></tr>
+          <tr><td>Account deletion</td><td>Apple and Google both require deletion paths when account creation exists.</td><td><span class="tag open">Not complete for hosted account model</span></td><td>Build in-app and web deletion for hosted identity, storage, publications, and billing records.</td></tr>
+          <tr><td>Privacy labels</td><td>Apple requires disclosure of collected data and third-party partner practices.</td><td><span class="tag partial">Advantage if kept minimal</span></td><td>Maintain a data map for local-only, hosted relay, storage, purchase, support, and abuse-report data.</td></tr>
+          <tr><td>Child-safety reporting</td><td>NCMEC CyberTipline is the US reporting system for suspected online child exploitation from the public and electronic service providers.</td><td><span class="tag open">Scanner/operator path still needed</span></td><td>Define hosted-public archive scanning, hash match workflow, preservation policy, and escalation owner.</td></tr>
+          <tr><td>EU platform obligations</td><td>The Digital Services Act requires stronger user control, illegal/harmful content risk mitigation, transparency, and accountability for online platforms.</td><td><span class="tag watch">Depends on EU launch and scale</span></td><td>Design notice/action, reasons for moderation decisions, appeal records, and transparency reporting early.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="success">
+    <h2>8. Why This Can Be Successful</h2>
+    <div class="two">
+      <div>
+        <h3>Product reasons</h3>
+        <ul>
+          <li><strong>Clear enemy:</strong> social products that monetize attention and centralize personal archives.</li>
+          <li><strong>Clear behavior:</strong> people already share photos, files, messages, and group decisions. Meerkat changes where those records live and who can read them.</li>
+          <li><strong>Clear expansion:</strong> a family starts with one private community, then adds storage, public albums, friend groups, creator spaces, or self-hosting.</li>
+          <li><strong>Clear trust loop:</strong> the product's best feature is honest limitation. It does not fake mesh status or invisible delivery.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Business reasons</h3>
+        <ul>
+          <li><strong>Storage is a proven bill:</strong> iCloud and Google One have trained consumers to pay $0.99 to $9.99+ monthly for durable digital memory.</li>
+          <li><strong>Privacy supports premium:</strong> Proton, Dropbox, and Discord show that users pay when the bundle is more than raw storage.</li>
+          <li><strong>No ad conflict:</strong> the $4.99 app price and the $4.99/month hosted subscription make the company less dependent on tracking, feeds, or engagement manipulation.</li>
+          <li><strong>Self-hosting builds credibility:</strong> it may reduce some hosted revenue, but it increases trust and gives auditors a path to validate claims.</li>
+        </ul>
+      </div>
+    </div>
+    <h3>Execution risks</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Risk</th><th>Severity</th><th>Reason</th><th>Mitigation</th></tr></thead>
+        <tbody>
+          <tr><td>Cold start and network effects</td><td class="risk-high">High</td><td>Private networks need a reason to invite multiple people immediately.</td><td>Launch with family archive, creator/community, and self-host wedges, not generic "new messenger" positioning.</td></tr>
+          <tr><td>Storage margin</td><td class="risk-high">High</td><td>Storage is included in the $4.99/month subscription, so margin depends entirely on real provider costs, utilization, and egress rather than tier pricing.</td><td>Fair-use allowances set from real provider invoices, content-addressed dedupe, lifecycle tiers, storage-provider choice, and Meerkat's peer-first fetch, which shifts egress to community devices.</td></tr>
+          <tr><td>Moderation/compliance</td><td class="risk-high">High</td><td>Public reading and UGC trigger app-store and legal obligations.</td><td>Finish scanner, abuse operations, contact surfaces, deletion, appeals, and transparency logs before public scale.</td></tr>
+          <tr><td>UX complexity</td><td class="risk-med">Medium</td><td>Keys, relays, local-first sync, and policies can become confusing fast.</td><td>Default to simple flows, hide protocol language, and keep capability status honest.</td></tr>
+          <tr><td>Security claims</td><td class="risk-med">Medium</td><td>E2EE products are punished for imprecise wording.</td><td>Publish exact claim boundaries: private community content, public posts, metadata, backups, relay visibility, and recovery.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="diligence">
+    <h2>9. Investor and Technical Auditor Diligence Pack</h2>
+    <p class="lead">The product will be easiest to fund and audit if the company packages proof rather than asking people to trust a pitch. The existing codebase already contains many of the raw materials.</p>
+    <div class="three">
+      <div class="panel">
+        <h3>Investor proof</h3>
+        <ul>
+          <li>Interactive demo showing private community, public reader, attachment safety, and storage upgrade.</li>
+          <li>Pricing page with the two founder-locked prices: $4.99 app unlock and $4.99/month hosted subscription with storage included.</li>
+          <li>ICP-specific landing pages: Family Archive, Private Club, Creator Community, Self-Host.</li>
+          <li>Activation metrics: invite sent, second device joined, first stored media, first public page, paid storage attach.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Technical proof</h3>
+        <ul>
+          <li>Threat model and protocol overview with claims mapped to tests.</li>
+          <li>MASVS checklist, CSP policy, dependency/SBOM output, and reproducible release process.</li>
+          <li>Third-party security review scoped to <code>@mylife/sync</code>, relay, web storage, and attachment handling.</li>
+          <li>Runbooks for key loss, account deletion, relay outage, abuse reports, and hosted storage recovery.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Operating proof</h3>
+        <ul>
+          <li>Public status page and incident response owner.</li>
+          <li>Privacy Policy, Terms, support contact, UGC policy, moderation SLA, and transparency report template.</li>
+          <li>Storage provider cost model with 50GB, 200GB, 2TB, 6TB, and 12TB sensitivity analysis.</li>
+          <li>Device QA matrix with two-device, relay, LAN, offline mailbox, background, and recovery runs.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="recommendation">
+    <h2>10. Recommended Launch Position</h2>
+    <p class="lead">Launch Meerkat as a paid, privacy-aligned app with free public reading and storage subscriptions. Do not sell it as a universal replacement for messaging or cloud storage. Sell it as the private place where important groups keep their shared memory.</p>
+    <div class="quote"><strong>Suggested headline:</strong> "A private home for the groups that matter. Messages, files, posts, and memories, encrypted on your devices, with hosted storage only when you ask for it."</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Decision</th><th>Recommendation</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>$4.99 price</td><td>Keep it as the app unlock.</td><td>It is low enough for consumers and creates trust alignment. It must not imply unlimited cloud service.</td></tr>
+          <tr><td>Storage</td><td>Included in the $4.99/month hosted subscription (founder-locked; no tier ladder).</td><td>One legible promise beats a tier funnel; margin is protected through fair-use allowances set from real provider invoices, dedupe, and peer-first egress.</td></tr>
+          <tr><td>Free plan</td><td>Free public reading.</td><td>Reading and invitations drive distribution. The hosted subscription drives revenue.</td></tr>
+          <tr><td>First market</td><td>Privacy-conscious families and small trusted communities.</td><td>They feel the pain, understand storage, and do not require enterprise sales cycles.</td></tr>
+          <tr><td>Trust posture</td><td>Publish exact claims and evidence.</td><td>Auditors and privacy users reward precision more than broad slogans.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sources">
+    <h2>Sources and Benchmarks</h2>
+    <p class="lead">Current external references checked on July 5, 2026. Product status is grounded in the local repository at commit <code>aaa8bace</code>.</p>
+    <ol class="source-list">
+      <li><a href="https://support.apple.com/en-us/108047">Apple Support: iCloud+ plans and pricing</a></li>
+      <li><a href="https://www.apple.com/icloud/">Apple: iCloud+ product pricing page</a></li>
+      <li><a href="https://one.google.com/intl/en_us/about/">Google One: current US plans</a></li>
+      <li><a href="https://www.dropbox.com/buy">Dropbox: current buy/plans page</a></li>
+      <li><a href="https://developers.cloudflare.com/r2/pricing/">Cloudflare R2 pricing docs</a></li>
+      <li><a href="https://www.cloudflare.com/products/r2/">Cloudflare R2 product pricing</a></li>
+      <li><a href="https://www.backblaze.com/cloud-storage/pricing">Backblaze B2 cloud storage pricing</a></li>
+      <li><a href="https://wasabi.com/pricing">Wasabi hot cloud storage pricing</a></li>
+      <li><a href="https://aws.amazon.com/s3/pricing/">AWS S3 pricing</a></li>
+      <li><a href="https://discord.com/blog/beginners-guide-to-nitro">Discord Nitro pricing guide</a></li>
+      <li><a href="https://telegram.org/faq_premium">Telegram Premium FAQ</a></li>
+      <li><a href="https://signal.org/">Signal product site</a></li>
+      <li><a href="https://signal.org/legal/">Signal privacy and legal page</a></li>
+      <li><a href="https://faq.whatsapp.com/820124435853543">WhatsApp Help: end-to-end encryption</a></li>
+      <li><a href="https://datareportal.com/social-media-users">DataReportal: global social media statistics</a></li>
+      <li><a href="https://datareportal.com/reports/digital-2026-united-states-of-america">DataReportal: Digital 2026 USA</a></li>
+      <li><a href="https://www.pewresearch.org/internet/2023/10/18/how-americans-view-data-privacy/">Pew Research: how Americans view data privacy</a></li>
+      <li><a href="https://developer.apple.com/app-store/review/guidelines/">Apple App Review Guidelines</a></li>
+      <li><a href="https://developer.apple.com/support/offering-account-deletion-in-your-app/">Apple Developer: offering account deletion</a></li>
+      <li><a href="https://support.google.com/googleplay/android-developer/answer/13327111?hl=en">Google Play: account deletion requirements</a></li>
+      <li><a href="https://developer.apple.com/app-store/app-privacy-details/">Apple Developer: app privacy details</a></li>
+      <li><a href="https://www.missingkids.org/cybertiplinedata">NCMEC CyberTipline data</a></li>
+      <li><a href="https://digital-strategy.ec.europa.eu/en/policies/digital-services-act">European Commission: Digital Services Act</a></li>
+      <li><a href="https://mas.owasp.org/MASVS/">OWASP MASVS</a></li>
+      <li><a href="https://www.nist.gov/cyberframework">NIST Cybersecurity Framework 2.0</a></li>
+      <li><a href="https://www.cisa.gov/securebydesign">CISA Secure by Design</a></li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>Prepared by GPT for the MyLife / Meerkat workspace.</strong> Pricing sections updated July 5, 2026 to the founder-locked model: $4.99 one-time app plus $4.99/month hosted subscription with storage included (guarded by a billing-config test). This report is a product, market, pricing, and technical-readiness review. It is not a legal opinion, accounting opinion, or completed third-party security audit. The purpose is to give investors and technical auditors a clear starting point for diligence.</p>
+  </div>
+</footer>
+</body>
+</html>

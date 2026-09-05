@@ -1,0 +1,115 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`WeeklySchedule render plan (mobile) > snapshots a typical week with conflicts 1`] = `
+{
+  "hourRows": [
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+  ],
+  "perDay": [
+    {
+      "day": "mon",
+      "items": [
+        {
+          "classId": "c-cs101",
+          "color": "#3B82F6",
+          "conflicts": [
+            "MA 201",
+          ],
+          "end": "10:30",
+          "heightPct": 10,
+          "name": "CS 101",
+          "start": "09:00",
+          "topPct": 13.33,
+        },
+        {
+          "classId": "c-ma201",
+          "color": "#F97316",
+          "conflicts": [
+            "CS 101",
+          ],
+          "end": "11:00",
+          "heightPct": 6.67,
+          "name": "MA 201",
+          "start": "10:00",
+          "topPct": 20,
+        },
+      ],
+    },
+    {
+      "day": "tue",
+      "items": [],
+    },
+    {
+      "day": "wed",
+      "items": [
+        {
+          "classId": "c-cs101",
+          "color": "#3B82F6",
+          "conflicts": [],
+          "end": "10:30",
+          "heightPct": 10,
+          "name": "CS 101",
+          "start": "09:00",
+          "topPct": 13.33,
+        },
+      ],
+    },
+    {
+      "day": "thu",
+      "items": [
+        {
+          "classId": "c-ma201",
+          "color": "#F97316",
+          "conflicts": [],
+          "end": "14:30",
+          "heightPct": 10,
+          "name": "MA 201",
+          "start": "13:00",
+          "topPct": 40,
+        },
+      ],
+    },
+    {
+      "day": "fri",
+      "items": [
+        {
+          "classId": "c-en110",
+          "color": "#F97316",
+          "conflicts": [],
+          "end": "15:30",
+          "heightPct": 10,
+          "name": "EN 110",
+          "start": "14:00",
+          "topPct": 46.67,
+        },
+      ],
+    },
+  ],
+  "totalConflicts": 1,
+  "visibleDays": [
+    "mon",
+    "tue",
+    "wed",
+    "thu",
+    "fri",
+  ],
+  "window": {
+    "endHour": 22,
+    "startHour": 7,
+  },
+}
+`;

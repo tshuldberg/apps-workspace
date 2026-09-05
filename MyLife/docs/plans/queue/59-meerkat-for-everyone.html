@@ -1,0 +1,234 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><title>Plan 59: Meerkat for Everyone</title><style>
+:root{--bg:#f7f5ef;--ink:#1d1d1b;--mut:#5b5b57;--acc:#1f7a6a;--line:#dcd8cc;--card:#fffdf8}
+@media(prefers-color-scheme:dark){:root{--bg:#161715;--ink:#ece9e0;--mut:#a5a39a;--acc:#5cc3ad;--line:#33342f;--card:#1f201d}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:960px;margin:0 auto;padding:40px 24px 80px}
+h1{font-size:30px;line-height:1.2;margin:0 0 8px}h2{font-size:22px;margin:36px 0 10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+h3{font-size:17px;margin:26px 0 6px;color:var(--acc)}
+p{margin:10px 0}code{font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1px 4px}
+pre{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px}pre code{border:0;padding:0;background:none}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}th{background:var(--card)}
+ol,ul{padding-left:22px}li{margin:4px 0}
+.meta{color:var(--mut);font-size:14px}
+</style></head><body><main><h1>Plan 59: Meerkat for Everyone</h1>
+<ul>
+<li><strong>Project:</strong> Meerkat (<code>apps/meerkat/</code>, <code>apps/meerkat-web/</code>, <code>packages/sync/</code>, <code>packages/meerkat-relay/</code>, <code>scripts/check-meerkat-parity.mjs</code>)</li>
+<li><strong>Created:</strong> 2026-09-01, development-ready after the launch and product evaluation (<code>docs/reports/REPORT-meerkat-launch-product-evaluation-2026-09-01.md</code>) and the technical review (<code>docs/reports/REPORT-meerkat-fable-review-2026-09-01.md</code>)</li>
+<li><strong>Depends on:</strong> nothing new. Plans 16, 29, 31, 52, 53 are done and this plan changes their defaults and surfaces. The two self-host node fixes (R1, R2) from the technical review should land in the same rc train but are a separate small wave.</li>
+<li><strong>Status:</strong> queue, READY FOR DEVELOPMENT. Kickoff prompt: <code>docs/prompts/59-meerkat-for-everyone-kickoff.md</code>.</li>
+<li><strong>Founder directions 2026-09-01 (binding):</strong> (a) QR codes for adding and finding people the way Venmo and Signal do it, that add a friend or start the friend sync; (b) de-techify: powerful and usable by people of every age and skill level; (c) evaluate and adjust the UI/UX to be more user friendly; (d) the target is to replace TikTok scrolling, Facebook, Reddit, Reels, Slack, and Discord. This plan delivers (a), (b), (c), and the Slack/Discord/Facebook-side of (d). Clips (the TikTok and Reels side) is a separate design-first plan and is out of scope here.</li>
+<li><strong>Founder mandate applies:</strong> full production-grade function, no deferred slices.</li>
+</ul>
+<h2>Equipment audit: what exists today vs what this plan builds (verified 2026-09-01 at <code>ee80cd7b</code>)</h2>
+<p><strong>EQUIPPED TODAY (verified in code):</strong></p>
+<ul>
+<li>Friend codes: <code>MEER-XXXX-XXXX-XXXX-XXXX</code>, Crockford base32, 2-byte checksum, no key material (<code>packages/sync/src/node/friend-code.ts</code>). Extended codes append <code>~&lt;secret half&gt;</code> (<code>friend-code.ts:276-330</code>) and the published record is sealed with <code>HKDF(secretHalf, 'meerkat-rendezvous-seal-v1')</code> so the relay cannot read it (<code>friend-rendezvous.ts</code>, Plan 23 D.5). Resolve verifies the self-signature and pins on first use (TOFU, <code>identity-bundle.ts</code>).</li>
+<li>Relay rendezvous lane: <code>publish</code> stores an opaque record for at most <code>rendezvousTtlMs</code> = 10 minutes and <code>resolve</code> CONSUMES it on first read (<code>packages/meerkat-relay/src/hub.ts:174-208</code>, <code>protocol.ts:41</code>). The host registry <code>announce</code> lane is the non-consuming, multi-slot, 30-minute sibling (<code>hub.ts:221-277</code>).</li>
+<li>QR: pure-TS encoder in <code>@mylife/meerkat-theme</code> (<code>qr.ts</code>, <code>qrCanEncode</code>), <code>QrCode.tsx</code> (SVG, black on white), <code>QrScanner.tsx</code> (lazy <code>expo-camera</code>, <code>isQrScannerAvailable()</code>), web <code>QrCodeSvg.tsx</code> (display only).</li>
+<li>Add friend (<code>app/(root)/(tabs)/add-friend.tsx</code> + <code>data/add-friend-core.ts</code>, web <code>AddFriendOverlay.tsx</code> + <code>lib/add-friend-core.ts</code>): shows the bare code as a QR (<code>:191</code>), "Publish my code" (manual, TTL-bound), "Scan their code" (in-app only), "Share my contact" (plain-text envelope via <code>invite-envelope-core.ts</code> + <code>install-url.ts</code>), full <code>ConnectionStatusCard</code>, and <code>ADD_FRIEND_NEEDS_SERVER_LINE</code> when no relay answers. After add the note says "Compare the safety code before sharing sensitive spaces."</li>
+<li>In-person ceremony (Plan 53, <code>add-in-person.tsx</code>): symmetric Multipeer / Wi-Fi Direct, mutual "Confirm Adding [Name]" + safety emoji, no relay. Dev or TestFlight build only.</li>
+<li>Deep links: scheme <code>meerkat</code> (<code>app.json:7</code>); routes handled for <code>community/join</code>, <code>share</code>, <code>theme</code>, <code>public</code>. <code>CommunityInviteLinkListener.tsx</code> is the pattern (cold start via <code>getInitialURL</code>, <code>url</code> event, one preview sheet, never auto-joins, coordinates with <code>OnboardingGate</code>). NO <code>friend</code> route. NO <code>associatedDomains</code>, NO Android intent filter, NO AASA file.</li>
+<li>Automatic connections (Plan 29): <code>auto_connect_enabled</code> setting, default OFF (<code>data/auto-connect-core.ts:28</code>), <code>useAutoConnectTriggers</code> runs one composed round on foreground and on paired-peer appearance; <code>AutoConnectCard.tsx</code> renders the honest last-round line.</li>
+<li>Background + push: <code>background_sync_enabled</code> default false (<code>data/background-sync.ts:280</code>); <code>registerBackgroundSync</code> / <code>registerPushWake</code> in <code>background-task-registration.ts</code> no-op when native modules are absent; <code>background-notify.ts</code> emits a notification only after a real applied&gt;0 count. Web twin <code>web-push-registration.ts</code>.</li>
+<li>Person identity (Plan 52): one name across a person's paired devices, per-community overrides, device detail one expand away.</li>
+<li>Onboarding (<code>OnboardingGate.tsx</code>): "Private social, controlled by you", name, then create / join (scan or paste) / restore. Age gate precedes it. Invite deep links suppress the gate.</li>
+<li>Public join grants (Plan 19 P9): descriptor <code>joinPolicy: 'open'</code> + owner-signed grant -&gt; <code>redeemPublicJoinGrant</code> (roster row only, no key access) (<code>packages/sync/src/protocol/public-join.ts:51</code>, <code>publication.ts:310</code>).</li>
+<li>Parity: <code>scripts/check-meerkat-parity.mjs</code> (2,356 lines) with <code>CORE_TWINS</code> (declarative core-lock registry, <code>:435</code>), <code>JOIN_NAME_COPY</code> string locks (<code>:340</code>), and the connection-card state strings.</li>
+<li>Prior UX baseline: <code>docs/reports/REPORT-meerkat-ui-benchmark-eval-2026-07-01.html</code> (Communities scored 4/10 vs Discord before Plan 31) and the 28-mockup user guide <code>docs/guides/meerkat-complete-user-guide-2026-09-01.html</code>.</li>
+</ul>
+<p><strong>MISSING (this plan builds):</strong></p>
+<ol>
+<li>A standing, always-resolvable friend code (today: manual publish, 10-minute TTL, consumed on first resolve).</li>
+<li>A friend LINK (universal + scheme) that the phone camera opens, with install-then-resume and a web landing route.</li>
+<li>One-tap add that ends in a DM, with the safety check moved to where it is meaningful.</li>
+<li>Defaults that remove the manual session model from normal use (auto connections, background, push).</li>
+<li>A screen-by-screen UI/UX evaluation and adjustment pass with a rubric and a stranger test.</li>
+<li>A vocabulary glossary applied on both surfaces and locked by the parity script.</li>
+<li>Starter communities so a day-one user with no invite sees life.</li>
+<li>Web QR scanning.</li>
+</ol>
+<h2>Non-negotiable positions (bind every section)</h2>
+<ol>
+<li><strong>Transport honesty is unchanged.</strong> No state string, dot, count, or "delivered" line may exist without an engine row or a real probe. "Automatic" means the app tries on its own and shows the real result; it never claims a peer is online.</li>
+<li><strong>The relay learns nothing new.</strong> The standing identity record is SEALED with the extended code's secret half exactly as today (D.5). The relay stores an opaque blob under an HKDF rendezvous id; it never sees display names, keys, or who resolved whom. Enumeration stays infeasible (8 random id bytes) and rate limits apply per client key.</li>
+<li><strong>TOFU and the safety check survive.</strong> Resolution verifies the self-signature; first-use pinning is unchanged; the safety check is one tap away in every DM header and on every profile. Nothing auto-trusts.</li>
+<li><strong>No account identifier beside a device identifier</strong> (Plan 51 wall). The friend link carries the extended friend code only. The web landing page shows the display name from the SIGNED bundle and nothing else.</li>
+<li><strong>Both surfaces, one behavior.</strong> Mobile is canonical; web is a verbatim twin. Every new <code>*-core.ts</code> lands with a <code>CORE_TWINS</code> entry and every new user-facing string family lands with a <code>COPY_TWINS</code> lock in the same commit.</li>
+<li><strong>Simplify by defaults and placement, never by removing capability.</strong> Advanced screens keep every control; they move behind one "Advanced" door with a one-line explanation. No feature is deleted to look simpler.</li>
+<li><strong>Copy register, not copy honesty, changes.</strong> The glossary replaces architecture words with plain words; each replacement keeps the same truth value (see S6 table).</li>
+<li><strong>The universal 18+ age gate, the private/public wall, and the mesh-sync rules (<code>.claude/rules/mesh-sync.md</code>) are untouched.</strong></li>
+</ol>
+<h2>Work sections (one fable-5 agent per section; S-numbers are the execution order)</h2>
+<h3>S1: Standing friend code (sync + relay + both apps)</h3>
+<ul>
+<li><strong>Relay:</strong> add a non-consuming <code>identity</code> lane beside <code>publish</code>/<code>resolve</code> in <code>hub.ts</code> and <code>protocol.ts</code>: frames <code>identity_publish {rid, rec, ttlMs}</code> and <code>identity_resolve {rid}</code>. Record survives resolves; republish refreshes TTL; TTL clamps to a new <code>identityTtlMs</code> limit (default 30 days, env <code>RELAY_IDENTITY_TTL_MS</code>, min 1 day, max 90 days); <code>maxIdentityRecords</code> (default 100,000) and the existing per-client rate window apply; records are opaque strings capped at <code>maxRendezvousChars</code>. A device may <code>identity_revoke {rid, proof}</code> where proof is a signature over <code>rid || 'revoke'</code> by the key inside the sealed record: the relay cannot verify that (it cannot open the record), so revoke instead requires the publisher's connection-scoped client key that published it (same rule as <code>announce</code> slot ownership, <code>hub.ts:243</code>). Log redaction: rid only, never rec.</li>
+<li><strong>Sync:</strong> <code>publishStandingIdentity</code> / <code>resolveStandingIdentity</code> in <code>packages/sync/src/node/friend-rendezvous.ts</code> reusing <code>createSignedIdentityBundle</code> + the D.5 seal; <code>resolveIdentityFromRendezvous</code> tries the standing lane FIRST, then the one-time lane (so codes published by older builds keep working through the transition). Sealed only: no legacy plaintext path for the standing lane.</li>
+<li><strong>Apps:</strong> a "Let friends find me" setting (<code>mk_settings</code> <code>find_me_enabled</code>, default <code>'1'</code> after onboarding completes; never on before the age gate passes). While on, republish on app foreground when the last republish is older than 24 hours or the record is within 3 days of expiry (<code>mk_settings</code> <code>find_me_published_at</code>, <code>find_me_expires_at</code>, real values only). The Me screen shows the extended code and the QR with a one-line honest status from those two settings ("Findable until Oct 1" / "Not published yet: no connection server reachable"). Turning it off calls revoke and clears the status.</li>
+<li><strong>AC-1:</strong> device A on, device B resolves A's code twice in a row; both succeed; the relay test proves the record was not consumed. <strong>AC-2:</strong> TTL expiry removes the record; a foreground republish restores it. <strong>AC-3:</strong> a relay operator test reads the stored record and cannot recover the display name or keys. <strong>NC-1:</strong> an unsealed (legacy) record on the standing lane is rejected by resolve. <strong>NC-2:</strong> with <code>find_me_enabled</code> off, the code does not resolve after the TTL runs out and no republish fires. <strong>NC-3:</strong> no republish fires before the age gate passes.</li>
+</ul>
+<h3>S2: Friend links, universal links, install-then-resume (both apps + relay static route)</h3>
+<ul>
+<li>Link format: <code>https://&lt;MEERKAT_LINK_HOST&gt;/add/&lt;extended code&gt;</code> with <code>meerkat://friend/&lt;extended code&gt;</code> as the in-app fallback. <code>MEERKAT_LINK_HOST</code> is a new <code>app.config.ts</code> <code>extra.linkHost</code> (env <code>MEERKAT_LINK_HOST</code>, default <code>''</code>: when empty the QR and share card fall back to the scheme link and the plan's install-then-resume path is honestly unavailable, mirroring <code>installUrl</code>).</li>
+<li><code>app.json</code>: <code>ios.associatedDomains: ["applinks:&lt;host&gt;"]</code> and an Android <code>intentFilters</code> entry with <code>autoVerify</code>, both driven from <code>app.config.ts</code> so an unconfigured host emits neither.</li>
+<li>Relay: serve <code>/.well-known/apple-app-site-association</code> and <code>/.well-known/assetlinks.json</code> from a new static route in <code>packages/meerkat-relay/src/server.ts</code> (content from env: team id, bundle id, Android cert fingerprints). Serve <code>/add/&lt;code&gt;</code> as a minimal HTML landing (no scripts beyond one inline script, strict CSP like the operator console page): the inviter's display name (resolved server-side? NO: the relay cannot open the record; the page instead shows "Someone wants to add you on Meerkat" and the code, then an "Open in Meerkat" button and the install link). Display name appears only inside the app after the sealed bundle verifies. State this honestly in the page.</li>
+<li>Mobile: <code>FriendLinkListener.tsx</code> beside <code>CommunityInviteLinkListener.tsx</code> (same cold-start + url-event pattern, same onboarding coordination via a new <code>setDeepLinkFriendPending</code>), presenting the S3 add card. Web: route <code>/add/&lt;code&gt;</code> in the SPA opens the same card.</li>
+<li>Install-then-resume: after install with no pending URL, the app checks the pasteboard ONLY when the user taps "I have a code" in onboarding (no silent clipboard reads); iOS universal links already deliver the URL on first open when the app is installed from the link.</li>
+<li>"Share my contact" becomes the link plus one plain sentence; the QR on Me and Add friend encodes the link (QR capacity check: link length under 120 bytes fits version 6 at level M; add a unit test on <code>qrCanEncode</code>).</li>
+<li><strong>AC-1:</strong> cold-start <code>meerkat://friend/&lt;code&gt;</code> and the https form both open the add card over any screen. <strong>AC-2:</strong> first-run install with a pending invite lands in the add card with onboarding suppressed, then completes onboarding on confirm. <strong>AC-3:</strong> the AASA and assetlinks routes return the exact JSON the platforms require (fixture-locked). <strong>NC-1:</strong> a link with a malformed code renders the typed error inside the card, never a crash. <strong>NC-2:</strong> no code path reads the clipboard without the explicit tap.</li>
+</ul>
+<h3>S3: One-tap add that ends in a chat (both apps)</h3>
+<ul>
+<li>Add card (<code>AddFriendSheet.tsx</code>, web <code>AddFriendCard.tsx</code>): resolves the sealed bundle, verifies, and shows avatar initial, display name, "Add [Name]" and "Not now". Confirm pins + pairs (existing <code>pairWithFriendCode</code> path), writes the friend, and navigates to the DM thread. The success line is "You and [Name] are connected" (a real pairing row).</li>
+<li>Safety check relocation: remove the warning from the add success path; the DM header and the person profile carry "Verify it is really [Name]" (existing safety-code compare + "Mark safety code checked"). Sensitive-space gating (SAS mandatory before community sync, 2026-08-24) is untouched and now prompts inline where the gate fires.</li>
+<li>Add friend screen restructure: top = your QR + link + "Share my contact"; middle = "Scan a code" (camera) and "Enter a code"; bottom = "Add in person" (Plan 53). The <code>ConnectionStatusCard</code> moves to Advanced; the add screen shows a single inline line when no relay is reachable ("Meerkat's relay is not reachable right now. Try again, or add in person.").</li>
+<li>Web scanning: <code>BarcodeDetector</code> when present (Chromium), else paste; both surfaces share <code>add-friend-core.ts</code> link parsing (new <code>parseFriendLink</code> handles https, scheme, and bare code; <code>CORE_TWINS</code> entry).</li>
+<li><strong>AC-1:</strong> scan -&gt; card -&gt; Add -&gt; DM open with a real pairing row in <code>sync_paired_devices</code>. <strong>AC-2:</strong> web paste of the https link resolves the same card. <strong>NC-1:</strong> a bundle whose signature fails renders "This code could not be verified. Ask them to share it again." and writes nothing. <strong>NC-2:</strong> no online dot, no "delivered" line on the new thread until a real receipt row exists.</li>
+</ul>
+<h3>S4: Defaults that remove the session model (both apps)</h3>
+<ul>
+<li><code>auto_connect_enabled</code> default becomes ON for new installs (existing installs: a one-time upgrade prompt on first foreground, "Meerkat can now catch up with your friends automatically. Turn on?"). The round counter line stays honest and visible on the Messages screen header as a subtle "Last catch-up: 2 min ago" derived from <code>auto_connect_last_round</code> (real rounds only; "No catch-up yet" when none).</li>
+<li><code>background_sync_enabled</code> and push registration: default ON in builds where <code>pushGatewayUrl</code> is configured AND the native module is present; both stay OFF and honestly labeled otherwise. The notification permission prompt appears after the first friend or community, never on first launch.</li>
+<li>The Sync screen (<code>app/(root)/sync.tsx</code>) moves under Advanced and is renamed "Connections". Its Engine, Pairing (MKPAIR1), LAN, and Recent sessions sections remain intact; "Pair in person" (Plan 53) is the first option in Pairing.</li>
+<li><strong>AC-1:</strong> fresh install after onboarding shows automatic connections on with a real "No catch-up yet" line. <strong>AC-2:</strong> after one paired peer completes a round, the line shows the real time. <strong>NC-1:</strong> no build without a push gateway shows notifications as on. <strong>NC-2:</strong> no copy on any screen claims a peer is online.</li>
+</ul>
+<h3>S5: UI/UX evaluation and adjustment pass (both apps)</h3>
+<p>This section is an evaluation first, then adjustments. The agent runs the app (dev build on simulator plus the web app) and scores every visible screen on the rubric before changing anything, records the scores in <code>docs/reports/REPORT-meerkat-ux-pass-2026-09-XX.md</code> (HTML twin), then makes the adjustments, then re-scores.</p>
+<p><strong>Rubric (0 to 3 per item, per screen):</strong></p>
+<ol>
+<li>First glance: can a stranger say what the screen is for in five seconds?</li>
+<li>Primary action: is there exactly one obvious next thing to do?</li>
+<li>Vocabulary: zero architecture words (S6 glossary) above the fold.</li>
+<li>Empty state: tells the user what to do, not what the system lacks.</li>
+<li>Depth: nothing advanced within one tap of a primary tab unless behind a door labeled Advanced.</li>
+<li>Touch and reach: primary controls in the bottom half; text at least 15 pt for body; contrast passes WCAG AA in both palettes.</li>
+<li>Feedback: every tap produces a visible state change within 100 ms (spinner, disabled, or navigation).</li>
+<li>Recovery: every failure line says the cause and the next move.</li>
+</ol>
+<p><strong>Adjustments already identified (must be done; the evaluation may add more):</strong></p>
+<ul>
+<li><strong>Feed:</strong> empty state becomes "Your feed fills up as you join communities and add friends." with two buttons; the server sentence moves to Advanced. Keep "Why am I seeing this?". Add a floating compose button that opens a "Post to..." picker of the user's communities (posts already exist per channel).</li>
+<li><strong>Communities:</strong> keep list-first (Plan 31). Empty state gets the S7 starter picks inline. Folder editor moves under a long-press.</li>
+<li><strong>Messages:</strong> "Chats" and "People" stay; the "Meerkat never creates fake chats" hint is removed (true, but it reads as a warning); People rows get the Plan 52 person avatar and the "Verify" affordance.</li>
+<li><strong>Me:</strong> becomes profile-first: avatar, name, "Edit profile", the QR and link with "Share my contact", then three rows: Notifications, Appearance, Settings. The fingerprint moves to "Verify it is really me" inside Edit profile. Items / Blocks / Stored counters move to Storage. "Advanced connection", "Advanced sharing", "What works today" move under Settings &gt; Advanced.</li>
+<li><strong>Settings split:</strong> <code>settings.tsx</code> becomes Profile, Notifications, Appearance, Backup (recovery phrase + encrypted backup + restore), Privacy (age gate status, delete my data, delete account), Unlock Meerkat, About. New <code>settings/advanced.tsx</code> holds Secure storage, Local file storage, Storage budget, Hosted services, Connection options (with the connection status card), Public directory, Background catch-up, Saved files, Link previews, Alpha readiness + Copy diagnostics, Reset identity. First line on Advanced: "You do not need anything here for normal use."</li>
+<li><strong>Onboarding:</strong> unchanged structure; the "Restore your identity" link becomes "Already use Meerkat on another phone?" and leads to Plan 53 "Pair in person" first, recovery phrase second.</li>
+<li><strong>Upgrade:</strong> unchanged pricing and honesty; the four footnotes collapse into one "What this unlocks" list.</li>
+<li><strong>Channel:</strong> unchanged kit; the header audience label stays; the overflow menu labels pass the glossary.</li>
+<li><strong>Web:</strong> the same placements in <code>SettingsOverlay</code>, <code>IdentitySection</code>, <code>AddFriendOverlay</code>, and the shell nav.</li>
+<li><strong>Accessibility:</strong> every new control has <code>accessibilityLabel</code> / <code>aria-label</code>; Dynamic Type verified at the largest non-accessibility size on Me, Add friend, Messages.</li>
+<li><strong>AC-1:</strong> every screen scores at least 2 on every rubric item after the pass, recorded in the report with before/after screenshots (simulator + Playwright). <strong>AC-2:</strong> no capability is removed (a checklist of every control on the old Settings and Me screens maps to a new location). <strong>NC-1:</strong> no new string violates the glossary (S6 lock runs in the battery).</li>
+</ul>
+<h3>S6: Glossary and copy pass with parity locks (both apps + parity script)</h3>
+<p>Apply this table across <code>app/(root)</code> and <code>apps/meerkat-web/src</code>, both surfaces, keeping the truth value of each string. Technical screens under Advanced may keep the precise term in parentheses on first use.</p>
+<table>
+<thead>
+<tr>
+<th>Today</th>
+<th>Everywhere for normal use</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>device, this device</td>
+<td>this phone / this computer / your devices</td>
+<td>platform-aware helper <code>deviceNoun()</code> in a new <code>copy-core.ts</code> twin</td>
+</tr>
+<tr>
+<td>pair, pairing</td>
+<td>connect, connection</td>
+<td>"Pairing code" becomes "Connection code"</td>
+</tr>
+<tr>
+<td>sync, sync now, session</td>
+<td>catch up, update now, catch-up</td>
+<td>"Recent sessions" becomes "Recent catch-ups" under Advanced</td>
+</tr>
+<tr>
+<td>connection server, relay</td>
+<td>Meerkat's relay</td>
+<td>one explainer sentence, used once per screen: "It passes locked boxes and cannot open them."</td>
+</tr>
+<tr>
+<td>identity, device identity</td>
+<td>your Meerkat (profile), your keys (Advanced only)</td>
+<td></td>
+</tr>
+<tr>
+<td>recovery key</td>
+<td>recovery phrase</td>
+<td>format unchanged (MKR1)</td>
+</tr>
+<tr>
+<td>safety code, fingerprint</td>
+<td>safety check</td>
+<td>the code itself is still shown when checking</td>
+</tr>
+<tr>
+<td>seal, sealed</td>
+<td>locked</td>
+<td>"Everything stays locked on your phone until it is shared."</td>
+</tr>
+<tr>
+<td>friend code</td>
+<td>your code</td>
+<td>the label; the MEER- string is unchanged</td>
+</tr>
+<tr>
+<td>publish my code</td>
+<td>(removed: S1 makes it automatic)</td>
+<td></td>
+</tr>
+<tr>
+<td>manifest, block, pin</td>
+<td>(Advanced and Storage only)</td>
+<td></td>
+</tr>
+<tr>
+<td>persona</td>
+<td>public name</td>
+<td></td>
+</tr>
+<tr>
+<td>workspace, epoch, descriptor, credential, entitlement</td>
+<td>(never user-facing)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Add <code>COPY_TWINS</code> to <code>check-meerkat-parity.mjs</code>: a list of <code>(label, mobileFile, webFile, exportName)</code> for every exported copy constant family (existing <code>JOIN_NAME_COPY</code> folds in), plus a forbidden-word scan over user-visible strings in both trees (the audit script from the evaluation, ported to the parity script, with an allowlist for Advanced screens and for correct uses such as "Block this person").</li>
+<li><strong>AC-1:</strong> the forbidden-word scan reports zero hits outside the allowlist on both surfaces. <strong>AC-2:</strong> every changed string keeps its test (existing string-lock tests updated in the same commit, never deleted). <strong>NC-1:</strong> no honesty string on the connection card, mailbox drain, join queue, or upgrade screen changes meaning (fixture diff reviewed by the orchestrator).</li>
+</ul>
+<h3>S7: Starter communities (both apps + founder content)</h3>
+<ul>
+<li><code>app.config.ts</code> <code>extra.starterCommunities</code>: a JSON array of <code>{ name, tagline, inviteLink }</code> from env <code>MEERKAT_STARTER_COMMUNITIES</code> (default <code>[]</code>; empty renders nothing). Each link is a Plan 19 P9 open-join publication with an owner-signed grant whose validity window is set by the founder (the code honors whatever <code>expiresAt</code> the grant carries and hides an expired starter automatically).</li>
+<li>First-run step after name: "Pick a few to start with" showing the starters as cards with Join (the existing preview + join pipeline; never auto-joins). Communities empty state shows the same cards. Feed uses them as sources like any community.</li>
+<li>Founder-ops (documented in the plan's runbook section): create the founder-run communities on the founder's always-on node (Plan 57), publish them with <code>joinPolicy: 'open'</code>, mint the grants, put the links in the env, rebuild.</li>
+<li><strong>AC-1:</strong> with three starters configured, a fresh install joins one from the picker and the Feed shows its posts after the first real catch-up. <strong>NC-1:</strong> with none configured, no picker step and no empty cards. <strong>NC-2:</strong> an expired grant renders nothing rather than a broken Join.</li>
+</ul>
+<h3>S8: Stranger test, battery, parity, docs</h3>
+<ul>
+<li>Stranger test protocol (<code>docs/guides/meerkat-stranger-test-2026-09.md</code>, stranger-readable per the instruction-writing rule): five people who have never seen Meerkat, three tasks each (add the founder as a friend from a QR on a printed card; join a starter community and post; find and turn on notifications). Success = task completed without help within 3 minutes. Record per-task time, help requests, and verbatim confusion quotes. The founder runs it; the agent prepares the cards, the script, and the results template. Plan exit requires 4 of 5 people completing all three tasks.</li>
+<li>Full battery: sync, relay, both apps, <code>check-meerkat-parity</code>, <code>check:esm-require</code>, hub consumer typechecks. Update <code>apps/meerkat/AGENTS.md</code> (tab list, add-friend model, defaults), the complete user guide's affected sections and mockups, and the launch marketing guide's "how to add a friend" copy.</li>
+</ul>
+<h2>Sequencing and agent protocol</h2>
+<p>S1 -&gt; S2 -&gt; S3 are strictly sequential (each builds on the previous). S4 can run in parallel with S2. S5 starts after S3 (its Add friend adjustments depend on the new card) and runs its evaluation half first. S6 runs after S5's adjustments (so it locks final strings). S7 can run any time after S2 (it uses the deep-link pipeline). S8 last. One fable-5 agent per section, new agent per section; the orchestrator reviews each diff against the non-negotiables, runs the battery, and runs <code>codex review</code> on S1, S2, S3, and S6 before the next section starts.</p>
+<h2>Scope</h2>
+<ul>
+<li><code>packages/meerkat-relay/src/{hub,protocol,server,log-redaction}.ts</code> (+ new static route module + tests)</li>
+<li><code>packages/sync/src/node/{friend-rendezvous,friend-code}.ts</code>, <code>packages/sync/src/transport/rendezvous-client.ts</code> (+ tests)</li>
+<li><code>apps/meerkat/app.config.ts</code>, <code>app.json</code>, <code>app/(root)/components/{FriendLinkListener,AddFriendSheet,QrCode,QrScanner}.tsx</code>, <code>app/(root)/(tabs)/{add-friend,me,settings,index,communities,messages}.tsx</code>, new <code>app/(root)/(tabs)/settings/advanced.tsx</code>, <code>app/(root)/sync.tsx</code>, <code>app/(root)/components/OnboardingGate.tsx</code>, <code>app/(root)/data/{add-friend-core,auto-connect-core,background-sync,copy-core,onboarding-core,invite-envelope-core,install-url}.ts</code>, tests</li>
+<li><code>apps/meerkat-web/src/{lib,ui}</code> twins of the above</li>
+<li><code>scripts/check-meerkat-parity.mjs</code> (<code>COPY_TWINS</code>, forbidden-word scan)</li>
+<li>Docs listed in S5 and S8</li>
+</ul>
+<p>Out of scope: Clips / vertical video (separate plan), creator rails (Plan 58), self-host node fixes R1/R2 (separate small wave), any change to cryptographic primitives.</p>
+<h2>Founder-ops (cannot be done by an agent)</h2>
+<ol>
+<li>Choose and register the link host (for example <code>meerkat.app</code> or a subdomain of the relay domain) and point it at the relay; provide the Apple Team ID and Android signing certificate fingerprints for the AASA and assetlinks files.</li>
+<li>Set <code>MEERKAT_LINK_HOST</code>, <code>RELAY_IDENTITY_TTL_MS</code>, and <code>MEERKAT_STARTER_COMMUNITIES</code> in the EAS <code>testflight</code> and production profiles and in the relay deploy.</li>
+<li>APNs key and push gateway deploy (Part 4.2 of the 2026-08-30 launch-task guide) so S4's push default can turn on.</li>
+<li>Create and publish the starter communities (S7) and run the stranger test (S8).</li>
+</ol></main></body></html>

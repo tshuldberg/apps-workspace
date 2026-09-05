@@ -1,0 +1,285 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - navigation [ref=e6]:
+        - generic [ref=e7]:
+          - link "Home" [ref=e10] [cursor=pointer]:
+            - /url: /home
+            - img "Todoist Logo" [ref=e11]
+          - generic [ref=e21]:
+            - list [ref=e22]:
+              - listitem [ref=e23]:
+                - button "Made For" [ref=e24] [cursor=pointer]
+              - listitem [ref=e25]:
+                - button "Resources" [ref=e26] [cursor=pointer]
+              - listitem [ref=e27]:
+                - link "Pricing" [ref=e28] [cursor=pointer]:
+                  - /url: /pricing
+            - list [ref=e30]:
+              - listitem [ref=e31]:
+                - link "Log in" [ref=e32] [cursor=pointer]:
+                  - /url: https://www.todoist.com/auth/login?locale=en
+              - listitem [ref=e33]:
+                - link "Start for free" [ref=e34] [cursor=pointer]:
+                  - /url: https://www.todoist.com/auth/signup?locale=en
+      - dialog [ref=e38]:
+        - complementary [ref=e40]:
+          - paragraph [ref=e43]:
+            - text: Get ready to turn thinking into doing.
+            - link "Meet Ramble" [active] [ref=e44] [cursor=pointer]:
+              - /url: /ramble
+          - button "Close" [ref=e45] [cursor=pointer]
+    - button
+  - main [ref=e46]:
+    - generic [ref=e47]:
+      - generic [ref=e49]:
+        - heading "Breaking the status quo to make an impact on humanity" [level=1] [ref=e51]
+        - link "See open roles" [ref=e54] [cursor=pointer]:
+          - /url: "#open-roles"
+      - region "Awards" [ref=e55]:
+        - list [ref=e56]:
+          - listitem [ref=e57]:
+            - generic [ref=e61]:
+              - generic [ref=e62]: Best Remote Team Culture
+              - paragraph [ref=e63]: Workplace Flexibility Awards By Running Remote 2022
+          - listitem [ref=e66]:
+            - generic [ref=e70]:
+              - generic [ref=e71]: Excellence in Talent Strategy
+              - paragraph [ref=e72]: Remote Excellence Awards By Remote.com 2024
+          - listitem [ref=e75]:
+            - generic [ref=e79]:
+              - generic [ref=e80]: Excellence in Remote Work Culture
+              - paragraph [ref=e81]: Remote Excellence Awards By Remote.com 2024
+    - generic [ref=e84]:
+      - generic [ref=e85]:
+        - heading "Open roles" [level=2] [ref=e86]
+        - combobox "Select department to filter" [ref=e90]:
+          - option "All" [selected]
+          - option "Design"
+          - option "Marketing"
+      - list [ref=e91]:
+        - listitem [ref=e92]:
+          - generic [ref=e94]:
+            - heading [level=3] [ref=e95]:
+              - link "Brand Design Lead" [ref=e96] [cursor=pointer]:
+                - /url: /careers/8e279838-e134-481f-b296-16308285c1c1-brand-design-lead
+            - paragraph [ref=e97]: Full-time • Remote
+        - listitem [ref=e100]:
+          - generic [ref=e102]:
+            - heading [level=3] [ref=e103]:
+              - link "Growth Marketer" [ref=e104] [cursor=pointer]:
+                - /url: /careers/335d9b8b-df5b-4730-92f2-8bb8e72ea116-growth-marketer
+            - paragraph [ref=e105]: Full-time • Remote
+    - generic [ref=e109]:
+      - heading "Our transparent application process" [level=2] [ref=e110]
+      - list [ref=e111]:
+        - listitem [ref=e112]:
+          - strong [ref=e113]: "Submit your application:"
+          - text: Start by filling out the online application and responding to the form questions. We encourage you to explore
+          - link "our blog" [ref=e114] [cursor=pointer]:
+            - /url: /how-we-work
+          - text: to get a feel for our company, values, and products. We carefully review and respond to every candidate’s application.
+        - listitem [ref=e115]:
+          - strong [ref=e116]: "Interviews, salary transparency, and task assignment:"
+          - text: If your application moves forward, you’ll hear from us to schedule your first interview over Google Meet. At the same time, we’ll share the proposed salary range for the role, calculated using our formula-based compensation model. Salaries are benchmarked to industry data and adjusted for your location, so you can decide early on whether it’s a fit. The rest of the process will include additional interviews and a task assignment, depending on the role. We vary the sequence to fit the scope and team, but you’ll always have a chance to showcase your skills and get a clear picture of the work, the team, and our values.
+        - listitem [ref=e117]:
+          - strong [ref=e118]: "Reference and background check:"
+          - text: Before we make an offer, we’ll conduct reference checks to better understand how you work and what strengths you bring. We also run background checks as part of our process, both to meet compliance requirements and to help ensure a safe, trusted environment for everyone. We’ll always let you know before either step begins.
+        - listitem [ref=e119]:
+          - strong [ref=e120]: "Decision:"
+          - text: Once all steps are complete, the hiring committee will make a final decision. If we move forward, you’ll receive an official offer to join the team. Either way, you’ll hear from us. We never leave candidates hanging.
+        - listitem [ref=e121]:
+          - strong [ref=e122]: "Onboarding and mentorship:"
+          - text: Before your first day, you’ll get access to a carefully curated Todoist project that maps out your onboarding journey. You’ll also be paired with a mentor and have the chance to co-work in person with them for a week, wherever they’re based. It’s our way of making sure you feel connected, supported, and set up to thrive.
+    - generic [ref=e123]:
+      - heading "A company that supports your ambitious goals and personal wellbeing" [level=2] [ref=e124]
+      - generic [ref=e125]:
+        - generic [ref=e126]:
+          - heading "The basics" [level=3] [ref=e128]
+          - list [ref=e129]:
+            - listitem [ref=e130]:
+              - generic [ref=e133]:
+                - heading "Work from anywhere" [level=4] [ref=e134]
+                - paragraph [ref=e135]: Todoisters can work from anywhere in the world. We never place restrictions on locations.
+            - listitem [ref=e136]:
+              - generic [ref=e139]:
+                - heading "Design your own schedule" [level=4] [ref=e140]
+                - paragraph [ref=e141]: Work during the time of day that’s best for you. Todoisters are encouraged to work 8-hour days and no more than 40 hours/week.
+            - listitem [ref=e142]:
+              - generic [ref=e145]:
+                - heading "Negotiation-free compensation package" [level=4] [ref=e146]
+                - paragraph [ref=e147]: Our formula-based salaries are calculated based on industry-benchmarked skills and geographical location – no stressful negotiation required.
+        - generic [ref=e148]:
+          - heading "Expand your professional skills" [level=3] [ref=e150]
+          - list [ref=e151]:
+            - listitem [ref=e152]:
+              - generic [ref=e155]:
+                - heading "Continue your education" [level=4] [ref=e156]
+                - paragraph [ref=e157]: You’ll have a recurring budget to spend on attending conferences, taking courses, and purchasing books.
+            - listitem [ref=e158]:
+              - generic [ref=e161]:
+                - heading "Collaborate in-person at retreats" [level=4] [ref=e162]
+                - paragraph [ref=e163]: Our team- and company-wide retreats are unforgettable. The connections that we make in person inspire us throughout the year.
+        - generic [ref=e164]:
+          - heading "Craft your ideal work environment" [level=3] [ref=e166]
+          - list [ref=e167]:
+            - listitem [ref=e168]:
+              - generic [ref=e171]:
+                - heading "Cozy up at a coworking space" [level=4] [ref=e172]
+                - paragraph [ref=e173]: Find the coworking space that’s right for you and Todoist will cover the expense.
+            - listitem [ref=e174]:
+              - generic [ref=e177]:
+                - heading "Subscribe to apps and services" [level=4] [ref=e178]
+                - paragraph [ref=e179]: "You’ll have a monthly budget to spend on services that help you do your job: home internet, work apps, music subscription, etc."
+            - listitem [ref=e180]:
+              - generic [ref=e183]:
+                - heading "Purchase the hardware you need" [level=4] [ref=e184]
+                - paragraph [ref=e185]: Every Todoister has access to a recurring budget to spend on work-related equipment.
+        - generic [ref=e186]:
+          - heading "Focus on your wellbeing" [level=3] [ref=e188]
+          - list [ref=e189]:
+            - listitem [ref=e190]:
+              - generic [ref=e193]:
+                - heading "Recharge with generous time off" [level=4] [ref=e194]
+                - paragraph [ref=e195]: Todoisters get 8 weeks (40 days) of PTO per year to use as they wish on vacations and national holidays.
+            - listitem [ref=e196]:
+              - generic [ref=e199]:
+                - heading "Spend time with your new baby" [level=4] [ref=e200]
+                - paragraph [ref=e201]: New parents receive 5 weeks of paid parental leave in addition to 13 weeks of paid pregnancy-related medical leave.
+            - listitem [ref=e202]:
+              - generic [ref=e205]:
+                - heading "Invest in your health and wellness" [level=4] [ref=e206]
+                - paragraph [ref=e207]: Take care of yourself with a monthly budget for things like a gym membership, healthy snacks, massages, health insurance, etc.
+  - generic [ref=e210]:
+    - heading "Ready to build the future of work" [level=3] [ref=e211]
+    - paragraph [ref=e212]: Browse career opportunities and sign up for new job openings.
+    - link "See open roles" [ref=e214] [cursor=pointer]:
+      - /url: /careers#open-roles
+  - contentinfo [ref=e215]:
+    - generic [ref=e216]:
+      - generic [ref=e217]:
+        - link "Home" [ref=e218] [cursor=pointer]:
+          - /url: /home
+          - img "Todoist Logo" [ref=e219]
+        - paragraph [ref=e228]: Join millions of people who organize work and life with Todoist.
+      - generic [ref=e229]:
+        - generic [ref=e230]:
+          - paragraph [ref=e231]: Features
+          - list [ref=e232]:
+            - listitem [ref=e233]:
+              - link "How It Works" [ref=e234] [cursor=pointer]:
+                - /url: /features
+            - listitem [ref=e235]:
+              - link "For Teams" [ref=e236] [cursor=pointer]:
+                - /url: /teamwork
+            - listitem [ref=e237]:
+              - link "Pricing" [ref=e238] [cursor=pointer]:
+                - /url: /pricing
+            - listitem [ref=e239]:
+              - link "Compare" [ref=e240] [cursor=pointer]:
+                - /url: /compare
+            - listitem [ref=e241]:
+              - link "Templates" [ref=e242] [cursor=pointer]:
+                - /url: /templates
+        - generic [ref=e243]:
+          - paragraph [ref=e244]: Resources
+          - list [ref=e245]:
+            - listitem [ref=e246]:
+              - link "Download Apps" [ref=e247] [cursor=pointer]:
+                - /url: /downloads
+            - listitem [ref=e248]:
+              - link "Teams Toolkit" [ref=e249] [cursor=pointer]:
+                - /url: /toolkit
+            - listitem [ref=e250]:
+              - link "Help Center" [ref=e251] [cursor=pointer]:
+                - /url: /help
+            - listitem [ref=e252]:
+              - link "Customer Stories" [ref=e253] [cursor=pointer]:
+                - /url: /customers
+            - listitem [ref=e254]:
+              - link "Productivity Methods" [ref=e255] [cursor=pointer]:
+                - /url: /productivity-methods
+            - listitem [ref=e256]:
+              - link "Integrations" [ref=e257] [cursor=pointer]:
+                - /url: /integrations
+            - listitem [ref=e258]:
+              - link "Channel Partners" [ref=e259] [cursor=pointer]:
+                - /url: /channelpartners
+            - listitem [ref=e260]:
+              - link "Developer API" [ref=e261] [cursor=pointer]:
+                - /url: https://developer.todoist.com
+            - listitem [ref=e262]:
+              - link "Status" [ref=e263] [cursor=pointer]:
+                - /url: https://status.todoist.com/
+        - generic [ref=e264]:
+          - paragraph [ref=e265]: Company
+          - list [ref=e266]:
+            - listitem [ref=e267]:
+              - link "About Us" [ref=e268] [cursor=pointer]:
+                - /url: https://doist.com
+            - listitem [ref=e269]:
+              - link "How We Work" [ref=e270] [cursor=pointer]:
+                - /url: /how-we-work
+            - listitem [ref=e271]:
+              - link "Careers We’re hiring!" [ref=e272] [cursor=pointer]:
+                - /url: /careers
+                - generic: Careers
+                - generic [ref=e273]: We’re hiring!
+            - listitem [ref=e274]:
+              - link "Inspiration Hub" [ref=e275] [cursor=pointer]:
+                - /url: /inspiration
+            - listitem [ref=e276]:
+              - link "Press" [ref=e277] [cursor=pointer]:
+                - /url: /press
+            - listitem [ref=e278]:
+              - link "Twist" [ref=e279] [cursor=pointer]:
+                - /url: https://twist.com/
+        - list [ref=e281]:
+          - listitem [ref=e282]:
+            - link "Todoist on YouTube" [ref=e283] [cursor=pointer]:
+              - /url: https://www.youtube.com/channel/UCQ_61yRKscCnkIJBPoR15EA
+          - listitem [ref=e284]:
+            - link "Todoist on LinkedIn" [ref=e285] [cursor=pointer]:
+              - /url: https://www.linkedin.com/showcase/todoist
+          - listitem [ref=e286]:
+            - link "Todoist on Instagram" [ref=e287] [cursor=pointer]:
+              - /url: https://www.instagram.com/todoistofficial
+          - listitem [ref=e288]:
+            - link "Todoist on Reddit" [ref=e289] [cursor=pointer]:
+              - /url: https://www.reddit.com/r/todoist
+    - generic [ref=e291]:
+      - generic [ref=e292]:
+        - list [ref=e293]:
+          - listitem [ref=e294]:
+            - link "Security |" [ref=e295] [cursor=pointer]:
+              - /url: /security
+          - listitem [ref=e296]:
+            - link "Privacy |" [ref=e297] [cursor=pointer]:
+              - /url: /privacy
+          - listitem [ref=e298]:
+            - link "Terms |" [ref=e299] [cursor=pointer]:
+              - /url: /terms-of-service
+          - listitem [ref=e300]:
+            - link "Cookie preferences" [ref=e301] [cursor=pointer]:
+              - /url: "#cookie-preferences"
+        - paragraph [ref=e302]: © Todoist Inc.
+      - combobox "Select your language" [ref=e309]:
+        - option "Čeština"
+        - option "Dansk"
+        - option "Deutsch"
+        - option "English" [selected]
+        - option "Español"
+        - option "Suomi"
+        - option "Français"
+        - option "Italiano"
+        - option "日本語"
+        - option "한국어"
+        - option "Norsk"
+        - option "Nederlands"
+        - option "Polski"
+        - option "Português (Brazil)"
+        - option "Pусский (Russian)"
+        - option "Svenska"
+        - option "Türkçe"
+        - option "中文 (简体)"
+        - option "中文 (繁體)"

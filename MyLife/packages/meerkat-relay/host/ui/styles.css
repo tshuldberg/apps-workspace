@@ -1,0 +1,425 @@
+/*
+ * Meerkat Host companion -- Open Burrow styling (Plan 20, Phase 5/6).
+ *
+ * The palette hex values are copied verbatim from the app's brand tokens
+ * (apps/meerkat/app/(root)/theme/tokens.ts, MK_PALETTES) so the desktop companion
+ * matches the phone app. Light is default; dark follows the OS via
+ * prefers-color-scheme. No fabricated transport, no crypto -- just chrome.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* MK_PALETTES.light */
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --surface-elevated: #fbfaf7;
+  --surface-high: #e9f1ed;
+  --accent: #0e7c66;
+  --accent-dim: #0a5d4d;
+  --on-accent: #ffffff;
+  --text: #20302b;
+  --text-secondary: #51635c;
+  --text-tertiary: #6e7d77;
+  --danger: #b3413e;
+  --warning: #8f660d;
+  --info: #3566b0;
+  --success: #19805f;
+  --danger-soft: rgba(179, 65, 62, 0.08);
+  --warning-soft: rgba(143, 102, 13, 0.08);
+  --success-soft: rgba(25, 128, 95, 0.08);
+  --info-soft: rgba(53, 102, 176, 0.08);
+  --border: rgba(32, 48, 43, 0.1);
+  --border-strong: rgba(32, 48, 43, 0.18);
+  --glass: rgba(14, 124, 102, 0.05);
+  --glass-border: rgba(14, 124, 102, 0.14);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --mono: ui-monospace, Menlo, Consolas, 'SF Mono', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* MK_PALETTES.dark */
+    --bg: #111816;
+    --surface: #19211e;
+    --surface-elevated: #212b27;
+    --surface-high: #2a3531;
+    --accent: #58c5a5;
+    --accent-dim: #38967c;
+    --on-accent: #0b2620;
+    --text: #e6ede9;
+    --text-secondary: #a4b3ac;
+    --text-tertiary: #75847c;
+    --danger: #e89a96;
+    --warning: #dfb36a;
+    --info: #93b8e8;
+    --success: #6fcda9;
+    --danger-soft: rgba(232, 154, 150, 0.12);
+    --warning-soft: rgba(223, 179, 106, 0.12);
+    --success-soft: rgba(111, 205, 169, 0.12);
+    --info-soft: rgba(147, 184, 232, 0.12);
+    --border: rgba(230, 237, 233, 0.1);
+    --border-strong: rgba(230, 237, 233, 0.18);
+    --glass: rgba(88, 197, 165, 0.06);
+    --glass-border: rgba(88, 197, 165, 0.14);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  padding: 2.5rem 1.5rem 4rem;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+header.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 0.25rem;
+}
+
+h1 {
+  color: var(--accent);
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.brand .sub {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+h2 {
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
+.tiny {
+  font-size: 0.85rem;
+}
+
+code,
+.mono {
+  font-family: var(--mono);
+  font-size: 0.9em;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.35rem;
+  margin-top: 1.25rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.card.glass {
+  background: var(--glass);
+  border-color: var(--glass-border);
+}
+
+/* Persistent lifecycle banner (always present). */
+.lifecycle {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  background: var(--info-soft);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--info);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.95rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 1.25rem;
+}
+
+.lifecycle .dot {
+  flex: none;
+  margin-top: 0.15rem;
+}
+
+/* Status pill (state only, never a peer count). */
+.status-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.state-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: var(--radius-pill);
+  flex: none;
+  background: var(--text-tertiary);
+}
+
+.state-dot.online {
+  background: var(--success);
+}
+
+.state-dot.offline {
+  background: var(--text-tertiary);
+}
+
+.state-dot.warn {
+  background: var(--warning);
+}
+
+/* Service rows. */
+.services {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+}
+
+.services li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.services li:first-child {
+  border-top: none;
+}
+
+.svc-name {
+  font-weight: 500;
+}
+
+.svc-state {
+  font-size: 0.85rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.svc-state.live {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: transparent;
+}
+
+.svc-state.error {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: transparent;
+}
+
+.svc-state.starting {
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-color: transparent;
+}
+
+/* Buttons. */
+.btn {
+  font: inherit;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  padding: 0.6rem 1.25rem;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--on-accent);
+  transition: filter 0.12s ease, opacity 0.12s ease;
+}
+
+.btn:hover {
+  filter: brightness(1.05);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn.secondary {
+  background: transparent;
+  color: var(--accent);
+  border-color: var(--border-strong);
+}
+
+.btn.danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--border-strong);
+}
+
+.row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+/* Wizard option tiles. */
+.options {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.option {
+  display: block;
+  text-align: left;
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  cursor: pointer;
+  color: inherit;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.option:hover {
+  border-color: var(--border-strong);
+}
+
+.option[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--glass);
+}
+
+.option .opt-title {
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.option .opt-desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--surface-high);
+  color: var(--text-secondary);
+}
+
+/* Step indicator. */
+.steps-dots {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.5rem 0 0;
+}
+
+.steps-dots i {
+  width: 1.6rem;
+  height: 0.28rem;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+}
+
+.steps-dots i.on {
+  background: var(--accent);
+}
+
+/* Card + QR display. */
+.qr {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  margin: 0.75rem 0;
+}
+
+.qr svg {
+  width: 220px;
+  height: 220px;
+}
+
+.cardstr {
+  display: block;
+  word-break: break-all;
+  background: var(--surface-high);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+}
+
+/* Notices. */
+.notice {
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1rem;
+  font-size: 0.92rem;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+}
+
+.notice.warn {
+  background: var(--warning-soft);
+  border-left: 3px solid var(--warning);
+}
+
+.notice.err {
+  background: var(--danger-soft);
+  border-left: 3px solid var(--danger);
+  color: var(--danger);
+}
+
+.notice.info {
+  background: var(--info-soft);
+  border-left: 3px solid var(--info);
+}
+
+.hidden {
+  display: none !important;
+}
+
+a {
+  color: var(--accent);
+}
+
+.setup-steps {
+  list-style: decimal;
+  padding-left: 1.25rem;
+  margin: 0.5rem 0 0;
+}
+
+.setup-steps li {
+  margin: 0.35rem 0;
+}
+
+.setup-steps .st-title {
+  font-weight: 600;
+}

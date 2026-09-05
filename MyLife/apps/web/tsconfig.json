@@ -1,0 +1,120 @@
+{
+  "extends": "@mylife/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "types": [
+      "vitest/globals"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@myhabits-web/*": [
+        "./types/standalone-route-module.d.ts",
+        "../../MyHabits/apps/web/*"
+      ],
+      "@mywords-web/*": [
+        "./types/standalone-route-module.d.ts",
+        "../../MyWords/apps/web/*"
+      ],
+      "@mywords/shared": [
+        "../../MyWords/packages/shared/src/index.ts"
+      ],
+      "@mywords/shared/*": [
+        "../../MyWords/packages/shared/src/*"
+      ],
+      "@myfast-web/*": [
+        "./types/standalone-route-module.d.ts",
+        "../../MyFast/apps/web/*"
+      ],
+      "@myfast/shared": [
+        "../../MyFast/packages/shared/src/index.ts"
+      ],
+      "@myfast/shared/*": [
+        "../../MyFast/packages/shared/src/*"
+      ],
+      "@myfast/ui": [
+        "../../MyFast/packages/ui/src/index.ts"
+      ],
+      "@myfast/ui/*": [
+        "../../MyFast/packages/ui/src/*"
+      ],
+      "@mycar-web/*": [
+        "./types/standalone-route-module.d.ts",
+        "../../MyCar/apps/web/*"
+      ],
+      "@mybudget-web/*": [
+        "./types/standalone-route-module.d.ts"
+      ],
+      "@mycar/shared": [
+        "../../MyCar/packages/shared/src/index.ts"
+      ],
+      "@mycar/shared/*": [
+        "../../MyCar/packages/shared/src/*"
+      ],
+      "@mycar/ui": [
+        "../../MyCar/packages/ui/src/index.ts"
+      ],
+      "@mycar/ui/*": [
+        "../../MyCar/packages/ui/src/*"
+      ],
+      "@myhomes-web/*": [
+        "./types/standalone-route-module.d.ts",
+        "../../MyHomes/apps/web/*"
+      ],
+      "@myrecipes-web/*": [
+        "./types/standalone-route-module.d.ts"
+      ],
+      "@humanhomes/shared": [
+        "../../MyHomes/packages/shared/src/index.ts"
+      ],
+      "@humanhomes/shared/*": [
+        "../../MyHomes/packages/shared/src/*"
+      ],
+      "@humanhomes/ui": [
+        "../../MyHomes/packages/ui/src/index.ts"
+      ],
+      "@humanhomes/ui/*": [
+        "../../MyHomes/packages/ui/src/*"
+      ],
+      "@mysurf-web/*": [
+        "./types/standalone-route-module.d.ts",
+        "../../MySurf/apps/web/*"
+      ],
+      "@myworkouts-web/*": [
+        "./types/standalone-route-module.d.ts"
+      ],
+      "@mysurf/shared": [
+        "../../MySurf/packages/shared/src/index.ts"
+      ],
+      "@mysurf/shared/*": [
+        "../../MySurf/packages/shared/src/*"
+      ],
+      "@mysurf/ui": [
+        "../../MySurf/packages/ui/src/index.ts"
+      ],
+      "@mysurf/ui/*": [
+        "../../MySurf/packages/ui/src/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/**",
+    "test/**",
+    "vitest.config.ts",
+    "**/* 2.ts",
+    "**/* 2.tsx",
+    "**/* 3.ts",
+    "**/* 3.tsx"
+  ]
+}

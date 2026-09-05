@@ -1,0 +1,300 @@
+/* BestChef moderator console. Obsidian Noir, minimal, server-rendered. */
+
+:root {
+  --bg: #131318;
+  --bg-deep: #0e0e13;
+  --surface: #1b1b20;
+  --surface-high: #2a292f;
+  --border: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text: #e4e1e9;
+  --text-secondary: rgba(214, 195, 181, 0.6);
+  --accent: #22c55e;
+  --accent-ink: #052e14;
+  --gold: #c9894d;
+  --danger: #ffb4ab;
+  --danger-bg: #93000a;
+  --ok: #30d158;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 20px;
+  background: var(--bg-deep);
+  border-bottom: 1px solid var(--border);
+}
+
+.top-nav .brand {
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.top-nav .brand em {
+  color: var(--accent);
+  font-style: normal;
+}
+
+.top-nav a.nav-link {
+  color: var(--text-secondary);
+}
+
+.top-nav a.nav-link:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.top-nav .spacer {
+  flex: 1;
+}
+
+.top-nav .whoami {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+h1 {
+  font-size: 20px;
+  margin: 8px 0 16px;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 28px 0 10px;
+  color: var(--text);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.muted {
+  color: var(--text-secondary);
+}
+
+.mono {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+}
+
+.badge.ok {
+  color: var(--ok);
+  border-color: rgba(48, 209, 88, 0.4);
+}
+
+.badge.warn {
+  color: var(--danger);
+  border-color: rgba(255, 180, 171, 0.4);
+}
+
+.badge.reuse {
+  color: var(--danger);
+  background: rgba(147, 0, 10, 0.35);
+  border-color: rgba(255, 180, 171, 0.5);
+}
+
+button {
+  background: var(--surface-high);
+  color: var(--text);
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
+  padding: 5px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button.approve {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+button.danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: rgba(255, 180, 171, 0.4);
+}
+
+input[type='text'],
+input[type='email'],
+input[type='number'],
+textarea,
+select {
+  background: var(--bg-deep);
+  color: var(--text);
+  border: 1px solid var(--glass-border);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+textarea {
+  width: 100%;
+  min-height: 56px;
+  resize: vertical;
+}
+
+form.inline {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.row-form {
+  margin-top: 6px;
+}
+
+.banner {
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.banner.error {
+  background: rgba(147, 0, 10, 0.35);
+  border: 1px solid rgba(255, 180, 171, 0.4);
+  color: var(--danger);
+}
+
+.banner.ok {
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: var(--ok);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.stat .value {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.stat .label {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.login-wrap {
+  max-width: 380px;
+  margin: 10vh auto 0;
+}
+
+.login-wrap form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0 0 12px;
+}
+
+legend {
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.evidence-link {
+  font-weight: 600;
+}
+
+details summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+}

@@ -1,0 +1,41 @@
+{
+  "skill_name": "function-gate-runner",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run the quality gate on my changes before I commit.",
+      "expected_output": "Detects changed files via git diff, groups by package, runs lint + typecheck + tests per package, and reports pass/fail with specific errors.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "detects-changed-files",
+          "assertion": "Output shows git diff command execution and lists the specific changed TypeScript files"
+        },
+        {
+          "name": "groups-by-package",
+          "assertion": "Changed files are grouped by their Turborepo package (e.g., @mylife/budget, @mylife/ui)"
+        },
+        {
+          "name": "reports-per-gate-status",
+          "assertion": "Output includes separate PASS or FAIL status for lint, typecheck, and tests per package"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I changed some budget engine code. Check if it's safe to merge.",
+      "expected_output": "Focuses on the budget module, runs function gate, reports results with specific function-level analysis.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "scopes-to-budget",
+          "assertion": "Gate execution focuses on the budget module package rather than running across all packages"
+        },
+        {
+          "name": "provides-actionable-output",
+          "assertion": "If failures occur, output includes file:line references and suggested fixes rather than just PASS/FAIL"
+        }
+      ]
+    }
+  ]
+}

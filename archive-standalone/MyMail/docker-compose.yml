@@ -1,0 +1,213 @@
+###############################################################################
+# MyMail - Personal Email Server - Docker Compose
+# Production configuration with Caddy, Stalwart, Rspamd, Redis, Roundcube
+###############################################################################
+
+services:
+  # ─── Reverse Proxy & TLS ──────────────────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: mymail-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      - DOMAIN=${DOMAIN}
+      - HOSTNAME=${HOSTNAME}
+    networks:
+      - mail-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+
+  # ─── Mail Server (SMTP, IMAP, JMAP) ──────────────────────────────────
+  stalwart:
+    image: stalwartlabs/mail-server:latest
+    container_name: mymail-stalwart
+    restart: unless-stopped
+    ports:
+      - "25:25"       # SMTP inbound
+      - "465:465"     # SMTPS
+      - "587:587"     # SMTP submission
+      - "993:993"     # IMAPS
+      - "4190:4190"   # ManageSieve
+    volumes:
+      - stalwart_data:/opt/stalwart-mail
+      - ./stalwart/config:/opt/stalwart-mail/etc:ro
+      - caddy_data:/caddy-data:ro  # share TLS certs from Caddy
+    environment:
+      - DOMAIN=${DOMAIN}
+      - HOSTNAME=${HOSTNAME}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - RELAY_ENABLED=${RELAY_ENABLED:-false}
+      - RELAY_HOST=${RELAY_HOST:-}
+      - RELAY_PORT=${RELAY_PORT:-587}
+      - RELAY_USER=${RELAY_USER:-}
+      - RELAY_PASSWORD=${RELAY_PASSWORD:-}
+      - RELAY_STARTTLS=${RELAY_STARTTLS:-true}
+    networks:
+      - mail-network
+    depends_on:
+      rspamd:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 993 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: "1.0"
+
+  # ─── Spam Filtering ──────────────────────────────────────────────────
+  rspamd:
+    image: rspamd/rspamd:latest
+    container_name: mymail-rspamd
+    restart: unless-stopped
+    volumes:
+      - ./rspamd/local.d:/etc/rspamd/local.d:ro
+      - rspamd_data:/var/lib/rspamd
+    networks:
+      - mail-network
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11333/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+
+  # ─── Cache & Rspamd Backend ──────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: mymail-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru --save 60 1000
+    volumes:
+      - redis_data:/data
+    networks:
+      - mail-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 192M
+          cpus: "0.25"
+
+  # ─── Webmail (Roundcube via PHP-FPM) ─────────────────────────────────
+  roundcube:
+    image: roundcube/roundcubemail:latest-fpm
+    container_name: mymail-roundcube
+    restart: unless-stopped
+    volumes:
+      - ./roundcube/config/config.inc.php:/var/roundcube/config/config.inc.php:ro
+      - roundcube_data:/var/roundcube/db
+      - roundcube_temp:/tmp/roundcube
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=ssl://stalwart
+      - ROUNDCUBEMAIL_DEFAULT_PORT=993
+      - ROUNDCUBEMAIL_SMTP_SERVER=tls://stalwart
+      - ROUNDCUBEMAIL_SMTP_PORT=587
+    networks:
+      - mail-network
+    depends_on:
+      stalwart:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || kill -0 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+
+  # ─── Admin Dashboard ─────────────────────────────────────────────────
+  admin-ui:
+    build:
+      context: ./admin-ui
+      dockerfile: Dockerfile
+    container_name: mymail-admin
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - STALWART_API=http://stalwart:8080
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - DOMAIN=${DOMAIN}
+    networks:
+      - mail-network
+    depends_on:
+      stalwart:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: "0.5"
+
+# ─── Networks ─────────────────────────────────────────────────────────
+networks:
+  mail-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ─── Volumes ──────────────────────────────────────────────────────────
+volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+  stalwart_data:
+    driver: local
+  rspamd_data:
+    driver: local
+  redis_data:
+    driver: local
+  roundcube_data:
+    driver: local
+  roundcube_temp:
+    driver: local

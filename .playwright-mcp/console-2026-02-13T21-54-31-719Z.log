@@ -1,0 +1,33 @@
+[   12723ms] [ERROR] [Vue warn]: Error in v-on handler: "ReferenceError: timestampToDateTime is not defined"
+
+(found in <Root>) @ https://unpkg.com/vue@2/dist/vue.js:5128
+[   12723ms] [ERROR] ReferenceError: timestampToDateTime is not defined
+    at Vue.category (https://www.huion.com/download:3458:26)
+    at click (eval at createFunction (https://unpkg.com/vue@2/dist/vue.js:11655:18), <anonymous>:3:11246)
+    at invokeWithErrorHandling (https://unpkg.com/vue@2/dist/vue.js:3718:32)
+    at HTMLLIElement.invoker (https://unpkg.com/vue@2/dist/vue.js:1540:22)
+    at original_1._wrapper (https://unpkg.com/vue@2/dist/vue.js:8038:37) @ https://unpkg.com/vue@2/dist/vue.js:3749
+[   14614ms] [ERROR] [Vue warn]: Error in v-on handler: "ReferenceError: timestampToDateTime is not defined"
+
+(found in <Root>) @ https://unpkg.com/vue@2/dist/vue.js:5128
+[   14614ms] [ERROR] ReferenceError: timestampToDateTime is not defined
+    at Vue.category (https://www.huion.com/download:3458:26)
+    at click (eval at createFunction (https://unpkg.com/vue@2/dist/vue.js:11655:18), <anonymous>:3:11246)
+    at invokeWithErrorHandling (https://unpkg.com/vue@2/dist/vue.js:3718:32)
+    at HTMLLIElement.invoker (https://unpkg.com/vue@2/dist/vue.js:1540:22)
+    at original_1._wrapper (https://unpkg.com/vue@2/dist/vue.js:8038:37) @ https://unpkg.com/vue@2/dist/vue.js:3749
+[   14797ms] [ERROR] [Vue warn]: Error in v-on handler: "ReferenceError: timestampToDateTime is not defined"
+
+(found in <Root>) @ https://unpkg.com/vue@2/dist/vue.js:5128
+[   14797ms] [ERROR] ReferenceError: timestampToDateTime is not defined
+    at Vue.category (https://www.huion.com/download:3458:26)
+    at click (eval at createFunction (https://unpkg.com/vue@2/dist/vue.js:11655:18), <anonymous>:3:11246)
+    at invokeWithErrorHandling (https://unpkg.com/vue@2/dist/vue.js:3718:32)
+    at HTMLLIElement.invoker (https://unpkg.com/vue@2/dist/vue.js:1540:22)
+    at original_1._wrapper (https://unpkg.com/vue@2/dist/vue.js:8038:37) @ https://unpkg.com/vue@2/dist/vue.js:3749
+[   18365ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://data-us.penmonitor.com/api/click:0
+[   19203ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://data-us.penmonitor.com/api/click:0
+[   22072ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://data-us.penmonitor.com/api/driver:0
+[   50324ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://data-us.penmonitor.com/api/driver:0
+[  315258ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://data-us.penmonitor.com/api/driver:0
+[  447683ms] [ERROR] Failed to load resource: net::ERR_NAME_NOT_RESOLVED @ https://data-us.penmonitor.com/api/driver:0

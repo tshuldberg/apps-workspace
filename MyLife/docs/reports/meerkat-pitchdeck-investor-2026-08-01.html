@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meerkat — Investor Deck — August 2026</title>
+<style>
+  :root {
+    --paper: #F6F4EF;
+    --surface: #FFFFFF;
+    --surface-el: #FBFAF7;
+    --surface-tint: #E9F1ED;
+    --accent: #0E7C66;
+    --accent-dim: #0A5D4D;
+    --on-accent: #FFFFFF;
+    --ink: #20302B;
+    --ink-2: #51635C;
+    --ink-3: #6E7D77;
+    --danger: #B3413E;
+    --warning: #8F660D;
+    --info: #3566B0;
+    --border: rgba(32,48,43,0.10);
+    --border-strong: rgba(32,48,43,0.18);
+    --glass: rgba(14,124,102,0.05);
+    --glass-border: rgba(14,124,102,0.14);
+    --grid: #E3E1DA;
+    --baseline: #C6C4BC;
+    --chart-gray: #B9C2BE;
+    --chart-gray-2: #9DA8A3;
+    --s1: #0A8A6A; --s2: #B3413E; --s3: #3566B0; --s4: #8F660D;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  #progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: var(--accent); z-index: 99; transition: width .1s linear; }
+  section { padding: 96px 24px; }
+  section:nth-of-type(even) { background: var(--surface-el); }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+  .kicker { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  h1 { font-size: clamp(44px, 7vw, 84px); line-height: 1.04; letter-spacing: -0.02em; font-weight: 800; }
+  h2 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.12; letter-spacing: -0.015em; font-weight: 750; margin-bottom: 18px; }
+  h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .lede { font-size: clamp(17px, 2vw, 21px); color: var(--ink-2); max-width: 760px; }
+  .lede strong { color: var(--ink); }
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .reveal.on { opacity: 1; transform: none; }
+  .d1 { transition-delay: .08s; } .d2 { transition-delay: .16s; } .d3 { transition-delay: .24s; } .d4 { transition-delay: .32s; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    #progress { transition: none; }
+  }
+  .cards { display: grid; gap: 18px; margin-top: 34px; }
+  .cards.c3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .cards.c2 { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
+  .card.tint { background: var(--surface-tint); border-color: var(--glass-border); }
+  .card p { color: var(--ink-2); font-size: 15px; }
+  .card p strong { color: var(--ink); }
+  .statrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-top: 34px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px 20px; }
+  .stat .v { font-size: 34px; font-weight: 800; letter-spacing: -0.01em; color: var(--ink); }
+  .stat .v .unit { font-size: 19px; font-weight: 700; color: var(--ink-2); }
+  .stat .l { font-size: 13px; color: var(--ink-3); margin-top: 4px; line-height: 1.4; }
+  .stat.hero-stat { background: var(--surface-tint); border-color: var(--glass-border); }
+  .stat.hero-stat .v { color: var(--accent-dim); }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin-top: 32px; }
+  .chart-title { font-size: 16px; font-weight: 700; }
+  .chart-sub { font-size: 13px; color: var(--ink-3); margin-bottom: 18px; margin-top: 2px; }
+  .note { font-size: 12.5px; color: var(--ink-3); margin-top: 14px; }
+  .note a { color: var(--accent-dim); }
+  svg text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  /* horizontal bar rows */
+  .hbars { display: grid; gap: 13px; }
+  .hbar { display: grid; grid-template-columns: 190px 1fr 96px; align-items: center; gap: 12px; font-size: 14px; }
+  .hbar .name { color: var(--ink-2); text-align: right; line-height: 1.25; }
+  .hbar .track { height: 20px; border-radius: 4px 6px 6px 4px; background: transparent; position: relative; }
+  .hbar .fill { height: 100%; width: 0; border-radius: 0 5px 5px 0; background: var(--chart-gray); transition: width 1.1s cubic-bezier(.2,.7,.2,1); }
+  .hbar.mk .fill { background: var(--s1); }
+  .hbar .val { font-weight: 700; font-variant-numeric: normal; color: var(--ink); }
+  .hbar.mk .val { color: var(--accent-dim); }
+  @media (max-width: 640px) { .hbar { grid-template-columns: 120px 1fr 84px; font-size: 12.5px; } }
+  /* timeline */
+  .timeline { position: relative; margin-top: 40px; padding-left: 30px; }
+  .timeline::before { content: ""; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: var(--glass-border); border-radius: 2px; }
+  .tl-item { position: relative; padding: 0 0 26px 18px; }
+  .tl-item::before { content: ""; position: absolute; left: -28px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+  .tl-item.bad::before { border-color: var(--danger); }
+  .tl-date { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .tl-item h4 { font-size: 16.5px; margin: 3px 0 4px; }
+  .tl-item p { font-size: 14.5px; color: var(--ink-2); max-width: 720px; }
+  /* comparison table */
+  table.cmp { width: 100%; border-collapse: collapse; margin-top: 30px; background: var(--surface); border-radius: var(--radius); overflow: hidden; font-size: 14px; }
+  .table-scroll { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); margin-top: 30px; }
+  .table-scroll table.cmp { margin-top: 0; border-radius: 0; min-width: 760px; }
+  table.cmp th, table.cmp td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.cmp th { background: var(--surface-tint); font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+  table.cmp td { color: var(--ink-2); }
+  table.cmp td:first-child { font-weight: 650; color: var(--ink); }
+  table.cmp tr.mk { background: var(--glass); }
+  table.cmp tr.mk td { color: var(--accent-dim); font-weight: 650; }
+  .yes { color: var(--accent-dim); font-weight: 700; }
+  .no { color: var(--danger); font-weight: 700; }
+  .meh { color: var(--warning); font-weight: 700; }
+  .pill { display: inline-block; padding: 5px 13px; border-radius: 99px; font-size: 13px; font-weight: 650; background: var(--glass); border: 1px solid var(--glass-border); color: var(--accent-dim); margin: 4px 6px 0 0; }
+  .pill.warn { background: rgba(143,102,13,0.08); border-color: rgba(143,102,13,0.22); color: var(--warning); }
+  .footer { padding: 60px 24px 80px; background: var(--ink); color: #C9D4CF; font-size: 13px; }
+  .footer .wrap { max-width: 1060px; }
+  .footer h4 { color: #E6EDE9; margin-bottom: 10px; font-size: 14px; }
+  .footer p { margin-bottom: 8px; max-width: 900px; }
+  .cover { min-height: 92vh; display: flex; align-items: center; position: relative; overflow: hidden; }
+  .cover .bg { position: absolute; inset: 0; pointer-events: none; }
+  .cover .bg span { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(14,124,102,0.10), transparent 65%); animation: drift 14s ease-in-out infinite alternate; }
+  @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(40px,-30px) scale(1.15); } }
+  @media (prefers-reduced-motion: reduce) { .cover .bg span { animation: none; } }
+  .logo { display: inline-flex; align-items: center; gap: 14px; margin-bottom: 30px; }
+  .logo .mark { width: 54px; height: 54px; border-radius: 16px; background: var(--accent); display: grid; place-items: center; }
+  .logo .word { font-size: 21px; font-weight: 800; letter-spacing: .18em; }
+  .scrollhint { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); color: var(--ink-3); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; animation: bob 2.2s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translate(-50%,0); } 50% { transform: translate(-50%,8px); } }
+  @media (prefers-reduced-motion: reduce) { .scrollhint { animation: none; } }
+  #tooltip { position: fixed; pointer-events: none; background: var(--ink); color: #E6EDE9; padding: 7px 11px; border-radius: 8px; font-size: 12.5px; z-index: 100; opacity: 0; transition: opacity .12s; max-width: 260px; line-height: 1.4; }
+  .src { vertical-align: super; font-size: 10px; color: var(--ink-3); }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; align-items: start; margin-top: 30px; }
+  @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+  .smallmult { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="tooltip"></div>
+
+<!-- ============ COVER ============ -->
+<section class="cover">
+  <div class="bg">
+    <span style="width:520px;height:520px;top:-140px;right:-120px;"></span>
+    <span style="width:380px;height:380px;bottom:-100px;left:-80px;animation-delay:-6s;"></span>
+  </div>
+  <div class="wrap">
+    <div class="logo reveal">
+      <div class="mark">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 3C7 3 4 7 4 11c0 5 3.6 9 8 10 4.4-1 8-5 8-10 0-4-3-8-8-8z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><circle cx="9.2" cy="10.5" r="1.3" fill="#fff"/><circle cx="14.8" cy="10.5" r="1.3" fill="#fff"/></svg>
+      </div>
+      <div class="word">MEERKAT</div>
+    </div>
+    <h1 class="reveal d1">Every community is a<br>private, encrypted server.</h1>
+    <p class="lede reveal d2" style="margin-top:26px;">Meerkat is community infrastructure that people own instead of rent: end-to-end encrypted communities, channels, DMs, calls, files, and posts that sync device-to-device over a mesh transport ladder, with servers that only ever carry sealed ciphertext.</p>
+    <div class="reveal d3" style="margin-top:30px;">
+      <span class="pill">$4.99 once per person</span>
+      <span class="pill">$4.99/mo optional hosting, storage included</span>
+      <span class="pill">No ads · no per-seat rent · no data business</span>
+      <span class="pill warn">Pre-launch: complete, evidence-gated</span>
+    </div>
+    <p class="note reveal d4" style="margin-top:26px;">Investor briefing · prepared August 1, 2026 · every external figure sourced and dated; estimates marked ~</p>
+  </div>
+  <div class="scrollhint">Scroll</div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">The problem</div>
+    <h2 class="reveal">Human communities live on rented land.</h2>
+    <p class="lede reveal d1">Every group of people online today sits on one of three business models — and each one has now visibly failed its users.</p>
+    <div class="cards c3">
+      <div class="card reveal d1">
+        <h3 style="color:var(--danger);">1 · Rent, per head, forever</h3>
+        <p>Slack charges <strong>$7.25–$15 per user per month</strong>.<span class="src">1</span> A 25-person community on Slack Pro pays <strong>$2,175 every year</strong> — and in May 2025 Salesforce banned exporting, archiving, or indexing your own message history while its own AI kept reading it.<span class="src">2</span></p>
+      </div>
+      <div class="card reveal d2">
+        <h3 style="color:var(--danger);">2 · "Free," paid in surveillance</h3>
+        <p>Meta extracted <strong>~$233/year of ad revenue per North American user</strong> in 2024 (~$57 worldwide).<span class="src">3</span> Discord stores every text message in server-readable plaintext — and in October 2025 confirmed ~70,000 users' <strong>government ID photos</strong> leaked through a support vendor.<span class="src">4</span></p>
+      </div>
+      <div class="card reveal d3">
+        <h3 style="color:var(--danger);">3 · Platform mortality</h3>
+        <p>Facebook Workplace had <strong>7 million paying users</strong>. Meta shut it down anyway to chase AI, and on <strong>June 1, 2026 — eight weeks ago — permanently deleted all remaining data</strong>.<span class="src">5</span> Every hosted community is one strategy memo away from a deletion date.</p>
+      </div>
+    </div>
+    <div class="chart-card reveal">
+      <div class="chart-title">What "free" actually costs — annual value extracted per user, 2024–2025</div>
+      <div class="chart-sub">Meta family-of-apps advertising revenue per person per year, by region, vs Meerkat's one-time price<span class="src">3</span></div>
+      <div class="hbars" id="arpuChart">
+        <div class="hbar"><div class="name">Meta · US &amp; Canada</div><div class="track"><div class="fill" data-w="100"></div></div><div class="val">$233 / yr</div></div>
+        <div class="hbar"><div class="name">Meta · Europe</div><div class="track"><div class="fill" data-w="29.2"></div></div><div class="val">$68 / yr</div></div>
+        <div class="hbar"><div class="name">Meta · Worldwide avg</div><div class="track"><div class="fill" data-w="24.5"></div></div><div class="val">$57 / yr</div></div>
+        <div class="hbar mk"><div class="name">Meerkat</div><div class="track"><div class="fill" data-w="2.2"></div></div><div class="val">$4.99 once</div></div>
+      </div>
+      <p class="note">Meta FY2025 revenue $200.97B across 3.58B daily people implies ~$56–57/person/yr worldwide; regional split derived from Meta filings (FY2024). Meerkat's number never recurs and never grows with your data.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHY NOW ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Why now</div>
+    <h2 class="reveal">Twenty-four months that broke trust in every incumbent.</h2>
+    <p class="lede reveal d1">This is not a hypothetical privacy narrative. Each event below is dated, public, and recent.</p>
+    <div class="timeline">
+      <div class="tl-item bad reveal"><div class="tl-date">Aug 2024</div><h4>Telegram's founder arrested in Paris</h4><p>Pavel Durov indicted on 12 charges. In July 2026 Russia also charged him and placed him on an international wanted list — a founder now facing criminal exposure in two jurisdictions, because his platform can read its users' messages.</p></div>
+      <div class="tl-item bad reveal"><div class="tl-date">May 2024 → Jun 2026</div><h4>Meta kills Workplace, deletes the data</h4><p>7M paying users. Read-only Sept 2025, permanently deleted June 1, 2026. The best-loved team communication model on the market no longer exists.</p></div>
+      <div class="tl-item reveal"><div class="tl-date">Mar 2025</div><h4>"Signalgate" spikes privacy demand overnight</h4><p>US officials leaked strike plans into a Signal group with a journalist present. Signal downloads jumped ~30% globally, +45% in the US, within 48 hours. Privacy demand is event-driven and explosive.</p></div>
+      <div class="tl-item bad reveal"><div class="tl-date">May 2025</div><h4>Salesforce locks down the Slack API</h4><p>No bulk export, no archives, no indexes, no LLM use of your own messages — while Slack's own AI retains full access. Your history, their asset.</p></div>
+      <div class="tl-item bad reveal"><div class="tl-date">Jun 2025</div><h4>WhatsApp gets ads; Meta mines AI chats</h4><p>Ads in Status and Channels after a decade of "never." By December 2025, AI-chat data feeds ad targeting with no blanket US opt-out. Encrypted content, monetized context.</p></div>
+      <div class="tl-item bad reveal"><div class="tl-date">Oct 2025</div><h4>Discord leaks 70,000 government IDs</h4><p>Age-verification ID photos, spilled through one third-party support vendor, followed by extortion. Centralized identity collection is a honeypot.</p></div>
+      <div class="tl-item reveal"><div class="tl-date">Jan 2026</div><h4>Discord files for IPO at a ~43% markdown</h4><p>Confidential S-1 filed. Public-market pressure means ads and commerce on the platform hosting 28M communities for free, with no text E2EE.</p></div>
+      <div class="tl-item reveal"><div class="tl-date">Jul 2026</div><h4>EU "Chat Control" passes — but E2EE is carved out</h4><p>Suspicionless scanning of unencrypted messages is legal in the EU until 2028; end-to-end encrypted platforms cleared an exclusion. Regulation is now actively sorting the market into readable and unreadable. Meerkat is built on the right side of that line.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCT ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Product</div>
+    <h2 class="reveal">Discord's shape. Signal's guarantees.<br>Your hardware, if you want.</h2>
+    <p class="lede reveal d1">Meerkat gives every community its own encrypted private server — without anyone needing to know what a server is. Three golden flows: <strong>add my device · share with a friend · start a community</strong>.</p>
+    <div class="cards c3">
+      <div class="card reveal d1"><h3>Full community surface</h3><p>Communities, channels, threads-as-posts, DMs, friends, voice/video calls and rooms (LiveKit), file library with reader and player, public discover tier, and an OS share sheet. 31 mobile routes, 21 web areas, in parity.</p></div>
+      <div class="card reveal d2"><h3>A mesh, not a mothership</h3><p>Deterministic transport ladder: LAN Wi-Fi → nearby peer (Multipeer / Wi-Fi Direct) → BLE wake → WebRTC → encrypted relay. Devices talk directly when they can; relays only ever forward ciphertext addressed by ephemeral tokens. Two phones on the same Wi-Fi need no internet at all.</p></div>
+      <div class="card reveal d3"><h3>Store-and-forward, like Signal</h3><p>Send a message days after your friend was last online and it arrives — a mailbox layer parks sealed envelopes and drains them on any transport. Offline is a normal state, not an error.</p></div>
+      <div class="card reveal d1"><h3>Posts: the Workplace successor</h3><p>The core primitive is the post — top-level comments, nested branches, and activity that bumps a post back to the top. The context-management model 7M people paid Meta for, rebuilt on encrypted rails, with agents designed in as first-class participants.</p></div>
+      <div class="card reveal d2"><h3>In-person trust ceremonies</h3><p>Add a friend by tapping phones: a mutual confirm with a short authentication code over local radio, zero servers involved. Identity linking collapses a person's devices into one verified person across the app.</p></div>
+      <div class="card reveal d3"><h3>Bring your own storage</h3><p>Eight storage destinations shipped: iCloud, Google Drive, Dropbox, OneDrive, Box, S3, WebDAV, or a connected server — encrypted before it leaves the device. Or pay Meerkat $4.99/mo and never think about it.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TECHNOLOGY / MOAT ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Technology &amp; moat</div>
+    <h2 class="reveal">Standards-grade cryptography, and a codebase that refuses to lie.</h2>
+    <div class="two-col">
+      <div class="reveal d1">
+        <h3>The crypto is real</h3>
+        <p style="color:var(--ink-2);font-size:15px;">Noise NK handshakes with full transcript binding (X25519 · XSalsa20-Poly1305 · SHA-512). Anonymous credentials via <strong>RFC 9474 RSA blind signatures</strong> in the Privacy Pass token shape — the billing server can verify you paid without ever being able to link you to what you do. Ed25519-signed events everywhere, HKDF domain separation, epoch key rotation on member removal, and a dedicated red-team test suite on the handshake layer.</p>
+        <h3 style="margin-top:22px;">The honesty boundary is the brand</h3>
+        <p style="color:var(--ink-2);font-size:15px;">A founder-enforced rule: <strong>never fake connectivity</strong>. Every peer count, delivery state, and presence dot is derived from verified signed rows or says "unavailable" in plain language. A hostile launch audit independently called this out as <em>"unusually strong."</em> In a market that just watched Slack, Meta, and Discord get caught saying one thing and doing another, verifiable honesty is the moat.</p>
+        <h3 style="margin-top:22px;">Scope is enforced in the data model</h3>
+        <p style="color:var(--ink-2);font-size:15px;">Every synced entity declares a scope — device-local → personal → shared workspace → published — with hard caps so private data can never escalate outward. Security lives in the payload, not the channel.</p>
+      </div>
+      <div class="reveal d2">
+        <div class="statrow" style="margin-top:0;grid-template-columns:repeat(2,1fr);">
+          <div class="stat hero-stat"><div class="v" data-count="6615">0</div><div class="l">automated tests in the Meerkat battery</div></div>
+          <div class="stat"><div class="v" data-count="469" data-suffix="K">0</div><div class="l">lines of code across Meerkat surfaces</div></div>
+          <div class="stat"><div class="v" data-count="40" data-suffix="%">0</div><div class="l">of all files are test files (736 of 1,851)</div></div>
+          <div class="stat"><div class="v" data-count="16">0</div><div class="l">immutable, evidence-bound release candidates in 12 days</div></div>
+          <div class="stat"><div class="v">41/41</div><div class="l">modules ship an explicit sync policy — zero exceptions</div></div>
+          <div class="stat"><div class="v" data-count="594">0</div><div class="l">Meerkat commits — 30% of the entire monorepo</div></div>
+        </div>
+        <p class="note">Counted from the repository at main @ f7068a34, 2026-08-01. Release ledgers bind every claim to an immutable SHA; acceptance criteria that need physical-device proof are left open rather than closed from unit tests.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARKET ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Market</div>
+    <h2 class="reveal">A $20–40B rent market, an exploding creator economy — and an almost empty column where Meerkat sits.</h2>
+    <div class="chart-card reveal d1">
+      <div class="chart-title">Adjacent markets, 2025 → 2030 analyst ranges</div>
+      <div class="chart-sub">Bars show the low–high range across major research firms (Grand View, Mordor, R&amp;M, FMI, Verified MR); ranges shown honestly rather than cherry-picked<span class="src">6</span></div>
+      <svg id="mktChart" viewBox="0 0 960 300" width="100%" role="img" aria-label="Market size ranges 2025 and 2030"></svg>
+      <p class="note">Team collaboration: $20–40B (2025) → $37–57B (2030), 7–14% CAGR. Instant messaging apps: ~$31–33B (2025), 9–10% CAGR. Creator/community economy: ~$253B (2025) → ~$549–821B (2030), ~23% CAGR. Secure messaging apps: $5.6B (2025) → $12.3B (2033).</p>
+    </div>
+    <div class="cards c2">
+      <div class="card tint reveal d1">
+        <h3>The empty column</h3>
+        <p>Consumers spent <strong>$155.8B in app stores in 2025</strong> (+21.6% YoY) — but direct consumer spend on <strong>encrypted messaging apps is ~$357M/yr</strong>, ~0.2% of that.<span class="src">7</span> Not because demand is absent: because the two category leaders are a donation-funded nonprofit and a freemium app that most users wrongly believe is encrypted. Nobody has seriously tried to sell private community infrastructure at a consumer price. That column is the opportunity.</p>
+      </div>
+      <div class="card reveal d2">
+        <h3>Demand is measured, not asserted</h3>
+        <p><strong>81%</strong> of Americans are concerned how companies use their data and <strong>81%</strong> expect it to be misused (Pew, 2023). <strong>33%</strong> of global consumers are "Privacy Actives" who have already switched providers over data practices — <strong>49%</strong> among 25–34-year-olds (Cisco, 2023–24). <strong>36%</strong> have deleted an app over privacy (Usercentrics, 2025).<span class="src">8</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMAND SPIKES ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Adoption dynamics</div>
+    <h2 class="reveal">Privacy demand arrives in vertical spikes.<br>The winners are the ones standing there when it hits.</h2>
+    <p class="lede reveal d1">January 2021: one WhatsApp policy banner drove <strong>50.6M Signal installs in a single month</strong> (+5,001% YoY) and 25M new Telegram users in 72 hours. March 2025: one news cycle moved Signal downloads +45% in the US in two days. These curves are the empirical base for any growth model in this category.</p>
+    <div class="smallmult">
+      <div class="chart-card reveal d1" style="margin-top:18px;">
+        <div class="chart-title">Telegram MAU</div>
+        <div class="chart-sub">2014 → 2025, company-reported milestones (millions)</div>
+        <svg class="growthChart" data-series="telegram" viewBox="0 0 300 190" width="100%" role="img" aria-label="Telegram monthly active users 2014 to 2025"></svg>
+      </div>
+      <div class="chart-card reveal d2" style="margin-top:18px;">
+        <div class="chart-title">Bluesky registered users</div>
+        <div class="chart-sub">2023 → 2026 (millions) — note the Nov-2024 vertical</div>
+        <svg class="growthChart" data-series="bluesky" viewBox="0 0 300 190" width="100%" role="img" aria-label="Bluesky registered users 2023 to 2026"></svg>
+      </div>
+      <div class="chart-card reveal d3" style="margin-top:18px;">
+        <div class="chart-title">Signal installs per month</div>
+        <div class="chart-sub">The Jan-2021 event, Sensor Tower (millions)</div>
+        <svg class="growthChart" data-series="signal" viewBox="0 0 300 190" width="100%" role="img" aria-label="Signal monthly installs around January 2021"></svg>
+      </div>
+    </div>
+    <div class="card reveal" style="margin-top:22px;">
+      <h3>The honest caveat — and the answer</h3>
+      <p>Mastodon caught a spike too (2.5M MAU, Nov 2022) and lost 60–75% of it within two years, because federation pushed hosting and moderation labor onto volunteers. <strong>Exodus events acquire users; product retains them.</strong> Meerkat's answer: mainstream Discord-shaped UX, zero self-hosting required, a one-time price that removes churn as a concept, and hosted infrastructure for $4.99/mo when a community wants it. The spike is the top of the funnel, not the business.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPETITION ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Competition</div>
+    <h2 class="reveal">Everyone is missing at least one leg of the tripod.</h2>
+    <p class="lede reveal d1">Real end-to-end encryption · a true community model · a price a normal person can actually buy. No incumbent has all three.</p>
+    <div class="table-scroll reveal d1"><table class="cmp">
+      <thead><tr><th>Product</th><th>E2EE text by default</th><th>Community model</th><th>Buyable price</th><th>The catch</th></tr></thead>
+      <tbody>
+        <tr><td>Discord</td><td class="no">No — plaintext</td><td class="yes">Yes</td><td class="yes">Free / Nitro $9.99/mo</td><td>200M+ MAU, zero text E2EE; 70K IDs breached; IPO ad pressure</td></tr>
+        <tr><td>Slack</td><td class="no">No</td><td class="meh">Workspaces (per-seat)</td><td class="no">$7.25–15/user/mo</td><td>Your archive is their AI's asset; export banned (May 2025)</td></tr>
+        <tr><td>Telegram</td><td class="no">No (cloud chats server-readable)</td><td class="yes">Channels/groups</td><td class="yes">Free / $4.99/mo</td><td>Founder criminally charged in 2 jurisdictions; ~1.5% pay</td></tr>
+        <tr><td>WhatsApp</td><td class="yes">Yes (content)</td><td class="meh">Groups, not communities</td><td class="yes">Free</td><td>Meta metadata + ads (2025) + AI-chat targeting (no US opt-out)</td></tr>
+        <tr><td>Signal</td><td class="yes">Yes</td><td class="no">No — 1:1 &amp; small groups</td><td class="yes">Donations</td><td>Runs ~$20M/yr below its ~$50M cost; explicitly not a community product</td></tr>
+        <tr><td>Element / Matrix</td><td class="meh">Yes (opt-in, complex)</td><td class="yes">Rooms/spaces</td><td class="no">Contact sales</td><td>Foundation ran a $639K deficit in 2025; consumer market abandoned</td></tr>
+        <tr><td>Mattermost · Rocket.Chat</td><td class="meh">Partial / add-on</td><td class="meh">Team-shaped</td><td class="no">Contact sales</td><td>Both repositioned to government &amp; defense; no public pricing</td></tr>
+        <tr class="mk"><td>Meerkat</td><td class="yes">Yes — by construction</td><td class="yes">Yes — communities are the product</td><td class="yes">$4.99 once (+$4.99/mo hosted)</td><td>Pre-launch</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note reveal">Every credible open-source alternative (Element, Mattermost, Rocket.Chat) removed public pricing in 2025–26 and pivoted to government sales. The small-community lane is not just underserved — it has been actively vacated.</p>
+  </div>
+</section>
+
+<!-- ============ BUSINESS MODEL ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Business model</div>
+    <h2 class="reveal">Two prices. No meetings. No meters.</h2>
+    <div class="cards c2">
+      <div class="card tint reveal d1"><h3 style="font-size:30px;color:var(--accent-dim);">$4.99 <span style="font-size:15px;color:var(--ink-2);font-weight:600;">once, per person</span></h3><p>The app, forever. Communities, encryption, mesh sync, calls, files — everything. No seat meter, no history ransom, no ads.</p></div>
+      <div class="card tint reveal d2"><h3 style="font-size:30px;color:var(--accent-dim);">$4.99<span style="font-size:15px;color:var(--ink-2);font-weight:600;">/month · optional · one per community</span></h3><p>Hosted relay + community node + storage included, bought by <em>one</em> host — not by every member. Also the durable-revenue answer to one-time pricing's known weakness.</p></div>
+    </div>
+    <div class="chart-card reveal">
+      <div class="chart-title">What a 25-person community pays over 3 years</div>
+      <div class="chart-sub">List prices verified 2026-08-01; Meerkat = 25 × $4.99 once + one hosted plan for 36 months<span class="src">1,9</span></div>
+      <div class="hbars" id="costChart">
+        <div class="hbar"><div class="name">Slack Business+</div><div class="track"><div class="fill" data-w="100"></div></div><div class="val">$13,500</div></div>
+        <div class="hbar"><div class="name">Discord · all on Nitro</div><div class="track"><div class="fill" data-w="66.6"></div></div><div class="val">$8,991</div></div>
+        <div class="hbar"><div class="name">Slack Pro</div><div class="track"><div class="fill" data-w="48.3"></div></div><div class="val">$6,525</div></div>
+        <div class="hbar"><div class="name">MS Teams Essentials</div><div class="track"><div class="fill" data-w="26.7"></div></div><div class="val">$3,600</div></div>
+        <div class="hbar"><div class="name">Discord · Level-3 boosts</div><div class="track"><div class="fill" data-w="18.6"></div></div><div class="val">$2,515</div></div>
+        <div class="hbar mk"><div class="name">Meerkat</div><div class="track"><div class="fill" data-w="2.5"></div></div><div class="val">$304</div></div>
+      </div>
+      <p class="note">21× cheaper than Slack Pro, 44× cheaper than Business+. The structural point: every competitor's cost is a <em>product</em> of headcount × time; Meerkat's is a <em>sum</em> of a one-time item and one flat host fee. <strong>Community growth is free</strong> — which turns every community into a distribution engine instead of a billing event.</p>
+    </div>
+    <div class="statrow">
+      <div class="stat reveal d1"><div class="v">~330<span class="unit">GB</span></div><div class="l">of hosted storage covered by $4.99/mo at Cloudflare R2 rates with zero egress fees — "storage included" is unit-economics-credible</div></div>
+      <div class="stat reveal d2"><div class="v">$49.99<span class="unit">/yr</span></div><div class="l">Telegram Premium's price — 15M subscribers proved this exact price point converts at 1B-user scale</div></div>
+      <div class="stat reveal d3"><div class="v">30<span class="unit">M+</span></div><div class="l">users reached by Procreate at $12.99 one-time — paid-once still wins app stores</div></div>
+      <div class="stat reveal d4"><div class="v">+21.6<span class="unit">%</span></div><div class="l">2025 growth in consumer app spend to $155.8B while downloads fell — users pay more and resent subscriptions more (41% report fatigue)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAM/SAM/SOM ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Sizing</div>
+    <h2 class="reveal">Bottom-up, with the assumptions on the slide.</h2>
+    <div class="cards c3">
+      <div class="card reveal d1">
+        <div class="kicker" style="margin-bottom:6px;">TAM</div>
+        <h3 style="font-size:26px;">~29M communities<br>·&nbsp;5.1B smartphones</h3>
+        <p>28.4M Discord servers + 750K Slack workspaces already exist; 3.6B+ people message daily, in groups averaging 27 members. At $4.99/person the device universe alone is ~$25B of one-time value, before hosting.</p>
+      </div>
+      <div class="card reveal d2">
+        <div class="kicker" style="margin-bottom:6px;">SAM</div>
+        <h3 style="font-size:26px;">~1.7B people<br>·&nbsp;~9.6M communities</h3>
+        <p>The 33% of consumers who are measured "Privacy Actives" — people who have <em>already acted</em> on privacy, not just told a survey they care (Cisco 2023–24).</p>
+      </div>
+      <div class="card reveal d3">
+        <div class="kicker" style="margin-bottom:6px;">SOM (3–5 yr)</div>
+        <h3 style="font-size:26px;">~17M users<br>·&nbsp;~$85M + hosting</h3>
+        <p>1% of Privacy Actives. For calibration: Bluesky reached 42M registered in 3 years; Signal holds 70–100M MAU. 17M sits between them — defensible, not fantastical.</p>
+      </div>
+    </div>
+    <div class="chart-card reveal">
+      <div class="chart-title">Illustrative 3-year scenarios, anchored to real adoption curves</div>
+      <div class="chart-sub">Cumulative paid installs (millions). These are scenarios, not forecasts; anchors named per line.</div>
+      <svg id="scenarioChart" viewBox="0 0 960 340" width="100%" role="img" aria-label="Three growth scenarios over three years"></svg>
+      <div class="table-scroll" style="margin-top:18px;"><table class="cmp">
+        <thead><tr><th>Scenario · anchor</th><th>Paid installs, yr 3</th><th>One-time revenue</th><th>Hosted subs (30% of communities @ 27/community)</th><th>Yr-3 run-rate</th></tr></thead>
+        <tbody>
+          <tr><td>Steady · Mastodon-like retention</td><td>0.5M</td><td>$2.5M</td><td>~5.6K</td><td>~$0.3M/yr recurring</td></tr>
+          <tr><td>Base · Bluesky-fraction trajectory</td><td>2.5M</td><td>$12.5M</td><td>~28K</td><td>~$1.7M/yr recurring</td></tr>
+          <tr><td>Event-catalyzed · Signal Jan-2021 dynamics</td><td>10M</td><td>$49.9M</td><td>~111K</td><td>~$6.6M/yr recurring</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Assumptions: avg community = 27 members (WhatsApp group average); 30% of communities attach a $4.99/mo hosted plan; no ads, no data revenue, ever. One privacy news cycle historically moves this category 30–5,000% in days — the event-catalyzed line is the documented behavior of this exact market.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRACTION / EXECUTION ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Execution</div>
+    <h2 class="reveal">Built at unreasonable speed, verified at unreasonable depth.</h2>
+    <div class="two-col">
+      <div class="reveal d1">
+        <div class="timeline" style="margin-top:10px;">
+          <div class="tl-item"><div class="tl-date">Mar 2026</div><h4>Sync substrate lands</h4><p>The shared encrypted-sync engine Meerkat is built on.</p></div>
+          <div class="tl-item"><div class="tl-date">Apr 2026</div><h4>Mesh sync adopted; Meerkat named</h4></div>
+          <div class="tl-item"><div class="tl-date">Jun 2026</div><h4>Standalone app + web client + zero-knowledge relay</h4><p>Real encryption core, real relay transport, both surfaces.</p></div>
+          <div class="tl-item"><div class="tl-date">Jul 2026</div><h4>Public tier, calls &amp; rooms, 8 storage providers, release supply chain</h4><p>Plus verification accounts with blind credentials, person identity linking, and the tap-to-add ceremony — merged after five adversarial review rounds.</p></div>
+          <div class="tl-item"><div class="tl-date">Jul 17–29, 2026</div><h4>16 release candidates in 12 days</h4><p>Each immutable, each binding its evidence to a SHA. A hostile launch audit proved two real users moving a real encrypted message over a real relay — and both defects it found were fixed within days.</p></div>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <div class="chart-card" style="margin-top:10px;">
+          <div class="chart-title">Meerkat code commits per month</div>
+          <div class="chart-sub">2026 · the core was built in roughly seven weeks</div>
+          <svg id="commitChart" viewBox="0 0 420 230" width="100%" role="img" aria-label="Commits per month, June 80, July 264"></svg>
+        </div>
+        <div class="statrow" style="grid-template-columns:repeat(2,1fr);">
+          <div class="stat"><div class="v" data-count="25">0</div><div class="l">PostgreSQL migrations, checksum-gated</div></div>
+          <div class="stat"><div class="v" data-count="14">0</div><div class="l">adversarial audits &amp; reports, each with evidence</div></div>
+          <div class="stat"><div class="v" data-count="7">0</div><div class="l">standalone legal documents drafted (privacy, terms, DMCA, LE guidelines…)</div></div>
+          <div class="stat"><div class="v" data-count="18">0</div><div class="l">step launch runbook, evidence-gated GO/NO-GO</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LAUNCH PATH / RISKS ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker reveal">Where it stands</div>
+    <h2 class="reveal">Complete and evidence-gated — holding for proof, not code.</h2>
+    <p class="lede reveal d1">We hold ourselves to the same honesty the product enforces: Meerkat is <strong>not launched</strong>. The engineering is code-complete under change freeze; what remains is operational.</p>
+    <div class="cards c2">
+      <div class="card reveal d1">
+        <h3>Open items (founder-operational)</h3>
+        <p>· Counsel engagement and legal sign-off<br>· NCMEC ESP registration (safety pipeline is already built)<br>· Production infrastructure activation<br>· TestFlight device sweep — the mesh transports have never been proven on physical phones, and we refuse to close those acceptance criteria from unit tests<br>· App Store submission</p>
+      </div>
+      <div class="card reveal d2">
+        <h3>Named risks, named answers</h3>
+        <p><strong>Retention after a spike</strong> — mainstream UX + zero self-hosting + one-time price (see Mastodon slide). <strong>One-time revenue ceiling</strong> — hosted subscription attaches recurring revenue to community formation. <strong>Moderation on encrypted rails</strong> — safety tooling (malware scan, abuse reporting, NCMEC filing queue, DMCA intake, moderation console) shipped <em>before</em> launch, not after the first crisis.</p>
+      </div>
+    </div>
+    <div class="card tint reveal" style="margin-top:22px;">
+      <h3>The long game</h3>
+      <p>Meerkat's end state is an internet layer within the internet: every community an encrypted private server, interconnected mesh nodes moving sealed data between them, agents as first-class citizens of the post model — the connective tissue Workplace abandoned and Slack rents out, owned by the people who use it. The wedge is a $4.99 app; the destination is infrastructure.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CLOSE ============ -->
+<section style="text-align:center;">
+  <div class="wrap">
+    <div class="logo reveal" style="justify-content:center;">
+      <div class="mark"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M12 3C7 3 4 7 4 11c0 5 3.6 9 8 10 4.4-1 8-5 8-10 0-4-3-8-8-8z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><circle cx="9.2" cy="10.5" r="1.3" fill="#fff"/><circle cx="14.8" cy="10.5" r="1.3" fill="#fff"/></svg></div>
+      <div class="word">MEERKAT</div>
+    </div>
+    <h2 class="reveal d1" style="font-size:clamp(34px,5vw,58px);">The rent is too high.<br>The surveillance is too deep.<br>The platforms keep dying.</h2>
+    <p class="lede reveal d2" style="margin:22px auto 0;">Meerkat is the once-and-done, encrypted, community-owned answer — built, tested 6,615 ways, and waiting at the gate.</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="wrap">
+    <h4>Sources &amp; integrity notes</h4>
+    <p>1 · slack.com/pricing, fetched 2026-08-01. &nbsp;2 · Computerworld, May 2025 (Slack API terms change). &nbsp;3 · Meta Q4/FY2025 results (2026-01-28); regional ARPU derived from Meta filings, FY2024. &nbsp;4 · NBC News, Oct 2025 (Discord/5CA breach). &nbsp;5 · TechCrunch May 2024; Meta migration timeline (deletion 2026-06-01). &nbsp;6 · Grand View Research, Mordor Intelligence, Research &amp; Markets, Future Market Insights, Verified Market Research, 2025 editions — analyst estimates, shown as ranges. &nbsp;7 · Appfigures via TechCrunch 2026-01-14; Data Insights Market 2025. &nbsp;8 · Pew Research Center 2023 (n=5,101); Cisco Consumer Privacy 2023/2024; Usercentrics State of Digital Trust 2025. &nbsp;9 · Discord, Microsoft public pricing pages; Vendr 2026.</p>
+    <p>Growth curves: telegram.org blog milestones; Durov on X (2025-03); Sensor Tower (Signal/Telegram Jan 2021); TechCrunch/Social Media Today (Bluesky); CNN/The Drum (Mastodon). Engineering figures counted directly from the repository at main @ f7068a34 on 2026-08-01.</p>
+    <p>Deliberately excluded as unverifiable: Slack DAU (undisclosed since 2019), Discord revenue (conflicting third-party estimates), WhatsApp revenue (not broken out by Meta). Scenario projections are illustrative and anchored to named historical curves; they are not forecasts. Meerkat pricing is founder-locked: $4.99 one-time, $4.99/mo hosted. Prepared 2026-08-01.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // progress bar
+  var prog = document.getElementById('progress');
+  addEventListener('scroll', function(){
+    var h = document.documentElement;
+    prog.style.width = (h.scrollTop / (h.scrollHeight - h.clientHeight) * 100) + '%';
+  }, {passive:true});
+
+  // reveal on scroll
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } });
+  }, {threshold: 0.15});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  // animated counters
+  function animateCount(el){
+    var target = parseFloat(el.dataset.count), suffix = el.dataset.suffix || '';
+    if (reduced) { el.innerHTML = target.toLocaleString() + (suffix ? '<span class="unit">'+suffix+'</span>' : ''); return; }
+    var start = null;
+    function step(ts){
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / 1300, 1);
+      p = 1 - Math.pow(1 - p, 3);
+      el.innerHTML = Math.round(target * p).toLocaleString() + (suffix ? '<span class="unit">'+suffix+'</span>' : '');
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  var cio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting) { animateCount(e.target); cio.unobserve(e.target); } });
+  }, {threshold: 0.5});
+  document.querySelectorAll('[data-count]').forEach(function(el){ cio.observe(el); });
+
+  // horizontal bars grow
+  var bio = new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (e.isIntersecting) {
+        e.target.querySelectorAll('.fill').forEach(function(f, i){
+          setTimeout(function(){ f.style.width = f.dataset.w + '%'; }, i * 120);
+        });
+        bio.unobserve(e.target);
+      }
+    });
+  }, {threshold: 0.3});
+  document.querySelectorAll('.hbars').forEach(function(el){ bio.observe(el); });
+
+  // tooltip
+  var tip = document.getElementById('tooltip');
+  function showTip(html, x, y){ tip.innerHTML = html; tip.style.opacity = 1; tip.style.left = (x + 14) + 'px'; tip.style.top = (y + 14) + 'px'; }
+  function hideTip(){ tip.style.opacity = 0; }
+
+  var css = getComputedStyle(document.documentElement);
+  var C = {
+    accent: css.getPropertyValue('--s1').trim(), gray: css.getPropertyValue('--chart-gray').trim(),
+    gray2: css.getPropertyValue('--chart-gray-2').trim(), grid: css.getPropertyValue('--grid').trim(),
+    base: css.getPropertyValue('--baseline').trim(), ink2: css.getPropertyValue('--ink-2').trim(),
+    ink3: css.getPropertyValue('--ink-3').trim(), red: css.getPropertyValue('--s2').trim(),
+    blue: css.getPropertyValue('--s3').trim(), amber: css.getPropertyValue('--s4').trim()
+  };
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(name, attrs, parent){
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function txt(parent, x, y, s, size, fill, anchor, weight){
+    var t = el('text', {x:x, y:y, 'font-size':size, fill:fill, 'text-anchor':anchor||'start', 'font-weight':weight||400}, parent);
+    t.textContent = s; return t;
+  }
+
+  // ===== Market ranges chart (dumbbell ranges) =====
+  (function(){
+    var svg = document.getElementById('mktChart');
+    if (!svg) return;
+    var rows = [
+      {name:'Team collaboration', a:[20,40], b:[37,57], by:'2030'},
+      {name:'Instant messaging apps', a:[31,33], b:[52,66], by:'2032~', est:true},
+      {name:'Secure messaging apps', a:[5.6,5.6], b:[12.3,12.3], by:'2033'},
+      {name:'Creator & community economy', a:[253,253], b:[549,821], by:'2030'}
+    ];
+    var W=960, X0=250, X1=930, rowH=62, topPad=30;
+    var max=830;
+    function x(v){ return X0 + (X1-X0) * (v/max); }
+    // gridlines
+    [0,200,400,600,800].forEach(function(v){
+      el('line',{x1:x(v),y1:16,x2:x(v),y2:topPad+rows.length*rowH-16,stroke:C.grid,'stroke-width':1},svg);
+      txt(svg,x(v),topPad+rows.length*rowH+4,'$'+v+'B',11,C.ink3,'middle');
+    });
+    rows.forEach(function(r,i){
+      var y = topPad + i*rowH;
+      txt(svg,X0-14,y+5,r.name,13.5,C.ink2,'end',600);
+      // connector
+      el('line',{x1:x(r.a[1]),y1:y,x2:x(r.b[0]),y2:y,stroke:C.grid,'stroke-width':2,'stroke-dasharray':'1 5','stroke-linecap':'round'},svg);
+      // 2025 range bar
+      var g1 = el('rect',{x:x(r.a[0])-3,y:y-7,width:Math.max(x(r.a[1])-x(r.a[0])+6,10),height:14,rx:6,fill:C.gray2},svg);
+      // 2030 range bar
+      var g2 = el('rect',{x:x(r.b[0])-3,y:y-7,width:Math.max(x(r.b[1])-x(r.b[0])+6,10),height:14,rx:6,fill:C.accent},svg);
+      var lab1 = r.a[0]===r.a[1] ? '$'+r.a[0]+'B' : '$'+r.a[0]+'–'+r.a[1]+'B';
+      var lab2 = r.b[0]===r.b[1] ? '$'+r.b[0]+'B' : '$'+r.b[0]+'–'+r.b[1]+'B';
+      var aMid = (x(r.a[0])+x(r.a[1]))/2, bMid = (x(r.b[0])+x(r.b[1]))/2;
+      txt(svg,aMid,y+24,lab1+' ’25',11.5,C.ink3,'middle');
+      if (x(r.b[1]) > 760) {
+        txt(svg,Math.min(bMid,X1-50),y+24,lab2+' ’'+r.by.slice(2),11.5,C.ink2,'middle',600);
+      } else {
+        txt(svg,x(r.b[1])+10,y+4,lab2+' ’'+r.by.slice(2),11.5,C.ink2,'start',600);
+      }
+      [ [g1, r.name+' — 2025: '+lab1+' (analyst range)'], [g2, r.name+' — '+r.by+': '+lab2+' (analyst range)'] ].forEach(function(pair){
+        pair[0].addEventListener('mousemove', function(ev){ showTip(pair[1], ev.clientX, ev.clientY); });
+        pair[0].addEventListener('mouseleave', hideTip);
+      });
+    });
+    // legend
+    var ly = topPad + rows.length*rowH + 26;
+    el('rect',{x:X0,y:ly-9,width:12,height:12,rx:4,fill:C.gray2},svg);
+    txt(svg,X0+18,ly+1,'2025 analyst range',12,C.ink2);
+    el('rect',{x:X0+170,y:ly-9,width:12,height:12,rx:4,fill:C.accent},svg);
+    txt(svg,X0+188,ly+1,'Forecast range',12,C.ink2);
+    svg.setAttribute('viewBox','0 0 960 '+(ly+16));
+  })();
+
+  // ===== Growth small multiples =====
+  var SERIES = {
+    telegram: { unit:'M MAU', color: C.accent, pts: [[2014.2,35],[2016.1,100],[2018.2,200],[2020.3,400],[2021.0,500],[2022.5,700],[2024.2,900],[2025.2,1000]], xlab:['2014','2025'], ymax:1050, ylab:'1B' },
+    bluesky: { unit:'M registered', color: C.accent, pts: [[2023.7,1],[2024.1,5],[2024.7,10],[2024.87,15],[2024.88,20],[2024.95,25],[2025.05,30],[2025.6,38],[2025.83,40],[2026.0,41.4],[2026.35,42.3]], xlab:['2023','2026'], ymax:46, ylab:'42M' },
+    signal: { unit:'M installs/mo', color: C.accent, pts: [[2020.0,1.0],[2020.25,2.0],[2020.5,2.5],[2020.75,3.0],[2021.05,50.6],[2021.3,10],[2021.6,6]], xlab:['2020','2021'], ymax:55, ylab:'50.6M' }
+  };
+  document.querySelectorAll('.growthChart').forEach(function(svg){
+    var s = SERIES[svg.dataset.series];
+    var W=300,H=190,L=14,R=14,T=16,B=28;
+    var xs = s.pts.map(function(p){return p[0];});
+    var xmin=Math.min.apply(null,xs), xmax=Math.max.apply(null,xs);
+    function x(v){ return L + (W-L-R)*(v-xmin)/(xmax-xmin); }
+    function y(v){ return T + (H-T-B)*(1 - v/s.ymax); }
+    [0.25,0.5,0.75].forEach(function(f){
+      el('line',{x1:L,y1:T+(H-T-B)*f,x2:W-R,y2:T+(H-T-B)*f,stroke:C.grid,'stroke-width':1},svg);
+    });
+    el('line',{x1:L,y1:H-B,x2:W-R,y2:H-B,stroke:C.base,'stroke-width':1},svg);
+    var d = s.pts.map(function(p,i){ return (i?'L':'M') + x(p[0]).toFixed(1) + ' ' + y(p[1]).toFixed(1); }).join(' ');
+    var path = el('path',{d:d,fill:'none',stroke:s.color,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'},svg);
+    var area = el('path',{d:d + ' L' + x(xmax).toFixed(1) + ' ' + (H-B) + ' L' + x(xmin).toFixed(1) + ' ' + (H-B) + ' Z', fill:s.color, opacity:0.09},svg);
+    // end marker + label
+    var last = s.pts[s.pts.length-1], peak = s.pts.reduce(function(a,b){return b[1]>a[1]?b:a;});
+    el('circle',{cx:x(peak[0]),cy:y(peak[1]),r:4.5,fill:s.color,stroke:'#fff','stroke-width':2},svg);
+    txt(svg,Math.min(x(peak[0]),W-R-30),y(peak[1])-9,s.ylab,12,C.ink2,'middle',700);
+    txt(svg,L,H-9,s.xlab[0],11,C.ink3);
+    txt(svg,W-R,H-9,s.xlab[1],11,C.ink3,'end');
+    // draw animation
+    if (!reduced) {
+      var len = path.getTotalLength();
+      path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
+      area.style.opacity = 0;
+      var pio = new IntersectionObserver(function(es){
+        es.forEach(function(e){
+          if (e.isIntersecting) {
+            path.style.transition = 'stroke-dashoffset 1.6s ease';
+            path.style.strokeDashoffset = 0;
+            setTimeout(function(){ area.style.transition='opacity .8s'; area.style.opacity = 0.09; }, 900);
+            pio.unobserve(svg);
+          }
+        });
+      }, {threshold:0.4});
+      pio.observe(svg);
+    }
+    // hover
+    svg.addEventListener('mousemove', function(ev){
+      var r = svg.getBoundingClientRect();
+      var mx = (ev.clientX - r.left) / r.width * W;
+      var best = s.pts[0], bd = 1e9;
+      s.pts.forEach(function(p){ var d0 = Math.abs(x(p[0])-mx); if (d0<bd){bd=d0;best=p;} });
+      var yr = Math.floor(best[0]); var mo = Math.round((best[0]-yr)*12)+1;
+      showTip(yr + '-' + String(mo).padStart(2,'0') + ': <b>' + best[1] + ' ' + s.unit + '</b>', ev.clientX, ev.clientY);
+    });
+    svg.addEventListener('mouseleave', hideTip);
+  });
+
+  // ===== Scenario chart =====
+  (function(){
+    var svg = document.getElementById('scenarioChart');
+    if (!svg) return;
+    var W=960,H=340,L=60,R=210,T=20,B=44;
+    var lines = [
+      {name:'Event-catalyzed', anchor:'Signal ’21 dynamics', color:C.accent, w:3, pts:[[0,0],[0.5,0.3],[1,1.2],[1.5,2.2],[1.8,5.5],[2,6.8],[2.5,8.6],[3,10]]},
+      {name:'Base', anchor:'Bluesky-fraction', color:C.blue, w:2, pts:[[0,0],[0.5,0.15],[1,0.5],[1.5,1.0],[2,1.5],[2.5,2.0],[3,2.5]]},
+      {name:'Steady', anchor:'Mastodon-like retention', color:C.gray2, w:2, pts:[[0,0],[0.5,0.05],[1,0.15],[1.5,0.25],[2,0.33],[2.5,0.42],[3,0.5]]}
+    ];
+    var ymax=10.5;
+    function x(v){ return L + (W-L-R)*(v/3); }
+    function y(v){ return T + (H-T-B)*(1-v/ymax); }
+    [0,2.5,5,7.5,10].forEach(function(v){
+      el('line',{x1:L,y1:y(v),x2:W-R,y2:y(v),stroke:C.grid,'stroke-width':1},svg);
+      txt(svg,L-8,y(v)+4,v+'M',11.5,C.ink3,'end');
+    });
+    el('line',{x1:L,y1:y(0),x2:W-R,y2:y(0),stroke:C.base,'stroke-width':1},svg);
+    [0,1,2,3].forEach(function(v){ txt(svg,x(v),H-16,'Year '+v,12,C.ink3,'middle'); });
+    lines.forEach(function(s,si){
+      var d = s.pts.map(function(p,i){ return (i?'L':'M') + x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1); }).join(' ');
+      var path = el('path',{d:d,fill:'none',stroke:s.color,'stroke-width':s.w,'stroke-linejoin':'round','stroke-linecap':'round'},svg);
+      var last = s.pts[s.pts.length-1];
+      el('circle',{cx:x(last[0]),cy:y(last[1]),r:4.5,fill:s.color,stroke:'#fff','stroke-width':2},svg);
+      txt(svg,x(3)+14,y(last[1])+4,s.name+' · '+last[1]+'M',12.5,C.ink2,'start',650);
+      txt(svg,x(3)+14,y(last[1])+19,s.anchor,11,C.ink3,'start');
+      if (!reduced) {
+        var len = path.getTotalLength();
+        path.style.strokeDasharray = len; path.style.strokeDashoffset = len;
+        var pio = new IntersectionObserver(function(es){
+          es.forEach(function(e){
+            if (e.isIntersecting) {
+              path.style.transition = 'stroke-dashoffset 1.8s ease ' + (si*0.25) + 's';
+              path.style.strokeDashoffset = 0;
+              pio.unobserve(svg);
+            }
+          });
+        }, {threshold:0.4});
+        pio.observe(svg);
+      }
+    });
+  })();
+
+  // ===== Commit chart =====
+  (function(){
+    var svg = document.getElementById('commitChart');
+    if (!svg) return;
+    var W=420,H=230,L=40,R=14,T=18,B=34;
+    var data = [['Mar',2],['Apr',5],['May',6],['Jun',80],['Jul',264]];
+    var ymax=280;
+    function y(v){ return T+(H-T-B)*(1-v/ymax); }
+    var bw = 34, gap = (W-L-R-bw*data.length)/(data.length-1)/1 - 0;
+    var slot = (W-L-R)/data.length;
+    [0,100,200].forEach(function(v){
+      el('line',{x1:L,y1:y(v),x2:W-R,y2:y(v),stroke:C.grid,'stroke-width':1},svg);
+      txt(svg,L-6,y(v)+4,v,10.5,C.ink3,'end');
+    });
+    el('line',{x1:L,y1:y(0),x2:W-R,y2:y(0),stroke:C.base,'stroke-width':1},svg);
+    data.forEach(function(d,i){
+      var cx = L + slot*i + slot/2;
+      var h = y(0)-y(d[1]);
+      var r = el('rect',{x:cx-bw/2,y:y(0),width:bw,height:0,fill: i>=3 ? C.accent : C.gray, rx:4},svg);
+      txt(svg,cx,H-14,d[0],11.5,C.ink3,'middle');
+      if (i>=3) txt(svg,cx,y(d[1])-7,d[1],12,C.ink2,'middle',700);
+      function grow(){
+        r.style.transition = reduced ? 'none' : 'y .9s cubic-bezier(.2,.7,.2,1), height .9s cubic-bezier(.2,.7,.2,1)';
+        r.setAttribute('y', y(d[1])); r.setAttribute('height', Math.max(h,1));
+      }
+      var rio = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ setTimeout(grow, i*100); rio.unobserve(svg);} }); }, {threshold:0.4});
+      rio.observe(svg);
+      r.addEventListener('mousemove', function(ev){ showTip(d[0]+' 2026: <b>'+d[1]+' commits</b>'+(i<3?' (pre-app substrate work)':''), ev.clientX, ev.clientY); });
+      r.addEventListener('mouseleave', hideTip);
+    });
+    txt(svg,L,12,'commits touching Meerkat code paths',10.5,C.ink3);
+  })();
+})();
+</script>
+</body>
+</html>

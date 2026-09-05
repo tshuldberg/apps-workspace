@@ -1,0 +1,43 @@
+[
+  {
+    "name": "full-parity-check",
+    "prompt": "Check parity for all modules",
+    "expected_behavior": [
+      "Runs pnpm check:parity (or the four sub-checks individually)",
+      "Parses OK/WARN/FAIL lines from all script outputs",
+      "Generates a dated Parity Report with Summary and Per-Module Details sections",
+      "Counts passing, warning, and failing modules",
+      "Lists specific issues and remediation steps for any non-passing module",
+      "Does not modify any files"
+    ]
+  },
+  {
+    "name": "single-module-parity-check",
+    "prompt": "Check parity for MyBudget",
+    "expected_behavior": [
+      "Normalizes 'MyBudget' to module id 'budget'",
+      "Runs pnpm check:standalone and pnpm check:module-parity",
+      "Runs pnpm check:passthrough-parity since budget is a passthrough module",
+      "Filters output to show only budget/MyBudget-related lines",
+      "Performs a deep dive: route comparison, passthrough wrapper verification, schema check",
+      "Enumerates standalone routes under MyBudget/apps/web/app/ and hub routes under apps/web/app/budget/",
+      "Verifies each hub wrapper contains a thin re-export to @mybudget-web alias",
+      "Generates a focused drift report for the budget module only",
+      "Does not modify any files"
+    ]
+  },
+  {
+    "name": "natural-language-parity-trigger",
+    "prompt": "Are the standalone apps in sync with the hub?",
+    "expected_behavior": [
+      "Recognizes this as a parity check request",
+      "Runs the full parity suite: pnpm check:parity",
+      "Optionally runs pnpm test:parity-matrix for deeper coverage",
+      "Generates a complete Parity Report covering all integrated modules",
+      "Highlights any standalone repos with HEAD drift warnings",
+      "Reports passthrough enforcement status for each web module",
+      "Provides a clear yes/no sync summary alongside the detailed report",
+      "Does not modify any files"
+    ]
+  }
+]

@@ -1,0 +1,62 @@
+import type { ThemeProfile } from '../schema';
+
+export const NEUMORPHIC_SLATE: ThemeProfile = {
+  id: 'neumorphic-slate',
+  name: 'Neumorphic Slate',
+  description: 'Light blue-gray surfaces with soft neumorphic depth. Outfit typography.',
+  author: 'MyLife',
+  version: '1.0.0',
+  colorMode: 'light',
+  colors: {
+    background: '#E6E9F0',
+    surface: '#E6E9F0',
+    surfaceElevated: '#EDEFF5',
+    text: '#1B2130',
+    textSecondary: '#4A5060',
+    textTertiary: 'rgba(27,33,48,0.45)',
+    border: 'rgba(74,80,96,0.10)',
+    danger: '#E5484D',
+    success: '#30A46C',
+    warning: '#E5A51C',
+    accent: '#4A5060',
+    primary: '#4A5060',
+    primaryContainer: '#CDD2DE',
+  },
+  glass: {
+    cardFill: 'rgba(230,233,240,0.90)',
+    cardBorder: 'rgba(74,80,96,0.08)',
+    strongFill: 'rgba(237,239,245,1)',
+    strongBorder: 'rgba(74,80,96,0.14)',
+    dockFill: 'rgba(230,233,240,0.95)',
+    dockBorder: 'rgba(74,80,96,0.10)',
+    blurIntensity: 20,
+  },
+  fonts: {
+    display: 'Outfit',
+    body: 'Outfit',
+  },
+  typeScale: {
+    heroTitle: { size: 34, weight: '700', lineHeight: 42 },
+    heading: { size: 22, weight: '600', lineHeight: 30 },
+    subheading: { size: 17, weight: '500', lineHeight: 24 },
+    body: { size: 16, weight: '400', lineHeight: 26 },
+    caption: { size: 13, weight: '400', lineHeight: 18 },
+    label: { size: 12, weight: '600', lineHeight: 16, letterSpacing: 0.6 },
+  },
+  surfaces: {
+    treatment: 'neumorphic',
+    cornerRadius: { card: 20, button: 14, icon: 14, tabBar: 28 },
+    shadows: {
+      card: '8px 8px 16px rgba(163,177,198,0.55), -8px -8px 16px rgba(255,255,255,0.85)',
+      elevated: '12px 12px 24px rgba(163,177,198,0.60), -12px -12px 24px rgba(255,255,255,0.90)',
+      pressed: 'inset 4px 4px 8px rgba(163,177,198,0.45), inset -4px -4px 8px rgba(255,255,255,0.80)',
+    },
+  },
+  layout: {
+    dashboardStyle: 'bento-grid',
+    moduleGridColumns: 4,
+    tabBarStyle: 'floating-pill',
+    headerStyle: 'logo',
+    spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
+  },
+};

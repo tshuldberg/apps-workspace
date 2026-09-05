@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Plan 41 WP-41E</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0e0e13; --surface:#1b1b20; --raised:#2a292f; --text:#e4e1e9; --muted:#d6c3b5; --accent:#ffb877; --info:#8bcff0; --border:rgba(255,255,255,.10); --ok:#30d158; --warn:#ffd60a; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:linear-gradient(145deg,#0e0e13,#18151a 55%,#10151a); color:var(--text); font:16px/1.62 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(1120px,calc(100% - 32px)); margin:32px auto 64px; }
+    header,.card { background:rgba(27,27,32,.88); border:1px solid var(--border); border-radius:18px; box-shadow:0 18px 55px rgba(0,0,0,.28); }
+    header { padding:34px; margin-bottom:20px; }
+    .card { padding:26px 30px; margin:16px 0; }
+    h1 { font-size:clamp(2rem,4vw,3.25rem); line-height:1.08; margin:0 0 12px; letter-spacing:-.035em; }
+    h2 { color:var(--accent); margin:0 0 14px; font-size:1.4rem; }
+    h3 { color:var(--info); margin:22px 0 8px; }
+    p { margin:10px 0; }
+    ul,ol { padding-left:1.4rem; }
+    li { margin:.35rem 0; }
+    code { color:#ffd2aa; background:rgba(255,184,119,.09); border:1px solid rgba(255,184,119,.16); border-radius:6px; padding:.1rem .35rem; overflow-wrap:anywhere; }
+    .kicker { color:var(--accent); text-transform:uppercase; letter-spacing:.14em; font-size:.78rem; font-weight:750; }
+    .lede { color:var(--muted); font-size:1.08rem; max-width:82ch; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:24px; }
+    .stat { padding:16px; border-radius:12px; background:var(--raised); border:1px solid var(--border); }
+    .stat strong { display:block; color:var(--ok); font-size:1.55rem; }
+    table { width:100%; border-collapse:collapse; display:block; overflow-x:auto; }
+    th,td { text-align:left; vertical-align:top; border-bottom:1px solid var(--border); padding:11px 12px; min-width:160px; }
+    th { color:var(--accent); background:rgba(255,184,119,.06); }
+    .note { border-left:4px solid var(--warn); padding:12px 16px; background:rgba(255,214,10,.06); border-radius:0 10px 10px 0; }
+    .files { columns:2 300px; }
+    a { color:var(--info); }
+    footer { color:var(--muted); text-align:center; margin-top:24px; font-size:.9rem; }
+    @media (max-width:640px) { header,.card { padding:22px; } main { width:min(100% - 20px,1120px); margin-top:10px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="kicker">Meerkat Plan 41 · WP-41E · 2026-07-14</div>
+    <h1>Dropbox, OneDrive, and Box storage adapters</h1>
+    <p class="lede">Production adapters, relay OAuth registrations, and provider-specific mobile and web token sources are implemented. The security model remains fail closed: no automatic cross-origin redirects, host-allowlisted provider capabilities without bearer forwarding, one refresh attempt, no adapter token custody, and provider-backed checksum evidence only.</p>
+    <div class="stats">
+      <div class="stat"><strong>100 / 100</strong>new packet tests pass</div>
+      <div class="stat"><strong>67</strong>sync protocol and conformance tests</div>
+      <div class="stat"><strong>3</strong>provider adapters</div>
+      <div class="stat"><strong>Green</strong>all package typechecks and parity</div>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Outcome</h2>
+    <p>Dropbox, OneDrive, and Box implement the complete <code>StorageDestinationAdapter</code> contract over injected HTTP transport and access-token providers. The relay registry now loads all three from file-backed secrets and exact redirect allowlists. Mobile uses lazy PKCE plus SecureStore. Web uses short-lived broker sessions with no browser token persistence.</p>
+    <p>Only new provider-named files were added to the mobile storage-destinations directory. Shared files and the concurrent local-device packet were not touched.</p>
+  </section>
+
+  <section class="card">
+    <h2>Provider behavior</h2>
+    <h3>Dropbox</h3>
+    <ul>
+      <li>RPC and content endpoints under <code>/2</code>, upload-session resume, cursor listing, idempotent delete, and space usage.</li>
+      <li>Local 4 MiB-block <code>content_hash</code> with known-answer coverage, including a file larger than one block.</li>
+      <li>Each upload call hashes the bytes sent in that call. Returned metadata is compared against the whole ciphertext.</li>
+      <li>Path conflicts compare bytes and fail closed on mismatch.</li>
+    </ul>
+    <h3>OneDrive</h3>
+    <ul>
+      <li>Microsoft Graph <code>special/approot</code> addressing, ranged upload fragments, <code>nextExpectedRanges</code> resume, paging, and quota.</li>
+      <li>QuickXorHash is implemented from the published algorithm and covered by independent known-answer vectors.</li>
+      <li>QuickXorHash, SHA-1, or SHA-256 can prove provider checksum evidence. ETag and CTag cannot.</li>
+      <li>Preauthenticated upload URLs are origin-allowlisted and receive no Graph bearer token.</li>
+      <li>The selected short-lived Graph download URL is host-allowlisted and fetched without Authorization.</li>
+    </ul>
+    <h3>Box</h3>
+    <ul>
+      <li>An injected state seam caches the app-created folder id. There is no module-global state.</li>
+      <li>Chunk sessions carry per-part SHA-1 digests and whole-file commit digest validation.</li>
+      <li>Direct uploads send Box's required hexadecimal SHA-1 in <code>Content-MD5</code> and then require read-back.</li>
+      <li>Commit evidence is accepted only when Box returns the same whole-file digest.</li>
+      <li>Box content locations are validated against the Box download boundary and fetched without bearer forwarding.</li>
+      <li>Marker paging, idempotent delete, quota, and fail-closed name-conflict handling are covered.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>OAuth scope decisions</h2>
+    <ul>
+      <li><strong>Dropbox:</strong> narrow file and metadata scopes. App-folder access must also be selected in the Dropbox console because it is an app setting.</li>
+      <li><strong>OneDrive:</strong> <code>Files.ReadWrite.AppFolder offline_access</code>.</li>
+      <li><strong>Box:</strong> Box has no app-folder scope. <code>root_readwrite</code> is the minimum usable content scope, so code enforces one dedicated app-created folder as the application boundary.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Verification</h2>
+    <table>
+      <thead><tr><th>Surface</th><th>Result</th><th>Count and delta</th></tr></thead>
+      <tbody>
+        <tr><td>Sync focused gate</td><td>Pass, lint and typecheck included</td><td>67 / 67 WP-41E</td></tr>
+        <tr><td>Sync full</td><td>2,086 pass; 3 sandbox listener failures</td><td>2,089 = 2,022 baseline + 67</td></tr>
+        <tr><td>Relay OAuth</td><td>32 / 32 pass, lint and typecheck included</td><td>9 new registry tests</td></tr>
+        <tr><td>Relay full</td><td>917 pass; 326 sandbox failures; 172 skipped</td><td>1,415 = 1,406 baseline + 9</td></tr>
+        <tr><td>Mobile focused</td><td>12 / 12 pass, lint and typecheck included</td><td>12 WP-41E</td></tr>
+        <tr><td>Mobile full</td><td>1,240 / 1,240 pass</td><td>Workspace +48; WP-41E +12</td></tr>
+        <tr><td>Web focused</td><td>12 / 12 pass, lint and typecheck included</td><td>12 WP-41E</td></tr>
+        <tr><td>Web full</td><td>800 pass; 14 sandbox listener failures</td><td>814 total; workspace +49; WP-41E +12</td></tr>
+        <tr><td>Meerkat parity</td><td>Pass</td><td>All parity checks passed</td></tr>
+      </tbody>
+    </table>
+    <p class="note">The full sync, relay, and web failures are caused by the managed sandbox refusing localhost listeners with <code>listen EPERM: operation not permitted 127.0.0.1</code>. All new packet suites pass, and every requested package typecheck passes.</p>
+  </section>
+
+  <section class="card">
+    <h2>Files</h2>
+    <div class="files">
+      <h3>Sync</h3>
+      <ul>
+        <li><code>provider-crypto.ts</code></li><li><code>provider-common.ts</code></li><li><code>dropbox.ts</code></li><li><code>onedrive.ts</code></li><li><code>box.ts</code></li><li>Three conformance suites and shared fake support</li><li><code>index.ts</code> and <code>index.native.ts</code></li>
+      </ul>
+      <h3>Relay</h3>
+      <ul><li><code>oauth-broker.ts</code></li><li><code>oauth-broker.test.ts</code></li><li><code>README.md</code></li></ul>
+      <h3>Mobile</h3>
+      <ul><li><code>dropbox-source.ts</code></li><li><code>onedrive-source.ts</code></li><li><code>box-source.ts</code></li><li>Three provider-named tests</li></ul>
+      <h3>Web</h3>
+      <ul><li><code>dropbox-session.ts</code></li><li><code>onedrive-session.ts</code></li><li><code>box-session.ts</code></li><li>Three provider-named tests</li></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Execution notes</h2>
+    <ol>
+      <li>Another packet contributed tests to the same app and web package runs. Focused suites isolate the WP-41E contribution.</li>
+      <li><code>gate:function:changed</code> and <code>check:generated-artifacts</code> were not run because they inspect Git state and this packet prohibited Git commands. Targeted gates covered each changed function surface.</li>
+      <li>No Git command was run.</li>
+      <li>The desktop HTML open, in-app browser fallback, and Quick Look fallback were unavailable in this managed environment. HTML structure and external-asset checks passed.</li>
+    </ol>
+  </section>
+  <footer>Point-in-time implementation and verification record. Current code and tests remain authoritative.</footer>
+</main>
+</body>
+</html>

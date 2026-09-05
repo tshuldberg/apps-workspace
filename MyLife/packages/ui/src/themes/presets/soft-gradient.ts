@@ -1,0 +1,62 @@
+import type { ThemeProfile } from '../schema';
+
+export const SOFT_GRADIENT: ThemeProfile = {
+  id: 'soft-gradient',
+  name: 'Soft Gradient',
+  description: 'Deep purple-black with violet gradients. DM Sans for a modern feel.',
+  author: 'MyLife',
+  version: '1.0.0',
+  colorMode: 'dark',
+  colors: {
+    background: '#0F0A1E',
+    surface: '#1A1030',
+    surfaceElevated: '#26184A',
+    text: '#EDE7FF',
+    textSecondary: '#C9BDE9',
+    textTertiary: 'rgba(237,231,255,0.45)',
+    border: 'rgba(167,139,250,0.18)',
+    danger: '#FF6A88',
+    success: '#6EE7B7',
+    warning: '#FBBF24',
+    accent: '#A78BFA',
+    primary: '#A78BFA',
+    primaryContainer: '#5B3FC0',
+  },
+  glass: {
+    cardFill: 'rgba(167,139,250,0.08)',
+    cardBorder: 'rgba(167,139,250,0.20)',
+    strongFill: 'rgba(167,139,250,0.14)',
+    strongBorder: 'rgba(167,139,250,0.28)',
+    dockFill: 'rgba(15,10,30,0.75)',
+    dockBorder: 'rgba(167,139,250,0.20)',
+    blurIntensity: 70,
+  },
+  fonts: {
+    display: 'DM Sans',
+    body: 'DM Sans',
+  },
+  typeScale: {
+    heroTitle: { size: 36, weight: '700', lineHeight: 44 },
+    heading: { size: 24, weight: '600', lineHeight: 32 },
+    subheading: { size: 18, weight: '500', lineHeight: 24 },
+    body: { size: 16, weight: '400', lineHeight: 26 },
+    caption: { size: 13, weight: '400', lineHeight: 18 },
+    label: { size: 12, weight: '500', lineHeight: 16, letterSpacing: 0.6 },
+  },
+  surfaces: {
+    treatment: 'gradient',
+    cornerRadius: { card: 20, button: 14, icon: 14, tabBar: 28 },
+    shadows: {
+      card: '0 4px 16px rgba(91,63,192,0.25)',
+      elevated: '0 10px 28px rgba(91,63,192,0.35)',
+      pressed: '0 2px 8px rgba(91,63,192,0.30)',
+    },
+  },
+  layout: {
+    dashboardStyle: 'bento-grid',
+    moduleGridColumns: 4,
+    tabBarStyle: 'floating-pill',
+    headerStyle: 'wordmark',
+    spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
+  },
+};

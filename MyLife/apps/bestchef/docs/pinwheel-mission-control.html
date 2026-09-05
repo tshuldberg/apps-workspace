@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BestChef Pinwheel Mission Control</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0E13;
+    --canvas: #110D08;
+    --surface: #131318;
+    --surface-low: #1B1B20;
+    --surface-mid: #211F1F;
+    --surface-high: #2A292F;
+    --surface-highest: #35343A;
+    --primary: #22C55E;
+    --primary-light: #4ADE80;
+    --hero-from: #F26A3A;
+    --hero-to: #F2A93A;
+    --gold-from: #FFD159;
+    --gold-to: #EB9A2E;
+    --secondary: #C9894D;
+    --tertiary: #8BCFF0;
+    --pink: #FF6B9D;
+    --text: #E4E1E9;
+    --text-secondary: #D6C3B5;
+    --text-tertiary: #9F8E81;
+    --border: rgba(255,255,255,0.06);
+    --border-strong: rgba(255,255,255,0.12);
+    --glass: rgba(255,255,255,0.03);
+    --glass-strong: rgba(255,255,255,0.08);
+    --danger: #EF4444;
+    --danger-soft: #FFB4AB;
+    --success: #30D158;
+    --info: #8BCFF0;
+    --warning: #FFB877;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: var(--canvas); color: var(--text); font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif; line-height: 1.6; }
+  body { padding: 32px; max-width: 1400px; margin: 0 auto; padding-bottom: 96px; }
+
+  .hero { padding: 32px 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 32px; position: relative; }
+  .hero::before { content: ''; position: absolute; top: 0; left: -32px; right: -32px; height: 320px; background: radial-gradient(ellipse at top left, rgba(242, 106, 58, 0.18), transparent 60%), radial-gradient(ellipse at top right, rgba(242, 169, 58, 0.12), transparent 55%); pointer-events: none; z-index: 0; }
+  .hero > * { position: relative; z-index: 1; }
+  .hero-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--secondary); margin-bottom: 12px; }
+  h1 { font-size: 44px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; background: linear-gradient(135deg, var(--hero-from), var(--hero-to)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 14px; }
+  .hero-tagline { font-size: 17px; color: var(--text-secondary); max-width: 880px; margin-bottom: 20px; line-height: 1.5; }
+  .hero-meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--text-tertiary); }
+  .hero-meta strong { color: var(--text); font-weight: 600; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 36px; }
+  .stat-card { background: var(--surface-low); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; }
+  .stat-card .label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 6px; }
+  .stat-card .value { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+  .stat-card .value.hero-grad { background: linear-gradient(135deg, var(--hero-from), var(--hero-to)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-card .delta { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+
+  section { margin-bottom: 44px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+  .section-head h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+  .section-head .section-meta { font-size: 12px; color: var(--text-tertiary); }
+  .section-intro { color: var(--text-secondary); font-size: 14px; margin-bottom: 18px; max-width: 920px; }
+
+  .card { background: var(--surface-low); border: 1px solid var(--border); border-radius: 16px; padding: 22px; margin-bottom: 16px; }
+  .card.glass { background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-color: var(--border-strong); }
+  .card h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .card p { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 16px; } }
+
+  /* Phone mock */
+  .phone {
+    width: 360px; height: 720px;
+    border-radius: 44px;
+    background: linear-gradient(180deg, #131318, #0E0E13);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.04);
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+  .phone .notch { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); width: 110px; height: 26px; background: #000; border-radius: 14px; z-index: 5; }
+  .phone .screen { position: absolute; inset: 8px; border-radius: 38px; background: #131318; overflow: hidden; }
+
+  /* Toolbar mock */
+  .tb {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 50px 18px 12px; gap: 12px;
+  }
+  .tb-brand { display: flex; align-items: center; gap: 8px; }
+  .tb-brand .mark {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 14px;
+  }
+  .tb-brand .word { font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
+  .tb-actions { display: flex; align-items: center; gap: 14px; }
+  .tb-actions .btn {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text);
+    font-size: 13px;
+  }
+  .tb-actions .pinwheel-anchor {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+    box-shadow: 0 6px 18px rgba(242, 106, 58, 0.45);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 16px;
+    position: relative;
+  }
+  .tb-actions .pinwheel-anchor::after {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 1px solid rgba(242, 169, 58, 0.4);
+    animation: ping 2.4s ease-in-out infinite;
+  }
+  @keyframes ping {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.18); opacity: 0; }
+  }
+  .tb-submit-grad {
+    width: 28px; height: 28px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800;
+  }
+  .bell-badge { position: relative; }
+  .bell-badge::after {
+    content: '3'; position: absolute; top: -4px; right: -4px;
+    background: var(--hero-from); color: #fff;
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 1px solid #131318;
+    font-size: 8px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Page body mock */
+  .page-body { padding: 4px 18px; color: var(--text-secondary); }
+  .home-greet { font-size: 22px; font-weight: 800; color: var(--text); margin: 8px 0 4px; letter-spacing: -0.02em; }
+  .home-sub { font-size: 13px; color: var(--text-tertiary); margin-bottom: 18px; }
+  .home-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .home-stats .pill { background: var(--surface-low); border: 1px solid var(--border); border-radius: 14px; padding: 10px; }
+  .home-stats .pill .v { font-weight: 800; font-size: 16px; color: var(--text); }
+  .home-stats .pill .l { font-size: 9px; letter-spacing: 0.06em; color: var(--text-tertiary); text-transform: uppercase; }
+  .hero-card {
+    background: linear-gradient(135deg, rgba(242,106,58,0.30), rgba(242,169,58,0.18));
+    border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; padding: 14px;
+    color: var(--text); margin-bottom: 12px;
+  }
+  .hero-card .eyebrow { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-from); }
+  .hero-card h4 { font-size: 17px; margin-top: 4px; }
+
+  /* Pinwheel open state */
+  .wheel-stage {
+    position: relative;
+    width: 100%; aspect-ratio: 1;
+    background: rgba(0,0,0,0.55);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 12px 0;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .wheel-stage::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(242,106,58,0.12), transparent 65%);
+  }
+  .wheel-ring {
+    position: absolute; width: 70%; height: 70%;
+    border: 1px dashed rgba(255,255,255,0.16); border-radius: 50%;
+  }
+  .wheel-icon {
+    position: absolute; width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(20,20,24,0.85);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.55);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 11px; gap: 2px;
+    transform: translate(-50%, -50%);
+  }
+  .wheel-icon .glyph { font-size: 16px; }
+  .wheel-icon .lbl {
+    position: absolute; top: 60px; font-size: 9px; font-weight: 600; color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    white-space: nowrap; pointer-events: none;
+  }
+  .wheel-center {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px; font-weight: 800;
+    z-index: 2;
+  }
+
+  /* Action catalog tiles */
+  .catalog {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;
+  }
+  .catalog .tile {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    transition: transform 120ms ease, border-color 120ms ease;
+  }
+  .catalog .tile:hover { transform: translateY(-1px); border-color: var(--border-strong); }
+  .catalog .tile .glyph {
+    width: 32px; height: 32px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .catalog .tile .name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .catalog .tile .route { font-size: 10px; color: var(--text-tertiary); font-family: 'JetBrains Mono', monospace; }
+  .catalog .tile.picked { background: rgba(34, 197, 94, 0.12); border-color: rgba(34, 197, 94, 0.4); }
+
+  /* Settings mirror panel */
+  .settings-mirror {
+    background: var(--surface-low); border: 1px solid var(--border); border-radius: 18px; padding: 22px;
+  }
+  .settings-mirror .row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    gap: 14px;
+  }
+  .settings-mirror .row:last-child { border-bottom: 0; }
+  .settings-mirror .row .body { flex: 1; min-width: 0; }
+  .settings-mirror .row .title { font-size: 14px; font-weight: 600; color: var(--text); }
+  .settings-mirror .row .desc { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .settings-mirror .switch {
+    width: 44px; height: 24px; border-radius: 12px; background: var(--primary);
+    position: relative; flex-shrink: 0;
+  }
+  .settings-mirror .switch.off { background: var(--surface-high); }
+  .settings-mirror .switch::after {
+    content: ''; position: absolute; top: 2px; left: 22px;
+    width: 20px; height: 20px; border-radius: 50%; background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    transition: left 200ms ease;
+  }
+  .settings-mirror .switch.off::after { left: 2px; }
+  .preview-strip { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .preview-strip .dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .preview-strip .dot.faded { opacity: 0.55; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 999px;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    background: rgba(34, 197, 94, 0.15); color: var(--primary);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+  }
+
+  .selected-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 10px 12px; margin: 8px 0;
+  }
+  .selected-row .slot { font-size: 10px; color: var(--text-tertiary); letter-spacing: 0.06em; text-transform: uppercase; }
+  .selected-row .glyph {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .selected-row .ctrls { display: flex; gap: 4px; }
+  .selected-row .ctrls .b {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text-secondary); font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Code panel */
+  pre {
+    background: #0a0a0c; border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    line-height: 1.6; color: var(--text-secondary); overflow-x: auto;
+  }
+  pre .k { color: #ff7eb6; }
+  pre .s { color: #a3e635; }
+  pre .c { color: var(--text-tertiary); font-style: italic; }
+  pre .n { color: #94d4ff; }
+
+  table.spec { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.spec th, table.spec td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.spec th { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); background: var(--surface); }
+  table.spec td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); }
+  table.spec tr:hover { background: rgba(255,255,255,0.02); }
+
+  .footer { text-align: center; color: var(--text-tertiary); font-size: 12px; margin-top: 56px; padding-top: 32px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">BestChef · Mission Control</div>
+  <h1>Pinwheel Quick Actions</h1>
+  <p class="hero-tagline">A radial action menu that lives in the BestChef header. Tap the gradient circle and up to six shortcuts fan out around it. Customize the default set in Settings, or override it per-page so Home, Kitchen, and Profile each get their own shortcuts.</p>
+  <div class="hero-meta">
+    <span><strong>Component</strong>: app/(root)/components/PinwheelMenu.tsx</span>
+    <span><strong>Settings</strong>: app/(root)/components/settings/PinwheelSettingsSection.tsx</span>
+    <span><strong>Storage</strong>: rc_settings (SQLite)</span>
+    <span><strong>Max actions</strong>: 6</span>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="label">Action Catalog</div><div class="value hero-grad">19</div><div class="delta">selectable shortcuts</div></div>
+  <div class="stat-card"><div class="label">Default Slots</div><div class="value">6</div><div class="delta">submit · discover · kitchen · grocery · leaderboard · notifications</div></div>
+  <div class="stat-card"><div class="label">Per-Page Overrides</div><div class="value">14</div><div class="delta">home, leaderboard, kitchen, profile, vote, &hellip;</div></div>
+  <div class="stat-card"><div class="label">Animation</div><div class="value">spring</div><div class="delta">native driver, 220 ms close</div></div>
+</div>
+
+<section>
+  <div class="section-head">
+    <h2>1 · Header anchor (universal)</h2>
+    <span class="section-meta">AppToolbar.tsx</span>
+  </div>
+  <p class="section-intro">The pinwheel anchor lives inside the existing AppToolbar — same toolbar used on Home, Leaderboard, and Profile. The gradient circle sits left of the existing buttons so it never crowds the bell or submit. When a screen passes <code>pinwheelPageKey</code>, the anchor pulls page-scoped overrides; without one, it falls back to the global default set.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Closed state · home header</h3>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="tb">
+            <div class="tb-brand">
+              <div class="mark">▲</div>
+              <div class="word">BestChef</div>
+            </div>
+            <div class="tb-actions">
+              <div class="pinwheel-anchor" title="Tap to open">+</div>
+              <div class="btn">⌕</div>
+              <div class="tb-submit-grad">+</div>
+              <div class="btn bell-badge">🔔</div>
+            </div>
+          </div>
+          <div class="page-body">
+            <div class="home-greet">Good evening, Trey</div>
+            <div class="home-sub">Tonight's leaderboard, plus a few new dishes.</div>
+            <div class="home-stats">
+              <div class="pill"><div class="v">12</div><div class="l">submissions</div></div>
+              <div class="pill"><div class="v">328</div><div class="l">verdicts</div></div>
+              <div class="pill"><div class="v">#7</div><div class="l">global</div></div>
+            </div>
+            <div class="hero-card">
+              <div class="eyebrow">Champion · Brick-oven Margherita</div>
+              <h4>Soft, smoky, 60 sec.</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Open state · radial fan-out</h3>
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="tb">
+            <div class="tb-brand"><div class="mark">▲</div><div class="word">BestChef</div></div>
+            <div class="tb-actions">
+              <div class="pinwheel-anchor" style="opacity: 0.4">+</div>
+              <div class="btn">⌕</div>
+              <div class="tb-submit-grad">+</div>
+              <div class="btn bell-badge">🔔</div>
+            </div>
+          </div>
+
+          <!-- Wheel stage centered roughly under header -->
+          <div class="wheel-stage" style="margin: 32px auto 0; width: 320px; height: 320px;">
+            <div class="wheel-ring"></div>
+
+            <!-- 6 icons fanned out -->
+            <div class="wheel-icon" style="left: 50%; top: 16%; background: rgba(255, 184, 119, 0.18); border-color: rgba(255,184,119,0.5);">
+              <div class="glyph">＋</div>
+              <div class="lbl">Submit Recipe</div>
+            </div>
+            <div class="wheel-icon" style="left: 80%; top: 33%; background: rgba(139, 207, 240, 0.18); border-color: rgba(139,207,240,0.5);">
+              <div class="glyph">⌕</div>
+              <div class="lbl">Discover</div>
+            </div>
+            <div class="wheel-icon" style="left: 80%; top: 67%; background: rgba(34, 197, 94, 0.18); border-color: rgba(34,197,94,0.5);">
+              <div class="glyph">📖</div>
+              <div class="lbl">My Kitchen</div>
+            </div>
+            <div class="wheel-icon" style="left: 50%; top: 84%; background: rgba(34, 197, 94, 0.18); border-color: rgba(34,197,94,0.5);">
+              <div class="glyph">🛒</div>
+              <div class="lbl">Grocery</div>
+            </div>
+            <div class="wheel-icon" style="left: 20%; top: 67%; background: rgba(255, 184, 119, 0.18); border-color: rgba(255,184,119,0.5);">
+              <div class="glyph">🏆</div>
+              <div class="lbl">Top 100</div>
+            </div>
+            <div class="wheel-icon" style="left: 20%; top: 33%; background: rgba(139, 207, 240, 0.18); border-color: rgba(139,207,240,0.5);">
+              <div class="glyph">🔔</div>
+              <div class="lbl">Notifications</div>
+            </div>
+
+            <!-- Center close -->
+            <div class="wheel-center">×</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card glass" style="margin-top: 16px;">
+    <h3>Anchor spec</h3>
+    <table class="spec">
+      <tr><th>Property</th><th>Value</th><th>Notes</th></tr>
+      <tr><td>Diameter</td><td class="mono">30 px</td><td>Same height as bell &amp; search to maintain header rhythm</td></tr>
+      <tr><td>Fill</td><td class="mono">linear-gradient(135deg, #F26A3A, #F2A93A)</td><td>HERO_GRADIENT from @mylife/bestchef</td></tr>
+      <tr><td>Glyph</td><td class="mono">Plus, 16 px, white, strokeWidth 3</td><td>From lucide-react-native</td></tr>
+      <tr><td>Hit slop</td><td class="mono">10 px</td><td>Forgiving touch target</td></tr>
+      <tr><td>Press feedback</td><td class="mono">opacity 0.7, scale 0.94</td><td>Pressable native scale</td></tr>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>2 · Open animation &amp; geometry</h2>
+    <span class="section-meta">PinwheelMenu.tsx</span>
+  </div>
+  <p class="section-intro">Tapping the anchor measures its on-screen position with <code>measureInWindow</code>, opens a transparent <code>Modal</code>, and runs a single <code>Animated.Value</code> from 0 → 1 with <code>useNativeDriver: true</code>. Each icon's translate is interpolated from the shared progress, so all six animate in lockstep without per-icon overhead.</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Geometry</h3>
+      <table class="spec">
+        <tr><th>Constant</th><th>Value</th></tr>
+        <tr><td>Radius (anchor → icon)</td><td class="mono">110 px</td></tr>
+        <tr><td>Icon diameter</td><td class="mono">56 px</td></tr>
+        <tr><td>Start angle</td><td class="mono">-π / 2 (top)</td></tr>
+        <tr><td>Step</td><td class="mono">2π / N</td></tr>
+        <tr><td>Center clamp</td><td class="mono">RADIUS + ICON/2 + 8 px from each edge</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Animation</h3>
+      <table class="spec">
+        <tr><th>Phase</th><th>Driver</th><th>Curve</th></tr>
+        <tr><td>Backdrop opacity</td><td class="mono">progress · 0.55</td><td>linear interp</td></tr>
+        <tr><td>Icon translateX/Y</td><td class="mono">progress · cos/sin · radius</td><td>spring (damping 14, stiffness 180)</td></tr>
+        <tr><td>Icon scale</td><td class="mono">0.4 → 1.0</td><td>shared spring</td></tr>
+        <tr><td>Close</td><td class="mono">timing 220 ms</td><td>Easing.out(cubic)</td></tr>
+        <tr><td>Haptics</td><td class="mono">impact medium / selection / impact light</td><td>open · action · close</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Sequence</h3>
+    <p>1 · Tap anchor → <code>measureInWindow(...)</code> resolves the screen-space center → state &amp; modal open → <code>Animated.spring(progress → 1)</code> fans icons out.</p>
+    <p>2 · Tap an icon → selection haptic → <code>Animated.timing(progress → 0)</code> collapses the wheel → on completion, <code>router.push(action.route)</code>.</p>
+    <p>3 · Tap backdrop or center × → light impact haptic → animate close, no navigation.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>3 · Action catalog (all 19)</h2>
+    <span class="section-meta">data/pinwheel-config.ts</span>
+  </div>
+  <p class="section-intro">Every catalog entry maps a stable <code>id</code> to an icon, label, route, and tint color. The default set is highlighted in green; the rest are available in the customization picker.</p>
+
+  <div class="catalog">
+    <div class="tile picked"><div class="glyph" style="background: rgba(255,184,119,0.18); color: #FFB877;">＋</div><div><div class="name">Submit Recipe</div><div class="route">/submit</div></div></div>
+    <div class="tile picked"><div class="glyph" style="background: rgba(139,207,240,0.18); color: #8BCFF0;">⌕</div><div><div class="name">Discover</div><div class="route">/discover</div></div></div>
+    <div class="tile picked"><div class="glyph" style="background: rgba(34,197,94,0.18); color: #22C55E;">📖</div><div><div class="name">My Kitchen</div><div class="route">/(tabs)/kitchen</div></div></div>
+    <div class="tile picked"><div class="glyph" style="background: rgba(34,197,94,0.18); color: #22C55E;">🛒</div><div><div class="name">Grocery</div><div class="route">/grocery</div></div></div>
+    <div class="tile picked"><div class="glyph" style="background: rgba(255,184,119,0.18); color: #FFB877;">🏆</div><div><div class="name">Leaderboard</div><div class="route">/(tabs)/leaderboard</div></div></div>
+    <div class="tile picked"><div class="glyph" style="background: rgba(139,207,240,0.18); color: #8BCFF0;">🔔</div><div><div class="name">Notifications</div><div class="route">/notifications</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(34,197,94,0.18); color: #22C55E;">⌂</div><div><div class="name">Home</div><div class="route">/(tabs)</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(201,137,77,0.18); color: #C9894D;">📦</div><div><div class="name">Pantry</div><div class="route">/pantry</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(255,184,119,0.18); color: #FFB877;">👍</div><div><div class="name">Vote</div><div class="route">/(tabs)/vote</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(34,197,94,0.18); color: #22C55E;">👤</div><div><div class="name">Profile</div><div class="route">/(tabs)/profile</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(159,142,129,0.18); color: #9F8E81;">⚙</div><div><div class="name">Settings</div><div class="route">/(tabs)/settings</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(255,107,157,0.18); color: #FF6B9D;">▶</div><div><div class="name">Cooking Videos</div><div class="route">/feed</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(255,184,119,0.18); color: #FFB877;">✨</div><div><div class="name">Challenges</div><div class="route">/challenges</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(255,184,119,0.18); color: #FFB877;">★</div><div><div class="name">Creator</div><div class="route">/creator-program</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(34,197,94,0.18); color: #22C55E;">🧾</div><div><div class="name">Scan Receipt</div><div class="route">/kitchen-receipt</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(34,197,94,0.18); color: #22C55E;">📷</div><div><div class="name">Grocery Photo</div><div class="route">/kitchen-photo</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(159,142,129,0.18); color: #9F8E81;">🚩</div><div><div class="name">My Reports</div><div class="route">/my-reports</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(255,107,157,0.18); color: #FF6B9D;">🔥</div><div><div class="name">Trending</div><div class="route">/discover</div></div></div>
+    <div class="tile"><div class="glyph" style="background: rgba(201,137,77,0.18); color: #C9894D;">🍴</div><div><div class="name">Browse Dishes</div><div class="route">/(tabs)/dishes</div></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>4 · Settings panel mirror</h2>
+    <span class="section-meta">PinwheelSettingsSection.tsx</span>
+  </div>
+  <p class="section-intro">This is the layout users see in <strong>Settings → Quick Actions</strong>. Two switches gate the feature globally; a single tap on "Default actions" opens the picker; per-page rows show a strip preview of which icons render on each screen, with a <span class="badge">Custom</span> badge when an override is active.</p>
+
+  <div class="settings-mirror">
+    <div class="row">
+      <div class="body">
+        <div class="title">Pinwheel Quick Actions</div>
+        <div class="desc">Pick up to 6 actions to fan out from the BestChef header. Customize per-page if you want different shortcuts on Home vs. Kitchen.</div>
+      </div>
+      <div class="pinwheel-anchor" style="width: 32px; height: 32px;">+</div>
+    </div>
+    <div class="row">
+      <div class="body">
+        <div class="title">Show pinwheel</div>
+        <div class="desc">When off the header reverts to its standard buttons.</div>
+      </div>
+      <div class="switch"></div>
+    </div>
+    <div class="row">
+      <div class="body">
+        <div class="title">Show action labels</div>
+        <div class="desc">Caption text below each fan-out icon.</div>
+      </div>
+      <div class="switch"></div>
+    </div>
+    <div class="row">
+      <div class="body">
+        <div class="title">Default actions</div>
+        <div class="preview-strip">
+          <div class="dot" style="color: #FFB877;">＋</div>
+          <div class="dot" style="color: #8BCFF0;">⌕</div>
+          <div class="dot" style="color: #22C55E;">📖</div>
+          <div class="dot" style="color: #22C55E;">🛒</div>
+          <div class="dot" style="color: #FFB877;">🏆</div>
+          <div class="dot" style="color: #8BCFF0;">🔔</div>
+        </div>
+        <div class="desc">6 of 6 chosen</div>
+      </div>
+      <div style="color: var(--text-tertiary);">›</div>
+    </div>
+
+    <div class="row" style="border-top: 1px solid var(--border); padding-top: 18px; flex-direction: column; align-items: stretch;">
+      <div class="body" style="margin-bottom: 12px;">
+        <div class="title" style="font-size: 10px; letter-spacing: 0.16em; color: var(--text-tertiary); text-transform: uppercase;">Per-page overrides</div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border);">
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="title">Home</span>
+            <span class="badge">Custom</span>
+          </div>
+          <div class="preview-strip">
+            <div class="dot" style="color: #FFB877;">＋</div>
+            <div class="dot" style="color: #8BCFF0;">⌕</div>
+            <div class="dot" style="color: #22C55E;">🛒</div>
+            <div class="dot" style="color: #FFB877;">🏆</div>
+            <div class="dot" style="color: #FF6B9D;">▶</div>
+            <div class="dot" style="color: #8BCFF0;">🔔</div>
+          </div>
+        </div>
+        <div style="color: var(--text-secondary); font-size: 14px;">↺</div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border);">
+        <div style="flex: 1;">
+          <span class="title">Leaderboard</span>
+          <div class="preview-strip">
+            <div class="dot faded" style="color: #FFB877;">＋</div>
+            <div class="dot faded" style="color: #8BCFF0;">⌕</div>
+            <div class="dot faded" style="color: #22C55E;">📖</div>
+            <div class="dot faded" style="color: #22C55E;">🛒</div>
+            <div class="dot faded" style="color: #FFB877;">🏆</div>
+            <div class="dot faded" style="color: #8BCFF0;">🔔</div>
+          </div>
+        </div>
+        <div style="color: var(--text-tertiary);">›</div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border);">
+        <div style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="title">My Kitchen</span>
+            <span class="badge">Custom</span>
+          </div>
+          <div class="preview-strip">
+            <div class="dot" style="color: #22C55E;">🛒</div>
+            <div class="dot" style="color: #C9894D;">📦</div>
+            <div class="dot" style="color: #22C55E;">🧾</div>
+            <div class="dot" style="color: #22C55E;">📷</div>
+            <div class="dot" style="color: #FFB877;">＋</div>
+            <div class="dot" style="color: #22C55E;">📖</div>
+          </div>
+        </div>
+        <div style="color: var(--text-secondary); font-size: 14px;">↺</div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0;">
+        <div style="flex: 1;">
+          <span class="title">Profile</span>
+          <div class="preview-strip">
+            <div class="dot faded" style="color: #FFB877;">＋</div>
+            <div class="dot faded" style="color: #8BCFF0;">⌕</div>
+            <div class="dot faded" style="color: #22C55E;">📖</div>
+            <div class="dot faded" style="color: #22C55E;">🛒</div>
+            <div class="dot faded" style="color: #FFB877;">🏆</div>
+            <div class="dot faded" style="color: #8BCFF0;">🔔</div>
+          </div>
+        </div>
+        <div style="color: var(--text-tertiary);">›</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>5 · Action editor modal</h2>
+    <span class="section-meta">page-sheet modal</span>
+  </div>
+  <p class="section-intro">Tapping a row opens a page-sheet editor. The top zone shows currently-selected actions in slot order with up/down/delete controls. The lower zone is the catalog grid. Selecting a 7th tile is blocked (the tile dims to 40 % opacity and a "6 / 6" label appears).</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>Selected (4 / 6)</h3>
+      <div class="selected-row">
+        <div class="glyph" style="background: rgba(255,184,119,0.20);">＋</div>
+        <div style="flex: 1;">
+          <div class="title" style="font-weight: 600;">Submit Recipe</div>
+          <div class="slot">Slot 1</div>
+        </div>
+        <div class="ctrls">
+          <div class="b" style="opacity: 0.4;">▴</div>
+          <div class="b">▾</div>
+          <div class="b">🗑</div>
+        </div>
+      </div>
+      <div class="selected-row">
+        <div class="glyph" style="background: rgba(139,207,240,0.20);">⌕</div>
+        <div style="flex: 1;">
+          <div class="title" style="font-weight: 600;">Discover</div>
+          <div class="slot">Slot 2</div>
+        </div>
+        <div class="ctrls"><div class="b">▴</div><div class="b">▾</div><div class="b">🗑</div></div>
+      </div>
+      <div class="selected-row">
+        <div class="glyph" style="background: rgba(34,197,94,0.20);">📖</div>
+        <div style="flex: 1;">
+          <div class="title" style="font-weight: 600;">My Kitchen</div>
+          <div class="slot">Slot 3</div>
+        </div>
+        <div class="ctrls"><div class="b">▴</div><div class="b">▾</div><div class="b">🗑</div></div>
+      </div>
+      <div class="selected-row">
+        <div class="glyph" style="background: rgba(255,107,157,0.20);">▶</div>
+        <div style="flex: 1;">
+          <div class="title" style="font-weight: 600;">Cooking Videos</div>
+          <div class="slot">Slot 4</div>
+        </div>
+        <div class="ctrls"><div class="b">▴</div><div class="b" style="opacity: 0.4;">▾</div><div class="b">🗑</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Catalog</h3>
+      <div class="catalog">
+        <div class="tile picked"><div class="glyph" style="color: #FFB877;">＋</div><div><div class="name">Submit Recipe</div></div></div>
+        <div class="tile picked"><div class="glyph" style="color: #8BCFF0;">⌕</div><div><div class="name">Discover</div></div></div>
+        <div class="tile picked"><div class="glyph" style="color: #22C55E;">📖</div><div><div class="name">My Kitchen</div></div></div>
+        <div class="tile picked"><div class="glyph" style="color: #FF6B9D;">▶</div><div><div class="name">Videos</div></div></div>
+        <div class="tile"><div class="glyph" style="color: #22C55E;">🛒</div><div><div class="name">Grocery</div></div></div>
+        <div class="tile"><div class="glyph" style="color: #FFB877;">🏆</div><div><div class="name">Top 100</div></div></div>
+        <div class="tile"><div class="glyph" style="color: #8BCFF0;">🔔</div><div><div class="name">Notifications</div></div></div>
+        <div class="tile"><div class="glyph" style="color: #C9894D;">📦</div><div><div class="name">Pantry</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>6 · Persistence schema</h2>
+    <span class="section-meta">rc_settings table</span>
+  </div>
+  <p class="section-intro">Configuration lives in the existing <code>rc_settings</code> table — same key/value store the rest of the app already uses for zip code, theme mode, and chef defaults. Three keys plus one per page-override.</p>
+
+  <table class="spec">
+    <tr><th>Key</th><th>Type</th><th>Default</th><th>Purpose</th></tr>
+    <tr><td class="mono">pinwheel_default_actions</td><td class="mono">JSON string[]</td><td class="mono">DEFAULT_PINWHEEL_ACTIONS</td><td>Global ordered list, max 6</td></tr>
+    <tr><td class="mono">pinwheel_show_labels</td><td class="mono">"true" | "false"</td><td class="mono">"true"</td><td>Captions under each fan-out icon</td></tr>
+    <tr><td class="mono">pinwheel_enabled</td><td class="mono">"true" | "false"</td><td class="mono">"true"</td><td>Master switch</td></tr>
+    <tr><td class="mono">pinwheel_page_&lt;key&gt;</td><td class="mono">JSON string[]</td><td>—</td><td>Optional override for a specific page (home, kitchen, profile, …)</td></tr>
+  </table>
+
+  <div class="card glass" style="margin-top: 16px;">
+    <h3>Reading config</h3>
+    <pre><span class="k">import</span> { usePinwheelConfig } <span class="k">from</span> <span class="s">'../data/pinwheel-config'</span>;
+
+<span class="k">const</span> db = useDatabase();
+<span class="k">const</span> config = usePinwheelConfig(db, <span class="s">'home'</span>);
+<span class="c">// config.actions    → ordered PinwheelActionDef[] (resolved from override → default)</span>
+<span class="c">// config.showLabels → boolean</span>
+<span class="c">// config.enabled    → boolean</span></pre>
+  </div>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>7 · Wiring into a screen</h2>
+    <span class="section-meta">AppToolbar.tsx</span>
+  </div>
+  <p class="section-intro">The toolbar handles the anchor for you. Pass <code>pinwheelPageKey</code> to enable per-page overrides, or omit it to fall back to the global default. Pass <code>hidePinwheel</code> to opt out entirely on a screen (e.g. the submit modal where the action would be redundant).</p>
+
+  <pre><span class="k">import</span> { AppToolbar } <span class="k">from</span> <span class="s">'../components/AppToolbar'</span>;
+
+<span class="k">return</span> (
+  &lt;<span class="n">View</span> style={[styles.screen, { backgroundColor: tc.background }]}&gt;
+    &lt;<span class="n">View</span> style={{ paddingTop: insets.top }}&gt;
+      &lt;<span class="n">AppToolbar</span>
+        pinwheelPageKey=<span class="s">"home"</span>
+        onSearch={() =&gt; router.push(<span class="s">'/discover'</span>)}
+        onSubmit={() =&gt; router.push(<span class="s">'/submit'</span>)}
+        onNotifications={() =&gt; router.push(<span class="s">'/notifications'</span>)}
+      /&gt;
+    &lt;/<span class="n">View</span>&gt;
+    {/* page body */}
+  &lt;/<span class="n">View</span>&gt;
+);</pre>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>8 · Page-key registry</h2>
+    <span class="section-meta">PINWHEEL_PAGE_KEYS</span>
+  </div>
+  <p class="section-intro">Every screen that surfaces the toolbar has a stable page key, so per-page overrides survive route renames.</p>
+
+  <table class="spec">
+    <tr><th>Key</th><th>Surface</th><th>Recommended actions</th></tr>
+    <tr><td class="mono">home</td><td>(tabs)/index</td><td>submit, discover, kitchen, grocery, leaderboard, notifications</td></tr>
+    <tr><td class="mono">leaderboard</td><td>(tabs)/leaderboard</td><td>submit, vote, challenges, discover, profile, notifications</td></tr>
+    <tr><td class="mono">vote</td><td>(tabs)/vote</td><td>discover, submit, leaderboard, kitchen, profile, notifications</td></tr>
+    <tr><td class="mono">kitchen</td><td>(tabs)/kitchen</td><td>grocery, pantry, receipt, photo, submit, kitchen</td></tr>
+    <tr><td class="mono">profile</td><td>(tabs)/profile</td><td>edit, creator, settings, leaderboard, submit, notifications</td></tr>
+    <tr><td class="mono">dishes</td><td>(tabs)/dishes</td><td>discover, submit, leaderboard, kitchen, vote, notifications</td></tr>
+    <tr><td class="mono">discover</td><td>discover.tsx (modal)</td><td>submit, kitchen, vote, profile, leaderboard, notifications</td></tr>
+    <tr><td class="mono">feed</td><td>feed.tsx (modal)</td><td>kitchen, submit, profile, leaderboard, discover, notifications</td></tr>
+    <tr><td class="mono">submit</td><td>submit.tsx (modal)</td><td>kitchen, discover, leaderboard, profile, settings, notifications</td></tr>
+    <tr><td class="mono">recipe</td><td>recipe/[id]</td><td>kitchen, grocery, submit, profile, leaderboard, discover</td></tr>
+    <tr><td class="mono">dish</td><td>dish/[id]</td><td>submit, leaderboard, kitchen, vote, profile, discover</td></tr>
+    <tr><td class="mono">grocery</td><td>grocery.tsx</td><td>pantry, kitchen, receipt, photo, submit, settings</td></tr>
+    <tr><td class="mono">pantry</td><td>pantry.tsx</td><td>grocery, kitchen, receipt, photo, submit, settings</td></tr>
+    <tr><td class="mono">settings</td><td>(tabs)/settings</td><td>profile, kitchen, notifications, creator, reports, home</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="section-head">
+    <h2>9 · QA checklist</h2>
+    <span class="section-meta">pre-merge</span>
+  </div>
+  <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Anchor renders</strong> in header on Home, Leaderboard, Profile.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Tap → fan-out</strong> with spring; backdrop dims to 0.55.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Tap action</strong> closes wheel and routes to target route.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Tap backdrop / center ×</strong> closes without routing.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Settings → Default</strong> editor saves picks; preview strip updates instantly.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Per-page override</strong> applies only on that page; reset arrow restores default.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Show labels</strong> toggle hides/shows captions globally.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Master switch off</strong> hides the anchor; bell/search/+ remain visible.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>Haptics</strong> fire on open / select / close.</li>
+    <li class="card" style="padding: 14px 18px; margin: 0;"><strong>App restart</strong> persists default and overrides via rc_settings.</li>
+  </ul>
+</section>
+
+<div class="footer">
+  Pinwheel Mission Control · BestChef · generated 2026-04-28
+</div>
+
+</body>
+</html>

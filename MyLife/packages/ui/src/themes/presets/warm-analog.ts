@@ -1,0 +1,62 @@
+import type { ThemeProfile } from '../schema';
+
+export const WARM_ANALOG: ThemeProfile = {
+  id: 'warm-analog',
+  name: 'Warm Analog',
+  description: 'Cream and warm paper surfaces with Newsreader serif. Journal-like warmth.',
+  author: 'MyLife',
+  version: '1.0.0',
+  colorMode: 'light',
+  colors: {
+    background: '#F6EFE3',
+    surface: '#FAF4E9',
+    surfaceElevated: '#FFFBF2',
+    text: '#3B2E22',
+    textSecondary: '#6B5944',
+    textTertiary: 'rgba(59,46,34,0.50)',
+    border: 'rgba(59,46,34,0.12)',
+    danger: '#B4462E',
+    success: '#7A8B3C',
+    warning: '#C78A2F',
+    accent: '#8B6D47',
+    primary: '#8B6D47',
+    primaryContainer: '#E4D3B8',
+  },
+  glass: {
+    cardFill: 'rgba(255,251,242,0.75)',
+    cardBorder: 'rgba(59,46,34,0.10)',
+    strongFill: 'rgba(255,251,242,0.92)',
+    strongBorder: 'rgba(59,46,34,0.16)',
+    dockFill: 'rgba(250,244,233,0.85)',
+    dockBorder: 'rgba(59,46,34,0.12)',
+    blurIntensity: 30,
+  },
+  fonts: {
+    display: 'Newsreader',
+    body: 'Newsreader',
+  },
+  typeScale: {
+    heroTitle: { size: 38, weight: '500', lineHeight: 46 },
+    heading: { size: 26, weight: '500', lineHeight: 34 },
+    subheading: { size: 19, weight: '500', lineHeight: 26 },
+    body: { size: 17, weight: '400', lineHeight: 28 },
+    caption: { size: 14, weight: '400', lineHeight: 20 },
+    label: { size: 13, weight: '500', lineHeight: 18, letterSpacing: 0.6 },
+  },
+  surfaces: {
+    treatment: 'solid',
+    cornerRadius: { card: 10, button: 8, icon: 8, tabBar: 16 },
+    shadows: {
+      card: '0 1px 2px rgba(59,46,34,0.08)',
+      elevated: '0 4px 10px rgba(59,46,34,0.14)',
+      pressed: '0 1px 1px rgba(59,46,34,0.10)',
+    },
+  },
+  layout: {
+    dashboardStyle: 'list',
+    moduleGridColumns: 3,
+    tabBarStyle: 'bottom-attached',
+    headerStyle: 'wordmark',
+    spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 32 },
+  },
+};

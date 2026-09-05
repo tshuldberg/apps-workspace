@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Migrate MyGarden into the hub",
+    "prompt": "Migrate MyGarden into the hub as a module. The standalone app is at MyRecipes/ (it was renamed to MyGarden). Use the recipes module ID and rc_ table prefix.",
+    "expected_behavior": [
+      "Reads MyRecipes/CLAUDE.md and schema files to understand data model",
+      "Studies modules/books/ and modules/meds/ as reference patterns",
+      "Creates or updates modules/recipes/ with package.json, tsconfig.json, vitest.config.ts",
+      "Creates src/db/schema.ts with rc_-prefixed tables matching standalone schema",
+      "Creates src/definition.ts with RECIPES_MODULE ModuleDefinition including correct navigation tabs",
+      "Creates src/db/crud.ts with CRUD operations using DatabaseAdapter",
+      "Creates src/models/ with Zod schemas for each entity",
+      "Creates src/index.ts barrel file",
+      "Wires mobile routes at apps/mobile/app/(recipes)/_layout.tsx with tabs matching standalone",
+      "Wires web routes at apps/web/app/recipes/ as passthrough wrappers",
+      "Creates packages/migration/src/importers/recipes.ts with importFromMyGarden function",
+      "Creates src/__tests__/recipes.test.ts with module definition and CRUD tests",
+      "Runs pnpm typecheck and pnpm test to validate",
+      "Runs pnpm check:parity to verify standalone-hub parity"
+    ]
+  },
+  {
+    "name": "Add MyJournal as a hub module",
+    "prompt": "Add MyJournal as a hub module. The standalone app is at MyJournal/. It has entries with title, content, mood, tags, and photos. Use 'journal' as the module ID and 'jn_' as the table prefix.",
+    "expected_behavior": [
+      "Reads MyJournal/ standalone app for schema, routes, and features",
+      "Adds 'journal' to ModuleId union in packages/module-registry/src/types.ts",
+      "Adds 'journal' to ModuleIdSchema, MODULE_IDS, and MODULE_METADATA in module-registry",
+      "Creates modules/journal/ package with all config files",
+      "Creates jn_-prefixed schema (jn_entries, jn_tags, jn_entry_tags, jn_photos, jn_settings)",
+      "Creates JOURNAL_MODULE definition with navigation matching standalone",
+      "Creates CRUD layer with row mappers and parameterized queries",
+      "Creates Zod models for Entry, Tag, Photo entities",
+      "Wires mobile routes with tabs and hidden detail screens",
+      "Wires web routes with layout and page files",
+      "Creates data importer reading unprefixed tables, writing to jn_-prefixed tables",
+      "Writes tests using createModuleTestDatabase pattern",
+      "Updates CLAUDE.md prefix table with journal/jn_"
+    ]
+  },
+  {
+    "name": "Wire MyCloset standalone into MyLife",
+    "prompt": "Wire MyCloset standalone into MyLife as a hub module. The standalone app only has a CLAUDE.md with design docs and no runtime code yet.",
+    "expected_behavior": [
+      "Reads MyCloset/CLAUDE.md to understand planned data model and features",
+      "Recognizes that standalone has no runtime code (design docs only)",
+      "Reports that this module is parity-deferred per CLAUDE.md rules",
+      "Creates a minimal module scaffold with ModuleDefinition based on design docs",
+      "Creates placeholder schema based on planned data model from design docs",
+      "Marks the module as parity-deferred in any generated documentation",
+      "Does NOT create a data importer (no standalone data to import)",
+      "Still creates mobile and web route shells for the module",
+      "Adds the module ID to module-registry if not already present"
+    ]
+  }
+]

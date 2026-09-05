@@ -1,0 +1,298 @@
+name: Release Verify
+
+# Full-matrix verification of an exact release candidate SHA. Unlike ci.yml,
+# nothing here is path-filtered: every job runs against the requested SHA so a
+# docs-only merge commit still gets complete remote coverage. Dispatch it with
+# the candidate SHA when cutting a release ledger entry, and record the run URL
+# as Step 1 evidence in docs/releases/meerkat/<release-id>/evidence.json.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Full commit SHA of the release candidate to verify
+        required: true
+        type: string
+
+run-name: release-verify @ ${{ inputs.sha }}
+
+concurrency:
+  group: release-verify-${{ inputs.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  meerkat-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - name: Install checksum-pinned Gitleaks
+        run: |
+          curl --fail --silent --show-error --location https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz -o "$RUNNER_TEMP/gitleaks.tar.gz"
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+      - name: Prove secret detector configuration
+        run: node scripts/check-meerkat-secret-scanner.mjs "$RUNNER_TEMP/gitleaks"
+      - name: Scan Meerkat source with default detectors
+        run: |
+          for source in apps/meerkat apps/meerkat-web packages/sync packages/meerkat-relay; do
+            "$RUNNER_TEMP/gitleaks" dir "$source" --config .gitleaks.toml --redact
+          done
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - uses: google/osv-scanner-action/osv-scanner-action@19ec1116569a47416e11a45848722b1af31a857b # v2.2.3
+        with:
+          scan-args: |-
+            --lockfile=pnpm-lock.yaml
+            --recursive
+            --config=.github/osv-scanner.toml
+
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+          submodules: recursive
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:parity
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:generated-artifacts
+      - run: pnpm check:web-barrel
+      - run: pnpm lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    env:
+      VITEST_SEED: ${{ github.run_id }}
+      # Perf slope/memory gates are a local quality instrument (pre-commit
+      # function gate + local suites). Shared-runner wall clock is scheduler
+      # noise at the millisecond medians these gates measure; release-grade
+      # performance evidence comes from the Step 15 load/soak budgets.
+      MYLIFE_PERF_GATES: "off"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+
+  coverage:
+    runs-on: ubuntu-latest
+    env:
+      VITEST_SEED: ${{ github.run_id }}
+      MYLIFE_PERF_GATES: "off"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test:coverage:ci
+
+  meerkat-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+        env:
+          POSTGRES_DB: meerkat_ci
+          POSTGRES_USER: meerkat
+          POSTGRES_PASSWORD: meerkat-ci-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U meerkat -d meerkat_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      MEERKAT_TEST_POSTGRES_URL: postgres://meerkat:meerkat-ci-password@127.0.0.1:5432/meerkat_ci
+      MEERKAT_ALLOW_DESTRUCTIVE_POSTGRES_TESTS: "true"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mylife/meerkat-relay test:postgres
+
+  meerkat-s3:
+    runs-on: ubuntu-latest
+    env:
+      MEERKAT_TEST_S3_ENDPOINT: http://127.0.0.1:9000
+      MEERKAT_TEST_S3_ACCESS_KEY: meerkat
+      MEERKAT_TEST_S3_SECRET_KEY: meerkat-ci-secret
+      MEERKAT_TEST_S3_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - name: Boot pinned MinIO (S3-compatible object store)
+        run: |
+          docker run -d --name meerkat-minio-rv \
+            -p 9000:9000 \
+            -e MINIO_ROOT_USER=meerkat \
+            -e MINIO_ROOT_PASSWORD=meerkat-ci-secret \
+            minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e \
+            server /data
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:9000/minio/health/live; then
+              echo "MinIO is live"; break
+            fi
+            if [ "$attempt" -eq 30 ]; then echo "MinIO did not become healthy" >&2; exit 1; fi
+            sleep 2
+          done
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mylife/meerkat-relay test:s3
+      - run: pnpm --filter @mylife/meerkat-relay test:s3-hosted
+      - run: pnpm --filter @mylife/meerkat-relay test:s3-archive
+      - name: Stop MinIO
+        if: always()
+        run: docker rm -f meerkat-minio-rv 2>/dev/null || true
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test]
+    env:
+      VITEST_SEED: ${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mylife/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @mylife/web test:e2e
+      - name: Run Meerkat browser E2E against a real relay
+        env:
+          MEERKAT_E2E_RELAY_URL: ws://127.0.0.1:8787
+          VITE_MEERKAT_DEFAULT_RELAY_URL: ws://127.0.0.1:8787
+          VITE_MEERKAT_HOSTED_API_URL: http://127.0.0.1:3127
+        run: |
+          pnpm --filter @mylife/meerkat-relay start &
+          relay_pid=$!
+          trap 'kill "$relay_pid" 2>/dev/null || true' EXIT
+          pnpm --filter @mylife/meerkat-web exec playwright install chromium
+          pnpm --filter @mylife/meerkat-web test:e2e
+
+  relay-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ inputs.sha }}
+      - name: Build the slim relay image (no push)
+        run: docker build -t meerkat-relay-rv packages/meerkat-relay
+      - name: Build the stateful Meerkat platform image (no push)
+        run: docker build -f packages/meerkat-relay/Dockerfile.platform -t meerkat-platform-rv .
+      - name: Boot the production hosted-service image
+        run: |
+          docker run --rm -d --name meerkat-platform-rv-smoke \
+            --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m \
+            --cap-drop ALL --security-opt no-new-privileges:true \
+            -p 18893:8893 \
+            -e PORT=8893 -e HOST=0.0.0.0 -e DATA_DIR=/tmp/hosted \
+            -e MEERKAT_DEPLOYMENT_PROFILE=self-host -e MEERKAT_STORE_BACKEND=file \
+            -e ENTITLEMENT_SECRET=test-entitlement -e WEBHOOK_SECRET=test-webhook \
+            -e STRIPE_SECRET_KEY=sk_test_placeholder \
+            -e STRIPE_MONTHLY_PRICE_ID=price_monthly \
+            -e STRIPE_APP_UNLOCK_PRICE_ID=price_unlock \
+            -e REVENUECAT_REST_API_KEY=rc_test_placeholder \
+            -e MEERKAT_ALLOWED_ORIGINS=https://app.example.test \
+            -e MEERKAT_APP_UNLOCK_TOKEN_SECRET=test-app-token \
+            meerkat-platform-rv \
+            ./node_modules/.bin/tsx bin/meerkat-hosted-service.mjs
+          trap 'docker stop meerkat-platform-rv-smoke 2>/dev/null || true' EXIT
+          # curl --retry does not retry an empty reply (exit 52), which is what
+          # docker-proxy returns while the tsx entrypoint is still cold-booting,
+          # so poll with a bounded loop instead.
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:18893/healthz; then
+              echo "hosted service is healthy"; exit 0
+            fi
+            sleep 2
+          done
+          echo "hosted service did not become healthy" >&2
+          docker logs meerkat-platform-rv-smoke >&2 || true
+          exit 1

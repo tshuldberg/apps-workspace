@@ -1,0 +1,8 @@
+{
+  "name": "BestChef",
+  "subtitle": "Vote the best recipe up",
+  "description": "BestChef is a competitive recipe platform built on one idea: for any dish, there is a best recipe, and the community can find it together.\n\nBrowse dishes, from weeknight staples to regional specialties, and see the recipes submitted for each one. Vote on the recipes you have actually cooked to help the best version rise to the top of the leaderboard. Submit your own recipe for a dish and see how it stacks up.\n\nBuild a chef profile, follow the dishes and cooks you care about, and join challenges tied to specific dishes and techniques.\n\nBestChef also includes a private kitchen that stays on your device:\n- Save recipes you want to cook again\n- Build grocery lists from recipe ingredients\n- Track a pantry inventory so you know what you already have\n- Import a grocery receipt or photo, then review and confirm the items\n- Add expiration dates from packaging and get reminders\n- Cook mode with step-by-step, hands-free instructions\n\nBestChef is available in 21 languages so cooks around the world can find, vote on, and submit the best recipe for every dish.\n\nBestChef does not track you across other apps or websites. See our privacy policy for details on what we collect and why.",
+  "keywords": "recipe finder,best recipe,recipe voting,meal planner,grocery list,pantry,cook mode,leaderboard",
+  "promotionalText": "Vote on real recipes, find the best one for every dish, and cook with a private kitchen toolkit that stays on your device.",
+  "releaseNotes": "Initial public release. Browse dishes, vote on recipes, build your chef profile, and use the private kitchen tools: saved recipes, grocery lists, pantry tracking, and cook mode."
+}

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yearn Plan 47 Ground Truth, 2026-07-30</title>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#131318; color:#E4E1E9; font:15px/1.6 -apple-system, "Segoe UI", Roboto, sans-serif; max-width:960px; margin:0 auto; padding:32px 20px 80px; }
+  h1 { color:#FFB877; font-size:26px; margin-bottom:4px; }
+  h2 { color:#FFB877; font-size:19px; margin-top:36px; border-bottom:1px solid rgba(255,255,255,0.10); padding-bottom:6px; }
+  code { background:#2A292F; padding:1px 5px; border-radius:4px; font-size:13px; }
+  table { border-collapse:collapse; width:100%; margin:16px 0; font-size:14px; }
+  th, td { border:1px solid rgba(255,255,255,0.10); padding:7px 10px; text-align:left; vertical-align:top; }
+  th { background:#2A292F; color:#D6C3B5; }
+  tr:nth-child(even) td { background:rgba(255,255,255,0.03); }
+  .done { color:#30D158; font-weight:600; }
+  .partial { color:#FFB877; font-weight:600; }
+  .open { color:#FFB4AB; font-weight:600; }
+  .ops { color:#8BCFF0; font-weight:600; }
+  .meta { color:#9F8E81; font-size:13px; }
+  li { margin:6px 0; }
+</style>
+</head>
+<body>
+<h1>Yearn Plan 47 Ground Truth</h1>
+<p class="meta">2026-07-30 · verified against main <code>2f5f6e81</code> · baseline 204/204 yearn tests green</p>
+
+<h2>Conflict resolution</h2>
+<p>Both memory.md rows were partially wrong. Merge <code>c7b5b856</code> ("phases 2-5") contained exactly one commit: the 1,249-line Phase 3 moderation migration <code>20260712000004</code>. Separately, the boost-integrity chain, photo scoping (<code>20260712000002</code>), and per-pair rate limits (<code>20260712000003</code>) completed Phase 2's code scope. Phases 4 and 5 remain largely unbuilt.</p>
+
+<h2>Status table</h2>
+<table>
+<tr><th>Phase / item</th><th>Status</th><th>Evidence</th></tr>
+<tr><td>1. All 12 P0 items</td><td class="done">DONE</td><td><code>020f8654..14df25e6</code></td></tr>
+<tr><td>2.1 Schema reproducible (19 migrations)</td><td class="done">DONE</td><td><code>20260525*</code>, <code>20260531*</code></td></tr>
+<tr><td>2.2 <code>yearn</code> exposed in config.toml</td><td class="done">DONE</td><td><code>supabase/config.toml</code></td></tr>
+<tr><td>2.3 Boost receipt validation</td><td class="done">DONE in repo</td><td><code>20260712000001</code> + <code>yearn-boost-activate</code> (JWS chain verify, fail closed)</td></tr>
+<tr><td>2.4 Photo reads scoped + unmatch revoke</td><td class="done">DONE</td><td><code>20260712000002</code> (match_archivals revoke, 900s TTL)</td></tr>
+<tr><td>2.5 Per-pair rate limits + indexes</td><td class="done">DONE</td><td><code>20260712000003</code></td></tr>
+<tr><td>2.6 Live hosted verification checklist</td><td class="ops">FOUNDER-OPS</td><td>ledger below</td></tr>
+<tr><td>3.1 Legal docs in-app</td><td class="done">DONE</td><td><code>apps/yearn/legal/</code>; hosting founder-ops</td></tr>
+<tr><td>3.2 Moderation action path</td><td class="partial">PARTIAL</td><td>Server lifecycle + service-role RPCs done; no operational surface to run the queue</td></tr>
+<tr><td>3.3 Minor-safety escalation</td><td class="partial">PARTIAL</td><td>Underage auto-hide + <code>safety_escalations</code> seam done; runbook + transmission tooling missing; NCMEC registration founder-ops</td></tr>
+<tr><td>3.4 ASC rating/labels/demo account</td><td class="ops">FOUNDER-OPS</td><td></td></tr>
+<tr><td>3.5 <code>is_verified</code> honest gate</td><td class="done">DONE</td><td><code>YEARN_VERIFICATION_PIPELINE_LIVE = false</code></td></tr>
+<tr><td>4 Push notifications</td><td class="open">NOT STARTED</td><td>No expo-notifications, no registration, no outbox/sender; DB substrate dormant</td></tr>
+<tr><td>4 Realtime</td><td class="partial">PARTIAL</td><td>Open conversation inserts only; matches + likes manual</td></tr>
+<tr><td>4 Geolocation + distance ranking</td><td class="open">NOT STARTED</td><td>Zero location columns/PostGIS; app.json already declares location (honesty defect until built)</td></tr>
+<tr><td>4 Filters</td><td class="open">NOT STARTED</td><td><code>discover_profiles(p_limit)</code> only</td></tr>
+<tr><td>5 Monetization</td><td class="partial">PARTIAL</td><td><code>activateBoost(signedTransaction)</code> has zero UI callers; no IAP client; nothing populates entitlements</td></tr>
+<tr><td>5 Verification pipeline</td><td class="open">NOT STARTED</td><td>Honestly gated off</td></tr>
+<tr><td>5 NSFW screening (optional)</td><td class="open">NOT STARTED</td><td>Vendor decision founder-ops</td></tr>
+</table>
+
+<h2>Remaining codeable scope (plan order)</h2>
+<ol>
+<li><strong>Phase 3 completion:</strong> <code>yearn-moderation</code> operational edge function, distinct-reporter threshold auto-hide, mandated-reporting runbook, client report-flow verification.</li>
+<li><strong>Phase 4:</strong> push end to end; realtime for matches + incoming likes; geolocation capture + PostGIS distance ranking; seek-preference filters.</li>
+<li><strong>Phase 5:</strong> StoreKit 2 IAP client + paywall + boost flow sending the signed transaction JWS with <code>appAccountToken</code> bound (then require it server-side); membership validation + App Store Server Notifications webhook; selfie verification pipeline with human review queue and fail-closed liveness slot.</li>
+</ol>
+
+<h2>Founder-ops ledger (open, never faked)</h2>
+<ol>
+<li>Host <code>apps/yearn/legal/</code> at yearn.app.</li>
+<li>Hosted DB: apply <code>20260712*</code> migrations, enable Realtime, run the live RLS/age/deletion checklist.</li>
+<li>Deploy <code>yearn-boost-activate</code> (+ functions added this session) with Apple IAP secrets.</li>
+<li>App Store Connect: 18+ rating, Privacy URL, demo account, EULA, EAS projectId, APNs key, IAP products, ASSN V2 URL.</li>
+<li>Vendors: liveness + NSFW providers; NCMEC ESP registration + designated reporter.</li>
+</ol>
+</body>
+</html>

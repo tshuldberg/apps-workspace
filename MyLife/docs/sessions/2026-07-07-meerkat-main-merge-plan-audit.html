@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Main Merge And Plan Audit - 2026-07-07</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0a0f;
+      --panel: #12121a;
+      --panel-2: #1a1a24;
+      --text: #f0f0f5;
+      --muted: rgba(240, 240, 245, 0.68);
+      --border: rgba(255, 255, 255, 0.11);
+      --accent: #6ee7d8;
+      --warn: #ffd166;
+      --ok: #30d158;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 44px 24px 72px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 34px 0 12px;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+    p, li { color: var(--muted); }
+    strong, code { color: var(--text); }
+    code {
+      padding: 2px 5px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--panel-2);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+    .hero {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 26px;
+    }
+    .kicker {
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+      margin: 24px 0 8px;
+    }
+    .tile {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .tile b {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .tile span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    ul {
+      margin: 10px 0 0 20px;
+      padding: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow-wrap: anywhere;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      vertical-align: top;
+      padding: 10px 12px;
+    }
+    th {
+      background: var(--panel-2);
+      color: var(--text);
+      text-align: left;
+    }
+    td { color: var(--muted); }
+    .ok { color: var(--ok); font-weight: 700; }
+    .warn { color: var(--warn); font-weight: 700; }
+    .note {
+      border-left: 3px solid var(--accent);
+      background: var(--panel);
+      padding: 12px 14px;
+      margin: 18px 0;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="kicker">Meerkat Merge Review</div>
+      <h1>Main Merge And Plan Audit</h1>
+      <p>Local <code>main</code> includes the Meerkat public base feed work at merge commit <code>e876de3e</code>. It has not been pushed.</p>
+      <div class="summary">
+        <div class="tile"><b class="ok">Merged locally</b><span><code>feature/meerkat-public-base-feed</code> landed into <code>main</code>.</span></div>
+        <div class="tile"><b class="ok">Verified</b><span>Function gate, Meerkat parity, generated-artifact guard, and full parity chain passed.</span></div>
+        <div class="tile"><b class="warn">Not pushed</b><span><code>main</code> is 58 commits ahead of <code>origin/main</code>.</span></div>
+        <div class="tile"><b class="warn">One dirty worktree</b><span><code>track-c-consumer</code> has stale staged public-report residue that is older than <code>main</code>.</span></div>
+      </div>
+    </section>
+
+    <h2>Outcome</h2>
+    <ul>
+      <li>Merge commit: <code>e876de3e</code> (<code>merge(meerkat): public base feed</code>).</li>
+      <li>Source branch tip: <code>d1722d3c</code> (<code>feature/meerkat-public-base-feed</code>).</li>
+      <li>All committed Meerkat branch tips are merged into local <code>main</code>.</li>
+      <li>Only unmerged branch tips are non-Meerkat: <code>feature/mylife-improvements-sprints</code> and <code>feature/phone-web-daily-driver</code>.</li>
+    </ul>
+    <p class="note">The dirty <code>track-c-consumer</code> worktree was left untouched. Its staged public-report files are older than the merged implementation and should not be blindly merged.</p>
+
+    <h2>Merge Safety</h2>
+    <ul>
+      <li>Pre-merge package tests passed: sync 1802, relay 574, app 1075, web 717, entitlements 77, billing-config 5.</li>
+      <li>Typechecks passed for sync, relay, app, web, entitlements, and billing-config.</li>
+      <li>Commit-time staged function gate passed for Meerkat app, Meerkat web, billing-config, entitlements, Meerkat relay, sync, and consumer typechecks.</li>
+      <li>Post-merge checks passed: <code>pnpm check:meerkat-parity</code>, <code>pnpm check:generated-artifacts</code>, and <code>pnpm check:parity --quiet</code>.</li>
+    </ul>
+
+    <h2>Merge Friction</h2>
+    <ul>
+      <li><code>memory.md</code> and <code>errors_log.md</code> ledger conflicts were union-resolved.</li>
+      <li>The separate main worktree needed <code>pnpm install --frozen-lockfile</code> before the hook could resolve new dependencies.</li>
+      <li>A hook-created stash restore left a mode-only conflict on <code>packages/meerkat-relay/bin/meerkat-persona-service.mjs</code>. The executable bit was preserved.</li>
+      <li>The hook-created stash remains for audit: <code>stash@{0}: On main: pre-commit-gate-89132-1783433390-183</code>.</li>
+    </ul>
+
+    <h2>Plan Audit</h2>
+    <table>
+      <thead>
+        <tr><th>Plan</th><th>Actual state</th><th>Remaining work</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>39 public base feed</td><td>Codeable P0-P14 complete and merged.</td><td>P15 founder-ops: deploys, production secrets, Commons provisioning, verification providers, NCMEC, DMCA agent, CSAM hash DB, store UGC flags.</td></tr>
+        <tr><td>25 calls and rooms</td><td>Incomplete codeable plan. No real call-signal, room membership, media session, SFU, or call routes found.</td><td>Build the calls/rooms stack if still wanted.</td></tr>
+        <tr><td>26 open public participation</td><td>Superseded by Plan 39 for public posting, policies, base feed, and verified public access.</td><td>Same founder-ops as Plan 39 unless redefined.</td></tr>
+        <tr><td>37 launch mission control</td><td>Umbrella/stale orchestration doc.</td><td>No direct feature gap by itself.</td></tr>
+        <tr><td>19 public social</td><td>Code-complete for public join/request/grant/redeem, publications, reader, directory/node, and abuse rails.</td><td>Founder-ops and public infrastructure validation.</td></tr>
+        <tr><td>20 connectivity</td><td>Code-complete for repo scope: relay URL, connection cards, share intake, WebRTC/Nearby/BLE backends, app config deps, parity checks.</td><td>Install, dev/EAS/device QA, App Group, relay/community-node/public-directory deploy, desktop companion builds.</td></tr>
+        <tr><td>21 direct messages</td><td>App/web DMs are functional for messaging, groups, receipts, shred, attachments, own-device mirror, and tests.</td><td>Cross-device link-device UI for same-account pairing was not found. Live relay and device QA remain.</td></tr>
+        <tr><td>22 billing</td><td>Plan text is stale. Current code covers founder-locked prices, RevenueCat, Stripe, hosted service, hosted API entitlements, storage ingest, upload route, cap, and hosted-storage entitlement.</td><td>Real store, Stripe, receipt, provider config, and device/store approval.</td></tr>
+        <tr><td>23 launch readiness</td><td>Many stale unchecked items are implemented: recovery restore, reviewed-still-hidden fixes, sealed rendezvous, delete-my-data, EAS project id.</td><td>Store/legal bundle, brand/icon assets, store submission, possibly D.7 Downloads browser screen.</td></tr>
+        <tr><td>24 humanity verification</td><td>Service, HTTP routes, attestation verifiers, route guard, mobile/web core, VerifySheet, and headers/gates exist.</td><td>Production keys/service deployment. Blind-RSA scoping is not the current token model.</td></tr>
+        <tr><td>27 transport policies</td><td>Signed policy, owner picker, observed-member notice/history, session gossip, and enforcement are present.</td><td>Real transport device QA. Plan file status is stale.</td></tr>
+        <tr><td>29 auto-connect</td><td>Foreground auto-connect, shared core, mobile/web card, native integration, presence opt-in/beacons, and background drain hooks exist.</td><td>Closed-app scheduled sync is still best-effort/dev-build/default-off, not guaranteed OS-level background sync.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Bottom Line</h2>
+    <p>The committed Meerkat public base feed work is safely merged into local <code>main</code> and verified. The only truly incomplete codeable Meerkat plan found is Plan 25 calls and rooms. Several queue plan files are stale and should be reconciled against the code before being used as status documents.</p>
+  </main>
+</body>
+</html>

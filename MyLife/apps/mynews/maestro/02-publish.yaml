@@ -1,0 +1,84 @@
+appId: com.mylife.mynews
+name: MyNews publish
+tags:
+  - mynews
+  - publish
+env:
+  # Default OFF. Every flow in this directory that would write to the configured
+  # backend is gated on this, so a flow run against a real project cannot
+  # publish, charge, or delete by accident.
+  MAESTRO_MYNEWS_ALLOW_WRITES: "0"
+  MYNEWS_FLOW_HEADLINE: "Maestro flow headline"
+  MYNEWS_FLOW_STANDFIRST: "Written by an automated flow against a seeded account."
+  MYNEWS_FLOW_BODY: "First paragraph written by the publish flow."
+---
+# Publish: open the composer from the Desk tab, fill the three real fields, and
+# assert the app's honest posture about whether this build can publish at all.
+#
+# Publishing is signed on device: the composer signs the revision with the
+# device Ed25519 key before the edge accepts it. So a green publish needs ALL of
+#   - a configured backend (EXPO_PUBLIC_MYNEWS_SUPABASE_URL + _ANON_KEY),
+#   - a signed-in account with a registered journalist profile,
+#   - a signing key this device still holds and the server has not revoked.
+#
+# The composer states which of those is missing, and this flow asserts that copy
+# rather than pretending the publish happened. The three branches below are the
+# app's three real states, not fallbacks invented for the test.
+
+- launchApp
+- assertVisible: "Today"
+
+- tapOn: "Desk"
+- assertVisible: "Desk"
+
+# Unregistered build: the Desk offers registration and there is no composer.
+- runFlow:
+    when:
+      visible: "Register to publish or suggest"
+    commands:
+      - assertVisible: "Register to publish or suggest"
+      # NOT COVERED past here: no profile, so there is nothing to publish as.
+
+- runFlow:
+    when:
+      visible: "Headline"
+    commands:
+      - tapOn: "Headline"
+      - inputText: ${MYNEWS_FLOW_HEADLINE}
+      - hideKeyboard
+      - tapOn: "Standfirst, optional"
+      - inputText: ${MYNEWS_FLOW_STANDFIRST}
+      - hideKeyboard
+      - tapOn: "Article body"
+      - inputText: ${MYNEWS_FLOW_BODY}
+      - hideKeyboard
+
+      # Branch A: this device cannot sign. The composer routes to key custody
+      # instead of offering a Publish button that would fail.
+      - runFlow:
+          when:
+            visible: "Open Keys and Recovery"
+          commands:
+            - assertVisible: "Open Keys and Recovery"
+
+      # Branch B: no journalist profile yet.
+      - runFlow:
+          when:
+            visible: "Register to publish"
+          commands:
+            - assertVisible: "Register to publish"
+
+      # Branch C: the real publish path. This WRITES a published article to the
+      # configured project, so it only runs against a disposable/staging
+      # project. Guard it with MAESTRO_MYNEWS_ALLOW_WRITES=1 when you mean it.
+      - runFlow:
+          when:
+            visible: "Publish"
+          commands:
+            - assertVisible: "Publish"
+            - runFlow:
+                when:
+                  true: ${MAESTRO_MYNEWS_ALLOW_WRITES == "1"}
+                commands:
+                  - tapOn: "Publish"
+                  - assertVisible: "Published and signed. Opening your article..."

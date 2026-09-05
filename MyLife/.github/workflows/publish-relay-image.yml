@@ -1,0 +1,43 @@
+# DEPRECATED (Plan 44 Phase 6, WP-6A).
+#
+# This workflow used to build and push the relay image with NO SBOM, NO scan,
+# NO provenance, and NO signature. Keeping a second, unsigned publish path
+# defeats the supply-chain guarantees of the signed pipeline, so it is retired.
+#
+# The single source of truth for publishing ANY Meerkat production image is now
+# .github/workflows/release-images.yml, which builds all four images (relay,
+# platform, hosted, verification), tags by immutable git SHA, and for each image
+# generates an SPDX SBOM, runs a failing-on-non-excepted Grype scan, attaches
+# SLSA provenance, and Cosign keyless-signs the digest via GitHub OIDC.
+#
+# This stub intentionally FAILS if triggered, so an old bookmark, a stale
+# `relay-v*` tag habit, or a manual dispatch cannot silently produce an
+# unsigned image. It performs no build, no login, and no push.
+
+name: Publish relay image (deprecated)
+
+on:
+  workflow_dispatch:
+  # Still listens for the OLD trigger so a stale `relay-v*` tag push fails LOUDLY
+  # with the redirect below instead of silently doing nothing. release-v* tags
+  # are handled by release-images.yml.
+  push:
+    tags:
+      - 'relay-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  deprecated:
+    name: Deprecated - use release-images.yml
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail with redirect to the signed release pipeline
+        run: |
+          echo "::error::publish-relay-image.yml is deprecated and disabled." >&2
+          echo "Use .github/workflows/release-images.yml (workflow_dispatch or a" >&2
+          echo "release-v* tag). It builds all four images and produces an SBOM," >&2
+          echo "vulnerability scan, SLSA provenance, and a Cosign signature per" >&2
+          echo "image. No unsigned publish path is permitted." >&2
+          exit 1

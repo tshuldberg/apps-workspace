@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BestChef — SAFE Cover Sheet</title>
+<style>
+  @page { margin: 0.6in; size: letter; }
+  :root {
+    --bg: #131318;
+    --bg-1: #1B1B20;
+    --bg-2: #1F1F25;
+    --text: #E4E1E9;
+    --text-2: #B5B0A8;
+    --muted: #6F7079;
+    --accent: #22C55E;
+    --accent-deep: #16A34A;
+    --border: rgba(255,255,255,0.08);
+    --border-soft: rgba(255,255,255,0.04);
+    --glass: rgba(255,255,255,0.025);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Plus Jakarta Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .doc { max-width: 7.5in; margin: 0 auto; padding: 0.7in 0.8in; }
+
+  h1 {
+    font-size: 28px; font-weight: 700; letter-spacing: -0.025em;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+  h2 {
+    font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+    margin: 24px 0 10px; padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  p { color: var(--text-2); margin-bottom: 10px; font-size: 12.5px; }
+  strong { color: var(--text); font-weight: 600; }
+  code { font-size: 11px; background: var(--glass); padding: 1px 5px; border-radius: 3px; color: var(--text); }
+
+  .header {
+    border: 1px solid var(--border); border-radius: 10px;
+    background: linear-gradient(180deg, #1B1B20 0%, #131318 100%);
+    padding: 22px 26px; margin-bottom: 20px;
+  }
+  .header .label {
+    font-size: 10px; color: var(--muted); letter-spacing: 0.10em; text-transform: uppercase; margin-bottom: 6px; font-weight: 500;
+  }
+  .header .sub { font-size: 12.5px; color: var(--text-2); margin-top: 8px; line-height: 1.6; }
+
+  .warning {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    font-size: 12px;
+  }
+  .warning strong { color: var(--text); }
+
+  table {
+    width: 100%; border-collapse: collapse;
+    background: var(--glass);
+    border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden;
+    margin: 8px 0 14px;
+    font-size: 12.5px;
+  }
+  table thead th {
+    background: var(--bg-2); text-align: left; padding: 10px 14px;
+    font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  table td {
+    padding: 9px 14px; border-bottom: 1px solid var(--border-soft);
+    color: var(--text-2);
+  }
+  table tr:last-child td { border-bottom: none; }
+  table .field { color: var(--text); font-weight: 500; width: 38%; }
+  table .value { color: var(--text); font-weight: 500; }
+  table .price { color: var(--accent); font-weight: 600; }
+  table .blank {
+    color: var(--muted); font-style: italic;
+  }
+
+  .sig-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    margin-top: 24px;
+  }
+  .sig-block {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px; background: var(--glass);
+  }
+  .sig-block .role {
+    font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.10em;
+    margin-bottom: 10px; font-weight: 600;
+  }
+  .sig-block .line {
+    border-bottom: 1px solid var(--border);
+    height: 26px;
+    margin: 12px 0 4px;
+  }
+  .sig-block .lbl {
+    font-size: 10px; color: var(--muted); margin-top: 2px;
+  }
+
+  ol { margin: 8px 0 12px 22px; }
+  ol li { color: var(--text-2); margin-bottom: 6px; font-size: 12.5px; line-height: 1.6; }
+
+  .small {
+    font-size: 10.5px; color: var(--muted); line-height: 1.6;
+  }
+
+  .footer {
+    margin-top: 32px; padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+    font-size: 11px; color: var(--muted);
+  }
+
+  @media print {
+    html, body { background: #fff !important; color: #111 !important; font-size: 11pt; }
+    .doc { padding: 0; }
+    * { color: #111 !important; }
+    .header { background: #fafafa !important; border: 1px solid #ddd !important; }
+    h1 { color: #16A34A !important; }
+    h2 { border-bottom-color: #d4d4d4 !important; }
+    table { background: #fff !important; border: 1px solid #d4d4d4 !important; }
+    table thead th { background: #f4f4f4 !important; }
+    table td { border-bottom-color: #e6e6e6 !important; }
+    table .price { color: #16A34A !important; }
+    .warning {
+      background: #fafafa !important; border: 1px solid #d4d4d4 !important;
+      border-left-color: #16A34A !important;
+    }
+    .sig-block { background: #fff !important; border: 1px solid #d4d4d4 !important; }
+    .sig-block .line { border-bottom: 1px solid #555 !important; }
+    .footer { border-top-color: #d4d4d4 !important; }
+    code { background: #f4f4f4 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc">
+
+<div class="header">
+  <div class="label">SAFE Cover Sheet · Companion to YC Post-Money SAFE (Cap Only)</div>
+  <h1>BestChef</h1>
+  <div class="sub">
+    This cover sheet captures the variable terms required to execute the standard YC Post-Money SAFE (Cap Only). The SAFE itself is the unmodified template published at <strong>ycombinator.com/documents</strong>. Pair this sheet with that template to produce the executable instrument. Counsel should review before signature.
+  </div>
+</div>
+
+<div class="warning">
+  <strong>This is a cover sheet, not a legal instrument.</strong>
+  The binding investment contract is the executed YC Post-Money SAFE (Cap Only) template, used unmodified, with the variable fields below filled in. Do not sign this cover sheet alone. Engage counsel (or a service such as Clerky or Carta) to produce the executable SAFE document using the YC template plus the values below. A copy of the YC template is included in this investor package as <code>SAFE-C.pdf</code>.
+</div>
+
+<h2>Variable Terms</h2>
+<p>The YC Post-Money SAFE (Cap Only) requires the following fields on its first page. Values below apply to every SAFE issued in this round unless an investor negotiates a side letter.</p>
+
+<table>
+  <thead><tr><th>Field</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td class="field">Company name</td><td class="value">BestChef, Inc. (Delaware C-Corporation, formation in progress)</td></tr>
+    <tr><td class="field">State of incorporation</td><td class="value">Delaware</td></tr>
+    <tr><td class="field">Investor name</td><td class="blank">[fill per investor]</td></tr>
+    <tr><td class="field">Purchase Amount</td><td class="blank">[fill per investor — minimum $25,000]</td></tr>
+    <tr><td class="field">Valuation cap</td><td class="price">$10,000,000</td></tr>
+    <tr><td class="field">Discount</td><td class="value">None (Cap-Only variant)</td></tr>
+    <tr><td class="field">MFN</td><td class="value">Yes, standard</td></tr>
+    <tr><td class="field">Pro-rata side letter</td><td class="value">Available to investors at $100,000+ on request</td></tr>
+    <tr><td class="field">Date of execution</td><td class="blank">[fill per investor at signing]</td></tr>
+    <tr><td class="field">Wire instructions</td><td class="blank">[provided privately at signing]</td></tr>
+  </tbody>
+</table>
+
+<h2>Round Summary</h2>
+<table>
+  <thead><tr><th>Term</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td class="field">Total raise</td><td class="price">Up to $500,000</td></tr>
+    <tr><td class="field">Ownership at cap (full round)</td><td class="price">~5.0%</td></tr>
+    <tr><td class="field">Min check</td><td class="value">$25,000</td></tr>
+    <tr><td class="field">Lead check</td><td class="value">$100,000+ preferred</td></tr>
+    <tr><td class="field">Close style</td><td class="value">Rolling, final close target Q2 2026</td></tr>
+    <tr><td class="field">Investor eligibility</td><td class="value">Accredited only (Rule 501, Reg D)</td></tr>
+  </tbody>
+</table>
+
+<h2>Execution Steps</h2>
+<ol>
+  <li>Investor reviews the YC template (<code>SAFE-C.pdf</code>), this cover sheet, and the term sheet at <code>BestChef-Term-Sheet.html</code>.</li>
+  <li>Investor confirms accredited status (self-certification per Reg D Rule 506(b)).</li>
+  <li>Investor and Company agree on the Investor's Purchase Amount in writing.</li>
+  <li>Counsel (or Clerky or Carta) generates the executable SAFE by filling the YC template fields with the values from this sheet and the Investor-specific fields.</li>
+  <li>Both parties sign. Wire is sent on or about the execution date.</li>
+  <li>Company delivers a counter-signed SAFE PDF to the Investor and updates the cap table.</li>
+</ol>
+
+<h2>Signatures</h2>
+<p class="small">
+  Signatures below express intent to participate at a specified Purchase Amount. They are not a binding investment commitment. The binding instrument is the executed YC SAFE produced via the steps above.
+</p>
+
+<div class="sig-grid">
+  <div class="sig-block">
+    <div class="role">Company</div>
+    <div><strong>BestChef, Inc.</strong></div>
+    <div style="font-size:11px; color: var(--muted); margin-top:2px;">By: Trey Shuldberg, Founder &amp; CEO</div>
+    <div class="line"></div>
+    <div class="lbl">Signature</div>
+    <div class="line"></div>
+    <div class="lbl">Date</div>
+  </div>
+  <div class="sig-block">
+    <div class="role">Investor</div>
+    <div style="height:18px; border-bottom: 1px solid var(--border); margin-bottom:4px;"></div>
+    <div class="lbl">Investor name (print)</div>
+    <div class="line" style="margin-top:14px;"></div>
+    <div class="lbl">Signature</div>
+    <div class="line"></div>
+    <div class="lbl">Purchase Amount ($)</div>
+    <div class="line"></div>
+    <div class="lbl">Date</div>
+  </div>
+</div>
+
+<h2>Disclaimers</h2>
+<p class="small">
+  This cover sheet does not constitute an offer to sell or a solicitation of an offer to buy securities. Any offer or sale will be made only to accredited investors pursuant to applicable exemptions under the Securities Act of 1933 and applicable state securities laws.
+</p>
+<p class="small">
+  Forward-looking statements within the broader BestChef investor package are targets, not guarantees. Investors are urged to consult their own legal, tax, and financial advisors before participating. The Company makes no representations beyond those expressly contained in the executed YC Post-Money SAFE (Cap Only).
+</p>
+<p class="small">
+  This document is intended for use with the published YC Post-Money SAFE (Cap Only) template, the BestChef Term Sheet (<code>BestChef-Term-Sheet.html</code>), and the BestChef investor two-pager (<code>BestChef-Two-Pager.html</code>). Any inconsistency between this cover sheet and the executed SAFE is resolved in favor of the executed SAFE.
+</p>
+
+<div class="footer">
+  <strong>BestChef</strong> · Trey Shuldberg · trey.shuldberg@gmail.com<br>
+  SAFE Cover Sheet · Version 1.1 · April 2026
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Plan 44 Phase 0 PostgreSQL Foundation</title>
+  <style>
+    :root { color-scheme:dark; --bg:#0a0a0f; --panel:#12121a; --text:#f0f0f5; --muted:rgba(240,240,245,.68); --line:rgba(255,255,255,.10); --blue:#64a8ff; --green:#30d158; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--text); font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(900px,calc(100% - 32px)); margin:auto; padding:52px 0 76px; }
+    header,section { border:1px solid var(--line); border-radius:18px; background:var(--panel); padding:26px; margin-bottom:18px; }
+    header { background:linear-gradient(145deg,rgba(100,168,255,.12),rgba(255,255,255,.03)); }
+    h1 { margin:0 0 10px; font-size:clamp(2rem,5vw,3.5rem); line-height:1.07; letter-spacing:-.04em; }
+    h2 { margin:0 0 12px; font-size:1.25rem; color:#cbe2ff; } p,li { color:var(--muted); }
+    li { margin:.45rem 0; } code { padding:.12em .38em; border-radius:5px; background:#050509; color:#cfe4ff; }
+    .meta { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; } .meta span { padding:7px 10px; border:1px solid var(--line); border-radius:999px; color:#d8e9ff; }
+    .pass { color:#8df2a8; font-weight:700; } a { color:var(--blue); }
+    footer { padding-top:18px; color:var(--muted); border-top:1px solid var(--line); }
+    @media print { body,header,section { background:#fff; color:#111; } header,section { border-color:#ccc; } p,li,footer { color:#333; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Plan 44 Phase 0 PostgreSQL foundation</h1>
+    <p class="pass">Completed, verified, and committed on 2026-07-09.</p>
+    <div class="meta"><span>Branch: feature/meerkat-production-readiness-2026-07-09</span><span>Start: f7920118</span><span>Commit: 16957020</span></div>
+  </header>
+  <section><h2>Outcome</h2><p>The relay now has a PostgreSQL 17 production foundation with 20 mutable-store contracts, nine logical schemas, checksummed migrations, strict ledger validation, least-privilege roles, runtime readiness, operator CLIs, conformance helpers, pinned CI, and live database coverage.</p><p>This is not a launch-readiness claim. Plan 44 Phases 1 through 7 and all downstream evidence remain active.</p></section>
+  <section><h2>Completed</h2><ul><li>Verified the isolated branch and starting commit before edits.</li><li>Read the required instructions, settings, plugin, memory, audit, and launch-plan documents.</li><li>Built the dependency-ordered execution plan and implemented Plan 44 Phase 0 first.</li><li>Added inventory, SQL contracts, migrations, locking, online recovery, pool policy, roles, schema guard, and conformance.</li><li>Added push and archive contracts required by Plans 42 and 43.</li><li>Added redacted operator CLIs, signal-safe execution, pinned PostgreSQL 17 CI, and live regression tests.</li><li>Completed specialist, adversarial, red-team, and Codex reviews with no unresolved findings.</li></ul></section>
+  <section><h2>Verification</h2><ul><li class="pass">656 relay tests passed, 10 skipped.</li><li class="pass">10 live PostgreSQL 17 tests passed.</li><li class="pass">48 focused function-gate tests passed.</li><li class="pass">130 of 130 repository typecheck tasks passed.</li><li class="pass">Lint, parity, generated-artifact, whitespace, and pre-commit gates passed.</li></ul></section>
+  <section><h2>Remaining queue</h2><ol><li>Plan 44 Phase 1 PostgreSQL adapters.</li><li>Plan 44 Phases 2 through 7.</li><li>Plan 42 native transport, push, and background lifecycle.</li><li>Plan 43 archive, seeding, and safety operations.</li><li>Plan 41 storage destinations and atomic restore.</li><li>Plan 25 calls and rooms.</li><li>Plan 40 residual R1 through R3 work.</li><li>Integrated production, provider, store, device, failure, and recovery evidence.</li></ol></section>
+  <section><h2>Durable notes</h2><ul><li>PostgreSQL 17 <code>MAINTAIN</code> is a non-owner ledger privilege that readiness must reject.</li><li>Archive object metadata is content-global and cannot cascade with one publication job.</li><li>Managed database URLs reject query parameters that could override TLS or timeout policy.</li><li>Open Brain was unavailable, so the repository report, memory, and session log are the durable handoff.</li></ul></section>
+  <footer>Full report: <a href="../reports/REPORT-meerkat-production-readiness-implementation-2026-07-09.html">Meerkat production readiness implementation report</a>.</footer>
+</main>
+</body>
+</html>

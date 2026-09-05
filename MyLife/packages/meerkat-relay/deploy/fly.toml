@@ -1,0 +1,62 @@
+# Fly.io deploy template for one Meerkat relay region.
+#
+# Fly's edge terminates wss and passes WebSocket upgrades through natively, and
+# Fly runs the same image in multiple regions, which matches the client-side
+# candidate pool (relay-us / relay-eu / relay-ap) that selectRelay ranks. The
+# relay is stateless: there is intentionally NO [mounts] block, no volume, and
+# no [env] secret. The relay reads only PORT/HOST; PORT is set to the internal
+# port below.
+#
+# Run flyctl from the relay PACKAGE ROOT (packages/meerkat-relay), NOT from this
+# deploy/ dir: the package root is the Docker build context the Dockerfile's COPY
+# paths (package.json, src, tsconfig.json, bin) resolve against. From there:
+#   fly launch --copy-config --config deploy/fly.toml   # first time: creates the app
+#   fly deploy                                           # subsequent deploys
+# Per region: copy this file, set a region-specific app name + primary_region.
+# DNS, TLS issuance, and machine provisioning are founder ops tied to your Fly
+# account (see docs/designs/meerkat-relay-fleet-runbook.md).
+
+app = "meerkat-relay-us"            # change per region: meerkat-relay-eu, -ap, ...
+primary_region = "iad"              # change per region: cdg, syd, ...
+
+[build]
+  # Relative to the build context (the relay package root you run flyctl from).
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8787"
+  HOST = "0.0.0.0"
+  # 24h store-and-forward window (the clamp maximum in protocol.ts). The relay
+  # default is 5 MINUTES, which silently drops a message parked for a recipient
+  # who is offline overnight. Mailboxes remain in-memory, so a machine restart
+  # still clears them; the relay persists nothing by design.
+  RELAY_MAILBOX_TTL_MS = "86400000"
+  # No secrets here. The relay takes none. TLS is terminated by Fly's edge.
+
+[http_service]
+  internal_port = 8787
+  force_https = true
+  # Keep at least one warm machine so the first client never pays a cold start.
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  # Connection concurrency. Shed load at the edge BEFORE the process hits its own
+  # RELAY_LIMITS.maxConnections (10000) backstop. Tune to your machine size.
+  [http_service.concurrency]
+    type = "connections"
+    soft_limit = 8000
+    hard_limit = 9500
+
+  # Readiness/liveness: the same GET /healthz the relay selector probes. It
+  # returns only { ok, connections }; no metadata is exposed.
+  [[http_service.checks]]
+    method = "get"
+    path = "/healthz"
+    interval = "15s"
+    timeout = "5s"
+    grace_period = "5s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

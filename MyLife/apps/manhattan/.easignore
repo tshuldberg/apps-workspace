@@ -1,0 +1,81 @@
+# Manhattan EAS archive ignore.
+# EAS may archive from the app root or the monorepo root, so keep both
+# app-relative and workspace-relative forms for generated/heavy paths.
+
+# App-local generated output
+dist/
+.expo/
+ios/
+ios/Pods/
+ios/build/
+android/
+node_modules/
+*.tsbuildinfo
+
+# Workspace-relative generated output
+apps/manhattan/dist/
+apps/manhattan/.expo/
+apps/manhattan/ios/
+apps/manhattan/ios/Pods/
+apps/manhattan/ios/build/
+apps/manhattan/android/
+apps/manhattan/node_modules/
+apps/manhattan/*.tsbuildinfo
+
+# Monorepo-only surfaces not needed for the standalone Manhattan build
+.claude/
+.gstack/
+.turbo/
+.context/
+.kiro/
+.playwright-mcp/
+.git/
+.github/
+docs/
+archive/
+artifacts/
+deploy/
+output/
+plans/
+test/
+supabase/
+ai-customization/
+apps/mobile/
+apps/web/
+apps/bestchef/
+apps/dowork/
+
+# Tests and generated reports
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+coverage/
+test-results/
+*.pnpm-debug.log
+
+# Large media and generated documents (app icon/splash assets are re-allowed)
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.mov
+*.pdf
+!assets/**
+!apps/manhattan/assets/**
+
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+*.p8
+*.p12
+*.mobileprovision
+GoogleService-Info.plist
+google-services.json
+*.keystore
+*.jks
+.npmrc
+secrets/
+credentials/

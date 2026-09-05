@@ -1,0 +1,598 @@
+{
+  "+ Photo": [
+    "fr"
+  ],
+  "1 photo": [
+    "fr"
+  ],
+  "Air Fry": [
+    "id"
+  ],
+  "Air Fryer": [
+    "id"
+  ],
+  "Badges": [
+    "fr",
+    "nl"
+  ],
+  "Best Chef": [
+    "de",
+    "nl",
+    "te"
+  ],
+  "Bio": [
+    "de",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "tr"
+  ],
+  "Blender": [
+    "fr",
+    "id",
+    "nl",
+    "pl",
+    "tr"
+  ],
+  "Brunch": [
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "tr"
+  ],
+  "Budget": [
+    "de",
+    "fr",
+    "it",
+    "nl",
+    "sv"
+  ],
+  "Budget ($)": [
+    "nl",
+    "sv"
+  ],
+  "Camera": [
+    "nl"
+  ],
+  "Challenges": [
+    "de"
+  ],
+  "Chef": [
+    "de",
+    "es",
+    "fr",
+    "it",
+    "nl",
+    "pt-BR",
+    "pt-PT"
+  ],
+  "Chefs": [
+    "es",
+    "fr",
+    "nl",
+    "pt-BR",
+    "pt-PT"
+  ],
+  "Condiments": [
+    "fr"
+  ],
+  "Cuisine": [
+    "fr"
+  ],
+  "Cuisines": [
+    "fr"
+  ],
+  "Deli": [
+    "id",
+    "vi"
+  ],
+  "Description": [
+    "fr"
+  ],
+  "Dessert": [
+    "de",
+    "fr",
+    "nl",
+    "sv"
+  ],
+  "Dutch Oven": [
+    "id"
+  ],
+  "Error": [
+    "es"
+  ],
+  "Filters": [
+    "nl"
+  ],
+  "Food Processor": [
+    "id"
+  ],
+  "Halal": [
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "vi"
+  ],
+  "Hall of Fame": [
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "sv"
+  ],
+  "Handle": [
+    "de"
+  ],
+  "Home": [
+    "it"
+  ],
+  "Instagram, YouTube, TikTok, etc.": [
+    "es",
+    "fr",
+    "pt-BR",
+    "pt-PT"
+  ],
+  "Instant Pot": [
+    "bn",
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "ta",
+    "tr",
+    "vi"
+  ],
+  "Instructions": [
+    "fr"
+  ],
+  "International": [
+    "de",
+    "fr"
+  ],
+  "Keto": [
+    "de",
+    "es",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "sv",
+    "tr",
+    "vi"
+  ],
+  "Kosher": [
+    "es",
+    "id",
+    "it",
+    "pt-BR",
+    "pt-PT",
+    "vi"
+  ],
+  "LIVE": [
+    "de",
+    "fr",
+    "it",
+    "nl",
+    "sv"
+  ],
+  "Like": [
+    "nl"
+  ],
+  "Low Carb": [
+    "de"
+  ],
+  "Low FODMAP": [
+    "de",
+    "nl",
+    "pl"
+  ],
+  "Lunch": [
+    "nl",
+    "pl",
+    "sv"
+  ],
+  "Lunchbox": [
+    "de",
+    "fr",
+    "nl",
+    "pl"
+  ],
+  "Lupin": [
+    "fr",
+    "id",
+    "sv"
+  ],
+  "Mandoline": [
+    "de",
+    "fr",
+    "nl"
+  ],
+  "Meal Prep": [
+    "de"
+  ],
+  "Media": [
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "sv"
+  ],
+  "Medium": [
+    "nl"
+  ],
+  "Message": [
+    "fr"
+  ],
+  "Microwave": [
+    "id"
+  ],
+  "Mild": [
+    "de",
+    "nl",
+    "sv"
+  ],
+  "Mise en place": [
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "tr"
+  ],
+  "Name": [
+    "de"
+  ],
+  "No": [
+    "es",
+    "it"
+  ],
+  "Notifications": [
+    "fr"
+  ],
+  "OK": [
+    "de",
+    "es",
+    "fr",
+    "it",
+    "ja",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "vi"
+  ],
+  "Oven": [
+    "id",
+    "nl"
+  ],
+  "Paleo": [
+    "de",
+    "es",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "tr",
+    "vi"
+  ],
+  "Pescatarian": [
+    "id"
+  ],
+  "Picnic": [
+    "it"
+  ],
+  "Portfolio / Website": [
+    "de"
+  ],
+  "Premium ($$$)": [
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "tr"
+  ],
+  "Privacy": [
+    "it",
+    "nl"
+  ],
+  "Protein": [
+    "de",
+    "id",
+    "sv",
+    "tr",
+    "vi"
+  ],
+  "Region": [
+    "de",
+    "pl",
+    "sv"
+  ],
+  "Remix": [
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "vi"
+  ],
+  "Restaurants": [
+    "de",
+    "fr",
+    "nl"
+  ],
+  "Reviews": [
+    "nl"
+  ],
+  "Slow Cooker": [
+    "de",
+    "id"
+  ],
+  "Smoker": [
+    "nl"
+  ],
+  "Snack": [
+    "de",
+    "es",
+    "nl"
+  ],
+  "Snacks": [
+    "de",
+    "es",
+    "nl",
+    "pt-BR",
+    "sv"
+  ],
+  "Social": [
+    "es",
+    "fr",
+    "it",
+    "pt-BR",
+    "pt-PT"
+  ],
+  "Stand Mixer": [
+    "id"
+  ],
+  "Sulfites": [
+    "fr"
+  ],
+  "Support": [
+    "de",
+    "sv"
+  ],
+  "System": [
+    "de",
+    "pl",
+    "sv"
+  ],
+  "Top 100": [
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "vi"
+  ],
+  "Top {percent}%": [
+    "es",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "vi"
+  ],
+  "Trending": [
+    "nl"
+  ],
+  "Under 15 min": [
+    "sv"
+  ],
+  "Under 30 min": [
+    "sv"
+  ],
+  "Under 45 min": [
+    "sv"
+  ],
+  "Upvote": [
+    "de"
+  ],
+  "Vegan": [
+    "de",
+    "id",
+    "tr"
+  ],
+  "Vegetarian": [
+    "id"
+  ],
+  "Version": [
+    "de",
+    "fr",
+    "sv"
+  ],
+  "Videos (optional)": [
+    "de"
+  ],
+  "Violence": [
+    "fr"
+  ],
+  "Votes": [
+    "fr"
+  ],
+  "Whole30": [
+    "ar",
+    "bn",
+    "de",
+    "es",
+    "fr",
+    "he",
+    "hi",
+    "id",
+    "it",
+    "ja",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "ta",
+    "te",
+    "th",
+    "tr",
+    "vi",
+    "zh-Hans",
+    "zh-Hant"
+  ],
+  "Winter": [
+    "de",
+    "nl"
+  ],
+  "Wok": [
+    "de",
+    "es",
+    "fr",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv",
+    "tr"
+  ],
+  "dishes_sort_alpha": [
+    "de",
+    "es",
+    "fr",
+    "id",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "tr",
+    "vi",
+    "zh-Hans",
+    "zh-Hant"
+  ],
+  "kitchen_filter_cuisine": [
+    "fr"
+  ],
+  "min": [
+    "es",
+    "fr",
+    "it",
+    "nl",
+    "pl",
+    "pt-BR",
+    "pt-PT",
+    "sv"
+  ],
+  "photo": [
+    "fr"
+  ],
+  "photos": [
+    "fr"
+  ],
+  "photos#few": [
+    "fr"
+  ],
+  "photos#many": [
+    "fr"
+  ],
+  "photos#two": [
+    "fr"
+  ],
+  "photos#zero": [
+    "fr"
+  ],
+  "recipe_template_pasta": [
+    "de",
+    "es",
+    "id",
+    "it",
+    "nl",
+    "sv"
+  ],
+  "recipe_template_stirfry": [
+    "pl"
+  ],
+  "theme_mode_auto": [
+    "de",
+    "fr",
+    "it",
+    "sv"
+  ],
+  "video": [
+    "id",
+    "it",
+    "nl",
+    "sv",
+    "tr",
+    "vi"
+  ],
+  "{count} items": [
+    "nl"
+  ],
+  "{count} photos": [
+    "fr"
+  ],
+  "{count} photos#few": [
+    "fr"
+  ],
+  "{count} photos#many": [
+    "fr"
+  ],
+  "{count} photos#two": [
+    "fr"
+  ],
+  "{count} photos#zero": [
+    "fr"
+  ]
+}

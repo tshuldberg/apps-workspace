@@ -1,0 +1,934 @@
+openapi: 3.1.0
+info:
+  title: MyLife Self-Host API
+  version: 0.5.0
+  description: |
+    Minimal self-host contract required by MyLife clients for dual-mode operation.
+servers:
+  - url: https://your-mylife-server.example.com
+paths:
+  /health:
+    get:
+      summary: Service health check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, timestamp]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  timestamp:
+                    type: string
+                    format: date-time
+  /api/auth/session:
+    post:
+      summary: Exchange credentials for a session token
+      operationId: createAuthSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Auth session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthSession'
+        '401':
+          description: Invalid credentials
+  /api/identity/actor/issue:
+    post:
+      summary: Issue a signed actor identity token for a user ID
+      operationId: issueActorIdentity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Actor identity token issued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActorIdentityIssueResponse'
+        '400':
+          description: Invalid request body
+        '500':
+          description: Actor identity secret is not configured
+  /api/entitlements/sync:
+    get:
+      summary: Get latest entitlement payload
+      operationId: getEntitlementSync
+      parameters:
+        - in: header
+          name: x-entitlement-sync-key
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Entitlement payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitlementSyncResponse'
+        '401':
+          description: Invalid sync key
+        '404':
+          description: No entitlement found
+  /api/friends/invites:
+    get:
+      summary: List incoming/outgoing friend invites
+      operationId: listFriendInvites
+      parameters:
+        - in: query
+          name: userId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: actorToken
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: direction
+          required: false
+          schema:
+            type: string
+            enum: [incoming, outgoing, both]
+            default: both
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            description: Comma-separated invite statuses
+      responses:
+        '200':
+          description: Invite lists
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [userId, incoming, outgoing]
+                properties:
+                  userId:
+                    type: string
+                  incoming:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FriendInvite'
+                  outgoing:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FriendInvite'
+    post:
+      summary: Create friend invite
+      operationId: createFriendInvite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toUserId]
+              properties:
+                actorToken:
+                  type: string
+                id:
+                  type: string
+                fromUserId:
+                  type: string
+                toUserId:
+                  type: string
+                message:
+                  type: string
+                  nullable: true
+      responses:
+        '201':
+          description: Invite created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, invite]
+                properties:
+                  ok:
+                    type: boolean
+                  invite:
+                    $ref: '#/components/schemas/FriendInvite'
+  /api/friends/invites/{inviteId}/accept:
+    post:
+      summary: Accept friend invite
+      operationId: acceptFriendInvite
+      parameters:
+        - in: path
+          name: inviteId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                actorToken:
+                  type: string
+                actorUserId:
+                  type: string
+      responses:
+        '200':
+          description: Invite accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, invite]
+                properties:
+                  ok:
+                    type: boolean
+                  invite:
+                    $ref: '#/components/schemas/FriendInvite'
+  /api/friends/invites/{inviteId}/decline:
+    post:
+      summary: Decline friend invite
+      operationId: declineFriendInvite
+      parameters:
+        - in: path
+          name: inviteId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                actorToken:
+                  type: string
+                actorUserId:
+                  type: string
+      responses:
+        '200':
+          description: Invite declined
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, invite]
+                properties:
+                  ok:
+                    type: boolean
+                  invite:
+                    $ref: '#/components/schemas/FriendInvite'
+  /api/friends/invites/{inviteId}/revoke:
+    post:
+      summary: Revoke friend invite
+      operationId: revokeFriendInvite
+      parameters:
+        - in: path
+          name: inviteId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                actorToken:
+                  type: string
+                actorUserId:
+                  type: string
+      responses:
+        '200':
+          description: Invite revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, invite]
+                properties:
+                  ok:
+                    type: boolean
+                  invite:
+                    $ref: '#/components/schemas/FriendInvite'
+  /api/friends:
+    get:
+      summary: List accepted friends for a user
+      operationId: listFriends
+      parameters:
+        - in: query
+          name: userId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: actorToken
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Friend list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [userId, friends]
+                properties:
+                  userId:
+                    type: string
+                  friends:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FriendConnection'
+    delete:
+      summary: Remove reciprocal friendship
+      operationId: deleteFriend
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [friendUserId]
+              properties:
+                actorToken:
+                  type: string
+                userId:
+                  type: string
+                friendUserId:
+                  type: string
+      responses:
+        '200':
+          description: Friendship removed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                properties:
+                  ok:
+                    type: boolean
+  /api/messages:
+    post:
+      summary: Send a direct message to an accepted friend
+      operationId: createFriendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FriendMessageInput'
+      responses:
+        '200':
+          description: Message already existed for this client message ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendMessage'
+        '201':
+          description: Message created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendMessage'
+        '400':
+          description: Invalid payload
+        '403':
+          description: Users are not accepted friends
+        '409':
+          description: clientMessageId conflict
+    get:
+      summary: List direct messages between a viewer and friend
+      operationId: listFriendMessages
+      parameters:
+        - in: query
+          name: viewerUserId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: actorToken
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: friendUserId
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: since
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        '200':
+          description: Message list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendMessageListResponse'
+        '403':
+          description: Users are not accepted friends
+  /api/messages/inbox:
+    get:
+      summary: List inbox conversation summaries for a user
+      operationId: listFriendMessageInbox
+      parameters:
+        - in: query
+          name: viewerUserId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: actorToken
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        '200':
+          description: Inbox summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendMessageInboxResponse'
+  /api/messages/{messageId}/read:
+    post:
+      summary: Mark a direct message as read by the recipient
+      operationId: markFriendMessageRead
+      parameters:
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                actorToken:
+                  type: string
+                viewerUserId:
+                  type: string
+      responses:
+        '200':
+          description: Message marked read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FriendMessageReadResponse'
+        '404':
+          description: Message not found
+  /api/federation/inbox/messages:
+    post:
+      summary: Receive signed server-to-server friend message delivery
+      operationId: receiveFederationInboxMessage
+      parameters:
+        - in: header
+          name: x-mylife-federation-server
+          required: true
+          schema:
+            type: string
+        - in: header
+          name: x-mylife-federation-timestamp
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - in: header
+          name: x-mylife-federation-signature
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FederationInboxMessageInput'
+      responses:
+        '200':
+          description: Message already received (idempotent duplicate)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FederationInboxMessageResponse'
+        '201':
+          description: Message stored from federation delivery
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FederationInboxMessageResponse'
+        '401':
+          description: Invalid or missing federation signature headers
+        '403':
+          description: Recipient or friendship policy rejected the delivery
+  /api/federation/dispatch:
+    post:
+      summary: Process due federation outbox rows and deliver to remote servers
+      operationId: dispatchFederationOutbox
+      parameters:
+        - in: header
+          name: x-federation-dispatch-key
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FederationDispatchInput'
+      responses:
+        '200':
+          description: Dispatch batch result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FederationDispatchResponse'
+        '400':
+          description: Invalid dispatch limit
+        '401':
+          description: Invalid dispatch key
+  /api/share/events:
+    post:
+      summary: Create a share event (rating/review/list item)
+      operationId: createShareEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareEventInput'
+      responses:
+        '201':
+          description: Share event created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, item]
+                properties:
+                  ok:
+                    type: boolean
+                  item:
+                    $ref: '#/components/schemas/ShareEvent'
+    get:
+      summary: List share events visible to a user
+      operationId: listShareEvents
+      parameters:
+        - in: query
+          name: viewerUserId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: viewerToken
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: actorUserId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: objectType
+          required: false
+          schema:
+            type: string
+            enum: [book_rating, book_review, list_item, generic]
+        - in: query
+          name: objectId
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 200
+        - in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5000
+            default: 0
+      responses:
+        '200':
+          description: Share event list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ShareEvent'
+components:
+  schemas:
+    ActorIdentityIssueResponse:
+      type: object
+      required: [ok, userId, actorToken, issuedAt]
+      properties:
+        ok:
+          type: boolean
+        userId:
+          type: string
+        actorToken:
+          type: string
+        issuedAt:
+          type: string
+          format: date-time
+    AuthSession:
+      type: object
+      required: [accessToken, expiresAt, user]
+      properties:
+        accessToken:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        user:
+          type: object
+          required: [id, email]
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+              format: email
+    Entitlements:
+      type: object
+      required:
+        - appId
+        - mode
+        - hostedActive
+        - selfHostLicense
+        - features
+        - issuedAt
+        - signature
+      properties:
+        appId:
+          type: string
+        mode:
+          type: string
+          enum: [hosted, self_host, local_only]
+        hostedActive:
+          type: boolean
+        selfHostLicense:
+          type: boolean
+        updatePackYear:
+          type: integer
+          nullable: true
+        features:
+          type: array
+          items:
+            type: string
+        issuedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        signature:
+          type: string
+    EntitlementSyncResponse:
+      type: object
+      required: [token, entitlements, syncedAt]
+      properties:
+        token:
+          type: string
+        entitlements:
+          $ref: '#/components/schemas/Entitlements'
+        syncedAt:
+          type: string
+          format: date-time
+    FriendInvite:
+      type: object
+      required: [id, fromUserId, toUserId, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        fromUserId:
+          type: string
+        toUserId:
+          type: string
+        status:
+          type: string
+          enum: [pending, accepted, revoked, declined]
+        message:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        respondedAt:
+          type: string
+          format: date-time
+          nullable: true
+    FriendConnection:
+      type: object
+      required: [userId, friendUserId, status, createdAt, updatedAt]
+      properties:
+        userId:
+          type: string
+        friendUserId:
+          type: string
+        status:
+          type: string
+          enum: [accepted, blocked]
+        sourceInviteId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        displayName:
+          type: string
+          nullable: true
+        handle:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          nullable: true
+    FriendMessageInput:
+      type: object
+      required: [toUserId, content]
+      properties:
+        actorToken:
+          type: string
+        fromUserId:
+          type: string
+        toUserId:
+          type: string
+        contentType:
+          type: string
+          enum: [text/plain, application/e2ee+ciphertext]
+          default: text/plain
+        content:
+          type: string
+        clientMessageId:
+          type: string
+          nullable: true
+    FriendMessage:
+      allOf:
+        - $ref: '#/components/schemas/FriendMessageInput'
+        - type: object
+          required: [id, contentType, createdAt]
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            readAt:
+              type: string
+              format: date-time
+              nullable: true
+    FriendMessageListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FriendMessage'
+    FriendInboxItem:
+      type: object
+      required:
+        - friendUserId
+        - lastMessageAt
+        - lastMessageContent
+        - lastMessageContentType
+        - unreadCount
+      properties:
+        friendUserId:
+          type: string
+        lastMessageAt:
+          type: string
+          format: date-time
+        lastMessageContent:
+          type: string
+        lastMessageContentType:
+          type: string
+          enum: [text/plain, application/e2ee+ciphertext]
+        unreadCount:
+          type: integer
+          minimum: 0
+    FriendMessageInboxResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FriendInboxItem'
+    FriendMessageReadResponse:
+      type: object
+      required: [ok, message]
+      properties:
+        ok:
+          type: boolean
+        message:
+          $ref: '#/components/schemas/FriendMessage'
+    FederationInboxMessageInput:
+      allOf:
+        - $ref: '#/components/schemas/FriendMessageInput'
+        - type: object
+          required: [clientMessageId]
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            senderServer:
+              type: string
+    FederationInboxMessageResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+        duplicate:
+          type: boolean
+        message:
+          $ref: '#/components/schemas/FriendMessage'
+          nullable: true
+    FederationDispatchInput:
+      type: object
+      properties:
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+    FederationDispatchResponse:
+      type: object
+      required: [ok, processed, sent, retried, failed, skipped]
+      properties:
+        ok:
+          type: boolean
+        server:
+          type: string
+          nullable: true
+        processed:
+          type: integer
+          minimum: 0
+        sent:
+          type: integer
+          minimum: 0
+        retried:
+          type: integer
+          minimum: 0
+        failed:
+          type: integer
+          minimum: 0
+        skipped:
+          type: integer
+          minimum: 0
+        reason:
+          type: string
+          nullable: true
+    ShareEventInput:
+      type: object
+      required: [objectType, objectId, visibility]
+      properties:
+        id:
+          type: string
+        actorToken:
+          type: string
+        actorUserId:
+          type: string
+        objectType:
+          type: string
+          enum: [book_rating, book_review, list_item, generic]
+        objectId:
+          type: string
+        visibility:
+          type: string
+          enum: [private, friends, public]
+        payload:
+          type: object
+          additionalProperties: true
+    ShareEvent:
+      allOf:
+        - $ref: '#/components/schemas/ShareEventInput'
+        - type: object
+          required: [id, createdAt, updatedAt]
+          properties:
+            id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time

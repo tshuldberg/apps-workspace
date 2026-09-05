@@ -1,0 +1,70 @@
+# Meerkat relay: stateless, zero-knowledge ciphertext forwarder.
+#
+# The relay persists NOTHING beyond short-TTL in-memory mailboxes and rendezvous
+# records, so there are no volumes and the root filesystem is read-only. It reads
+# only PORT/HOST from the environment; it takes no API keys, no DB creds, and no
+# secrets. The only secret-adjacent surface is the TLS certificate, which lives
+# at the edge proxy (see the commented caddy service below), never in the relay
+# process.
+#
+#   docker compose -f deploy/docker-compose.yml up --build
+#
+# For local plaintext testing the relay is reachable at ws://localhost:8787 and
+# GET http://localhost:8787/healthz. For production, terminate wss at the edge.
+
+services:
+  relay:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: meerkat-relay:local
+    restart: unless-stopped
+    environment:
+      PORT: "8787"
+      HOST: "0.0.0.0"
+      # Set to "1" only when enabling the optional Caddy service below.
+      # MEERKAT_TRUST_PROXY_HOPS: "1"
+    ports:
+      - "8787:8787"
+    # Stateless by design: no volumes, read-only rootfs, dropped privileges.
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:'+(process.env.PORT||8787)+'/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # Optional TLS edge. Caddy auto-provisions a Let's Encrypt certificate for your
+  # domain and forwards both the WebSocket upgrade and GET /healthz to relay:8787.
+  # This is the honest TLS story: the relay speaks plain ws; the edge serves wss.
+  # Uncomment, set RELAY_DOMAIN in deploy/.env, and point your DNS at this host.
+  #
+  # caddy:
+  #   image: caddy:2-alpine
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - relay
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   environment:
+  #     RELAY_DOMAIN: ${RELAY_DOMAIN:?set RELAY_DOMAIN in deploy/.env}
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+  #     # Caddy needs these for ACME cert state. This is the EDGE's TLS state,
+  #     # not relay data; the relay itself remains stateless.
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+
+# volumes:
+#   caddy_data:
+#   caddy_config:

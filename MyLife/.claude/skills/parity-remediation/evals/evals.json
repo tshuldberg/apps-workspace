@@ -1,0 +1,61 @@
+{
+  "skill_name": "parity-remediation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Parity check is failing. Can you figure out what's wrong and fix it?",
+      "expected_output": "Runs all 4 parity gates, parses failures, categorizes drift by type, identifies root cause with file paths, and suggests specific fixes.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "runs-all-parity-gates",
+          "assertion": "Output shows execution of pnpm check:standalone, check:module-parity, check:passthrough-parity, and check:workouts-parity"
+        },
+        {
+          "name": "categorizes-failures",
+          "assertion": "Each failure is categorized as one of: route-mismatch, data-model-drift, ui-divergence, api-contract-break, passthrough-break, or config-drift"
+        },
+        {
+          "name": "identifies-file-pairs",
+          "assertion": "For each failure, output identifies both the standalone file path and the corresponding hub file path"
+        },
+        {
+          "name": "suggests-concrete-fix",
+          "assertion": "Each failure includes a specific fix description with the file to edit and what change to make"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The passthrough parity check fails on MyWords. Debug and remediate.",
+      "expected_output": "Identifies which web route wrappers in apps/web/app/words/ are missing or incorrectly importing from the standalone alias.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "scopes-to-module",
+          "assertion": "Analysis is scoped to the words module, examining apps/web/app/words/ routes and MyWords standalone routes"
+        },
+        {
+          "name": "checks-alias-imports",
+          "assertion": "Output verifies whether web wrapper files correctly import from the @mywords-web alias or equivalent standalone path"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "All parity gates are passing, but I want to make sure nothing is silently drifting. Run a deep parity audit.",
+      "expected_output": "Runs all gates, confirms they pass, then does deeper analysis comparing exports and schemas between standalone and hub for each module.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "confirms-gates-pass",
+          "assertion": "Output clearly states all 4 parity gates pass before proceeding to deeper analysis"
+        },
+        {
+          "name": "goes-beyond-gates",
+          "assertion": "Output analyzes at least one additional dimension beyond the 4 standard gates, such as comparing exported types or schema shapes"
+        }
+      ]
+    }
+  ]
+}

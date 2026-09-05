@@ -1,0 +1,30 @@
+# Plan 25 WP-25I: self-hosted LiveKit SFU for Meerkat community rooms.
+# API keys are injected via the LIVEKIT_KEYS env var (see compose.production.yml),
+# never written here. Redis backs distributed mode so replicas share room state.
+port: 7880
+bind_addresses:
+  - ""
+rtc:
+  tcp_port: 7881
+  udp_port: 50000
+  port_range_start: 50000
+  port_range_end: 50100
+  # use_external_ip discovers the public address for ICE candidates. Set the node's
+  # public IP here in a multi-node deploy; single-node uses STUN discovery.
+  use_external_ip: true
+redis:
+  address: redis:6379
+# Rooms are created on demand by a valid room-token JWT and auto-close when empty,
+# so the SFU holds only ephemeral state (Plan 25: the SFU is never a source of truth).
+room:
+  auto_create: false
+  empty_timeout: 300
+  departure_timeout: 20
+turn:
+  # LiveKit's embedded TURN/TLS is terminated at the edge; enable when a client
+  # cannot reach the RTC ports directly. Domain + cert are provided by the edge.
+  enabled: false
+logging:
+  level: info
+  # Never log room names as identities: they are already opaque HMAC values.
+  json: true

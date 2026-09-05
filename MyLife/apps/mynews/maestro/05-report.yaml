@@ -1,0 +1,75 @@
+appId: com.mylife.mynews
+name: MyNews report content
+tags:
+  - mynews
+  - safety
+env:
+  MAESTRO_MYNEWS_ALLOW_WRITES: "0"
+  MYNEWS_FLOW_REPORT_DETAIL: "Filed by an automated flow against a staging project."
+---
+# Report: the T6 reporting rail, reached from an article and from a profile.
+#
+# Reporting requires an authenticated account by design: mynews-report runs with
+# verify_jwt on and the intake RPC attributes the report to a profile, which is
+# what the per-reporter throttle and the open-report dedupe act on. So the card
+# has exactly two honest states, and both are asserted here:
+#   signed out -> "Sign in to report content. Reports are tied to your account."
+#   signed in  -> the thirteen-reason taxonomy and a submit control.
+#
+# NOT COVERED by default: submitting. A report is a real moderation-queue row
+# and an ncii report immediately retracts its target, so submission is gated on
+# MAESTRO_MYNEWS_ALLOW_WRITES and must never run against production.
+
+- launchApp
+- assertVisible: "Today"
+
+- runFlow:
+    when:
+      visible: "Try again"
+    commands:
+      # Unconfigured build: no feed, so no article to report. Honest stop.
+      - assertVisible: "Today"
+
+- runFlow:
+    when:
+      notVisible: "Try again"
+    commands:
+      - tapOn:
+          point: "50%,45%"
+      - assertVisible: "Report this article"
+      - tapOn: "Report this article"
+      - assertVisible: "Report this content"
+
+      - runFlow:
+          when:
+            visible: "Sign in to report content. Reports are tied to your account."
+          commands:
+            # Honest signed-out state. The card offers sign-in, not a form that
+            # would fail at the edge.
+            - assertVisible: "Sign in"
+
+      - runFlow:
+          when:
+            visible: "Choose the closest reason."
+          commands:
+            - assertVisible: "Choose the closest reason."
+            # "Spam" is REPORT_REASON_LABELS.spam in
+            # modules/mynews/src/taxonomy.ts. It is chosen on purpose: it is the
+            # LOWEST-consequence reason in the taxonomy, so a flow that does
+            # reach the write branch cannot open a child-safety or NCII case,
+            # which are the two lanes that take content down immediately.
+            - tapOn: "Spam"
+            - tapOn: "Report detail, optional"
+            - inputText: ${MYNEWS_FLOW_REPORT_DETAIL}
+            - hideKeyboard
+            - assertVisible: "Submit report"
+            - runFlow:
+                when:
+                  true: ${MAESTRO_MYNEWS_ALLOW_WRITES == "1"}
+                commands:
+                  - tapOn: "Submit report"
+            - runFlow:
+                when:
+                  true: ${MAESTRO_MYNEWS_ALLOW_WRITES != "1"}
+                commands:
+                  - tapOn: "Cancel"

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meerkat Privacy Policy</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#FAF9F7;color:#26221E;font:16px/1.7 -apple-system,"SF Pro Text",Georgia,serif;padding:0 0 80px}
+.page{max-width:720px;margin:0 auto;padding:0 24px}
+header.site{border-bottom:1px solid #E7E2DB;background:#fff}
+header.site .page{display:flex;align-items:baseline;gap:14px;padding:18px 24px}
+header.site a{color:#26221E;text-decoration:none;font-weight:700;letter-spacing:.2px}
+header.site span{color:#8A8073;font-size:13px}
+.draft-banner{background:#93000A;color:#fff;text-align:center;padding:8px 16px;font:700 12.5px/1.4 -apple-system,sans-serif;letter-spacing:.8px;text-transform:uppercase}
+h1{font-size:30px;line-height:1.25;margin:44px 0 6px;letter-spacing:-.3px}
+.version{color:#8A8073;font-size:14px;margin-bottom:30px}
+h2{font-size:19px;margin:34px 0 10px;letter-spacing:-.2px}
+p{margin:0 0 14px}
+ol,ul{margin:0 0 14px 26px}
+li{margin-bottom:8px}
+code{background:#F0EDE8;border:1px solid #E7E2DB;border-radius:5px;padding:1px 6px;font-size:13.5px;font-family:ui-monospace,"SF Mono",monospace}
+mark{background:#FFF3C4;border-bottom:2px solid #E0B400;padding:0 3px;border-radius:3px;font-weight:600}
+.fields{background:#fff;border:1px solid #E7E2DB;border-radius:12px;padding:14px 20px;margin:26px 0;font-family:-apple-system,sans-serif;font-size:14px}
+.fields summary{cursor:pointer;font-weight:700;color:#8A5A00}
+.fields ul{margin-top:10px}
+.fields-note{color:#8A8073;font-size:12.5px;margin-top:8px}
+footer{margin-top:60px;border-top:1px solid #E7E2DB;padding-top:18px;color:#8A8073;font-size:13px;font-family:-apple-system,sans-serif}
+footer nav{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px}
+footer a{color:#5A5348}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark}
+body{background:#131318;color:#E4E1E9}header.site{background:#1B1B20;border-color:rgba(255,255,255,.08)}
+header.site a{color:#E4E1E9}h1,h2{color:#F0EDE8}
+code{background:#2A292F;border-color:rgba(255,255,255,.08)}
+mark{background:#4d3f00;border-color:#E0B400;color:#F0EDE8}
+.fields{background:#1B1B20;border-color:rgba(255,255,255,.08)}
+.fields summary{color:#FFB877}
+footer{border-color:rgba(255,255,255,.08)}footer a{color:#9F8E81}}
+</style></head>
+<body>
+  <div class="draft-banner">DRAFT for counsel review · Not effective · Not legal advice</div>
+<header class="site"><div class="page"><a href="./index.html">Meerkat</a><span>Legal &amp; Safety</span></div></header>
+<div class="page">
+<h1>Meerkat Privacy Policy</h1>
+<p class="version">Version 1.0 · Effective <mark>[DATE]</mark></p>
+
+  <details class="fields"><summary>Fields to complete before publication (6)</summary>
+  <ul><li><mark>[DATE]</mark> - effective date</li><li>Section 2 linkability claim - counsel to confirm against the shipped Grade 2 blind-credential implementation (Plan 51; issuance is cryptographically blinded, nothing stored can link account to persona; renewal transit residual documented in docs/designs/meerkat-account-verification-architecture.md Section 5)</li><li><mark>[30]</mark> - hosted rolling retention days (confirm against deployed config)</li><li>Section 11 - GDPR/CCPA scope by launch jurisdiction + data-subject contact address</li><li><mark>[13]</mark> - children's age floor (align with Terms ruling)</li><li><mark>[PRIVACY EMAIL]</mark> - privacy contact</li></ul>
+  <p class="fields-note">Wiring: MEERKAT_PRIVACY_POLICY_URL</p>
+  </details>
+<h2>1. The short version</h2>
+<p>Meerkat is built so we cannot read your private content. Your messages, files, and communities are end-to-end encrypted with keys that exist only on your devices. We run no analytics and no advertising. This policy explains the little we do handle.</p>
+<h2>2. Your verification account</h2>
+<p>Purchasing and public participation use a minimal account you create by signing in with Apple or Google. It stores only: the sign-in identifier your provider gives us (Apple lets you hide your email), your verification checks (human verification, age status, parental consent where required), your purchase entitlement, and minimal bookkeeping for issuing your anonymous public-participation pass (which period a pass was issued in, never the pass itself). It is never linked to your identity, messages, communities, or files inside Meerkat: we store no such link, and the pass is cryptographically blinded when issued, so nothing we store can connect your account to your activity inside Meerkat. Private use of Meerkat requires no account.</p>
+<h2>3. Data on your device</h2>
+<p>Your identity keys, messages, files, and settings live in a local database on your device. Your birth date, if the in-app age screen runs, is checked on the device and never stored or transmitted; only a pass/fail record is kept. Where your app store provides a lawful age signal, we record the resulting age status on your verification account instead.</p>
+<h2>4. What our infrastructure sees</h2>
+<p>Relay servers forward encrypted envelopes between devices using opaque one-time tokens. They do not receive your name, device identifiers, message content, or message types, and they can observe only ciphertext sizes and timing. Hosted storage (optional, paid) stores encrypted objects we cannot decrypt; we hold no decryption keys.</p>
+<h2>5. Public layer</h2>
+<p>Content you publish to The Commons is public by design, together with your chosen public persona. Public posting requires verification and recorded acceptance of the Terms.</p>
+<h2>6. Third-party storage you connect</h2>
+<p>If you connect Google Drive, Dropbox, OneDrive, Box, WebDAV, S3, or iCloud as a backup destination, that provider receives encrypted objects and can observe object sizes and timing. It never receives your keys or plaintext.</p>
+<h2>7. Payments</h2>
+<p>Purchases run through Apple, Google, or Stripe. We receive transaction confirmations and entitlement status, not your card number.</p>
+<h2>8. Retention</h2>
+<p>Non-pinned hosted content is retained on a rolling <mark>[30]</mark>-day basis. Pinned or published content persists until unpinned, taken down, or deleted. Safety and legal records (for example, abuse reports and DMCA notices) are retained as required by law.</p>
+<h2>9. Deletion</h2>
+<p>Two independent deletions exist. "Delete my data" in the app destroys your local data, your public persona, and, if you choose, encrypted backups at connected destinations; copies already synced to other people's devices are outside our and your reach, and the app says so before you delete. Deleting your verification account removes the account record, entitlement state, and issuance bookkeeping, and revokes any pass you submit during deletion; it cannot touch in-app data because the account was never linked to it. If you delete without the app (so no pass is submitted), an already-issued anonymous pass cannot be traced back to revoke it early; that is the privacy design working as intended, and the pass expires on its own within 30 days.</p>
+<h2>10. Safety disclosures</h2>
+<p>We report apparent child sexual abuse material to NCMEC as required by law, and respond to valid legal process as described in our Law Enforcement Guidelines.</p>
+<h2>11. Your rights</h2>
+<p><mark>[Counsel: GDPR/CCPA scope by launch jurisdiction; note that most rights are satisfied intrinsically because we cannot access content. Identify the data-subject contact address.]</mark></p>
+<h2>12. Children</h2>
+<p>Meerkat is not directed to children under <mark>[13]</mark>. We do not knowingly collect personal information from children under <mark>[13]</mark>. <mark>[Counsel: align with age-floor ruling.]</mark></p>
+<h2>13. Changes and contact</h2>
+<p>We will post changes here with a new effective date. Contact: <mark>[PRIVACY EMAIL]</mark>.</p>
+<footer>
+<p>This document is a draft prepared from the shipped product behavior and is not yet effective.</p>
+<nav><a href="./terms-of-use.html">Meerkat Terms of Use</a><a href="./privacy-policy.html">Meerkat Privacy Policy</a><a href="./community-standards.html">Meerkat Community Standards</a><a href="./safety-and-appeals.html">Meerkat Safety Support</a><a href="./dmca-policy.html">Meerkat DMCA Policy</a><a href="./law-enforcement-guidelines.html">Meerkat Law Enforcement Guidelines</a><a href="./data-deletion-instructions.html">Delete your Meerkat data</a></nav>
+</footer>
+</div></body></html>

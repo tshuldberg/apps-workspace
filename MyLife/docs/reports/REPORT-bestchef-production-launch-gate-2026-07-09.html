@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>BestChef Production Launch Gate | 2026-07-09</title>
+  <style>
+    :root {
+      --bg: #0e0e13;
+      --surface: #17171d;
+      --surface-2: #202027;
+      --surface-3: #2a292f;
+      --text: #e4e1e9;
+      --muted: #b9adb2;
+      --faint: #81777d;
+      --border: rgba(255,255,255,.10);
+      --accent: #ffb877;
+      --accent-2: #8bcff0;
+      --danger: #ffb4ab;
+      --danger-bg: rgba(147,0,10,.22);
+      --high: #ffcb8e;
+      --medium: #ffe38a;
+      --success: #65d58a;
+      --shadow: 0 24px 70px rgba(0,0,0,.34);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% -10%, rgba(255,184,119,.12), transparent 28rem),
+        radial-gradient(circle at 95% 12%, rgba(139,207,240,.08), transparent 24rem),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.62;
+    }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      color: #ffd1aa;
+      background: rgba(255,184,119,.08);
+      border: 1px solid rgba(255,184,119,.13);
+      border-radius: 6px;
+      padding: .08rem .34rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .88em;
+      overflow-wrap: anywhere;
+    }
+    .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 26px 18px;
+      border-right: 1px solid var(--border);
+      background: rgba(14,14,19,.90);
+      backdrop-filter: blur(18px);
+      overflow-y: auto;
+      z-index: 3;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; margin: 0 8px 24px; }
+    .brand-mark {
+      width: 36px; height: 36px; border-radius: 12px;
+      display: grid; place-items: center;
+      color: #28170a; font-weight: 900;
+      background: linear-gradient(145deg, #ffd0a5, var(--accent));
+      box-shadow: 0 8px 28px rgba(255,184,119,.22);
+    }
+    .brand strong { display: block; font-size: 14px; letter-spacing: .04em; }
+    .brand span { color: var(--faint); font-size: 11px; }
+    .nav-label { margin: 18px 9px 6px; color: var(--faint); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; font-weight: 800; }
+    .sidebar a {
+      display: block; padding: 7px 10px; margin: 1px 0; border-radius: 9px;
+      color: var(--muted); font-size: 13px; line-height: 1.25;
+    }
+    .sidebar a:hover { color: var(--text); background: rgba(255,255,255,.05); text-decoration: none; }
+    .main { width: min(1180px, 100%); margin: 0 auto; padding: 54px 44px 90px; }
+    .eyebrow { color: var(--accent); font-weight: 850; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; }
+    h1 { margin: 10px 0 12px; font-size: clamp(38px, 6vw, 72px); line-height: .98; letter-spacing: -.055em; max-width: 880px; }
+    .dek { color: var(--muted); font-size: clamp(18px, 2.2vw, 23px); max-width: 850px; margin: 18px 0 30px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 34px; }
+    .chip { border: 1px solid var(--border); border-radius: 999px; background: rgba(255,255,255,.025); color: var(--muted); padding: 7px 11px; font-size: 12px; }
+    .verdict {
+      border: 1px solid rgba(255,180,171,.42);
+      border-left: 5px solid var(--danger);
+      background: linear-gradient(135deg, var(--danger-bg), rgba(255,184,119,.04));
+      border-radius: var(--radius);
+      padding: 24px 26px;
+      box-shadow: var(--shadow);
+      margin: 22px 0 34px;
+    }
+    .verdict-label { color: var(--danger); font-size: 12px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    .verdict h2 { margin: 5px 0 6px; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.035em; }
+    .verdict p { margin: 0; max-width: 900px; color: #d9c8c7; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 0 44px; }
+    .stat { background: rgba(23,23,29,.88); border: 1px solid var(--border); border-radius: 15px; padding: 18px; }
+    .stat b { display: block; font-size: 30px; line-height: 1; margin-bottom: 7px; }
+    .stat span { color: var(--muted); font-size: 12px; }
+    section { scroll-margin-top: 24px; margin-top: 64px; }
+    section > h2 { font-size: clamp(27px, 3.4vw, 40px); letter-spacing: -.035em; margin: 0 0 10px; }
+    section > .intro { color: var(--muted); max-width: 850px; margin: 0 0 24px; }
+    .rule { height: 1px; background: var(--border); margin: 24px 0; }
+    .card { background: rgba(23,23,29,.86); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: 0 12px 40px rgba(0,0,0,.13); }
+    .cards { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .gate-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    .gate { display: flex; gap: 12px; align-items: flex-start; background: rgba(23,23,29,.76); border: 1px solid var(--border); border-radius: 14px; padding: 15px; }
+    .x { flex: 0 0 auto; width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; color: #2a0608; background: var(--danger); font-weight: 950; }
+    .gate b { display: block; font-size: 14px; margin-bottom: 2px; }
+    .gate p { margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+    .finding { margin: 14px 0; border: 1px solid var(--border); border-radius: var(--radius); background: rgba(23,23,29,.9); overflow: clip; }
+    .finding[hidden] { display: none; }
+    .finding summary { cursor: pointer; list-style: none; padding: 19px 22px; display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: center; }
+    .finding summary::-webkit-details-marker { display: none; }
+    .finding summary::after { content: "+"; color: var(--faint); font-size: 21px; }
+    .finding[open] summary::after { content: "−"; }
+    .finding h3 { margin: 0; font-size: 17px; line-height: 1.35; }
+    .finding-body { padding: 0 22px 22px 66px; color: var(--muted); }
+    .finding-body p { margin: 9px 0; }
+    .finding-body strong { color: var(--text); }
+    .badge { display: inline-flex; min-width: 33px; justify-content: center; align-items: center; border-radius: 8px; padding: 5px 7px; font-size: 11px; font-weight: 900; letter-spacing: .05em; }
+    .badge.critical { background: var(--danger); color: #2b080a; }
+    .badge.high { background: var(--high); color: #2b1703; }
+    .badge.medium { background: var(--medium); color: #2b2503; }
+    .confidence { color: var(--faint); font-size: 11px; white-space: nowrap; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+    .filters button {
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 999px;
+      padding: 8px 13px; font: inherit; font-size: 12px; cursor: pointer;
+    }
+    .filters button.active { border-color: rgba(255,184,119,.65); color: var(--text); background: rgba(255,184,119,.10); }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: rgba(23,23,29,.84); }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 13px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; background: rgba(255,255,255,.025); }
+    td { font-size: 13.5px; }
+    tr:last-child td { border-bottom: 0; }
+    .fail { color: var(--danger); font-weight: 900; }
+    .pass { color: var(--success); font-weight: 850; }
+    .warn { color: var(--medium); font-weight: 850; }
+    .workstream { margin: 16px 0; background: rgba(23,23,29,.87); border: 1px solid var(--border); border-radius: var(--radius); padding: 23px; }
+    .workstream-head { display: flex; gap: 13px; align-items: flex-start; }
+    .letter { width: 36px; height: 36px; flex: 0 0 36px; display: grid; place-items: center; border-radius: 12px; background: rgba(255,184,119,.15); color: var(--accent); font-weight: 950; }
+    .workstream h3 { margin: 2px 0 4px; font-size: 20px; }
+    .workstream ol { margin: 16px 0 14px 52px; padding-left: 18px; color: var(--muted); }
+    .workstream li { padding: 3px 0; }
+    .exit { margin-left: 52px; padding: 12px 14px; border-radius: 12px; background: rgba(101,213,138,.07); border: 1px solid rgba(101,213,138,.18); color: #bfe6cc; font-size: 13px; }
+    .checklist { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .check { display: flex; align-items: flex-start; gap: 10px; padding: 12px 13px; border: 1px solid var(--border); border-radius: 12px; background: rgba(23,23,29,.72); color: var(--muted); font-size: 13px; }
+    .box { width: 17px; height: 17px; flex: 0 0 17px; border: 1px solid var(--faint); border-radius: 4px; margin-top: 2px; }
+    .callout { margin: 18px 0; padding: 18px 20px; border-radius: 15px; border: 1px solid rgba(139,207,240,.20); background: rgba(139,207,240,.06); color: #c8dce6; }
+    .footer { margin-top: 70px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--faint); font-size: 12px; }
+    .print { width: 100%; margin-top: 20px; border: 1px solid var(--border); border-radius: 10px; padding: 9px; color: var(--muted); background: var(--surface); cursor: pointer; }
+    @media (max-width: 960px) {
+      .layout { display: block; }
+      .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: 14px 18px; }
+      .sidebar nav, .nav-label, .print { display: none; }
+      .brand { margin: 0; }
+      .main { padding: 38px 22px 70px; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .cards, .gate-grid, .checklist { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .stats { grid-template-columns: 1fr 1fr; }
+      .finding summary { grid-template-columns: auto minmax(0,1fr); }
+      .finding summary::after, .confidence { display: none; }
+      .finding-body { padding-left: 22px; }
+      .workstream ol, .exit { margin-left: 0; }
+    }
+    @media print {
+      :root { color-scheme: light; }
+      body { background: #fff; color: #111; font-size: 11px; }
+      .layout { display: block; }
+      .sidebar, .filters { display: none; }
+      .main { width: 100%; padding: 0; }
+      .card, .finding, .workstream, .gate, .stat, .table-wrap, .check { background: #fff; color: #111; box-shadow: none; break-inside: avoid; }
+      .finding-body, .intro, .dek, .gate p, .workstream ol, td, .check { color: #333; }
+      .finding { break-inside: avoid; }
+      .finding:not([open]) .finding-body { display: block; }
+      section { margin-top: 28px; }
+      a { color: #111; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">BC</div><div><strong>BESTCHEF</strong><span>Production gate</span></div></div>
+      <div class="nav-label">Decision</div>
+      <nav>
+        <a href="#verdict">Verdict</a>
+        <a href="#scorecard">Launch scorecard</a>
+        <a href="#critical">Critical blockers</a>
+        <a href="#high">High blockers</a>
+        <a href="#medium">Medium findings</a>
+        <a href="#passed">What passed</a>
+        <a href="#security">Security posture</a>
+        <a href="#plan">Resolution plan</a>
+        <a href="#checklist">GO checklist</a>
+        <a href="#ledger">Verification ledger</a>
+        <a href="#ruling">Final ruling</a>
+      </nav>
+      <button class="print" type="button" onclick="window.print()">Print report</button>
+    </aside>
+
+    <main class="main">
+      <header id="verdict">
+        <div class="eyebrow">Adversarial production review · 2026-07-09</div>
+        <h1>BestChef does not pass the production launch gate.</h1>
+        <p class="dek">Current code compiles and has strong local test coverage. The actual launch system is inactive, stale, unsafe for public media, and capable of showing users fabricated food data.</p>
+        <div class="meta">
+          <span class="chip">Reviewed SHA: d3caa1fe</span>
+          <span class="chip">Latest EAS store build: 8a65bc8c</span>
+          <span class="chip">iOS · Supabase · Next.js console</span>
+          <span class="chip">Evidence-first review</span>
+        </div>
+        <div class="verdict">
+          <div class="verdict-label">Final decision</div>
+          <h2>NO-GO · launch authorization denied</h2>
+          <p>Do not submit or open BestChef to public users. The production backend is inactive, the available store binary is stale, moderation approves arbitrary images with fixed scores, pre-moderation images are public, deletion fails open, and two food workflows fabricate data.</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><b style="color:var(--danger)">10</b><span>Critical launch blockers</span></div>
+          <div class="stat"><b style="color:var(--high)">13</b><span>High-severity blockers</span></div>
+          <div class="stat"><b style="color:var(--medium)">5</b><span>Medium findings</span></div>
+          <div class="stat"><b style="color:var(--success)">1,977</b><span>Unit and SQL tests passed</span></div>
+        </div>
+      </header>
+
+      <section id="scorecard">
+        <h2>Launch scorecard</h2>
+        <p class="intro">Documents and prior status labels were not accepted as proof. Every red gate below is supported by current code, git history, an executable local check, or read-only hosted-service metadata.</p>
+        <div class="gate-grid">
+          <div class="gate"><span class="x">×</span><div><b>Production backend</b><p>Configured Supabase project reports INACTIVE and its hostname does not resolve.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Current release artifact</b><p>Newest store build is May 12 and predates 58 scoped commits across 314 files.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Current backend deploy</b><p>Seven functions date to April 29, purge is missing, two worker JWT flags contradict source.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Real content safety</b><p>Live handler uses safe-scoring stubs. General media and CSAM workers do not exist.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Private pending media</b><p>Submission image bucket is public and anonymous SELECT covers every object.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Truthful food data</b><p>Photo recognition and recipe detail can display unrelated bundled samples.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Deletion and export</b><p>Deletion announces success after errors; full cloud export is not implemented.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Legal and support</b><p>Hardcoded domain does not resolve and legal source still contains placeholders.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Complete workflows</b><p>Core gestures reach /soon; barcode, commerce, push, video, and payments are unfinished.</p></div></div>
+          <div class="gate"><span class="x">×</span><div><b>Release gates</b><p>Edge TypeScript has four errors and production smoke is skipped and currently impossible.</p></div></div>
+        </div>
+        <div class="callout"><strong>Git reality:</strong> the July 5 audit was used only to generate leads. There is no BestChef runtime diff after its commit, but every retained finding was independently re-read in current source. Green prose did not count.</div>
+      </section>
+
+      <section id="critical">
+        <h2>Critical blockers</h2>
+        <p class="intro">Any one of these is enough to stop launch. All ten are open.</p>
+        <div class="filters" aria-label="Finding filters">
+          <button class="active" type="button" data-filter="all">All findings</button>
+          <button type="button" data-filter="critical">Critical</button>
+          <button type="button" data-filter="high">High</button>
+          <button type="button" data-filter="medium">Medium</button>
+        </div>
+
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C1</span><h3>Configured production backend is inactive and unreachable</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p>EAS production points at <code>zjxabnazbdocrqpyixgo</code>. Supabase reports that project <strong>INACTIVE</strong>; its API host does not resolve and migration listing times out. The live production smoke suite is skipped by default at <code>testflight-smoke.live.test.ts:78</code>.</p><p><strong>Closure:</strong> restore or replace production, prove DNS and database health, apply every migration, then run the full live suite against the exact release environment.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C2</span><h3>No production binary contains the reviewed code</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p>Latest store build is EAS build 24 at <code>8a65bc8c</code>, created May 12. Reviewed source is <code>d3caa1fe</code>, 58 scoped commits and 314 changed files later. Public App Store lookup for ID <code>6763167108</code> returns zero results.</p><p><strong>Closure:</strong> create a new IPA from the approved SHA and bind every test to its EAS ID and commit.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C3</span><h3>Deployed Edge Function fleet is stale, incomplete, and misconfigured</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p>Seven hosted v3 functions were last updated April 29. <code>bestchef-media-purge</code> is absent. Hosted moderation and deletion workers have <code>verify_jwt=true</code>, while <code>supabase/config.toml:418-432</code> requires false for worker-secret calls.</p><p><strong>Closure:</strong> deploy all eight functions from one SHA and assert versions, hashes, secrets, and JWT flags after deploy.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C4</span><h3>CookProof moderation is a hardcoded approval stub</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p><code>moderate_vote_proof/index.ts:454-505</code> returns NSFW <code>0.02</code>, food <code>0.91</code>, and available true. Approval thresholds are 0.72 and 0.55. The live Deno handler always injects these stubs at <code>:694-711</code>.</p><p><strong>Attack path:</strong> upload any image as vote proof, invoke the worker, receive fixed safe scores, activate the vote, and mark the asset public without byte inspection.</p><p><strong>Closure:</strong> real providers, fail-closed outage handling, adversarial corpus, and a deploy guard that rejects stub providers.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C5</span><h3>General media moderation and CSAM handling do not exist</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p><code>20260529000004_bestchef_media_moderation_enqueue.sql:8-10</code> describes a future worker for media assets and CSAM checks. No implementation or schedule exists. Repository-wide runtime search found no hash matching, escalation, preservation, or reporting integration.</p><p><strong>Closure:</strong> complete the worker, quarantine, human review, lawful reporting, preservation, and incident drills with specialist review.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C6</span><h3>Submission images are anonymously public before moderation</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p>Migration marks the bucket public, storage policy grants anonymous SELECT, and local migrated state confirms both. <code>submission-photo.ts:170-216</code> returns <code>getPublicUrl()</code> immediately after finalize.</p><p><strong>Attack path:</strong> upload prohibited media, receive its public URL before review, then distribute it directly.</p><p><strong>Closure:</strong> private buckets, owner-only previews, approved derivatives, and a policy test proving anonymous pending reads fail.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C7</span><h3>Account deletion fails open and announces success</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p><code>data/account.ts:213-249</code> turns cloud failures into warnings. It then wipes local files, rows, and secrets unconditionally at <code>:252-254</code>. Settings always displays <strong>Account deleted</strong> at <code>settings.tsx:210-220</code>.</p><p><strong>Closure:</strong> durable server receipt, recoverable retry, truthful states, and failure-path tests before local destruction.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C8</span><h3>Grocery-photo recognition fabricates sample groceries</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p><code>kitchen-photo.tsx:42</code> initializes sample JSON. Real photo selection clears it only when a BYO key exists, but public launch disables BYO keys. <code>data/kitchen.ts:1488-1499</code> prioritizes the sample JSON over the broker.</p><p><strong>Closure:</strong> remove production samples, require a real broker response or honest failure, and add a public-build regression test.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C9</span><h3>Empty recipes become an unrelated Pad Thai recipe</h3><span class="confidence">10/10 verified</span></summary>
+          <div class="finding-body"><p><code>recipe/[id].tsx:128-151</code> defines Pad Thai samples. Empty ingredients or steps receive those arrays without a demo guard at <code>:382-389</code>. That false content can drive allergens, nutrition, and grocery additions.</p><p><strong>Closure:</strong> honest missing states, no synthesized fields, and blocked downstream derivation without source data.</p></div>
+        </details>
+        <details class="finding" data-severity="critical" open>
+          <summary><span class="badge critical">C10</span><h3>Legal, support, and policy claims are not launchable</h3><span class="confidence">10/10 technical</span></summary>
+          <div class="finding-body"><p>The app hardcodes five <code>bestchef.app</code> routes, but the domain does not resolve. Terms and privacy retain operator, date, region, and venue placeholders. They also claim automated screening and contracted providers that do not exist in current code.</p><p><strong>Closure:</strong> counsel-finalized copy tied to implemented behavior, live durable routes, staffed support, and server-side terms receipts.</p></div>
+        </details>
+      </section>
+
+      <section id="high">
+        <h2>High-severity blockers</h2>
+        <p class="intro">These defects break moderation integrity, user rights, core navigation, international launch claims, product completeness, or release operation.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Finding</th><th>Code proof</th><th>Required closure</th></tr></thead>
+            <tbody>
+              <tr data-severity="high"><td><span class="badge high">H1</span></td><td><strong>Moderator console is not production-operational</strong></td><td>Builds and guards routes, but has only <code>.env.example</code>. No deploy target, URL, or hosted proof was found.</td><td>Deploy with MFA and least privilege; test every queue and appeal; staff an SLA.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H2</span></td><td><strong>Moderation claim is not atomic</strong></td><td>Read then unconditional PATCH at <code>index.ts:532-552</code>. Decision RPC lacks an already-decided guard and inserts another audit row.</td><td>Atomic claim RPC, idempotent decision, concurrency and human-worker race tests.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H3</span></td><td><strong>Latest job health drops security controls</strong></td><td>July 3 health includes quota prune, limits, and kill switch. July 4 replacement omits all three.</td><td>One canonical function, required-key pgTAP, fail-closed health.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H4</span></td><td><strong>Core gestures reach /soon</strong></td><td>Recipes, Videos, Capture, and Cook omit routes at <code>KitchenSliderShell.tsx:88-110</code> and fall to <code>/soon</code>.</td><td>Complete every workflow, remove placeholder reachability, route-contract tests.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H5</span></td><td><strong>Challenge progress is false</strong></td><td>Queries nonexistent <code>vote_count</code>; shared, cooked, and submissions all use submission count.</td><td>Authoritative server metrics, error handling, seeded tests per metric.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H6</span></td><td><strong>Export is device-only</strong></td><td><code>scope: device</code>; the promised full-export link points to data deletion.</td><td>Authenticated complete cloud export with durable download and media manifest.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H7</span></td><td><strong>Push notifications are absent</strong></td><td>No dependency, entitlement, token table, registration, fan-out, or cleanup path exists.</td><td>Complete token, preference, localized delivery, deep-link, and cleanup system.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H8</span></td><td><strong>Localization gate is false green</strong></td><td>Gate checks keys only. AST comparison finds 52 keys still English in every non-English catalog.</td><td>Translate values, add value and script gates, native review and device screenshots.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H9</span></td><td><strong>Barcode and commerce are unfinished</strong></td><td>Barcode screen says camera is deferred. Grocery delivery and GS1 identify themselves as stubs.</td><td>Camera scanning, licensed data, real search and checkout, recovery and contract tests.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H10</span></td><td><strong>Production video delivery is missing</strong></td><td>Original files up to 150 MiB, no transcode. Promotion uses 365-day signed URLs until a future CDN.</td><td>Sanitized transcode, thumbnails, adaptive playback, CDN auth, revocation and load tests.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H11</span></td><td><strong>Monetization writes fake IDs</strong></td><td>Tips use <code>pi_${Date.now()}</code>; subscriptions use <code>sub_${Date.now()}</code>. No real payment SDK or caller.</td><td>Real StoreKit and processor lifecycle, or remove every capability and claim.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H12</span></td><td><strong>Failures disappear</strong></td><td>Home panels catch errors and render nothing. No runtime error or operations SDK was found.</td><td>Retry states, telemetry, queue and job alerts, dashboards and incident runbook.</td></tr>
+              <tr data-severity="high"><td><span class="badge high">H13</span></td><td><strong>Edge TypeScript is red</strong></td><td>Exact project command fails with four test typing errors.</td><td>Fix all errors and make the command mandatory in CI and deploy.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="medium">
+        <h2>Medium findings</h2>
+        <div class="cards">
+          <div class="card" data-severity="medium"><span class="badge medium">M1</span><h3>Dependency audit</h3><p><code>js-yaml@3.14.2</code> carries moderate CVE-2026-53550 through Expo and React Native build/test tooling. Upgrade to 3.15.0 or newer and rerun audit and builds.</p></div>
+          <div class="card" data-severity="medium"><span class="badge medium">M2</span><h3>FormatJS export warnings</h3><p>iOS export succeeds, but locale-data exports are missing and Metro falls back to file resolution. Align packages and prove all 21 locales boot.</p></div>
+          <div class="card" data-severity="medium"><span class="badge medium">M3</span><h3>Console build drift</h3><p>Next selects a lockfile outside the repo as workspace root and does not detect its ESLint plugin. Make the build deterministic from a clean checkout.</p></div>
+          <div class="card" data-severity="medium"><span class="badge medium">M4</span><h3>Release realism gap</h3><p>Local suites are large, but production smoke is skipped, no current TestFlight device run exists, and module tests include unrelated function suites.</p></div>
+          <div class="card" data-severity="medium"><span class="badge medium">M5</span><h3>Location metadata not proven stripped</h3><p>Images already under 12 MiB bypass re-encoding. Prove metadata removal for every path or strip server-side before exposure.</p></div>
+        </div>
+      </section>
+
+      <section id="passed">
+        <h2>What passed</h2>
+        <p class="intro">These are real strengths. None grants a waiver for the red production and safety gates.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Check</th><th>Result</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>App TypeScript</td><td class="pass">PASS</td><td>Current source</td></tr>
+              <tr><td>Module TypeScript</td><td class="pass">PASS</td><td>Current source</td></tr>
+              <tr><td>Console TypeScript</td><td class="pass">PASS</td><td>Next workspace warning</td></tr>
+              <tr><td>App unit tests</td><td class="pass">328 passed</td><td>39 files</td></tr>
+              <tr><td>Module unit tests</td><td class="pass">1,423 passed</td><td>99 files passed, 1 skipped</td></tr>
+              <tr><td>Console unit tests</td><td class="pass">55 passed</td><td>7 files</td></tr>
+              <tr><td>Local pgTAP</td><td class="pass">171 passed</td><td>10 files</td></tr>
+              <tr><td>Deno check</td><td class="pass">8 functions</td><td>All current BestChef function entries</td></tr>
+              <tr><td>iOS export</td><td class="pass">PASS</td><td>12.8 MB Hermes bundle, warnings remain</td></tr>
+              <tr><td>Console build</td><td class="pass">PASS</td><td>Configuration warnings remain</td></tr>
+              <tr><td>Root parity and artifact gates</td><td class="pass">PASS</td><td>Key-presence i18n gate is insufficient</td></tr>
+              <tr><td>Current secret scan</td><td class="pass">PASS</td><td>No live high-confidence key pattern; gitleaks config present</td></tr>
+              <tr><td>Production dependency audit</td><td class="warn">1 moderate</td><td>0 high, 0 critical</td></tr>
+              <tr><td>Edge TypeScript project</td><td class="fail">FAIL</td><td>4 errors</td></tr>
+              <tr><td>Live production smoke</td><td class="fail">NOT RUN</td><td>Skipped and backend inactive</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">RLS, action quotas, offline queues, server-only console credentials, and moderator authorization are useful foundations. They become launch evidence only when the hosted system is current, reachable, monitored, and exercised.</div>
+      </section>
+
+      <section id="security">
+        <h2>Security posture</h2>
+        <div class="cards">
+          <div class="card"><h3>Attack surface</h3><ul><li>5 user-authenticated Edge Functions</li><li>3 worker-secret Edge Functions</li><li>Public PostgREST and Storage controlled by RLS and bucket policy</li><li>iOS photo and video UGC with offline SQLite cache</li><li>Service-role moderator console</li><li>Supabase, Anthropic, Open Food Facts, USDA, and planned GS1/commerce integrations</li></ul></div>
+          <div class="card"><h3>Verified attacker findings</h3><ol><li>Critical: fixed safe scores approve arbitrary CookProof media.</li><li>Critical: pending submission images are anonymously readable.</li><li>High: non-atomic claims permit duplicate or racing moderation decisions.</li></ol></div>
+        </div>
+        <div class="callout"><strong>Not found:</strong> no current high-confidence credential pattern in BestChef source; broad history-prefix hits did not match real key formats. Main CI actions are SHA-pinned. This pass does not replace an independent mobile penetration test or specialist public-UGC safety assessment.</div>
+      </section>
+
+      <section id="plan">
+        <h2>Required resolution plan</h2>
+        <p class="intro">Everything below ships together before launch. The order reflects dependency, not a later phase.</p>
+
+        <div class="workstream"><div class="workstream-head"><div class="letter">A</div><div><h3>Restore and prove production</h3><p class="intro">Make the actual server plane current, observable, and recoverable.</p></div></div><ol><li>Reactivate or provision the named production Supabase project with owned naming and access.</li><li>Apply and reconcile the full migration ledger through a clean staging clone.</li><li>Deploy all eight functions from one SHA and verify hashes, secrets, versions, and JWT flags.</li><li>Configure and schedule ranking, deletion, action-prune, moderation, and purge jobs.</li><li>Repair job health, then run deletion, storage, RLS, quota, recovery, and moderation drills.</li><li>Configure backups, point-in-time recovery, restore drills, logs, alerts, dashboards, and on-call.</li></ol><div class="exit"><strong>Exit:</strong> healthy DNS and database, migration parity, SHA-bound function manifest, full job health, successful restore, and 48 hours of healthy telemetry.</div></div>
+
+        <div class="workstream"><div class="workstream-head"><div class="letter">B</div><div><h3>Make public UGC safe and supportable</h3><p class="intro">Replace safety theater with real prevention, review, and response.</p></div></div><ol><li>Real NSFW, food, face, and illegal-content providers with fail-closed behavior.</li><li>Complete general media worker, quarantine, human escalation, preservation, appeals, and lawful reporting.</li><li>Private pending buckets and approved sanitized derivatives only.</li><li>Atomic moderation claims and idempotent decisions.</li><li>Production console with MFA, least privilege, audit retention, SLA, and emergency removal.</li><li>Counsel-finalized legal corpus tied to the implementation.</li><li>Live legal and support domain with tested intake and response.</li></ol><div class="exit"><strong>Exit:</strong> adversarial corpus, zero anonymous pending reads, concurrency proof, moderator drill, counsel signoff, and live matching legal routes.</div></div>
+
+        <div class="workstream"><div class="workstream-head"><div class="letter">C</div><div><h3>Remove fabricated and destructive behavior</h3><p class="intro">User data must be true, recoverable, and complete.</p></div></div><ol><li>Remove grocery and recipe sample defaults from production.</li><li>Require source data for nutrition, allergens, grocery items, and steps.</li><li>Deletion requires a durable server receipt and recoverable retry.</li><li>Complete server-side account export with all cloud data and media manifests.</li><li>Authoritative challenge metrics with surfaced errors.</li><li>Visible retry and failure states across home, feed, profile, and ranking.</li></ol><div class="exit"><strong>Exit:</strong> failure-branch regression suite, deletion and export drills, seeded challenge proof, and zero silent cloud failures in the launch matrix.</div></div>
+
+        <div class="workstream"><div class="workstream-head"><div class="letter">D</div><div><h3>Complete every advertised workflow</h3><p class="intro">No placeholders, fake processor IDs, or English values hidden behind green gates.</p></div></div><ol><li>Remove every reachable <code>/soon</code> destination and connect real Recipe, Video, Capture, and Cook flows.</li><li>Connect Cook mode to real recipes without fallback steps.</li><li>Camera barcode, licensed food data, grocery delivery, checkout, and full recipe import.</li><li>Complete push registration, delivery, preferences, localization, deep links, and cleanup.</li><li>Video transcode, metadata sanitization, adaptive playback, CDN authorization, and revocation.</li><li>Real StoreKit and processor payments, subscriptions, tips, receipts, refunds, entitlements, and payouts, or remove all related claims.</li><li>Translate and professionally review all advertised catalogs, with value-aware gates.</li></ol><div class="exit"><strong>Exit:</strong> no placeholder routes, full workflow E2E, provider and payment proofs, push matrix, video load test, and native-language signoff.</div></div>
+
+        <div class="workstream"><div class="workstream-head"><div class="letter">E</div><div><h3>Produce a release that can be signed</h3><p class="intro">One artifact, one SHA, one evidence packet.</p></div></div><ol><li>Fix Edge TypeScript, dependency audit, FormatJS warnings, and console configuration.</li><li>Run isolated BestChef CI from a clean clone.</li><li>Build the approved SHA and distribute through TestFlight.</li><li>Execute clean-install, upgrade, offline, recovery, abuse, localization, accessibility, performance, deletion, export, and moderation matrices.</li><li>Complete App Store privacy, age, screenshots, review notes, support, deletion, and export answers against the binary.</li><li>Close independent penetration and trust-and-safety reviews.</li><li>Assemble immutable launch packet, rollback, ownership, and canary plan.</li></ol><div class="exit"><strong>Exit:</strong> all commands green, current artifact passes, store package complete, external reviews closed, and every owner signs the same packet.</div></div>
+      </section>
+
+      <section id="checklist">
+        <h2>Final GO checklist</h2>
+        <p class="intro">Launch remains denied until every box has attached release-specific evidence.</p>
+        <div class="checklist">
+          <div class="check"><span class="box"></span>Production Supabase active, reachable, backed up, and restore-tested.</div>
+          <div class="check"><span class="box"></span>Hosted migrations equal the reviewed repository.</div>
+          <div class="check"><span class="box"></span>All eight functions deployed with hashes and correct JWT flags.</div>
+          <div class="check"><span class="box"></span>All jobs and complete health stay green for 48 hours.</div>
+          <div class="check"><span class="box"></span>Real moderation and illegal-content response pass a drill.</div>
+          <div class="check"><span class="box"></span>No media is anonymously readable before approval.</div>
+          <div class="check"><span class="box"></span>Moderator console protected, staffed, and tested.</div>
+          <div class="check"><span class="box"></span>Deletion and full cloud export pass failure tests.</div>
+          <div class="check"><span class="box"></span>Grocery and recipe detail never fabricate data.</div>
+          <div class="check"><span class="box"></span>Challenge metrics are authoritative.</div>
+          <div class="check"><span class="box"></span>No production action lands on /soon.</div>
+          <div class="check"><span class="box"></span>Barcode, imports, delivery, push, video, and payments are complete or absent from every claim.</div>
+          <div class="check"><span class="box"></span>All advertised languages are translated and device-reviewed.</div>
+          <div class="check"><span class="box"></span>Legal and support routes match code and counsel approval.</div>
+          <div class="check"><span class="box"></span>All source, database, build, dependency, and parity gates are green.</div>
+          <div class="check"><span class="box"></span>Current production IPA passes the real-device TestFlight matrix.</div>
+          <div class="check"><span class="box"></span>App Store metadata and privacy answers match the release.</div>
+          <div class="check"><span class="box"></span>Independent reviews have no open critical or high issue.</div>
+          <div class="check"><span class="box"></span>Launch packet, rollback, canary, and incident owners are signed.</div>
+        </div>
+      </section>
+
+      <section id="ledger">
+        <h2>Verification ledger</h2>
+        <div class="table-wrap"><table><thead><tr><th>Evidence</th><th>Observed result</th></tr></thead><tbody>
+          <tr><td>Reviewed git SHA</td><td><code>d3caa1fe3b51d0eb8897af28d27585883ab87952</code></td></tr>
+          <tr><td>Scoped history after store build</td><td>58 commits, 314 files, +31,585 / -13,867</td></tr>
+          <tr><td>Runtime change after July 5 audit</td><td>None</td></tr>
+          <tr><td>EAS build list</td><td>Newest store build May 12, build 24, commit <code>8a65bc8c</code></td></tr>
+          <tr><td>Supabase project list</td><td>Production ref INACTIVE</td></tr>
+          <tr><td>Supabase function list</td><td>7 v3 functions from April 29, purge missing, 2 worker JWT flags wrong</td></tr>
+          <tr><td>Production and legal DNS</td><td>Does not resolve</td></tr>
+          <tr><td>App Store public lookup</td><td>0 results</td></tr>
+          <tr><td>App, module, console tests</td><td>328 + 1,423 + 55 passed; 1 skipped</td></tr>
+          <tr><td>Local database tests</td><td>171 passed</td></tr>
+          <tr><td>Deno check</td><td>8 function entries passed</td></tr>
+          <tr><td>Edge TypeScript</td><td>4 errors</td></tr>
+          <tr><td>iOS export</td><td>Passed with FormatJS warnings</td></tr>
+          <tr><td>Console build</td><td>Passed with config warnings</td></tr>
+          <tr><td>Catalog value comparison</td><td>52 English values shared by every non-English catalog</td></tr>
+          <tr><td>Production dependency audit</td><td>1 moderate, 0 high, 0 critical</td></tr>
+        </tbody></table></div>
+      </section>
+
+      <section id="ruling">
+        <div class="verdict">
+          <div class="verdict-label">Final ruling</div>
+          <h2>NO-GO</h2>
+          <p>Do not submit or open BestChef to production users. Re-review current code and current hosted state only after every critical and high item is closed and the checklist is backed by one release-specific evidence packet.</p>
+        </div>
+        <p class="intro">The inactive production project prevented a live production transaction. That is itself a failed launch gate. Private App Store metadata, provider agreements, staffing, insurance, and counsel work also require signed external evidence. This review does not replace professional legal advice, mobile penetration testing, or specialist trust-and-safety review.</p>
+      </section>
+
+      <footer class="footer">BestChef Production Launch Gate · reviewed 2026-07-09 · commit d3caa1fe · HTML is a dated visual snapshot; current code and hosted state remain the source of truth.</footer>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const buttons = [...document.querySelectorAll('[data-filter]')];
+      const findings = [...document.querySelectorAll('[data-severity]')];
+      buttons.forEach((button) => button.addEventListener('click', () => {
+        buttons.forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+        const filter = button.dataset.filter;
+        findings.forEach((item) => {
+          item.hidden = filter !== 'all' && item.dataset.severity !== filter;
+        });
+      }));
+    })();
+  </script>
+</body>
+</html>

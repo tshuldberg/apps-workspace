@@ -1,0 +1,32 @@
+{
+  "extends": "@mylife/typescript-config/react.json",
+  "compilerOptions": {
+    "strict": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "types": [
+      "react"
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "moduleSuffixes": [
+      ".native",
+      ""
+    ],
+    "customConditions": [
+      "react-native"
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "**/__tests__/**",
+    "node_modules"
+  ]
+}

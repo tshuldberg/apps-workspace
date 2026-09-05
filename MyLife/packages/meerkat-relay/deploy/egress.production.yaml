@@ -1,0 +1,12 @@
+# Plan 25 WP-25I: LiveKit Egress for explicit, moderator-initiated room recording.
+# Recording NEVER starts on its own: a moderator must start a real Egress job and
+# every participant receives the recording event before output is written
+# (Plan 25 NC-25.5). Output storage + retention policy is founder-ops.
+redis:
+  address: redis:6379
+api_key: ${MEERKAT_ROOM_LIVEKIT_API_KEY}
+api_secret: ${MEERKAT_ROOM_LIVEKIT_API_SECRET}
+ws_url: ws://livekit:7880
+# No default file/stream output is configured here: an Egress request must name its
+# managed destination (Plan 41/43 storage) at start time, so nothing records silently.
+log_level: info

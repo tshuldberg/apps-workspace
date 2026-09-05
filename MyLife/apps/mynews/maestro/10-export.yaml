@@ -1,0 +1,46 @@
+appId: com.mylife.mynews
+name: MyNews data export
+tags:
+  - mynews
+  - account
+---
+# Export: Me -> "Export my data".
+#
+# Export is a read, not a write, so unlike deletion it runs for real by default
+# on a seeded account. The edge builds one JSON snapshot of every row the
+# account owns, bounded at 8 MiB, and every section is present even when empty.
+#
+# NOT COVERED: the share sheet. "Share export" hands the JSON to the OS share
+# UI, which lives outside this app's view hierarchy; Maestro cannot assert what
+# a user picks there or where the file lands. The flow stops at "Ready" plus the
+# preview, which is what proves the export was actually built.
+#
+# Also entitlement-exempt, so this screen renders on a gated build. That is the
+# point: a lapsed purchase must not trap a user's data.
+
+- launchApp
+- tapOn: "Me"
+
+- scrollUntilVisible:
+    element:
+      text: "Export my data"
+    direction: DOWN
+- tapOn: "Export my data"
+- assertVisible: "Export my data"
+
+- runFlow:
+    when:
+      visible: "Everything your account owns"
+    commands:
+      - assertVisible: "Everything your account owns"
+      - assertVisible: "What is included"
+      - assertVisible: "Build my export"
+      - tapOn: "Build my export"
+      - extendedWaitUntil:
+          visible: "Ready"
+          timeout: 30000
+      - assertVisible: "Ready"
+      - assertVisible: "Preview"
+      - assertVisible: "Share export"
+      - assertVisible: "Rebuild export"
+      # STOP. See the header note about the OS share sheet.

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What we believe. — MyLife</title>
+  <meta name="description" content="MyLife's manifesto: six binding promises about your data, your price, and your trust.">
+  <style>
+    :root {
+      --bg: #131318;
+      --surface: #1B1B20;
+      --surface-elevated: #2A292F;
+      --text: #E4E1E9;
+      --text-secondary: #D6C3B5;
+      --primary: #FFB877;
+      --primary-container: #C9894D;
+      --tertiary: #8BCFF0;
+      --border: rgba(255,255,255,0.06);
+      --glass: rgba(255,255,255,0.03);
+      --glass-border: rgba(255,255,255,0.10);
+      --danger: #FFB4AB;
+      --success: #30D158;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* TOC sidebar (desktop only) */
+    .toc {
+      position: fixed;
+      top: 50%;
+      left: 24px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 10;
+    }
+    .toc a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      opacity: 0.6;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .toc a:hover {
+      opacity: 1;
+      color: var(--primary);
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 80px 24px 120px;
+    }
+
+    h1 {
+      font-size: 48px;
+      line-height: 56px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 48px;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 28px;
+      line-height: 36px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 64px;
+      margin-bottom: 24px;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      margin-bottom: 20px;
+      color: var(--text-secondary);
+    }
+
+    /* The binding promises box */
+    .promises {
+      background: var(--surface);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 40px 36px;
+      margin: 32px 0 40px;
+    }
+
+    .promises-header {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 28px;
+    }
+
+    .promise {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .promise:last-child {
+      margin-bottom: 0;
+    }
+
+    .promise-number {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary-container);
+      color: var(--bg);
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .promise-text {
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .promise-text strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* Signature block */
+    .signature {
+      margin-top: 80px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .signature-photo {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--surface-elevated);
+      border: 2px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .signature-text {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+    .signature-text .name {
+      color: var(--text);
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 80px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      opacity: 0.6;
+    }
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .footer a:hover {
+      opacity: 1;
+    }
+
+    .version {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      opacity: 0.4;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .toc { display: none; }
+      .container { padding: 48px 20px 80px; }
+      h1 { font-size: 36px; line-height: 44px; }
+      h2 { font-size: 24px; line-height: 32px; margin-top: 48px; }
+      body { font-size: 16px; }
+      .promises { padding: 28px 24px; }
+      .signature { flex-direction: column; align-items: flex-start; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="toc" aria-label="Page sections">
+    <a href="#problem">The problem</a>
+    <a href="#what">What MyLife is</a>
+    <a href="#never">What we will never do</a>
+    <a href="#money">How we make money</a>
+    <a href="#structure">How we are structured</a>
+    <a href="#trust">What we are asking</a>
+    <a href="#who">Who this is for</a>
+  </nav>
+
+  <main class="container">
+
+    <h1>What we believe.</h1>
+
+    <p>You are reading this because you want to know what kind of company we are. Here it is, in writing, so you can hold us to it.</p>
+
+    <h2 id="problem">The problem we exist to solve</h2>
+
+    <p>You wake up and you have eleven apps watching you. They count your steps, track your cycle, log your meals, score your sleep, archive your journals, and price your insurance. Every one of them was free or cheap when you signed up. Every one of them is now selling pieces of you to a pipeline you can't see.</p>
+
+    <p>You pay for some of them. Calm wants $70. Strava wants $80. Flo wants $50. MyFitnessPal wants $80. YNAB wants $109. Day One wants $100. Together your lifestyle subscription stack costs you somewhere north of five hundred dollars a year, and that number rises every twelve months because the people who own these apps need it to.</p>
+
+    <p>This is not normal. This is the specific shape that consumer software took when it was financed by people who needed prices to keep going up. It is not the only shape it could take. We are building a different one.</p>
+
+    <h2 id="what">What MyLife is</h2>
+
+    <p>MyLife is thirty applications you would otherwise be paying for, in one app, on every device you own, for twelve dollars a year, forever.</p>
+
+    <p>Mood, meds, cycle, fasting, habits, health, recipes, nutrition, market, workouts, trails, surf, books, words, flashcards, journal, notes, voice, mail, calendar, RSVP, forums, garden, closet, car, pets, home, presence, stars, budget. All of it. One app. Five of them are free, no paywall, no asterisk. The other twenty-five are unlocked for a dollar a month.</p>
+
+    <h2 id="never">What we will never do</h2>
+
+    <div class="promises">
+      <div class="promises-header">Binding commitments</div>
+
+      <div class="promise">
+        <div class="promise-number">1</div>
+        <div class="promise-text"><strong>We will never sell, share, or aggregate your personal data.</strong> Your mood, your medications, your cycle, your finances, your journals, your conversations, your habits — these belong to you. They will never be sold, never be shared with advertisers, never be used to train any model that is not running on your own device for your own benefit, and never be used as a marketing surface against you.</div>
+      </div>
+
+      <div class="promise">
+        <div class="promise-number">2</div>
+        <div class="promise-text"><strong>We will never raise the price for existing subscribers.</strong> When you sign up at twelve dollars a year, that is what you will always pay. We will price-lock every subscriber for life, indexed only to inflation. If we ever need more revenue, we will earn it from new subscribers and new aligned services, not by squeezing you.</div>
+      </div>
+
+      <div class="promise">
+        <div class="promise-number">3</div>
+        <div class="promise-text"><strong>We will never run advertising in this app.</strong> Not behavioral ads, not contextual ads, not "sponsored content," not affiliate placements that masquerade as recommendations. The product you pay for is the product you get.</div>
+      </div>
+
+      <div class="promise">
+        <div class="promise-number">4</div>
+        <div class="promise-text"><strong>We will never use dark patterns to keep you subscribed.</strong> Cancel takes one tap. Refunds are honored. Your data is exportable in standard formats forever, and downloadable in full whenever you want it.</div>
+      </div>
+
+      <div class="promise">
+        <div class="promise-number">5</div>
+        <div class="promise-text"><strong>We will never sell this company to private equity, an ad-tech firm, or a data broker.</strong> If we are ever acquired, it will be by an entity whose mission and values are demonstrably aligned with what is written on this page. Our corporate structure makes hostile or extractive acquisition legally difficult.</div>
+      </div>
+
+      <div class="promise">
+        <div class="promise-number">6</div>
+        <div class="promise-text"><strong>We will never take venture capital that requires us to break these promises.</strong> We have refused multiple offers from investors who would have required us to monetize attention, raise prices, or compromise privacy. We will continue to refuse.</div>
+      </div>
+    </div>
+
+    <p>We will publish this section in our certificate of incorporation. It is not marketing copy. It is the legal commitment we are making to you in writing, before you trust us with your data.</p>
+
+    <h2 id="money">How we make money</h2>
+
+    <p>We charge twelve dollars a year for full access to all thirty modules. That is roughly two cents per module per year. It is enough to pay our small team, our cloud infrastructure, our customer support, our legal compliance, and to invest in shipping the next generation of useful tools.</p>
+
+    <p>We do not, and will not, accept any of the following as revenue: behavioral advertising, data sales, affiliate fees from companies we do not personally use and trust, sponsored placement, paid recommendations, or "premium" feature gating that locks features off after launch.</p>
+
+    <p>If we need additional revenue at scale, we will earn it from sources that align with this manifesto: voluntary supporter tiers for users who want to fund the mission, white-label licensing to therapists and clinics, lifetime access tiers, gift subscriptions, family plans, an annual community gathering, physical goods we believe in, and grants from foundations whose values match ours.</p>
+
+    <h2 id="structure">How we are structured</h2>
+
+    <p>We are incorporated as a Delaware Public Benefit Corporation. Our corporate charter explicitly requires our directors to consider the mission stated on this page when making business decisions, alongside (not subordinate to) shareholder return.</p>
+
+    <p>The founders hold supermajority voting shares so that no future investor can force a change in direction. We have set a hard pricing ceiling in our corporate bylaws, indexed to inflation, that no future board can override.</p>
+
+    <p>We are pursuing certified B Corp status to subject ourselves to ongoing third-party verification of our practices. We expect to be certified within the next 12 months.</p>
+
+    <h2 id="trust">What we are asking you to trust</h2>
+
+    <p>We are asking you to put your most personal data into one app. We know what we are asking. We have built this to deserve that trust.</p>
+
+    <p>Twenty-six of our thirty modules store your data on your own device, in an encrypted database that we cannot read. The four cloud-backed modules (forums, market, workouts, surf) require accounts because the features are inherently social or syncable, and even those use end-to-end encryption where possible. We have published the architecture publicly, open-sourced the encryption layer, and welcome independent security audits.</p>
+
+    <p>The shortest version of this manifesto is: we have set up our company so that the lazy, default, easy thing for us to do is the right thing for you.</p>
+
+    <h2 id="who">Who we are building this for</h2>
+
+    <p>People who are tired of being the product. People who want their tools to work for them, not for someone else. People who don't want to be optimized, gamified, retargeted, or upsold. People who would rather pay a fair price once than be free-and-extracted forever.</p>
+
+    <p>If that is you, welcome.</p>
+
+    <div class="signature">
+      <div class="signature-photo" aria-label="Founder photo placeholder">TS</div>
+      <div class="signature-text">
+        <div class="name">Trey Shuldberg</div>
+        <div>Founder, MyLife</div>
+        <div style="margin-top: 4px; font-size: 14px;"><!-- contact@[yourdomain] --></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="#">Open-source encryption engine</a>
+      <a href="#">Security architecture</a>
+      <a href="#">B Corp assessment</a>
+      <a href="#">PBC certificate</a>
+    </div>
+
+    <div class="version">
+      Last updated: April 2026 · v1.0
+    </div>
+
+  </main>
+</body>
+</html>

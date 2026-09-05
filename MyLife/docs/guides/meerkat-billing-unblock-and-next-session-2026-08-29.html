@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat: Billing Unblock + Next-Session Handoff</title>
+<style>
+:root{--bg:#0f1512;--panel:#151d19;--panel2:#1b2621;--ink:#e7efe9;--ink2:#a9b8b0;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--accent:#58c5a5;--gold:#dfb36a;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto;padding:44px 22px 120px}
+h1{font-size:36px;line-height:1.12;letter-spacing:-.02em;margin:.2em 0 .3em}
+h2{font-size:26px;margin:52px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
+h3{font-size:19px;margin:30px 0 6px;color:#fff}
+p{margin:12px 0}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:.86em;background:rgba(255,255,255,.06);padding:.1em .38em;border-radius:5px;color:#d6e6de}
+pre{background:#0b110e;border:1px solid var(--line2);border-radius:12px;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.6;color:#cfe3da}
+pre code{background:none;padding:0}
+ul,ol{margin:12px 0;padding-left:22px}li{margin:7px 0}strong{color:#fff}
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);color:#fff;font-weight:600;font-size:13px}tr:last-child td{border-bottom:0}
+.callout{border-left:3px solid var(--accent);background:var(--panel2);border-radius:0 12px 12px 0;padding:14px 20px;margin:18px 0}
+.callout.warn{border-left-color:var(--gold)}
+hr{border:0;border-top:1px solid var(--line);margin:36px 0}
+.promptbox{background:#0b110e;border:1px solid var(--line2);border-radius:14px;overflow:hidden;margin:22px 0}
+.promptbar{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#101613;border-bottom:1px solid var(--line)}
+.promptbar span{font-size:12.5px;color:var(--ink2);letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.copybtn{font:600 13px var(--mono);color:#0b110e;background:var(--accent);border:0;border-radius:7px;padding:6px 14px;cursor:pointer}
+.copybtn:hover{background:#6fd6b6}
+pre.prompt{margin:0;padding:18px;font-size:13px;line-height:1.62;white-space:pre-wrap}
+.kicker{color:var(--accent);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:12.5px}
+</style></head><body><div class="wrap">
+<div class="kicker">Meerkat &middot; Founder Actions + Session Handoff</div>
+<h1>Meerkat: billing unblock + next-session handoff (2026-08-29, Part A corrected 2026-08-30)</h1>
+<p>Two things in one place: the click-by-click to turn the pilot&#x27;s bypassed unlock into a real purchase, and the prompt that gets the new Plan 56 work from <code>main</code> onto TestFlight.</p>
+<h2>Where things stand right now</h2>
+<div class="tw"><table><thead><tr><th>Fact</th><th>State</th></tr></thead><tbody><tr><td>TestFlight build in B1</td><td><strong>1.0.0 (16)</strong>, commit <code>7a2bd570</code>, installable now</td></tr><tr><td>Build 16 unlock</td><td><strong>Bypassed</strong> via <code>EXPO_PUBLIC_MEERKAT_DEV_UNLOCK=1</code> (testflight profile only)</td></tr><tr><td>Fresh-install crash</td><td><strong>FIXED and device-verified</strong> on build 15 (<code>schema-boot.ts</code>)</td></tr><tr><td>Relay</td><td><strong>LIVE</strong>: <code>wss://meerkat-relay-us.fly.dev</code>, <code>/healthz</code> green</td></tr><tr><td>IAP product</td><td><strong>Created</strong>: <code>meerkat_app_unlock</code>, Apple ID 6806448603, $4.99, 175 territories, EN localization</td></tr><tr><td>Paid Apps Agreement</td><td><strong>PENDING USER INFO</strong> (blocks all purchases, sandbox included)</td></tr><tr><td>RevenueCat</td><td><strong>Not set up</strong> (needed for BOTH rails: SDK key for iOS, REST key for the hosted service)</td></tr><tr><td>Web unlock rail</td><td><strong>Stripe via the hosted billing service, NOT set up.</strong> Web shows &quot;Hosted checkout is not configured in this build.&quot;</td></tr><tr><td>Hosted billing service</td><td><strong>Not deployed.</strong> Refuses to boot without 7 env vars (see A6)</td></tr><tr><td>Web dev override</td><td><code>VITE_MEERKAT_DEV_UNLOCK=1</code>, dev-server only (<code>import.meta.env.DEV</code>), uncommitted</td></tr><tr><td>Cross-surface</td><td>A purchase on one surface does NOT unlock the other; a <strong>link code</strong> covers both</td></tr><tr><td><code>main</code></td><td><code>24c06f7c</code>, pushed, <strong>15 commits ahead of build 16</strong> (all Plan 56)</td></tr><tr><td>In flight</td><td><code>feature/meerkat-plan56-c3-plaza</code>, 2 commits (Plaza pixel board)</td></tr></tbody></table></div>
+<p>Both bypasses are what let you test today. Each skips only the entitlement gate, fakes no receipt, and touches nothing about transport, delivery, or counts. The mobile one is blocked from production builds by <code>check-build-env.mjs</code>; the web one cannot exist outside a dev server because Vite hard-codes <code>import.meta.env.DEV</code> to false in a production build. Part A removes the need for both.</p>
+<hr>
+<h1>PART A: unblock billing on BOTH surfaces</h1>
+<p><strong>Corrected 2026-08-30.</strong> The first version of this guide covered only Apple. Mobile and web use two DIFFERENT payment rails, so unlocking &quot;the app&quot; is two workstreams. Doing only the Apple half leaves web stuck showing &quot;Hosted checkout is not configured in this build.&quot;</p>
+<div class="tw"><table><thead><tr><th>Surface</th><th>Rail</th><th>Blocker today</th></tr></thead><tbody><tr><td>iOS</td><td>Apple IAP via RevenueCat</td><td>Paid Apps Agreement is Pending User Info</td></tr><tr><td>Web</td><td>Stripe via your hosted billing service</td><td>The hosted service is not deployed or configured</td></tr></tbody></table></div>
+<p>A purchase on one surface does NOT unlock the other. The buying device mints a <strong>link code</strong> (<code>mintMobileAppUnlockLink</code> on mobile) which the other surface redeems (<code>redeemAppUnlockLink</code>, &quot;Bought on another device? Enter a link code&quot;). So &quot;users can use both&quot; needs A4 AND A7, plus telling users to link.</p>
+<p><strong>Critical path: start A1 today.</strong> Bank + tax verification has the longest wall-clock wait, and A6 needs the RevenueCat key from A3, so the order below is the fast one.</p>
+<h2>A1. Paid Apps Agreement (blocks ALL Apple purchases, sandbox included)</h2>
+<p>Until this is Active, StoreKit vends no products, so even a free TestFlight sandbox purchase fails. Go to <a href="https://appstoreconnect.apple.com/business">App Store Connect &gt; Business &gt; Agreements</a>.</p>
+<ol><li><strong>Accept the updated Apple Developer Program License Agreement.</strong> The Account Holder must do    this and it silently blocks the rest until done.</li><li><strong>Add Bank Account</strong> (routing + account number; Apple may micro-deposit verify).</li><li><strong>Add Tax Info</strong>: for a US individual/sole proprietor this is <strong>Form W-9</strong> (legal name,    address, SSN or EIN, signature). A partial form leaves the agreement pending.</li><li>Refresh until Paid Apps Agreement reads <strong><code>Active</code></strong>, not <code>Pending User Info</code>. Propagation to    StoreKit takes minutes to ~24 hours.</li></ol>
+<h2>A2. Generate the In-App Purchase key</h2>
+<p>App Store Connect &gt; <strong>Users and Access &gt; Integrations</strong>. Two key types exist and swapping them produces a famously unhelpful error (&quot;Invalid file name, it should be SubscriptionKey_...&quot;).</p>
+<ul><li><strong>In-App Purchase</strong> tab &gt; generate &gt; <code>SubscriptionKey_XXXX.p8</code>. <strong>This is the RevenueCat one.</strong></li><li>The *App Store Connect API* key (<code>AuthKey_XXXX.p8</code>) is for <code>eas submit</code> and is already stored   with EAS. You do not need a new one.</li></ul>
+<p>Note the <strong>Issuer ID</strong> and <strong>Key ID</strong>. The <code>.p8</code> downloads once.</p>
+<h2>A3. RevenueCat (mobile rail, and A6 needs its REST key)</h2>
+<ol><li>Create an account and a project named <code>Meerkat</code> at <a href="https://app.revenuecat.com">app.revenuecat.com</a>.</li><li>Add an <strong>App Store</strong> app with bundle id <strong><code>com.mylife.meerkat</code></strong>.</li><li>Upload <code>SubscriptionKey_XXXX.p8</code> in the <strong>In-App Purchase Key</strong> field with the Issuer ID and    Key ID from A2.</li><li>Copy two different keys, you need both later:    - the <strong>public Apple SDK key</strong> starting <strong><code>appl_</code></strong> (goes in the app, A4)    - a <strong>REST API key</strong> (goes in the hosted service, A6)</li></ol>
+<p>No offering or entitlement objects are needed; the app buys by product id directly (<code>Purchases.getProducts([&#x27;meerkat_app_unlock&#x27;])</code>). The IAP product itself is already created: <code>meerkat_app_unlock</code>, Apple ID 6806448603, $4.99, 175 territories, EN localization.</p>
+<h2>A4. Hand off the <code>appl_</code> key (mobile goes live)</h2>
+<p>Tell a Claude session: <strong>&quot;wire the RevenueCat key and remove the mobile dev unlock override.&quot;</strong> It must:</p>
+<ol><li>Add <code>EXPO_PUBLIC_MEERKAT_RC_KEY_IOS</code> to the <code>testflight</code> env in <code>apps/meerkat/eas.json</code>.</li><li><strong>Remove</strong> <code>EXPO_PUBLIC_MEERKAT_DEV_UNLOCK</code> from that env; delete    <code>apps/meerkat/app/(root)/data/dev-unlock.ts</code>, its call in <code>app/(root)/_layout.tsx</code>, and    <code>app/__tests__/dev-unlock.test.ts</code>. <strong>Leave the <code>check-build-env.mjs</code> production block in    place permanently</strong> as cheap insurance.</li><li>Run <code>pnpm --filter @mylife/meerkat-app test</code>, build, submit, clear export compliance.</li><li>On device: Unlock &gt; the sheet must read <strong>[Environment: Sandbox]</strong> &gt; buy. You are not charged.    &quot;Purchase unavailable&quot; means the agreement has not propagated yet, or the key is wrong.</li></ol>
+<h2>A5. Stripe (web rail)</h2>
+<ol><li>Create/prepare a Stripe account.</li><li>Create <strong>two prices</strong> and note both IDs:    - one-time <strong>$4.99 app unlock</strong> -&gt; <code>STRIPE_APP_UNLOCK_PRICE_ID</code>    - <strong>$4.99/mo hosted server</strong> -&gt; <code>STRIPE_MONTHLY_PRICE_ID</code>    (Both are founder-locked prices. Do not invent others.)</li><li>Note your <strong>secret key</strong>, and create a <strong>webhook endpoint</strong> pointing at the service you deploy    in A6; save its <strong>signing secret</strong>.</li></ol>
+<h2>A6. Deploy the hosted billing service (web rail)</h2>
+<p><code>packages/meerkat-relay/bin/meerkat-hosted-service.mjs</code>. It <strong>refuses to boot</strong> unless all seven of these are set, deliberately, so it can never take payments without being able to issue real entitlements:</p>
+<pre><code>ENTITLEMENT_SECRET          # random high-entropy secret you generate
+WEBHOOK_SECRET              # Stripe webhook signing secret (A5)
+STRIPE_SECRET_KEY           # Stripe secret key (A5)
+STRIPE_MONTHLY_PRICE_ID     # $4.99/mo hosted server price (A5)
+STRIPE_APP_UNLOCK_PRICE_ID  # $4.99 one-time unlock price (A5)
+REVENUECAT_REST_API_KEY     # RevenueCat REST key (A3) -- this is why mobile goes first
+MEERKAT_ALLOWED_ORIGINS     # CORS allowlist; must include your web app origin
+</code></pre>
+<p>Defaults: <code>PORT=8893</code>, <code>HOST=0.0.0.0</code>, <code>DATA_DIR=./.meerkat-hosted</code>. Deploy it somewhere with TLS and a stable hostname (the same Fly account already hosting the relay is the easy choice).</p>
+<h2>A7. Point web at it (web goes live)</h2>
+<ol><li>Set <code>VITE_MEERKAT_HOSTED_API_URL</code> to the A6 service URL for the web build.</li><li>Remove the web dev override: delete <code>apps/meerkat-web/src/lib/dev-unlock.ts</code> and its call in    <code>src/ui/App.tsx</code>. (It is already structurally dev-server-only via <code>import.meta.env.DEV</code>, but    it should not outlive its purpose.)</li><li>Verify in the browser: Settings &gt; the unlock section should now offer <strong>&quot;Unlock for $4.99&quot;</strong>    instead of &quot;Hosted checkout is not configured in this build.&quot;</li></ol>
+<h2>A8. Prove it, then tell users about linking</h2>
+<p>Done means: a TestFlight build with no bypass where Unlock completes a free sandbox purchase, AND a web build where Stripe checkout completes. Then verify the cross-surface path once: buy on one surface, mint a link code, redeem it on the other, confirm both unlock. That link step is the thing real users will otherwise be confused by.</p>
+<hr>
+<h1>PART B: prompt for the new session</h1>
+<h2 id="prompt">PART B: prompt for the new session</h2>
+<p>Paste this into a fresh Claude Code session started in <code>/Users/trey/Desktop/Apps/MyLife/apps/meerkat</code>.</p>
+<div class="promptbox">
+<div class="promptbar"><span>Copy into a new session</span><button class="copybtn" onclick="cp()">Copy</button></div>
+<pre class="prompt" id="p">We are shipping the new Meerkat work on `main` to TestFlight. Repo:
+`/Users/trey/Desktop/Apps/MyLife` (app `apps/meerkat`, web twin `apps/meerkat-web`, sync core
+`packages/sync`, relay `packages/meerkat-relay`). **Read `apps/meerkat/CLAUDE.md` and the
+`AGENTS.md` it imports in full before touching anything.** The transport-honesty rules there
+are binding: never fake connectivity, peer counts, delivery, or any number; always separate
+implemented+tested from dev-build-only from founder-ops.
+
+## Your job, in order
+
+**1. Review everything that landed since the last shipped build.** TestFlight build 16 was cut
+at commit `7a2bd570`. `main` is now `24c06f7c`, 15 commits ahead, all of it Plan 56 (the canvas
+/ freeform creation layer): C0 composition spine (CORE_TWINS meta-guard, block registry,
+`cm_layout`, layout editors), C1 canvas core, C1b completion, C2 (badges + persona identity,
+asset packs, sticker layer, canvas posts, milestone cards + page templates, per-channel theme
+overrides + role bubble skins). Plan doc: `docs/plans/active/56-meerkat-canvas-freeform-creation-layer.md`.
+
+Read the actual diff (`git log --oneline 7a2bd570..main`, then read the substantive commits and
+`docs/sessions/` entries for them). Report: what shipped, what is dev-build-gated, what is
+founder-ops, and anything whose UI copy could overclaim. Verify claims against source, do not
+trust commit messages alone.
+
+**2. Merge the in-flight branch.** `feature/meerkat-plan56-c3-plaza` has 2 commits (Plaza
+pixel-board data layer + an equal-timestamp rate-limit bypass fix) not in `main`. Confirm the
+founder considers it finished, review it, then merge to `main`.
+
+⚠️ **Do NOT bulk-merge other branches.** `git branch` shows ~20 branches &quot;ahead&quot; of main, but
+most are content-equivalent leftovers from the 2026-07-17 and 2026-08-25 integration merges
+(mynews waves, yearn, rc fix branches). Verify with `git log main..&lt;branch&gt;` and a tree diff
+before assuming anything is genuinely unmerged. When in doubt, leave it and report it.
+
+**3. Run the full gates before shipping.** `pnpm --filter @mylife/meerkat-app test`,
+`node scripts/check-meerkat-parity.mjs` from the repo root, `pnpm check:parity`,
+`pnpm gate:function:changed`. Plan 56 added a CORE_TWINS meta-guard that fails when a new
+`*-core.ts` has no parity lock, so new cores must be locked. Everything must be green before a
+build.
+
+**4. Ship to TestFlight.**
+```bash
+cd apps/meerkat
+npx eas-cli build --profile testflight --platform ios --non-interactive
+npx eas-cli submit --profile testflight --platform ios --latest --non-interactive
+```
+Then, per build, in App Store Connect (the founder may want to drive this, or you can via
+browser control if Claude-in-Chrome is connected): the build appears as **Missing Compliance**
+&gt; open the build&#x27;s own detail page &gt; **Provide Export Compliance Information** &gt; &quot;Standard
+encryption algorithms instead of, or in addition to, Apple&#x27;s OS encryption&quot; &gt; France: **No**.
+That matches the saved app-level declaration. Builds auto-join group **B1** (internal, instant)
+once compliance clears; **A1 is external and needs Beta App Review, do not use it for the pilot.**
+
+Note: `ITSAppUsesNonExemptEncryption` is deliberately ABSENT from `app.json`. `true` without a
+compliance code is undeliverable (ITMS-90592 killed build 12) and `false` would dishonestly
+skip the questionnaire. A guard test pins this. Do not &quot;fix&quot; it.
+
+## Things that will bite you if you do not know them
+
+- **Fresh-install boot:** `app/(root)/data/schema-boot.ts` creates EVERY table family
+  synchronously at database open, because render-phase reads beat provider effects and builds
+  13/14 crashed on exactly that. A new table family MUST be wired in there; a completeness
+  guard test enumerates every `ensure*Tables`/`ensure*Schema` in `data/` and fails otherwise.
+- **The unlock gate is currently BYPASSED** in the testflight profile via
+  `EXPO_PUBLIC_MEERKAT_DEV_UNLOCK=1` (`data/dev-unlock.ts`), because the founder&#x27;s Paid Apps
+  Agreement is pending so StoreKit vends no product. It skips only the entitlement gate, fakes
+  no receipt, and is blocked from production builds. **If the founder gives you a RevenueCat
+  `appl_` key, wire it and remove the override entirely** (see the guide&#x27;s Part A4).
+- **Relay is live** at `wss://meerkat-relay-us.fly.dev`, baked into the testflight profile as
+  `MEERKAT_DEFAULT_RELAY_URL`. Fly app `meerkat-relay-us`. Deploying it needs a root-level
+  `fly.toml` copy (gitignored) because flyctl resolves the dockerfile path relative to the
+  config file.
+- **Repo conventions:** Conventional Commits; branch off main for feature work; run gates
+  before committing; update `memory.md` (one Sessions row), `errors_log.md`, and a session log
+  under `docs/sessions/` in the same flow; capture to Open Brain with context
+  `&quot;personal, mylife&quot;`; every markdown report gets a same-basename HTML twin, opened after
+  creation; no em dashes.
+
+Start by reporting the review from step 1 and your merge plan for step 2. Do not build until
+the founder confirms the branch is finished and the gates are green.</pre>
+</div>
+<p style="color:var(--ink2);font-size:13px;margin-top:50px;padding-top:18px;border-top:1px solid var(--line)">Prepared 2026-08-29. State: TestFlight build 16 (commit 7a2bd570) installable with the unlock bypassed; main at 24c06f7c, 15 commits ahead, all Plan 56; feature/meerkat-plan56-c3-plaza 2 commits in flight. Verify against code and git history before reuse.</p>
+</div>
+<script>function cp(){navigator.clipboard.writeText(document.getElementById('p').innerText).then(function(){var b=document.querySelector('.copybtn');b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1600)})}</script>
+</body></html>

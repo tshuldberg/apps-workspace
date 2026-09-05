@@ -1,0 +1,69 @@
+{
+  "skill_name": "domain-engine-benchmarker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Benchmark the habits cycle prediction engine. Generate tests for predictNextPeriod and estimateFertilityWindow.",
+      "expected_output": "A Vitest test file created at modules/habits/src/__tests__/prediction.test.ts covering regular cycles, irregular cycles, and edge cases. An evals.json file generated for skill-creator benchmarking.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "creates-test-file",
+          "assertion": "A test file is created at modules/habits/src/__tests__/prediction.test.ts with at least 5 test cases"
+        },
+        {
+          "name": "tests-regular-cycles",
+          "assertion": "Test file includes a test case for regular cycles (e.g., 28-30 day cycles) that verifies predicted next period date"
+        },
+        {
+          "name": "tests-edge-cases",
+          "assertion": "Test file includes edge case tests for insufficient data (0 or 1 completed cycles) returning null or error"
+        },
+        {
+          "name": "generates-eval-json",
+          "assertion": "An evals.json file is created with skill_name and at least 2 eval entries containing prompt, expected_output, and expectations"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "What engines in MyBooks have no test coverage? Generate benchmarks for them.",
+      "expected_output": "Analysis identifying challenge-engine, progress-engine, and journal-engine as untested, with generated test files and evals for each.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "identifies-untested-engines",
+          "assertion": "Output identifies at least 2 untested engine files in the books module with specific file paths"
+        },
+        {
+          "name": "generates-multiple-test-files",
+          "assertion": "At least 2 test files are created in modules/books/src/__tests__/ for the identified untested engines"
+        },
+        {
+          "name": "assertions-are-domain-specific",
+          "assertion": "Test assertions reference domain concepts like reading speed, challenge progress percentage, or streak counting rather than generic structure checks"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Generate evals for the workout state machine in MyWorkouts.",
+      "expected_output": "Evals.json and test file covering state transitions (idle->playing->paused->rest->completed), set/rep counting, superset logic, and rest timing.",
+      "files": [],
+      "expectations": [
+        {
+          "name": "covers-state-transitions",
+          "assertion": "Test file includes assertions verifying state transitions: idle to playing, playing to paused, paused to playing, and completion"
+        },
+        {
+          "name": "covers-set-rep-logic",
+          "assertion": "Test file includes assertions for set counting (currentSet increments after completing reps) and rep tracking"
+        },
+        {
+          "name": "references-engine-source",
+          "assertion": "Output references the specific file path of the workout engine (MyWorkouts/packages/shared/src/workout/engine.ts or similar)"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Meerkat Plan 41 Storage Destinations</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a0a0f;
+      --panel: #14141d;
+      --text: #f0f0f5;
+      --muted: rgba(240, 240, 245, 0.68);
+      --line: rgba(255, 255, 255, 0.12);
+      --accent: #7dd3fc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 44px 24px 70px;
+    }
+    h1 { margin: 0 0 12px; font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.1; }
+    h2 {
+      margin: 34px 0 12px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+      font-size: 1.35rem;
+    }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 10px 0 18px; padding-left: 1.25rem; }
+    li { margin: 6px 0; }
+    code {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 0.1rem 0.28rem;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.93em;
+    }
+    .panel {
+      margin: 22px 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .accent { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Meerkat Plan 41 Storage Destinations</h1>
+    <p>Date: 2026-07-07</p>
+
+    <div class="panel">
+      <p><span class="accent">Summary:</span> Created Plan 41 for user-controlled Meerkat storage destinations and updated Plan 40 so final launch gates on Plan 41 evidence.</p>
+    </div>
+
+    <h2>Changes</h2>
+    <ul>
+      <li>Created <code>41-meerkat-storage-destinations.md</code>.</li>
+      <li>Created and opened <code>41-meerkat-storage-destinations.html</code>.</li>
+      <li>Updated Plan 40 markdown and HTML to include Plan 41 storage-destination evidence.</li>
+      <li>Updated the founder-ops runbook with Google OAuth, iCloud entitlement/provider, storage-provider disclosure, and device QA items.</li>
+      <li>Updated <code>memory.md</code>.</li>
+    </ul>
+
+    <h2>Grounding</h2>
+    <ul>
+      <li>Existing local storage is grounded in <code>ExpoBlobStore</code>, <code>NodeProvider</code>, and the library storage budget/meter code.</li>
+      <li>Hosted usage grounding exists in the hosted API usage path.</li>
+      <li>iCloud Drive, Google Drive, generic retail SaaS/file-provider destinations, and connected server storage are not implemented today, so Plan 41 is active queue work.</li>
+    </ul>
+
+    <h2>Verification</h2>
+    <ul>
+      <li>Active Meerkat queue listing: Plans 25, 40, and 41.</li>
+      <li>Plan 40 references Plan 41 as launch-gating evidence.</li>
+      <li>Founder-ops runbook includes Plan 41 setup and QA items.</li>
+      <li><code>git diff --check</code> passed.</li>
+      <li><code>pnpm check:generated-artifacts</code> passed.</li>
+      <li><code>pnpm check:parity --quiet</code> passed.</li>
+    </ul>
+
+    <h2>Notes</h2>
+    <p>No source function logic changed. This is a docs-only launch-plan update.</p>
+  </main>
+</body>
+</html>

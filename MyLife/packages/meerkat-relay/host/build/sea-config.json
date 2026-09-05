@@ -1,0 +1,11 @@
+{
+  "__doc__": "Node Single Executable Application (SEA) config for the Meerkat Host companion (Plan 20, Phase 4.4). `node --experimental-sea-config host/build/sea-config.json` produces the blob that build.mjs injects into a copied `node` binary. The bundled main is a compiled snapshot of bin/meerkat-host.mjs; the relay/community/seeder bins + host/ui assets are carried as SEA assets. Cross-OS builds + code-signing/notarization are FOUNDER-OPS (see README.md); this repo does not claim to produce signed per-OS installers.",
+  "main": "host/build/dist/meerkat-host.cjs",
+  "output": "host/build/dist/meerkat-host.blob",
+  "disableExperimentalSEAWarning": true,
+  "useSnapshot": false,
+  "useCodeCache": true,
+  "assets": {
+    "ui-index.html": "host/ui/index.html"
+  }
+}

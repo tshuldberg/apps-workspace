@@ -1,0 +1,489 @@
+name: MyNews
+
+# Plan 48 WP11. A SEPARATE workflow file rather than new jobs inside ci.yml:
+# several MyNews work packages land in the same wave, and a new file cannot
+# conflict with edits to ci.yml. Every job here is additive; nothing in ci.yml
+# changes.
+#
+# Action SHAs, the pnpm version, the Node version, and the install command are
+# copied from .github/workflows/ci.yml deliberately. Two pinned versions of the
+# same action in one repository is a maintenance trap.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: mynews-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Same reasoning as ci.yml: `pull-requests: read` is what lets dorny/paths-filter
+# list a PR's changed files through the API.
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      mynews: ${{ steps.filter.outputs.mynews }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3
+        id: filter
+        with:
+          filters: |
+            mynews:
+              - 'modules/mynews/**'
+              - 'apps/mynews/**'
+              - 'apps/mynews-web/**'
+              - 'apps/mynews-console/**'
+              - 'supabase/functions/mynews-*/**'
+              - 'supabase/functions/_shared/mynews-*'
+              - 'supabase/functions/tsconfig.json'
+              - 'supabase/functions/tsconfig.mynews.json'
+              # Broader than MyNews, deliberately: config.toml carries the
+              # verify_jwt setting for every mynews-* function, and turning
+              # gateway verification off on a user-facing function is exactly the
+              # change that must not slip through unrun.
+              - 'supabase/config.toml'
+              - 'supabase/migrations/*mynews*'
+              - 'scripts/mynews-*'
+              - 'scripts/check-mynews-parity.mjs'
+              - 'scripts/gen-mynews-env-matrix.mjs'
+              - 'scripts/__tests__/mynews-*'
+              - '.github/workflows/mynews.yml'
+              - 'pnpm-lock.yaml'
+
+  mynews-tests:
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.mynews == 'true'
+    env:
+      VITEST_SEED: ${{ github.run_id }}
+      MYLIFE_PERF_GATES: "off"
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # `pnpm --filter X <script>` exits 0 when the filter matches NOTHING, so a
+      # typo in a package name turns a whole suite into a silent pass. This step
+      # asserts each name resolves to a real workspace package before any of
+      # them is trusted. `pnpm ls --filter X --depth -1 --json` prints a JSON
+      # array for a match and nothing at all for a miss; the negative control at
+      # the end proves the check itself still fails on a bogus name, so this
+      # guard cannot rot into a no-op.
+      - name: Guard that every pnpm filter matches a real package
+        run: |
+          missing=0
+          for pkg in "@mylife/mynews" "mynews-web" "@mylife/mynews-console" "@mylife/mynews-app"; do
+            matched="$(pnpm ls --filter "$pkg" --depth -1 --json 2>/dev/null || true)"
+            if printf '%s' "$matched" | grep -q "\"name\": \"$pkg\""; then
+              echo "ok: $pkg"
+            else
+              echo "FILTER GUARD FAILURE: pnpm filter '$pkg' matched zero workspace packages." >&2
+              missing=1
+            fi
+          done
+          bogus="$(pnpm ls --filter "@mylife/deliberately-not-a-package" --depth -1 --json 2>/dev/null || true)"
+          if printf '%s' "$bogus" | grep -q '"name": "@mylife/deliberately-not-a-package"'; then
+            echo "NEGATIVE CONTROL FAILED: the guard cannot detect a zero-match filter." >&2
+            missing=1
+          else
+            echo "negative control ok: a bogus filter is detected as zero-match"
+          fi
+          exit "$missing"
+
+      # This single invocation covers THREE suite locations, not one. The
+      # include globs in modules/mynews/vitest.config.ts are:
+      #   src/**/*.test.ts
+      #   ../../supabase/functions/mynews-*/__tests__/**/*.test.ts
+      #   ../../supabase/functions/_shared/__tests__/mynews-*.test.ts
+      # so the module engines, every mynews EDGE FUNCTION suite, and the
+      # _shared mynews suites all run here. Snapshot for scale only, not a
+      # threshold: 83 files / 1529 tests when this job was last verified
+      # locally. A new mynews-* function is picked up by the glob with no change
+      # here, which is how mynews-health arrived.
+      #
+      # It has to be run through this package, not from the repo root: the edge
+      # tests import `@mylife/sync` for signing and keypair generation, and
+      # `@mylife/sync` is a workspace devDependency of modules/mynews. pnpm only
+      # links it into modules/mynews/node_modules/@mylife/sync, so the repo root
+      # cannot resolve it. Running `vitest` from the root against these files
+      # would fail to resolve the import.
+      - run: pnpm --filter @mylife/mynews test
+
+      - run: pnpm --filter mynews-web test
+      - run: pnpm --filter @mylife/mynews-console test
+      - run: pnpm --filter @mylife/mynews-app test
+
+      # Repo-root suites that cover the MyNews ops scripts and the env matrix
+      # generator. These live in scripts/__tests__ and are not in any package's
+      # own suite.
+      - run: pnpm vitest run scripts/__tests__/mynews-env-matrix.test.ts scripts/__tests__/mynews-ops-scripts.test.ts
+      - run: pnpm check:mynews-env-matrix
+
+  mynews-typecheck:
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.mynews == 'true'
+    env:
+      NODE_OPTIONS: --max-old-space-size=6144
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mylife/mynews typecheck
+      - run: pnpm --filter mynews-web typecheck
+      - run: pnpm --filter @mylife/mynews-console typecheck
+      - run: pnpm --filter @mylife/mynews-app typecheck
+
+      # Edge functions, MyNews-scoped.
+      #
+      # `supabase/functions/tsconfig.json` includes every function in that
+      # directory and is currently RED on bestchef-vision test files, which no
+      # MyNews work package owns. That config is also wired to no gate, so the
+      # breakage is invisible today. Gating MyNews on it would mean inheriting
+      # someone else's failure or loosening compiler options until it passed.
+      #
+      # `tsconfig.mynews.json` extends it VERBATIM and only narrows `include` to
+      # mynews-*, _shared/mynews-*, and _shared/__tests__/mynews-*. No compiler
+      # option is relaxed. If this goes red, MyNews code is wrong.
+      - run: npx tsc -p supabase/functions/tsconfig.mynews.json
+
+  mynews-lint:
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.mynews == 'true'
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Only @mylife/mynews-console defines a `lint` script
+      # (eslint app lib middleware.ts --ext .ts,.tsx).
+      #
+      # These three define NO lint script and are deliberately NOT invented
+      # here, because `pnpm --filter X lint` with no such script is a silent
+      # no-op that would read as coverage:
+      #   @mylife/mynews      (modules/mynews)
+      #   mynews-web          (apps/mynews-web)
+      #   @mylife/mynews-app  (apps/mynews)
+      # They are covered by the repo-wide `pnpm lint` job in ci.yml. Adding a
+      # per-package lint script to any of them is a change for the package
+      # owner, not for this workflow.
+      - run: pnpm --filter @mylife/mynews-console lint
+
+  mynews-parity:
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.mynews == 'true'
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          submodules: recursive
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # The MyNews-specific gate first, so a MyNews drift is named directly
+      # instead of arriving as a failure somewhere inside the full suite.
+      - run: pnpm check:mynews-parity
+      - run: pnpm check:parity
+
+  mynews-expo-doctor:
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.mynews == 'true'
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Expo Doctor for apps/mynews. Real local result at the time this job was
+      # written: 16/18 checks pass, two fail.
+      #
+      # The two failures are NOT `continue-on-error` and are NOT hidden. They
+      # are named, and anything else fails the job:
+      #
+      #   1. "Check that no duplicate dependencies are installed" - two store
+      #      paths for the SAME expo version (54.0.35), a pnpm peer-resolution
+      #      artifact of the workspace resolving two @expo/metro-runtime lines.
+      #   2. "Check that packages match versions required by installed Expo SDK"
+      #      - expo 54.0.35 vs the SDK's expected ~54.0.36, a patch inside SDK
+      #      54.
+      #
+      # Both are workspace dependency-graph facts that cannot be fixed from
+      # inside apps/mynews, and both are documented as such in
+      # apps/mynews/docs/runtime-contracts.md ("Expo Doctor exceptions"), which names the
+      # ROOT-CONFIG OWNER as the owner (`package.json` / `pnpm-lock.yaml` /
+      # `pnpm-workspace.yaml` are the lead's zone). Pinning expo in this app
+      # alone would resolve a SECOND expo version and make failure 1 worse.
+      #
+      # So the gate is real but scoped: the two named, root-owned failures are
+      # tolerated by name, and a third failure of any kind (metro config, peer
+      # deps, RN Directory metadata, app config schema) fails this job. That
+      # keeps apps/mynews's own Expo health gated without importing a
+      # root-lockfile problem into every MyNews PR. The step is named so nobody
+      # reading the log can mistake this for a clean 18/18.
+      - name: "expo-doctor (2 root-owned failures tolerated by name, all others fail)"
+        working-directory: apps/mynews
+        run: |
+          set +e
+          npx expo-doctor 2>&1 | tee "${RUNNER_TEMP}/expo-doctor.log"
+          doctor_status=${PIPESTATUS[0]}
+          set -e
+          echo "expo-doctor exit status: ${doctor_status}"
+
+          # Exact check titles, matched whole. Any wording change upstream falls
+          # through to UNTOLERATED and fails the job, which is the safe
+          # direction: an unrecognised failure is treated as a new one.
+          is_tolerated() {
+            case "$1" in
+              "Check that no duplicate dependencies are installed") return 0 ;;
+              "Check that packages match versions required by installed Expo SDK") return 0 ;;
+            esac
+            return 1
+          }
+
+          unexpected=0
+          # Strip ANSI escapes before matching, in case expo-doctor colourises.
+          while IFS= read -r line; do
+            name="${line#* }"
+            if is_tolerated "$name"; then
+              echo "TOLERATED (root-config owner, see apps/mynews/docs/runtime-contracts.md): $name"
+            else
+              echo "UNTOLERATED expo-doctor failure: $name" >&2
+              unexpected=1
+            fi
+          done < <(sed $'s/\033\\[[0-9;]*m//g' "${RUNNER_TEMP}/expo-doctor.log" | grep '^✖' || true)
+
+          if [ "$unexpected" -ne 0 ]; then
+            echo "expo-doctor reported a failure outside the two named allowances. Failing." >&2
+            exit 1
+          fi
+          echo "expo-doctor: no failures outside the two named, root-owned allowances."
+          echo "NOTE: this is NOT a clean 18/18. Two checks are known-failing and owned by the root-config owner."
+
+  mynews-e2e-web:
+    runs-on: ubuntu-latest
+    needs: [changes, mynews-tests, mynews-typecheck]
+    if: needs.changes.outputs.mynews == 'true'
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter mynews-web exec playwright install --with-deps chromium
+
+      # No env is set here on purpose. apps/mynews-web/playwright.config.ts owns
+      # the whole server environment: it boots e2e/fixture-server.mjs over TLS
+      # with a checked-in self-signed certificate, then boots `next build &&
+      # next start` with MYNEWS_SUPABASE_URL pointed at that fixture and
+      # NODE_EXTRA_CA_CERTS pointed at e2e/fixture-tls-cert.pem, so certificate
+      # verification stays ON rather than being disabled globally. Re-declaring
+      # those variables in the workflow would create a second source of truth
+      # that could silently disagree with the config. GitHub Actions already
+      # sets CI=true, which is what the config reads for its retry/timeout
+      # profile and for reuseExistingServer: false.
+      #
+      # `exec playwright test` rather than the `test:e2e` script (which is
+      # literally `playwright test`) only so the html reporter can be added for
+      # the failure artifact below, without editing the app's config.
+      - name: Playwright (apps/mynews-web)
+        run: pnpm --filter mynews-web exec playwright test --reporter=list,html
+        env:
+          PLAYWRIGHT_HTML_OPEN: never
+
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mynews-web-playwright-report
+          path: |
+            apps/mynews-web/playwright-report
+            apps/mynews-web/test-results
+          retention-days: 7
+          if-no-files-found: ignore
+
+  mynews-e2e-console:
+    runs-on: ubuntu-latest
+    needs: [changes, mynews-tests, mynews-typecheck]
+    if: needs.changes.outputs.mynews == 'true'
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @mylife/mynews-console exec playwright install --with-deps chromium
+
+      # Same reasoning as the web job: apps/mynews-console/playwright.config.ts
+      # boots its own plain-http fixture server and the console with the
+      # allowlist, anon key, and service-role key it needs. No TLS here, so no
+      # NODE_EXTRA_CA_CERTS.
+      - name: Playwright (apps/mynews-console)
+        run: pnpm --filter @mylife/mynews-console exec playwright test --reporter=list,html
+        env:
+          PLAYWRIGHT_HTML_OPEN: never
+
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mynews-console-playwright-report
+          path: |
+            apps/mynews-console/playwright-report
+            apps/mynews-console/test-results
+          retention-days: 7
+          if-no-files-found: ignore
+
+  mynews-rls-matrix:
+    # The fail-closed lane.
+    #
+    # WHAT EXISTS TODAY: the WP3 "RLS matrix contract test file per role" is
+    # modules/mynews/src/data/public-views-migration.test.ts. It is a STATIC
+    # harness: it readFileSync's
+    # supabase/migrations/20260712000003_mynews_public_views.sql and asserts
+    # against the SQL TEXT. It never opens a database connection. Its
+    # ACCESS_MATRIX covers anon / authenticated / owner on nw_profiles and
+    # nw_journalists; the service_role case is a documentation assertion (RLS
+    # does not apply to the service role), not a database check.
+    #
+    # WHAT DOES NOT EXIST: a live RLS suite. There is no ephemeral-Supabase RLS
+    # runner anywhere in this repository, and no env-gated live mode on the
+    # harness above (no skipIf, no MYNEWS_TEST_SUPABASE_* read, no pg client in
+    # modules/mynews or scripts). Plan 48 WP3 records this explicitly: the
+    # contract test is "runnable against the in-repo SQL harness now and the
+    # ephemeral Supabase suite in WP11", and the PostgREST view-embed hint form
+    # is "not live-verified against a running PostgREST".
+    #
+    # So this job does NOT invent one. With credentials present it FAILS with a
+    # not-implemented message; without them it runs the static harness and
+    # prints an explicitly-named skip marker. Neither branch can be mistaken for
+    # a live pass.
+    #
+    # Related but different: `pnpm check:mynews-console-integrity`
+    # (scripts/mynews-console-integrity-check.sh) IS a real live-Postgres suite
+    # and is already fail-closed on a missing DATABASE_URL. It proves console
+    # enforcement integrity, not RLS column exposure, so it is not a substitute
+    # here.
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.mynews == 'true'
+    env:
+      # `secrets` cannot be referenced in a job-level `if`, so the presence of
+      # each secret is lifted into an env var and branched on in the steps.
+      MYNEWS_TEST_SUPABASE_URL: ${{ secrets.MYNEWS_TEST_SUPABASE_URL }}
+      MYNEWS_TEST_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.MYNEWS_TEST_SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: pnpm/action-setup@02f6c237bd2518259fed6c71566509edfb3f2b74 # v4
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Resolve whether ephemeral Supabase credentials are present
+        id: creds
+        run: |
+          if [ -n "${MYNEWS_TEST_SUPABASE_URL}" ] && [ -n "${MYNEWS_TEST_SUPABASE_SERVICE_ROLE_KEY}" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # The in-repo contract harness. Runs in BOTH branches, because it is the
+      # only RLS evidence that exists.
+      - name: RLS contract harness (static, reads the migration SQL)
+        run: pnpm --filter @mylife/mynews exec vitest run src/data/public-views-migration.test.ts
+
+      - name: "live-suite-skipped: no credentials"
+        if: steps.creds.outputs.present != 'true'
+        run: |
+          echo "live-suite-skipped: no credentials"
+          echo
+          echo "WHY: MYNEWS_TEST_SUPABASE_URL and/or"
+          echo "MYNEWS_TEST_SUPABASE_SERVICE_ROLE_KEY are not set as repository"
+          echo "secrets, so there is no ephemeral Supabase to run against."
+          echo
+          echo "WHAT RAN INSTEAD:"
+          echo "  modules/mynews/src/data/public-views-migration.test.ts"
+          echo "  (pnpm --filter @mylife/mynews exec vitest run src/data/public-views-migration.test.ts)"
+          echo "  It reads supabase/migrations/20260712000003_mynews_public_views.sql"
+          echo "  as TEXT and asserts the declared per-role column exposure."
+          echo
+          echo "WHAT THIS DOES NOT PROVE:"
+          echo "  - that the migration was ever applied to a database"
+          echo "  - that PostgREST actually refuses the columns the matrix says"
+          echo "    anon and authenticated cannot read"
+          echo "  - that the view-embed hint form (nw_public_profiles!author_id)"
+          echo "    resolves against a running PostgREST"
+          echo "  - anything about service_role, which RLS does not apply to and"
+          echo "    which the harness asserts only as documentation"
+          echo
+          echo "This step is a SKIP MARKER. It is not a pass, and the live RLS"
+          echo "suite did not run."
+
+      - name: Live RLS matrix (not implemented)
+        if: steps.creds.outputs.present == 'true'
+        run: |
+          echo "not implemented: the live RLS suite does not exist in this repository." >&2
+          echo >&2
+          echo "Ephemeral Supabase credentials ARE present, so this job was asked to" >&2
+          echo "run the live matrix. There is nothing to run: the only RLS coverage" >&2
+          echo "in the repo is the static harness above, and it has no live mode" >&2
+          echo "(no env gate, no skipIf, no Postgres or PostgREST client anywhere in" >&2
+          echo "modules/mynews or scripts/)." >&2
+          echo >&2
+          echo "This step fails rather than passing, because passing here would" >&2
+          echo "claim live per-role verification that never happened." >&2
+          echo >&2
+          echo "Owner: founder-ops / a WP3 follow-up. It needs a real suite that" >&2
+          echo "applies supabase/migrations to an ephemeral project and asserts, per" >&2
+          echo "role (anon, authenticated non-owner, owner, service), which columns" >&2
+          echo "PostgREST actually returns. Do not satisfy this by deleting the" >&2
+          echo "secrets." >&2
+          exit 1

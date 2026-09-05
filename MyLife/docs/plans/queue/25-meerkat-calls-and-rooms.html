@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>25-meerkat-calls-and-rooms</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; }
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.at { color: #7d9029; }
+code span.bn { color: #40a070; }
+code span.bu { color: #008000; }
+code span.cf { color: #007020; font-weight: bold; }
+code span.ch { color: #4070a0; }
+code span.cn { color: #880000; }
+code span.co { color: #60a0b0; font-style: italic; }
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.do { color: #ba2121; font-style: italic; }
+code span.dt { color: #902000; }
+code span.dv { color: #40a070; }
+code span.er { color: #ff0000; font-weight: bold; }
+code span.ex { }
+code span.fl { color: #40a070; }
+code span.fu { color: #06287e; }
+code span.im { color: #008000; font-weight: bold; }
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; }
+code span.kw { color: #007020; font-weight: bold; }
+code span.op { color: #666666; }
+code span.ot { color: #007020; }
+code span.pp { color: #bc7a00; }
+code span.sc { color: #4070a0; }
+code span.ss { color: #bb6688; }
+code span.st { color: #4070a0; }
+code span.va { color: #19177c; }
+code span.vs { color: #4070a0; }
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
+</style>
+  <style type="text/css">:root {
+color-scheme: dark;
+--bg: #080a0f;
+--panel: #10151d;
+--panel-2: #171e29;
+--ink: #edf3f8;
+--muted: #9aa9ba;
+--line: rgba(255, 255, 255, 0.11);
+--cyan: #59d7cf;
+--blue: #72a9ff;
+--green: #4bd277;
+--amber: #f4bc58;
+--red: #ff6a66;
+}
+* { box-sizing: border-box; }
+html {
+background: var(--bg);
+scroll-behavior: smooth;
+}
+body {
+width: min(1100px, calc(100% - 32px));
+margin: 0 auto;
+padding: 48px 0 80px;
+color: var(--ink);
+background:
+radial-gradient(circle at 8% 0%, rgba(89, 215, 207, 0.10), transparent 32rem),
+radial-gradient(circle at 92% 2%, rgba(114, 169, 255, 0.11), transparent 34rem),
+var(--bg);
+font: 15px/1.62 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+h1, h2, h3, h4 {
+line-height: 1.15;
+letter-spacing: -0.02em;
+}
+h1 {
+margin: 0 0 24px;
+max-width: 980px;
+font-size: clamp(34px, 6vw, 66px);
+}
+h2 {
+margin: 42px 0 16px;
+padding: 24px 0 0;
+border-top: 1px solid var(--line);
+font-size: clamp(24px, 3vw, 34px);
+}
+h3 {
+margin: 30px 0 11px;
+color: var(--cyan);
+font-size: 20px;
+}
+h4 {
+margin: 24px 0 9px;
+color: var(--blue);
+font-size: 15px;
+text-transform: uppercase;
+letter-spacing: 0.07em;
+}
+p, ul, ol, blockquote { max-width: 940px; }
+p { margin: 10px 0 14px; }
+ul, ol { padding-left: 24px; }
+li { margin: 6px 0; }
+a { color: var(--cyan); }
+a:hover { color: white; }
+blockquote {
+margin: 20px 0 28px;
+padding: 15px 18px;
+color: #cbd6e2;
+background: rgba(89, 215, 207, 0.07);
+border-left: 3px solid var(--cyan);
+border-radius: 0 12px 12px 0;
+}
+code, pre {
+font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+code {
+color: #c8d9ed;
+overflow-wrap: anywhere;
+}
+pre {
+overflow-x: auto;
+margin: 18px 0;
+padding: 18px;
+color: #d8e4f0;
+background: #0b1017;
+border: 1px solid var(--line);
+border-radius: 13px;
+box-shadow: 0 16px 42px rgba(0, 0, 0, 0.22);
+}
+pre code { color: inherit; }
+table {
+display: block;
+width: 100%;
+max-width: 100%;
+overflow-x: auto;
+margin: 18px 0 26px;
+border-collapse: collapse;
+background: rgba(16, 21, 29, 0.88);
+border: 1px solid var(--line);
+border-radius: 13px;
+}
+thead { background: rgba(255, 255, 255, 0.045); }
+th, td {
+min-width: 150px;
+padding: 11px 13px;
+text-align: left;
+vertical-align: top;
+border-bottom: 1px solid var(--line);
+}
+th {
+color: #dce6ef;
+font-size: 12px;
+text-transform: uppercase;
+letter-spacing: 0.055em;
+}
+td { color: #c5d1dd; }
+tr:last-child td { border-bottom: 0; }
+strong { color: white; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+body > p:first-of-type {
+color: #c8d3de;
+font-size: 17px;
+}
+@media (max-width: 700px) {
+body {
+width: min(100% - 22px, 1100px);
+padding-top: 28px;
+font-size: 14px;
+}
+th, td { min-width: 130px; padding: 10px; }
+}
+@media print {
+:root { color-scheme: light; }
+html, body { background: white; color: #111827; }
+body { width: 100%; padding: 0; }
+h1, h2, h3, h4, strong { color: #111827; }
+blockquote, pre, table { break-inside: avoid; box-shadow: none; }
+a { color: #0f5f8f; }
+}
+</style>
+</head>
+<body>
+<h1 id="plan-25---meerkat-voice-video-calls-and-community-rooms">Plan 25
+- Meerkat Voice, Video, Calls, and Community Rooms</h1>
+<blockquote>
+<p>Rewritten and engineering-locked on 2026-07-09. This plan replaces
+the stale 2026-06-28 specification and all later status deltas. Build
+phases are execution order, not reduced release scope.</p>
+</blockquote>
+<h2 id="status">Status</h2>
+<ul>
+<li><strong>Active queue plan. Code not started.</strong></li>
+<li><code>react-native-webrtc</code> and its config plugin are installed
+and the existing mobile backend moves data-channel bytes only. No call
+signal, media session, room client, SFU deployment, call UI, native call
+UI, or physical media proof exists.</li>
+<li><strong>SFU decision is locked:</strong> self-hosted LiveKit for
+community rooms.</li>
+<li><strong>Direct-call decision is locked:</strong> 1:1 voice and video
+remain direct WebRTC P2P, with TURN only when ICE requires it.</li>
+<li><strong>Native call decision is locked:</strong> iOS PushKit plus
+CallKit and Android Core Telecom are release requirements, not optional
+extensions.</li>
+<li><strong>Feeds:</strong> Plan 40 final launch.</li>
+<li><strong>Depends on:</strong> Plan 42 general push registration and
+Plan 44 production state, observability, signed images, Redis, and
+deployment controls.</li>
+</ul>
+<h2 id="product-outcome">Product Outcome</h2>
+<p>Users can:</p>
+<ul>
+<li>start and receive a 1:1 voice or video call from a DM or person
+surface;</li>
+<li>receive an incoming call while the app is backgrounded or
+terminated, subject to platform policy;</li>
+<li>join persistent community voice, video, and screen-sharing
+rooms;</li>
+<li>mute, deafen, switch camera, choose audio route, raise a hand, share
+a screen, moderate a room, and leave cleanly;</li>
+<li>see an accurate privacy boundary, participant state, recording
+state, failure, reconnect, and call history on mobile and web.</li>
+</ul>
+<p>No screen may say connected, ringing, end-to-end encrypted,
+recording, delivered, or in room unless a real engine, OS, or server
+event proves it.</p>
+<h2 id="what-already-exists">What Already Exists</h2>
+<table>
+<thead>
+<tr>
+<th>Existing capability</th>
+<th>Reuse decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Device identity, pinned bundles, SAS, revocation</td>
+<td>Reuse for direct-call peer verification and room admission.</td>
+</tr>
+<tr>
+<td>DMs and People surfaces on mobile and web</td>
+<td>Add call entry points and call history here.</td>
+</tr>
+<tr>
+<td>Relay <code>env</code>, rendezvous, and mailbox</td>
+<td>Use for encrypted direct-call signaling. No new direct signaling
+server.</td>
+</tr>
+<tr>
+<td>WebRTC manager and data session pattern</td>
+<td>Reuse state and injected backend patterns, but build a separate
+media session.</td>
+</tr>
+<tr>
+<td>ICE and TURN configuration</td>
+<td>Centralize and reuse for direct calls. LiveKit owns its room ICE
+configuration.</td>
+</tr>
+<tr>
+<td>Community membership and roles</td>
+<td>Issue short-lived room tokens only after current membership and role
+verification.</td>
+</tr>
+<tr>
+<td>Community safety and operator moderation</td>
+<td>Reuse report and signed removal concepts.</td>
+</tr>
+<tr>
+<td>Plan 42 push capability model</td>
+<td>Extend with call wake scope and provider-specific native call
+delivery.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="binding-architecture-decisions">Binding Architecture
+Decisions</h2>
+<ol type="1">
+<li>Direct 1:1 media uses direct WebRTC, not the SFU. The relay forwards
+encrypted signaling. TURN forwards encrypted SRTP when needed.</li>
+<li>Community rooms use self-hosted LiveKit. Its official Expo and React
+Native SDK, self-hosting, reconnection, simulcast, screen share, egress,
+and distributed deployment support remove a large custom SFU
+surface.</li>
+<li>Replace the app&#39;s plain <code>react-native-webrtc</code> package
+with <code>@livekit/react-native-webrtc</code> so direct data, direct
+media, and LiveKit use one native WebRTC runtime. Re-run all existing
+WebRTC data transport tests and device evidence after migration.</li>
+<li>Add <code>@livekit/react-native</code>,
+<code>@livekit/react-native-expo-plugin</code>,
+<code>@livekit/react-native-webrtc</code>, <code>livekit-client</code>,
+and the server SDK at versions verified compatible with Expo SDK 54 and
+React Native 0.81. Pin the compatible set.</li>
+<li>LiveKit room names and participant ids are random, short-lived
+values. The SFU never receives a Meerkat device key, persona key,
+community title, channel title, or display name.</li>
+<li>A Meerkat room-token service verifies current signed community
+membership and room role, then issues a short-lived LiveKit token with
+the minimum permissions.</li>
+<li>Direct-call signaling and room-token requests are signed and
+replay-protected.</li>
+<li>iOS terminated-state incoming calls use PushKit and must immediately
+report to CallKit. Android uses Core Telecom for concurrency, audio
+focus, Bluetooth, and system call integration.</li>
+<li>Recording is off by default and requires explicit moderator action
+plus a real room-wide indicator. Recording uses a separate LiveKit
+Egress service and managed storage from Plans 41 or 43.</li>
+<li>Room E2EE is enabled only when every participant SDK supports and
+activates the same key provider. Otherwise the room states
+<code>Encrypted to the room server, not end-to-end</code>. A mobile
+participant can never inherit a web-only E2EE badge.</li>
+</ol>
+<p>Official capability anchors:</p>
+<ul>
+<li>LiveKit Expo SDK setup: <a href="https://docs.livekit.io/home/quickstarts/expo">https://docs.livekit.io/home/quickstarts/expo</a></li>
+<li>LiveKit self-hosting: <a href="https://docs.livekit.io/transport/self-hosting/">https://docs.livekit.io/transport/self-hosting/</a></li>
+<li>LiveKit multi-node deployment: <a href="https://docs.livekit.io/transport/self-hosting/distributed/">https://docs.livekit.io/transport/self-hosting/distributed/</a></li>
+<li>Apple PushKit and CallKit requirement: <a href="https://developer.apple.com/documentation/pushkit/responding-to-voip-notifications-from-pushkit">https://developer.apple.com/documentation/pushkit/responding-to-voip-notifications-from-pushkit</a></li>
+<li>Android Telecom calling integration: <a href="https://developer.android.com/develop/connectivity/telecom">https://developer.android.com/develop/connectivity/telecom</a></li>
+</ul>
+<h2 id="not-in-scope">NOT in Scope</h2>
+<ul>
+<li>PSTN calling, phone numbers, SIP trunks, emergency calling, and
+contact-book upload are not part of Meerkat social calls.</li>
+<li>The SFU does not become a message, file, identity, or membership
+source of truth.</li>
+<li>A separate direct-call signaling service is not built because the
+relay already provides the opaque carrier.</li>
+<li>Cross-platform room E2EE is not claimed where a client runtime
+cannot perform it. The full supported path and honest transit fallback
+are both release scope.</li>
+<li>General push and ordinary background sync are owned by Plan 42.</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<pre class="text"><code>Direct 1:1
+
+DM or People -&gt; signed invite -&gt; relay env/mailbox -&gt; verified callee
+                    |                  |
+                    |                  +-&gt; Plan 42 call wake capability
+                    |                         |
+                    |                         +-&gt; PushKit/CallKit or FCM/Telecom
+                    v
+             offer, answer, ICE
+                    |
+                    v
+        RTCPeerConnection direct or TURN
+                    |
+                    v
+             real audio and video
+
+Community room
+
+current signed membership -&gt; room-token service -&gt; short-lived LiveKit JWT
+          |                                             |
+          |                                             v
+          |                                LiveKit room with ephemeral ids
+          |                                             |
+          +-&gt; role and removal checks                  SFU media
+                                                        |
+                                                        +-&gt; optional Egress recording</code></pre>
+<h2 id="security-and-privacy-boundary">Security and Privacy
+Boundary</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Media boundary</th>
+<th>Identity boundary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Direct call without TURN</td>
+<td>DTLS-SRTP between peers</td>
+<td>relay sees opaque token, timing, and sizes</td>
+</tr>
+<tr>
+<td>Direct call with TURN</td>
+<td>encrypted SRTP passes through TURN</td>
+<td>TURN sees network metadata, not media plaintext</td>
+</tr>
+<tr>
+<td>LiveKit room without E2EE</td>
+<td>DTLS-SRTP terminates at the SFU</td>
+<td>SFU sees ephemeral room and participant ids</td>
+</tr>
+<tr>
+<td>LiveKit room with verified E2EE</td>
+<td>per-frame encryption remains between supported clients</td>
+<td>SFU forwards encrypted frames</td>
+</tr>
+<tr>
+<td>Recording</td>
+<td>recording service receives room media after visible opt-in</td>
+<td>output uses explicit retention and access policy</td>
+</tr>
+</tbody>
+</table>
+<p>Direct-call signals are encrypted to the recipient and signed with
+the existing device identity. Room-token service requests use a separate
+signing domain and do not expose private message content.</p>
+<h2 id="local-data-model">Local Data Model</h2>
+<p><code>call_</code> tables are device-local and excluded from every
+sync policy.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sql"><code class="sourceCode sql"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> call_log (</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> text <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  kind text <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (kind <span class="kw">IN</span> (<span class="st">&#39;voice&#39;</span>,<span class="st">&#39;video&#39;</span>)),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">scope</span> text <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (<span class="kw">scope</span> <span class="kw">IN</span> (<span class="st">&#39;direct&#39;</span>,<span class="st">&#39;room&#39;</span>)),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  peer_anchor text,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  community_id text,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  room_id text,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  direction text <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (direction <span class="kw">IN</span> (<span class="st">&#39;incoming&#39;</span>,<span class="st">&#39;outgoing&#39;</span>)),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  state text <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (state <span class="kw">IN</span> (</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;ringing&#39;</span>,<span class="st">&#39;connecting&#39;</span>,<span class="st">&#39;connected&#39;</span>,<span class="st">&#39;ended&#39;</span>,<span class="st">&#39;declined&#39;</span>,<span class="st">&#39;busy&#39;</span>,<span class="st">&#39;missed&#39;</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&#39;failed&#39;</span>,<span class="st">&#39;cancelled&#39;</span>,<span class="st">&#39;kicked&#39;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  )),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  started_at text,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  ended_at text,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  end_reason text,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  created_at text <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> call_active (</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  call_id text <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  engine text <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (engine <span class="kw">IN</span> (<span class="st">&#39;direct&#39;</span>,<span class="st">&#39;livekit&#39;</span>)),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  engine_state text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  ice_state text,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  local_mic_on <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">1</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  local_cam_on <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  local_screen_on <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  recording_state text <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="st">&#39;off&#39;</span>,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  security_mode text <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">CHECK</span> (security_mode <span class="kw">IN</span> (<span class="st">&#39;direct_e2e&#39;</span>,<span class="st">&#39;room_e2ee&#39;</span>,<span class="st">&#39;room_server_transit&#39;</span>)),</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  updated_at text <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> call_room_participant (</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  call_id text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  ephemeral_participant_id text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  local_member_ref text,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="kw">role</span> text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  mic_on <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  cam_on <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  screen_on <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  speaking <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  hand_raised <span class="dt">integer</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">DEFAULT</span> <span class="dv">0</span>,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  joined_at text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="kw">PRIMARY</span> <span class="kw">KEY</span> (call_id, ephemeral_participant_id)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>);</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> call_reports (</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="kw">id</span> text <span class="kw">PRIMARY</span> <span class="kw">KEY</span>,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  call_id text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>  local_member_ref text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>  reason text <span class="kw">NOT</span> <span class="kw">NULL</span>,</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  created_at text <span class="kw">NOT</span> <span class="kw">NULL</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>);</span></code></pre></div>
+<p><code>peer_anchor</code>, <code>community_id</code>, and
+<code>local_member_ref</code> never leave the local database through the
+room token or LiveKit participant metadata.</p>
+<h2 id="protocol-contracts">Protocol Contracts</h2>
+<h3 id="direct-call-signal">Direct-call signal</h3>
+<p>Add <code>packages/sync/src/protocol/call-signal.ts</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ts"><code class="sourceCode typescript"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">const</span> CALL_SIGNAL_DOMAIN <span class="op">=</span> <span class="st">&#39;meerkat-call-signal-v1&#39;</span><span class="op">;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">export type</span> CallSignalKind <span class="op">=</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="st">&#39;invite&#39;</span> <span class="op">|</span> <span class="st">&#39;accept&#39;</span> <span class="op">|</span> <span class="st">&#39;decline&#39;</span> <span class="op">|</span> <span class="st">&#39;busy&#39;</span> <span class="op">|</span> <span class="st">&#39;cancel&#39;</span> <span class="op">|</span> <span class="st">&#39;end&#39;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="st">&#39;offer&#39;</span> <span class="op">|</span> <span class="st">&#39;answer&#39;</span> <span class="op">|</span> <span class="st">&#39;ice&#39;</span> <span class="op">|</span> <span class="st">&#39;restart&#39;</span><span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">export</span> <span class="kw">interface</span> CallSignal {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  version<span class="op">:</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  callId<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  kind<span class="op">:</span> CallSignalKind<span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  fromDeviceId<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  toDeviceId<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  media<span class="op">:</span> <span class="st">&#39;voice&#39;</span> <span class="op">|</span> <span class="st">&#39;video&#39;</span><span class="op">;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  payloadCiphertext<span class="op">?:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  issuedAt<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  expiresAt<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  nonce<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  signature<span class="op">:</span> <span class="dt">string</span><span class="op">;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Requirements:</p>
+<ul>
+<li>Validate ids, size, TTL, signer, recipient, nonce, replay, and
+signing domain.</li>
+<li>SDP and ICE stay inside recipient-encrypted payloads.</li>
+<li>Derive an ephemeral relay token from call id and a pair secret
+established by the existing trusted pairing. Do not derive a token only
+from public keys.</li>
+<li>Glare uses deterministic call-id ordering and one winning call
+state.</li>
+</ul>
+<h3 id="room-admission">Room admission</h3>
+<p>Add <code>packages/sync/src/protocol/room-membership.ts</code> and
+server verification:</p>
+<ul>
+<li>Request binds community id, channel or room id, descriptor revision,
+epoch, membership proof, requested permissions, ephemeral participant
+id, and expiry.</li>
+<li>Token service verifies current membership, signed descriptor,
+removal state, role, room cap, and replay before issuing a LiveKit
+token.</li>
+<li>LiveKit token grants only room join, publish allowed track types,
+subscribe, and data permissions needed by the role.</li>
+<li>Moderation increments a room admission generation and removes the
+participant. A stale token cannot rejoin after removal.</li>
+</ul>
+<h2 id="native-call-module">Native Call Module</h2>
+<p>Create <code>packages/meerkat-call-native/</code> as an Expo module
+plus config plugin.</p>
+<h3 id="ios">iOS</h3>
+<ul>
+<li>Register PushKit VoIP token and rotate it through Plan 42.</li>
+<li>Report every valid VoIP push to CallKit within the platform
+deadline.</li>
+<li>Map answer, decline, end, mute, hold, audio-session activation, and
+route events to the JavaScript call coordinator.</li>
+<li>Enable <code>audio</code>, <code>voip</code>, and
+<code>remote-notification</code> background modes.</li>
+<li>Add a Broadcast Upload Extension and App Group for screen
+sharing.</li>
+<li>Use stable call UUIDs without identity content.</li>
+<li>Reject stale, malformed, duplicate, or unverifiable pushes without
+exposing a caller name supplied by the server.</li>
+</ul>
+<h3 id="android">Android</h3>
+<ul>
+<li>Integrate the self-managed Core Telecom API and one persistent phone
+account.</li>
+<li>Declare call, microphone, camera, notification, Bluetooth, and
+foreground-service permissions appropriate to supported OS
+versions.</li>
+<li>Map answer, reject, disconnect, hold, audio route, focus, and
+competing-call state.</li>
+<li>Use a foreground service only for an active user-visible call or
+screen share.</li>
+<li>Implement MediaProjection screen sharing and its foreground-service
+type.</li>
+</ul>
+<h3 id="web">Web</h3>
+<ul>
+<li>Use Notifications and Web Push where supported, with an in-app ring
+when active.</li>
+<li>Browser calls require secure origin, media permission, and an active
+page.</li>
+<li>A closed browser may show a push notification but does not claim
+system-call parity.</li>
+</ul>
+<h2 id="livekit-room-service">LiveKit Room Service</h2>
+<p>Deploy:</p>
+<ul>
+<li>LiveKit server in distributed mode with Redis;</li>
+<li>a Meerkat room-token service;</li>
+<li>LiveKit Egress for explicit recording;</li>
+<li>TURN/TLS and UDP ports required by the official deployment;</li>
+<li>private Prometheus metrics and Plan 44 tracing or log
+collection;</li>
+<li>staging and production instances with separate keys and
+domains.</li>
+</ul>
+<p>The room-token service stores revocation and admission generation in
+PostgreSQL. The SFU stores only ephemeral room state. Recording output
+is not written until a moderator starts a real Egress job and all
+clients receive the recording event.</p>
+<h2 id="call-and-room-state-machines">Call and Room State Machines</h2>
+<pre class="text"><code>Direct outgoing
+
+idle -&gt; inviting -&gt; ringing -&gt; accepted -&gt; negotiating -&gt; connected
+          |          |          |            |             |
+          v          v          v            v             v
+       failed      missed    declined      failed     reconnecting
+                                                       |         |
+                                                       v         v
+                                                   connected   ended
+
+Room
+
+idle -&gt; authorizing -&gt; connecting -&gt; joined -&gt; reconnecting -&gt; joined
+          |               |           |             |
+          v               v           v             v
+       rejected         failed      kicked         failed</code></pre>
+<p>Only peer-connection or LiveKit room events can set
+<code>connected</code> or <code>joined</code>. Only a real Egress event
+can set recording active.</p>
+<h2 id="user-surfaces">User Surfaces</h2>
+<p>Mobile and web must have matching behavior and copy:</p>
+<ul>
+<li>DM header and People row call buttons.</li>
+<li>Incoming system call and in-app ring.</li>
+<li>Direct in-call voice and video screen.</li>
+<li>Persistent channel room entry and active-room indicator.</li>
+<li>Room participant grid or speaker view.</li>
+<li>Mute, deafen, camera, camera switch, speaker or route, hand raise,
+screen share, reconnect, and leave.</li>
+<li>Owner and moderator controls for mute request, role, remove, end
+stream, record, and report.</li>
+<li>Call history with real terminal outcomes and duration only after
+connection.</li>
+<li>Settings for call permissions, background behavior, ringtone,
+default camera, data use, privacy boundary, and diagnostics.</li>
+</ul>
+<p>Each surface covers loading, empty, permission denied, network error,
+partial media, reconnecting, success, busy, full room, removed member,
+and unsupported capability.</p>
+<h2 id="build-phases">Build Phases</h2>
+<h3 id="phase-0---dependency-migration-and-protocol">Phase 0 -
+Dependency migration and protocol</h3>
+<ul>
+<li>Pin the compatible LiveKit package set and migrate the existing data
+backend to <code>@livekit/react-native-webrtc</code>.</li>
+<li>Prove existing WebRTC data transfer still works before adding
+media.</li>
+<li>Build call signal, relay token, replay, glare, and room membership
+protocols.</li>
+</ul>
+<h3 id="phase-1---direct-media-engine-and-signaling">Phase 1 - Direct
+media engine and signaling</h3>
+<ul>
+<li>Build platform-neutral media session and mobile or web
+adapters.</li>
+<li>Build encrypted signaling over relay env and mailbox.</li>
+<li>Add audio route, media permission, ICE restart, TURN, and
+connection-quality state.</li>
+<li>Add headless and live-relay 1:1 tests.</li>
+</ul>
+<h3 id="phase-2---native-incoming-call-lifecycle">Phase 2 - Native
+incoming call lifecycle</h3>
+<ul>
+<li>Build the Expo native call module and config plugin.</li>
+<li>Wire PushKit and CallKit on iOS, Core Telecom on Android, and Plan
+42 call wake.</li>
+<li>Prove foreground, background, terminated, locked, busy, and
+competing-call states.</li>
+</ul>
+<h3 id="phase-3---direct-call-ux">Phase 3 - Direct call UX</h3>
+<ul>
+<li>Add mobile and web entry points, ring, voice, video, controls,
+history, and all failure or reconnect states.</li>
+<li>Add cross-network physical-device voice and video proof.</li>
+</ul>
+<h3 id="phase-4---livekit-infrastructure-and-admission">Phase 4 -
+LiveKit infrastructure and admission</h3>
+<ul>
+<li>Deploy local and staging LiveKit, Redis, token service, TURN, and
+Egress.</li>
+<li>Build room admission, ephemeral ids, roles, token generations, caps,
+and removal.</li>
+<li>Add image, config, metrics, and capacity controls through Plan
+44.</li>
+</ul>
+<h3 id="phase-5---voice-and-video-rooms">Phase 5 - Voice and video
+rooms</h3>
+<ul>
+<li>Build channel room entry, room lifecycle, participants, speaking,
+mute, deafen, hand raise, role, camera, adaptive stream, reconnect, and
+active-room indicators.</li>
+<li>Derive every participant state from LiveKit events.</li>
+</ul>
+<h3 id="phase-6---screen-sharing-and-background-survival">Phase 6 -
+Screen sharing and background survival</h3>
+<ul>
+<li>Add Android MediaProjection and iOS Broadcast Upload Extension.</li>
+<li>Add web screen share.</li>
+<li>Prove active-call audio, Bluetooth, lock-screen, route, background,
+and return.</li>
+</ul>
+<h3 id="phase-7---moderation-e2ee-option-and-recording">Phase 7 -
+Moderation, E2EE option, and recording</h3>
+<ul>
+<li>Add remove, mute request, role, end stream, report, and stale-token
+rejection.</li>
+<li>Enable and test LiveKit E2EE on each supported client runtime.</li>
+<li>Add honest room-server fallback when any client cannot activate
+E2EE.</li>
+<li>Add explicit Egress recording with participant-wide indicator and
+retention flow.</li>
+</ul>
+<h3 id="phase-8---hardening-and-production-evidence">Phase 8 - Hardening
+and production evidence</h3>
+<ul>
+<li>Add load, packet loss, reconnect, node drain, Redis loss, SFU loss,
+Egress failure, push delay, duplicate call, permission revoke, and
+malicious signal tests.</li>
+<li>Complete browser QA, design review, physical-device matrix,
+accessibility, runbooks, store disclosures, and Plan 40 evidence.</li>
+</ul>
+<h2 id="failure-modes">Failure Modes</h2>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Handling</th>
+<th>Test</th>
+<th>User-visible result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Forged or replayed invite</td>
+<td>verify and drop before ring</td>
+<td>protocol adversarial</td>
+<td>no ring; bounded security metric</td>
+</tr>
+<tr>
+<td>Push arrives twice</td>
+<td>call id and nonce deduplicate</td>
+<td>native integration</td>
+<td>one system call</td>
+</tr>
+<tr>
+<td>CallKit answer occurs before JS is warm</td>
+<td>native coordinator retains action until engine attaches</td>
+<td>terminated-state device test</td>
+<td>connecting, then real result</td>
+</tr>
+<tr>
+<td>Caller and callee call together</td>
+<td>deterministic glare winner</td>
+<td>concurrency test</td>
+<td>one call, not two</td>
+</tr>
+<tr>
+<td>Direct ICE fails</td>
+<td>TURN attempt then failed state</td>
+<td>cross-network device test</td>
+<td>could not connect, never connected</td>
+</tr>
+<tr>
+<td>Network changes mid-call</td>
+<td>ICE restart and bounded reconnect</td>
+<td>packet-loss and network-switch test</td>
+<td>reconnecting or call dropped</td>
+</tr>
+<tr>
+<td>Room token is stale after removal</td>
+<td>generation check rejects and server removes</td>
+<td>integration</td>
+<td>removed from room</td>
+</tr>
+<tr>
+<td>LiveKit node drains</td>
+<td>SDK reconnects through balanced deployment</td>
+<td>staging failover</td>
+<td>reconnecting with real state</td>
+</tr>
+<tr>
+<td>Mobile client lacks room E2EE</td>
+<td>room-wide security mode falls back</td>
+<td>mixed-client E2E</td>
+<td>room-server encryption disclosure</td>
+</tr>
+<tr>
+<td>Recording start fails</td>
+<td>active indicator never sets</td>
+<td>Egress fault test</td>
+<td>recording could not start</td>
+</tr>
+<tr>
+<td>App backgrounds during screen share</td>
+<td>foreground or broadcast service owns capture</td>
+<td>device test</td>
+<td>sharing continues or stops explicitly</td>
+</tr>
+<tr>
+<td>Another phone call starts</td>
+<td>Telecom or CallKit coordinates hold or end</td>
+<td>physical device test</td>
+<td>clear interrupted state</td>
+</tr>
+</tbody>
+</table>
+<p>Every failure has a test, typed handling, and honest user or operator
+state.</p>
+<h2 id="test-review-diagram">Test Review Diagram</h2>
+<pre class="text"><code>[signed invite] -&gt; [relay/mailbox] -&gt; [native ring] -&gt; [P2P media]
+      |                  |               |               |
+   protocol          live relay        device          cross-network
+
+[membership] -&gt; [token service] -&gt; [LiveKit] -&gt; [tracks/events] -&gt; [room UI]
+      |                 |              |              |              |
+   adversarial       integration     staging E2E   SDK contract   browser/device
+
+[record action] -&gt; [Egress job] -&gt; [real event] -&gt; [indicator] -&gt; [stored output]
+       |                 |              |              |               |
+ permission test     fault test     integration      UI test       storage E2E</code></pre>
+<p>Required tests:</p>
+<ul>
+<li>Call signal canonical signing, encryption, wrong domain, wrong
+recipient, expiry, replay, glare, oversize, and fuzz tests.</li>
+<li>Media session state, track replace, mute, camera, ICE restart, TURN,
+route, and teardown tests.</li>
+<li>Real live-relay direct call establishment test.</li>
+<li>iOS native unit and device tests for PushKit, CallKit, audio
+session, duplicate, cold launch, locked screen, and background.</li>
+<li>Android instrumentation and device tests for Core Telecom, focus,
+Bluetooth, foreground service, and MediaProjection.</li>
+<li>Room-token service tests for membership, removal, role, generation,
+cap, expiry, replay, and least privilege.</li>
+<li>LiveKit integration tests for publish, subscribe, speaker, adaptive
+stream, reconnect, removal, screen share, E2EE mode, and Egress.</li>
+<li>Mobile and web five-state UI tests plus accessibility and
+reduced-motion checks.</li>
+<li>Physical matrix: iPhone to Android, iPhone to web, Android to web,
+Wi-Fi to cell, restrictive NAT through TURN, 3 or more participant room,
+node drain, Bluetooth, background, terminated ring, screen share,
+moderation, and recording.</li>
+<li>Load tests at room cap, concurrent call target, reconnect storm, and
+Egress cap.</li>
+</ul>
+<h2 id="performance-and-capacity-requirements">Performance and Capacity
+Requirements</h2>
+<ul>
+<li>Direct-call signaling payload, pending ICE, retries, and call
+lifetime are bounded.</li>
+<li>Configure audio bitrate, video simulcast layers, adaptive
+subscription, and screen share resolution from measured device and
+network tiers.</li>
+<li>Define free and hosted room caps from real LiveKit load tests and
+paid entitlement, never client-only constants.</li>
+<li>Autoscaling uses CPU, bandwidth, packet loss, room count,
+participant count, and Redis health. Scale-down drains rooms before
+termination.</li>
+<li>Egress concurrency is separately capped and queued.</li>
+<li>SLOs, alerts, backup, image, and canary requirements come from Plan
+44.</li>
+</ul>
+<h2 id="parallel-work-lanes">Parallel Work Lanes</h2>
+<table>
+<thead>
+<tr>
+<th>Lane</th>
+<th>Modules</th>
+<th>Depends on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: protocol and direct engine</td>
+<td><code>packages/sync</code></td>
+<td>Phase 0 dependency migration</td>
+</tr>
+<tr>
+<td>B: native call module</td>
+<td>native package and mobile config</td>
+<td>Plan 42 call wake contract</td>
+</tr>
+<tr>
+<td>C: LiveKit service</td>
+<td>relay service, deploy, DB</td>
+<td>Plan 44 foundation</td>
+</tr>
+<tr>
+<td>D: mobile UI</td>
+<td><code>apps/meerkat</code></td>
+<td>A and native mocks</td>
+</tr>
+<tr>
+<td>E: web UI</td>
+<td><code>apps/meerkat-web</code></td>
+<td>A and room service mocks</td>
+</tr>
+<tr>
+<td>F: QA and release</td>
+<td>tests, tickets, runbooks</td>
+<td>merged A through E</td>
+</tr>
+</tbody>
+</table>
+<p>Run A, B, and C in parallel after the dependency migration. D and E
+can build against contract fakes. One owner coordinates mobile entry and
+<code>app.config.ts</code>. F is sequential.</p>
+<h2 id="acceptance-criteria">Acceptance Criteria</h2>
+<ul>
+<li>AC-25.1: A signed mobile or web client can start and receive a real
+1:1 voice call.</li>
+<li>AC-25.2: A real 1:1 video call supports mute, camera, route,
+reconnect, and hangup.</li>
+<li>AC-25.3: iOS and Android receive and control an incoming call from
+background, terminated, and locked states according to platform
+rules.</li>
+<li>AC-25.4: Direct media uses P2P or TURN and displays connected only
+from real peer state.</li>
+<li>AC-25.5: A current community member can join a LiveKit voice or
+video room; a non-member, removed member, expired token, or stale
+generation cannot.</li>
+<li>AC-25.6: Participant count, speaking, mic, camera, screen, and join
+state match real LiveKit events.</li>
+<li>AC-25.7: Screen sharing works on iOS, Android, and supported web
+browsers.</li>
+<li>AC-25.8: Moderators can remove, manage role, end a stream, and
+report, with real effect.</li>
+<li>AC-25.9: Security copy distinguishes direct E2E, verified room E2EE,
+and encryption to the room server.</li>
+<li>AC-25.10: Recording is off by default, explicit, visible to all
+participants, and backed by a real Egress job and storage result.</li>
+<li>AC-25.11: Mobile and web support all success, partial, permission,
+busy, full, reconnect, failure, and unavailable states.</li>
+<li>AC-25.12: Physical-device, browser, LiveKit, TURN, load, failure,
+and store evidence is attached to the exact release.</li>
+</ul>
+<h2 id="negative-criteria">Negative Criteria</h2>
+<ul>
+<li>NC-25.1: No timer, forwarded signal, or optimistic action may set
+connected or joined.</li>
+<li>NC-25.2: No unverified signal may ring an app or system call
+UI.</li>
+<li>NC-25.3: No stable Meerkat identity or community title may enter
+LiveKit metadata.</li>
+<li>NC-25.4: No SFU room may be labeled end-to-end encrypted unless all
+clients prove it.</li>
+<li>NC-25.5: No recording may start or continue without a real room-wide
+indicator.</li>
+<li>NC-25.6: No stale room token may rejoin after removal.</li>
+<li>NC-25.7: No call history row may replicate through mesh sync.</li>
+<li>NC-25.8: No Expo Go or unsupported browser build may show an enabled
+call action.</li>
+</ul>
+<h2 id="required-gates">Required Gates</h2>
+<ul>
+<li>Function test scaffolds and
+<code>pnpm gate:function:changed</code>.</li>
+<li>Sync, relay, mobile, web, native, parity, and generated-artifact
+suites.</li>
+<li>Expo prebuild review and signed iOS or Android builds.</li>
+<li>Browser QA, mobile QA, design review, accessibility, and
+physical-device matrix.</li>
+<li>LiveKit staging load, failover, TURN, Egress, E2EE, and reconnect
+evidence.</li>
+<li>Security review of signaling, room admission, privacy metadata,
+push, and recording.</li>
+<li>Plan 44 image, SBOM, signature, attestation, observability, backup,
+and rollback gates.</li>
+</ul>
+<h2 id="close-criteria">Close Criteria</h2>
+<p>Plan 25 moves to <code>docs/plans/done/</code> only after every
+acceptance and negative criterion passes on the exact signed builds and
+server release, direct and room media work on real networks and devices,
+native call integration works from terminated state, LiveKit and Egress
+are production-operated, and Plan 40 links all automated, physical,
+capacity, security, and operational evidence.</p>
+</body>
+</html>

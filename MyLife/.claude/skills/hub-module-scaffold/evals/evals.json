@@ -1,0 +1,53 @@
+[
+  {
+    "name": "scaffold-mypets-basic",
+    "prompt": "Scaffold a MyPets module with pt_ prefix",
+    "expected_behavior": [
+      "Creates modules/pets/ directory with package.json, tsconfig.json, vitest.config.ts",
+      "Creates src/definition.ts with PETS_MODULE ModuleDefinition using id 'pets', prefix 'pt_'",
+      "Creates src/db/schema.ts with pt_pets and pt_settings tables",
+      "Creates src/db/crud.ts with createPet, getPets, getPetById, updatePet, deletePet, countPets",
+      "Creates src/models/schemas.ts with PetSchema and Zod validation",
+      "Creates src/models/types.ts with Pet, CreatePetInput, UpdatePetInput types",
+      "Creates src/index.ts barrel export",
+      "Adds 'pets' to ModuleId type and ModuleIdSchema in packages/module-registry/src/types.ts",
+      "Creates apps/mobile/app/(pets)/_layout.tsx with BackToHubButton and tab navigation",
+      "Creates apps/mobile/app/(pets)/index.tsx placeholder home screen",
+      "Creates apps/web/app/pets/layout.tsx and apps/web/app/pets/page.tsx",
+      "Creates src/__tests__/pets.test.ts with definition, CRUD, and settings tests",
+      "Runs pnpm install, typecheck, and tests to validate"
+    ]
+  },
+  {
+    "name": "scaffold-mytrails-feature-rich",
+    "prompt": "Create new MyTrails hub module for hiking tracking with trail logs and gear lists. Use tr_ prefix, hiking boot emoji, accent color #8B4513, premium tier.",
+    "expected_behavior": [
+      "Creates modules/trails/ with full package scaffolding",
+      "Creates src/definition.ts with TRAILS_MODULE, id 'trails', prefix 'tr_', accent '#8B4513'",
+      "Schema includes tr_trails primary table plus tr_trail_logs and tr_gear tables",
+      "CRUD functions for Trail entity: createTrail, getTrails, getTrailById, updateTrail, deleteTrail",
+      "Additional CRUD or stubs for trail logs and gear as secondary entities",
+      "Zod schemas include TrailSchema with hiking-relevant fields (distance, elevation, difficulty)",
+      "Registers 'trails' in ModuleId type and ModuleIdSchema enum",
+      "Mobile layout has tabs for Home, Trails, Gear, Settings",
+      "Web page shows MyTrails title with hiking boot emoji theme",
+      "Tests cover module definition, schema migration, and Trail CRUD"
+    ]
+  },
+  {
+    "name": "scaffold-mynotes-simple",
+    "prompt": "Add a MyNotes module to the hub",
+    "expected_behavior": [
+      "Asks the user for missing details: table prefix, icon, accent color, tier",
+      "After gathering info, creates modules/notes/ with standard package files",
+      "Creates src/definition.ts with NOTES_MODULE using the provided metadata",
+      "Schema has nt_ (or user-chosen prefix) notes and settings tables",
+      "CRUD for Note entity with title and content fields",
+      "Zod NoteSchema includes id, title, content, createdAt, updatedAt",
+      "Registers 'notes' in module registry types",
+      "Creates mobile and web route placeholders",
+      "Creates test scaffold verifying definition and basic CRUD",
+      "Validates with typecheck and test run"
+    ]
+  }
+]

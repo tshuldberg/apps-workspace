@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="mylife-artifact-status" content="dated-session-snapshot"><title>Session Log: Portfolio Customer-Readiness Ruling (2026-07-05)</title><style>*{box-sizing:border-box}body{margin:0;background:#0a0a0f;color:#f0f0f5;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;line-height:1.65}main{max-width:960px;margin:0 auto;padding:64px 28px 96px}h1,h2,h3{line-height:1.2;color:#fff;margin-top:2em}h1{font-size:clamp(2rem,5vw,3.4rem);margin-top:0;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:.5em}h2{font-size:1.55rem}h3{font-size:1.2rem}p,li{color:rgba(240,240,245,.82)}a{color:#86b7ff}code{background:rgba(255,255,255,.08);padding:.15em .38em;border-radius:5px;color:#d8e7ff}pre{overflow:auto;background:#12121a;border:1px solid rgba(255,255,255,.1);padding:18px;border-radius:12px}pre code{padding:0;background:none}table{width:100%;border-collapse:collapse;margin:24px 0;display:block;overflow:auto}th,td{border:1px solid rgba(255,255,255,.12);padding:10px 12px;text-align:left;vertical-align:top}th{background:rgba(255,255,255,.06);color:#fff}blockquote{margin:24px 0;padding:12px 18px;border-left:4px solid #86b7ff;background:rgba(134,183,255,.08)}hr{border:0;border-top:1px solid rgba(255,255,255,.12);margin:40px 0}@media print{body{background:#fff;color:#111}p,li{color:#222}h1,h2,h3{color:#000}main{max-width:none;padding:24px}a{color:#0645ad}code,pre{background:#f5f5f5;color:#111}}</style></head><body><main><h1>Session Log: Portfolio Customer-Readiness Ruling (2026-07-05)</h1>
+<h2>What was done</h2>
+<p>Founder asked for a full adversarial evaluation of every module and application in MyLife, with a final GO/NO-GO decision per product plus gaps and resolution paths. Executed as 8 parallel read-only audit agents (one per product/cluster), each verifying claims against code at HEAD <code>fbef9997</code> on <code>feature/meerkat-launch-completion</code> (apps audited are tree-equivalent to main). Final rulings made by the lead session as the adversarial decider.</p>
+<p>Deliverables:</p>
+<ul>
+<li><code>docs/reports/REPORT-mylife-portfolio-readiness-2026-07-05.md</code> + <code>.html</code> twin (opened in browser)</li>
+<li>This session log</li>
+<li>memory.md row + errors_log rows for new CRITs</li>
+</ul>
+<h2>Final rulings</h2>
+<p>0 of 8 products GO. All NO-GO, ranked by distance to GO: DoWork (~1-2 wk), Manhattan (~1 wk ops + device QA, code itself is GO), MyNews (~1 wk ops to read-mostly beta), Hub mobile (~2-3 wk), Meerkat (~2-4 wk), Hub web (shape decision then 1-8 wk), BestChef (~3+ mo, vendor critical path), Yearn (~7-9+ wk, hard stop on safety).</p>
+<h2>Agent evidence (condensed, file:line anchors)</h2>
+<h3>Meerkat (NO-GO)</h3>
+<ul>
+<li>Cannot build: Metro export fails on dynamic <code>require(name)</code> at <code>apps/meerkat/app/(root)/data/ble-backend.ts:99</code> and <code>nearby-backend.ts:66</code> (errors_log row 13 Unresolved). No icon/splash assets; <code>apps/meerkat/assets</code> does not exist.</li>
+<li>Cannot connect: <code>DEFAULT_RELAY_URL</code> resolves &#39;&#39; (<code>sync-core.ts:119-131</code>, <code>app.config.ts:153</code>); no relay/community-node/directory/TURN deployed (runbook confirms; CI down on GH billing).</li>
+<li>Cannot pay: no IAP SDK in either surface; <code>MEERKAT_HOSTED_MONTHLY_PRODUCT</code> catalog-only (<code>packages/billing-config/src/index.ts:144-178</code>); hosted entitlements fail closed (<code>hosted-boundaries.ts:30-32,92</code>); no Stripe on web; meerkat-web has no deploy target.</li>
+<li>Legal: no privacy/ToS/support/delete-my-data (Plan 23 Ph3 unbuilt). Moderation un-hide bug (errors_log row 12, <code>community-safety.ts:244-281</code>). Export-compliance mismatch: <code>ITSAppUsesNonExemptEncryption:false</code> on an E2EE app.</li>
+<li>Real EAS projectId exists (<code>app.json:98</code>). Onboarding works offline (&quot;Just look around&quot;, <code>onboarding-core.ts:18-23</code>).</li>
+</ul>
+<h3>BestChef (NO-GO, confirming same-day world-launch audit)</h3>
+<p>All 5 CRITs re-verified live at HEAD (= audit commit, zero code changes since):</p>
+<ol>
+<li><code>kitchen-photo.tsx:42,107</code> -&gt; <code>kitchen.ts:1492-1494</code>: SAMPLE_GROCERY_PHOTO_JSON short-circuits recognition in public builds (fake &quot;Organic Milk&quot;/&quot;Bananas&quot;).</li>
+<li><code>recipe/[id].tsx:382-389</code>: Pad Thai fallback on empty ingredients, ungated by <code>shouldShowDemoContent()</code>.</li>
+<li>No IAP/Stripe SDK anywhere; <code>tips.ts:84</code> / <code>subscriptions.ts:166</code> fabricate <code>pi_</code>/<code>sub_</code> ids via Date.now(); zero UI callers.</li>
+<li><code>20260428000016_storage_policies.sql:65-67</code> public pre-moderation bucket read; no CSAM/NCMEC (grep empty); no GDPR export.</li>
+<li><code>scripts/check-i18n-parity.mjs:44</code> key-only diff; <code>ja.ts</code> contains byte-identical English values.
+Road-to-GO: immediate codeable (CRIT-1/2 + value-identity gate, hours) then Tier 0 (~6-8 wk, vendor) / Tier 1 (~6-8 wk) / Tier 2 (~3-5 wk). Binding deploy gate: migrations 20260703000002..6 + 20260704000001..2 before build 25.</li>
+</ol>
+<h3>DoWork (NO-GO)</h3>
+<ul>
+<li>C1 CONFIRMED on main + launch branch + checkout: engine boots idle (<code>modules/workouts/src/workout/engine.ts:44</code>), only START transitions idle-&gt;playing (<code>:62-65</code>), COMPLETE_SET requires playing (<code>:132</code>); <code>apps/dowork/app/(root)/session.tsx:240</code> never dispatches START (repo-wide grep zero); Mark Complete disabled outside playing (<code>session.tsx:874</code>). Fix ~15-30 min.</li>
+<li>C2 STALE/CLOSED: <code>git rev-list origin/main..origin/feature/dowork-trainer-launch</code> = 0; merged via <code>d8070864</code> 2026-07-04.</li>
+<li>Build gate: <code>check-build-env.mjs</code> (eas-build-pre-install) fails production builds without RC keys; RC products not created (F3). <code>eas.json</code> ascAppId <code>REPLACE_WITH_ASC_APP_ID</code> (F2). Legal drafted <code>apps/dowork/legal/</code>, unhosted, hardcoded dowork.app URLs (F5).</li>
+<li>HIGH honesty findings for triage: Home fake volume (reps*10), streak math on gaps, body-map exerciseId-as-muscleGroup, generator ignores equipment, superset setGroupId, 500MiB/500MB copy gap.</li>
+</ul>
+<h3>Manhattan (NO-GO to submit; code GO)</h3>
+<ul>
+<li>No <code>extra.eas.projectId</code> (<code>app.json:96-98</code>); eas.json has real ascAppId 6763167108 + appleId; no Android submit block; only a local <code>expo export</code> from 06-08 exists.</li>
+<li>Paywall fails closed by construction: test mode requires <code>__DEV__</code> (<code>launch-environment.ts:96-102</code>); <code>check-build-env.mjs:33-53</code> hard-fails misconfigured production builds; UnlockGate honest-disabled without RC.</li>
+<li>Data honest without ops: NYC Open Data live keyless (<code>sources/nyc-open-data.ts:98-117</code>); SeatGeek absent -&gt; <code>[]</code> (<code>seatgeek.ts:121</code>); gap adapters render dimmed &quot;coming&quot; chips, never fake events.</li>
+<li>258 statically counted test cases; native seams (notifications, device-calendar, RC adapter, share) untested and never device-run.</li>
+<li>Blockers: EAS init, RC products <code>mylife_manhattan_unlock</code>, legal/data-safety, first-ever device QA. SeatGeek proxy undeployed (optional at launch).</li>
+</ul>
+<h3>Yearn (NO-GO hard)</h3>
+<ul>
+<li>Backend real (<code>kclsicgiutrtymjtuizq</code> hardcoded, <code>launchEnvironment.ts:32</code>), E2EE chat real (tweetnacl, <code>messages_ciphertext</code>).</li>
+<li>CRIT: no CSAM/NCMEC anywhere; no yearn-* edge functions at all; photos stored/served unscanned (18 U.S.C. 2258A exposure).</li>
+<li>CRIT: reports table has no moderation queue/admin/SLA; report/block UI only pre-match (<code>DiscoverDeck.tsx:427-881</code>), chat surface has only archive (<code>YearnSocialSurfaces.tsx:347-478</code>).</li>
+<li>HIGH: no realtime/no polling (fetch once on thread open, <code>:327</code>); expo-location dep with zero imports vs &quot;nearby people&quot; permission copy (rejection risk); no EAS projectId, no submit block, no ASC, no push.</li>
+</ul>
+<h3>MyNews (NO-GO operational)</h3>
+<ul>
+<li>Correction: editing desk migration + all 3 edge functions (publish 178 / review 276 / suggest 215 lines) committed on main, not on a worktree.</li>
+<li>Entirely env-gated, honest empty states, no hardcoded project: no Supabase provisioned so every surface dormant (<code>launch-environment.ts:3-7</code>).</li>
+<li>No web deploy config; no EAS projectId (ASC submit block exists but shares ascAppId 6763167108 with Manhattan: anomaly, at least one wrong).</li>
+<li>No moderation/takedown/DMCA anywhere; trust-spine plan not authored. Gates public UGC, not the read-mostly beta.</li>
+</ul>
+<h3>MyLife Hub mobile (NO-GO)</h3>
+<ul>
+<li>Real EAS projectId <code>f959f4b7</code>, ASC 6761207231, bundle <code>com.mytoolbox.mylife</code>.</li>
+<li>CRIT: <code>packages/entitlements/src/test-mode.ts</code> <code>_testMode = true</code> hardcoded; <code>gates.ts:29</code> short-circuits unlocked; <code>react-native-purchases</code> not a dependency; <code>createPaymentService</code> built with no SDK/key (<code>_layout.tsx:210-218</code>).</li>
+<li>HIGH: no store assets/metadata; unresolved <code>ModuleHeader.tsx(40,23) TS7053</code> typecheck error (errors_log 07-03).</li>
+<li>No analytics SDK (privacy claim holds). Health permission strings name wrong apps (cosmetic).</li>
+</ul>
+<h3>MyLife Hub web (NO-GO as hosted)</h3>
+<ul>
+<li>No deploy config anywhere for the hub (only meerkat-relay has render.yaml); single-file better-sqlite3 at cwd (<code>lib/db.ts:66-70</code>); dev DB committed (<code>apps/web/mylife-hub.db*</code>); no multi-tenancy in local/self-host modes.</li>
+<li>Stripe not a dependency; <code>purchaseViaStripe</code> -&gt; <code>getSDK()</code> throws &quot;Stripe not initialized&quot; (<code>packages/subscription/src/stripe.ts:24-26</code>).</li>
+<li>Ahead on legal: /legal/privacy + /legal/terms, account deletion, per-module export routes. Hidden modules correctly filtered from Discover by release state.</li>
+</ul>
+<h3>Module fleet (41 IDs)</h3>
+<ul>
+<li>Release states (41 IDs total): GA {budget, habits, health, meds, recipes}; beta 13 {books, classes, cycle, forums, garden, market, mood, nutrition, presence, stars, trails, travel, workouts}; hidden 23. Web override (<code>apps/web/lib/modules.ts:56</code>) promotes dining, manhattan, rsvp, sleep, sports.</li>
+<li>CRIT: forums + market user-visible with undeployed backends (schemas only at <code>modules/{forums,market}/src/cloud/schema.sql</code>, absent from supabase/migrations; seed migration self-skips).</li>
+<li>HIGH: health GA <code>add-med.tsx:8</code> &quot;Coming soon&quot; reachable from <code>vitals.tsx:136,146</code>; presence screen-time bridge stub (<code>(presence)/(tabs)/index.tsx:283-285</code>) though focus-session core is real; voice hollow (zero audio-capture references, &quot;dictation&quot; is a TextInput modal), correctly hidden.</li>
+<li>MED: 15 committed <code>&quot; 2.tsx&quot;</code> dup route files (notes 8, books 5, journal 1, flash 1); surf/homes definition-vs-registry storageType drift; sports live-scores feed unverified on web.</li>
+<li>payments/MyPay verified sealed: in HIDDEN_MODULE_IDS, excluded from web override, dual-control <code>modules/payments/src/launch/</code> intact.</li>
+<li>Hub <code>recipes</code> ModuleId defined in <code>modules/bestchef/src/definition.ts:467</code> (sqlite <code>rc_</code>, requiresNetwork false); its social/cloud screens tie into the BestChef backend, hence SHIP-with-caution.</li>
+</ul>
+<h2>Systemic findings</h2>
+<p>S1 revenue impossible portfolio-wide (test-mode hardcode + no payment SDKs; only DoWork/Manhattan have real billing paths). S2 legal corpus debt everywhere. S3 one shared T&amp;S hole (CSAM/NCMEC/moderation) across BestChef/Yearn/Meerkat-public/MyNews; procure one vendor. S4 distribution debt (only BestChef ever built; shared ascAppId anomaly Manhattan=MyNews=6763167108). S5 honesty held except BestChef sample-data leaks; recommend repo-wide gate: no SAMPLE_* reachable when demo policy off. S6 same-day docs already stale twice (DoWork C2 merged; MyNews on main); decide from code.</p>
+<h2>Verification</h2>
+<p>Read-only session: no code changed, no gates required (no function logic modified). Report .html twin created and opened per Report Artifacts rule.</p>
+<h2>Remaining items / follow-ups</h2>
+<ul>
+<li>Founder decisions: Meerkat paid-vs-free execution, Hub web product shape, Yearn invest-vs-park, DoWork revenue split (F4).</li>
+<li>Fix queue seeded from this report (DoWork START first).</li>
+<li>Resolve the Manhattan/MyNews shared ascAppId before any submission.</li>
+</ul>
+</main></body></html>

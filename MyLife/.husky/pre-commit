@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+# Record vitest PIDs before hook starts so we only clean up new ones
+BEFORE_VITEST=$(pgrep -f vitest 2>/dev/null || echo "")
+
+# Scope the gate to only files in the same top-level directory as staged files.
+# This prevents the hook from clobbering in-flight work from parallel Claude
+# sessions that are editing other packages in the same repo.
+#
+# Previous approach (git stash push --include-untracked with no paths) captured
+# ALL unstaged work across the entire repo, silently orphaning it when pop
+# failed. This was the root cause of Task 4.10 work loss on 2026-04-05.
+#
+# New approach: only stash files that live in the same top-level directory
+# (apps/<name>, packages/<name>, modules/<name>) as the staged changes.
+STASH_REF=""
+STASH_ID="pre-commit-gate-$$-$(date +%s)-$RANDOM"
+
+# Build path scope from staged files: unique <top>/<pkg> prefixes
+STAGED_SCOPES=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | awk -F/ '
+  $1 == "apps" || $1 == "packages" || $1 == "modules" { print $1 "/" $2; next }
+  { print $1 }
+' | sort -u)
+
+if [ -n "$STAGED_SCOPES" ]; then
+  # Check if any of the scoped paths have unstaged changes or untracked files
+  NEEDS_STASH=0
+  for scope in $STAGED_SCOPES; do
+    if ! git diff --quiet -- "$scope" 2>/dev/null; then
+      NEEDS_STASH=1
+      break
+    fi
+    if [ -n "$(git ls-files --others --exclude-standard -- "$scope" 2>/dev/null)" ]; then
+      NEEDS_STASH=1
+      break
+    fi
+  done
+
+  if [ "$NEEDS_STASH" = "1" ]; then
+    # Stash ONLY files within the committing scopes, leaving parallel session
+    # work in other packages untouched.
+    # shellcheck disable=SC2086
+    if git stash push --quiet --keep-index --include-untracked --message "$STASH_ID" -- $STAGED_SCOPES 2>/dev/null; then
+      STASH_REF=$(git stash list --format='%gd %s' | awk -v id="$STASH_ID" '$0 ~ id {print $1; exit}')
+    fi
+  fi
+fi
+
+RESTORE_FAILED=0
+
+cleanup() {
+  AFTER_VITEST=$(pgrep -f vitest 2>/dev/null || echo "")
+  for pid in $AFTER_VITEST; do
+    if ! echo "$BEFORE_VITEST" | grep -qw "$pid"; then
+      kill "$pid" 2>/dev/null || true
+    fi
+  done
+
+  if [ -n "$STASH_REF" ]; then
+    # Look up the stash by its unique sentinel ID (not just the ref, which
+    # may have shifted if another pre-commit ran concurrently).
+    CURRENT_REF=$(git stash list --format='%gd %s' | awk -v id="$STASH_ID" '$0 ~ id {print $1; exit}')
+    if [ -z "$CURRENT_REF" ]; then
+      echo "pre-commit: ERROR stash with id $STASH_ID disappeared from stash list" >&2
+      echo "pre-commit: your work may have been overwritten; check 'git fsck --unreachable'" >&2
+      RESTORE_FAILED=1
+    else
+      # Apply first (safer than pop: leaves stash intact on conflict).
+      if git stash apply --quiet "$CURRENT_REF" 2>/dev/null; then
+        git stash drop --quiet "$CURRENT_REF" 2>/dev/null || true
+      else
+        echo "pre-commit: ERROR failed to restore stashed work (conflict or other error)" >&2
+        echo "pre-commit: your work is preserved in stash: $CURRENT_REF ($STASH_ID)" >&2
+        echo "pre-commit: run 'git stash apply $CURRENT_REF' manually to recover" >&2
+        RESTORE_FAILED=1
+      fi
+    fi
+  fi
+}
+trap cleanup EXIT
+
+# Increase node memory for large test suites (mobile package hits OOM at defaults)
+export NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=16384"
+
+pnpm gate:function:changed --staged
+GATE_STATUS=$?
+
+# Guard against bare @mylife/ui value imports in apps/web (RN 500 cascade).
+# Fast and currently passing; runs only if the function gate passed so the
+# original gate exit status is preserved when it fails.
+if [ "$GATE_STATUS" = "0" ]; then
+  pnpm check:web-barrel
+  GATE_STATUS=$?
+fi
+
+# Ban require() in ESM ("type":"module") production source. Vitest shims require,
+# so this class of bug (e.g. the 2026-08-24 account-service require('node:crypto')
+# that 500'd on deploy) passes every test but crashes the real tsx/ESM runtime.
+# Fast, repo-wide, and cannot be silenced by an inline eslint-disable.
+if [ "$GATE_STATUS" = "0" ]; then
+  pnpm check:esm-require
+  GATE_STATUS=$?
+fi
+
+# BestChef i18n catalog key parity: EN key additions must propagate to all 20
+# catalogs (drift shipped twice via commits that touched i18n; see errors_log
+# 2026-07-03 row). Scoped: runs only when staged files touch the i18n tree.
+if [ "$GATE_STATUS" = "0" ]; then
+  if git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -Eq "^apps/bestchef/(app/\(root\)/i18n/|scripts/i18n-value-allowlist\.json|scripts/check-i18n-values\.mjs)"; then
+    node apps/bestchef/scripts/check-i18n-parity.mjs
+    GATE_STATUS=$?
+    # Value gate: catches untranslated (identical-to-EN) values AND a stale
+    # checked-in completeness manifest, so value regressions surface locally.
+    if [ "$GATE_STATUS" = "0" ]; then
+      node apps/bestchef/scripts/check-i18n-values.mjs
+      GATE_STATUS=$?
+    fi
+  fi
+fi
+
+# BestChef compliance-key freshness: safety-surface files (reporting, appeals,
+# blocking, age gate, settings legal/deletion) feed the generated
+# compliance-keys.ts; a new t() key there must regenerate it in the same
+# commit (plan 33 Phase 3.7).
+if [ "$GATE_STATUS" = "0" ]; then
+  if git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -Eq "^apps/bestchef/app/\(root\)/(components/ReportMenu\.tsx|my-reports\.tsx|components/chef/ChefModerationRow\.tsx|i18n/LanguageOnboardingGate\.tsx|\(tabs\)/settings\.tsx|comments/\[submissionId\]\.tsx|i18n/compliance-keys\.ts)$"; then
+    node apps/bestchef/scripts/gen-compliance-keys.mjs --check
+    GATE_STATUS=$?
+  fi
+fi
+
+# If gate passed but stash restore failed, still block the commit so the user
+# notices the stashed work and can recover it before moving on.
+if [ "$RESTORE_FAILED" = "1" ]; then
+  exit 1
+fi
+
+exit $GATE_STATUS

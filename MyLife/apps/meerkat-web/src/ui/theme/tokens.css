@@ -1,0 +1,101 @@
+/* Open Burrow design tokens as CSS custom properties.
+ *
+ * Source of truth mirror of src/ui/theme/palette.ts (MK_PALETTES), itself a
+ * replica of apps/meerkat/app/(root)/theme/tokens.ts. Light is the default; the
+ * dark block applies under prefers-color-scheme: dark and under an explicit
+ * [data-theme="dark"] override set by ThemeProvider. */
+
+:root,
+[data-theme='light'] {
+  --mk-background: #f6f4ef;
+  --mk-surface: #ffffff;
+  --mk-surface-elevated: #fbfaf7;
+  --mk-surface-high: #e9f1ed;
+  --mk-accent: #0e7c66;
+  --mk-accent-dim: #0a5d4d;
+  --mk-on-accent: #ffffff;
+  --mk-text: #20302b;
+  --mk-text-secondary: #51635c;
+  --mk-text-tertiary: #6e7d77;
+  --mk-danger: #b3413e;
+  --mk-warning: #8f660d;
+  --mk-info: #3566b0;
+  --mk-success: #19805f;
+  --mk-danger-soft: rgba(179, 65, 62, 0.08);
+  --mk-warning-soft: rgba(143, 102, 13, 0.08);
+  --mk-success-soft: rgba(25, 128, 95, 0.08);
+  --mk-info-soft: rgba(53, 102, 176, 0.08);
+  --mk-border: rgba(32, 48, 43, 0.1);
+  --mk-border-strong: rgba(32, 48, 43, 0.18);
+  --mk-glass: rgba(14, 124, 102, 0.05);
+  --mk-glass-border: rgba(14, 124, 102, 0.14);
+
+  --mk-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --mk-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  --mk-radius-sm: 10px;
+  --mk-radius-md: 14px;
+  --mk-radius-lg: 20px;
+  --mk-radius-pill: 999px;
+
+  --mk-space-xs: 4px;
+  --mk-space-sm: 8px;
+  --mk-space-md: 16px;
+  --mk-space-lg: 24px;
+  --mk-space-xl: 32px;
+
+  --mk-rail-width: 72px;
+  --mk-sidebar-width: 248px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mk-background: #111816;
+    --mk-surface: #19211e;
+    --mk-surface-elevated: #212b27;
+    --mk-surface-high: #2a3531;
+    --mk-accent: #58c5a5;
+    --mk-accent-dim: #38967c;
+    --mk-on-accent: #0b2620;
+    --mk-text: #e6ede9;
+    --mk-text-secondary: #a4b3ac;
+    --mk-text-tertiary: #75847c;
+    --mk-danger: #e89a96;
+    --mk-warning: #dfb36a;
+    --mk-info: #93b8e8;
+    --mk-success: #6fcda9;
+    --mk-danger-soft: rgba(232, 154, 150, 0.12);
+    --mk-warning-soft: rgba(223, 179, 106, 0.12);
+    --mk-success-soft: rgba(111, 205, 169, 0.12);
+    --mk-info-soft: rgba(147, 184, 232, 0.12);
+    --mk-border: rgba(230, 237, 233, 0.1);
+    --mk-border-strong: rgba(230, 237, 233, 0.18);
+    --mk-glass: rgba(88, 197, 165, 0.06);
+    --mk-glass-border: rgba(88, 197, 165, 0.14);
+  }
+}
+
+[data-theme='dark'] {
+  --mk-background: #111816;
+  --mk-surface: #19211e;
+  --mk-surface-elevated: #212b27;
+  --mk-surface-high: #2a3531;
+  --mk-accent: #58c5a5;
+  --mk-accent-dim: #38967c;
+  --mk-on-accent: #0b2620;
+  --mk-text: #e6ede9;
+  --mk-text-secondary: #a4b3ac;
+  --mk-text-tertiary: #75847c;
+  --mk-danger: #e89a96;
+  --mk-warning: #dfb36a;
+  --mk-info: #93b8e8;
+  --mk-success: #6fcda9;
+  --mk-danger-soft: rgba(232, 154, 150, 0.12);
+  --mk-warning-soft: rgba(223, 179, 106, 0.12);
+  --mk-success-soft: rgba(111, 205, 169, 0.12);
+  --mk-info-soft: rgba(147, 184, 232, 0.12);
+  --mk-border: rgba(230, 237, 233, 0.1);
+  --mk-border-strong: rgba(230, 237, 233, 0.18);
+  --mk-glass: rgba(88, 197, 165, 0.06);
+  --mk-glass-border: rgba(88, 197, 165, 0.14);
+}

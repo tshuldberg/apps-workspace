@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyNews Production Audit — 2026-07-05</title>
+<style>
+  :root{
+    --bg:#131318; --surface:#1B1B20; --elev:#2A292F; --text:#E4E1E9; --text2:#D6C3B5;
+    --border:rgba(255,255,255,0.08); --accent:#8BCFF0; --primary:#FFB877;
+    --crit:#FFB4AB; --critbg:#93000A; --high:#FFB877; --med:#8BCFF0; --ok:#30D158;
+    --glass:rgba(255,255,255,0.03); --glassborder:rgba(255,255,255,0.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;padding:0}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 24px 96px}
+  h1{font-size:34px;line-height:1.15;margin:0 0 8px;letter-spacing:-0.02em}
+  .sub{color:var(--text2);font-size:15px;margin:0 0 32px}
+  h2{font-size:24px;margin:44px 0 14px;letter-spacing:-0.01em;border-bottom:1px solid var(--border);padding-bottom:8px}
+  h3{font-size:18px;margin:26px 0 8px}
+  p{margin:12px 0}
+  code{background:var(--elev);padding:2px 6px;border-radius:5px;font-size:13px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text2)}
+  a{color:var(--accent)}
+  ul{margin:10px 0;padding-left:22px}
+  li{margin:6px 0}
+  .verdict{background:var(--glass);border:1px solid var(--glassborder);border-radius:14px;padding:22px 24px;margin:8px 0 12px}
+  .verdict strong{color:var(--primary)}
+  .pill{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;
+    padding:3px 10px;border-radius:999px;text-transform:uppercase;vertical-align:middle}
+  .p-crit{background:var(--critbg);color:#fff}
+  .p-high{background:#5a3a12;color:var(--high)}
+  .p-med{background:#13384a;color:var(--med)}
+  .p-ok{background:#0f3d1c;color:var(--ok)}
+  .finding{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--border);
+    border-radius:12px;padding:18px 22px;margin:16px 0}
+  .finding.crit{border-left-color:var(--crit)}
+  .finding.high{border-left-color:var(--high)}
+  .finding.med{border-left-color:var(--med)}
+  .finding h3{margin-top:0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+  .loc{color:var(--text2);font-size:12.5px;font-family:ui-monospace,Menlo,monospace;margin:2px 0 10px;word-break:break-all}
+  .fix{background:var(--glass);border-radius:8px;padding:10px 14px;margin-top:12px;font-size:14.5px}
+  .fix b{color:var(--ok)}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--text2);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.03em}
+  .clean li{margin:5px 0}
+  .clean b{color:var(--ok)}
+  .track{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin:14px 0}
+  .track h3{margin-top:0;color:var(--accent)}
+  .foot{color:var(--text2);font-size:13px;margin-top:40px;border-top:1px solid var(--border);padding-top:16px;font-style:italic}
+  .scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>MyNews Production Audit</h1>
+  <p class="sub">2026-07-05 · code security + production readiness · read-only · scope: <code>modules/mynews</code>, <code>apps/mynews</code>, <code>apps/mynews-web</code>, <code>supabase/functions/mynews-*</code>, migrations <code>20260703000001..3</code></p>
+
+  <h2>Verdict</h2>
+  <div class="verdict">
+    <p>The code that is built (Phases 0-2: scaffold, publish/read, editing desk) is <strong>production-grade and green</strong>. 505 tests pass (module 302, app 158, web 45), plus typecheck on all surfaces, the web production build, and <code>check:mynews-parity</code>. The trust boundary is carefully designed: articles and suggestions are Ed25519-signed client-side, the server verifies on write and stores signatures so the corpus is re-verifiable, and the private key never leaves the device.</p>
+    <p>MyNews is <strong>not launch-ready as a public app.</strong> The blocker is not the built code; it is what is not built. This is a public UGC journalism platform, and the entire moderation and legal safety floor (Phase 3) does not exist. That floor is a hard gate for App Store Guideline 1.2, DMCA safe harbor, and EU DSA. On top of that, the app is not deployed, and there are two real security fixes plus one deploy guardrail to close first.</p>
+    <p>The honest "launch" is <strong>3 to 5 weeks of focused work away</strong> (build the safety floor, fix security, deploy, submit). An invite-only beta is available much sooner for real end-to-end validation, but the two security fixes and deployment are required even for that.</p>
+  </div>
+
+  <h2>Security findings</h2>
+
+  <div class="finding high">
+    <h3><span class="pill p-high">High</span> F1 — Direct client INSERT into <code>nw_edit_suggestions</code> bypasses the edge function</h3>
+    <div class="loc">supabase/migrations/20260703000003_mynews_editing_desk.sql:170-182 (and 000001:176-179)</div>
+    <p>The RLS policy <code>nw_edit_suggestions_editor_insert</code> lets any authenticated user INSERT a suggestion row directly through PostgREST with the anon key, as long as <code>editor_id</code> maps to their own <code>auth.uid()</code> and the article is visible. Every legitimate suggestion instead rides the <code>mynews-suggest</code> edge function under the service-role key (store.ts:491; client path confirmed at publish.ts:159), which bypasses RLS. So this insert policy is used by <b>no legitimate client path — it is pure attack surface.</b></p>
+    <p>A direct insert bypasses everything the edge function enforces: Ed25519 signature verification (the <code>signature</code> column defaults to <code>''</code>), the level-based open-suggestion cap, and near-dupe collapse. The DB only enforces the citation-count floor via CHECK, not the signature or the citation scheme.</p>
+    <p><b>Impact:</b> unsigned suggestions enter the "re-verifiable corpus"; an attacker can flood any visible article's open-suggestion queue past the cap (harassment); and it is the write path that makes F2 a live stored-XSS vector. <code>nw_articles</code> and <code>nw_journalists</code> already have client-guard triggers for exactly this class — suggestions were missed.</p>
+    <div class="fix"><b>Fix:</b> drop the <code>nw_edit_suggestions_editor_insert</code> policy (all suggestions ride the service-role edge function), or add a trigger blocking direct <code>authenticated</code>/<code>anon</code> inserts, mirroring <code>nw_articles_guard_client_update</code>.</div>
+  </div>
+
+  <div class="finding high">
+    <h3><span class="pill p-high">High</span> F2 — Web renders citation URLs as unvalidated <code>href</code> (stored XSS on click)</h3>
+    <div class="loc">apps/mynews-web/app/a/[slug]/suggestions/page.tsx:100-102 · shared mapper modules/mynews/src/data/cloud-fetch.ts:460-463</div>
+    <p>The web suggestions page renders <code>&lt;a href={url} rel="nofollow noopener noreferrer"&gt;</code> with no scheme validation. The shared read mapper <code>toCitations</code> accepts any string, so it provides no defense either. <code>rel</code> does not neutralize the <code>javascript:</code> scheme, and React 19 does not sanitize <code>href</code>.</p>
+    <p>The edge function validates <code>https://</code> at insert and <code>HttpsUrlSchema</code> exists in <code>models.ts:14</code>, but neither applies on the read/render path. Chained with F1 (which lets a <code>javascript:…</code> citation into the DB unvalidated), any visitor who clicks the crafted citation on a public article executes attacker JavaScript on the mynews.app origin. The Expo app defends here (<code>suggestion/[id].tsx:329</code> gates on <code>startsWith('https://')</code>); the web does not.</p>
+    <div class="fix"><b>Fix:</b> validate citation URLs to <code>http</code>/<code>https</code> in <code>toCitations</code> (fixes both surfaces) and defensively at the web render.</div>
+  </div>
+
+  <div class="finding med">
+    <h3><span class="pill p-med">Medium</span> F3 — <code>verify_jwt</code> deploy trap on <code>mynews-review</code></h3>
+    <div class="loc">supabase/functions/_shared/mynews-http.ts:41-52 · supabase/config.toml:418-432</div>
+    <p><code>mynews-review</code>'s author gate authorizes off <code>parseJwtSub</code>, which decodes the JWT without verifying its signature and relies on Supabase's <code>verify_jwt = true</code>. <code>config.toml</code> correctly omits the mynews functions (default on) and warns against listing user-facing functions with <code>verify_jwt = false</code>, so the default deploy is safe.</p>
+    <p><b>The risk is operational:</b> the founder-ops docs say only "deploy the 3 functions." If someone copies the BestChef <code>--no-verify-jwt</code> pattern, an attacker can forge a <code>sub</code> and accept/reject suggestions as any author.</p>
+    <div class="fix"><b>Fix:</b> pin an explicit deploy note (never <code>--no-verify-jwt</code> for review) and a post-deploy check that an unauthenticated review call returns 401.</div>
+  </div>
+
+  <h2>What is clean <span class="pill p-ok">verified</span></h2>
+  <ul class="clean">
+    <li><b>Secrets:</b> no tracked <code>.env</code>, no hardcoded keys, no service-role key in client/web source. Only anon key + <code>EXPO_PUBLIC_MYNEWS_*</code> / <code>MYNEWS_SUPABASE_*</code>.</li>
+    <li><b>RLS hardening:</b> the migration's adversarial-review appendix closed real leaks (draft thread visibility, client publish/insert bypass, a membership oracle). Money/job/verification tables carry RLS with zero client policies; public-URL columns are CHECK-forced to https.</li>
+    <li><b>Markdown rendering:</b> no markdown-to-HTML pipeline; <code>body_md</code> renders as escaped React text on both surfaces. No <code>dangerouslySetInnerHTML</code> in app/web source.</li>
+    <li><b>Honesty boundary:</b> unconfigured/unreachable/signed-out/no-profile render honest states; no fabricated counts, no demo adapter in the runtime path, publish/share never fake success.</li>
+    <li><b>Auth + key custody (Expo):</b> session token in SecureStore, never logged or sent cross-origin; Ed25519 private key in SecureStore; only signature + pubkey leave the device.</li>
+    <li><b>Build guard:</b> <code>check-build-env.mjs</code> fails production builds with no RevenueCat key and blocks test-mode entitlements.</li>
+  </ul>
+
+  <h2>Production-readiness gaps (not code bugs)</h2>
+
+  <div class="finding crit">
+    <h3><span class="pill p-crit">Blocker</span> R1 — No UGC moderation or legal floor</h3>
+    <p>The true launch blocker. Anyone can publish articles and suggestions that become public on the web, but:</p>
+    <ul>
+      <li><code>nw_reports</code> is a table with an insert policy but <b>no client code writes to it</b> — users cannot report content.</li>
+      <li>No block, mute, or hide UI anywhere in the app.</li>
+      <li>No moderation console (BestChef has one; MyNews has nothing equivalent).</li>
+      <li>No DMCA designated agent / repeat-infringer policy; no NCII / TAKE IT DOWN 48h pipeline; no DSA Art 16/17 notice-and-action or EU contact.</li>
+      <li>No in-app Terms / Privacy / Community Guidelines (<code>nw_terms_acceptance</code> exists but is unused).</li>
+    </ul>
+    <p>Apple Guideline 1.2 requires UGC apps to have a content filter, a report mechanism, a block-users mechanism, and published contact info. Launch-blocking for a public submission and for DMCA safe harbor. This is Phase 3 and is unbuilt.</p>
+  </div>
+
+  <div class="finding med">
+    <h3><span class="pill p-med">Ops</span> R2 — Not deployed</h3>
+    <p>No Supabase project, empty <code>DEFAULT</code> env, functions undeployed. Go-live: create project; <code>db push</code> all three migrations; deploy the three functions (<code>verify_jwt</code> on for review); enable anonymous sign-in + allowlist <code>mynews://auth-callback</code>; set app + web env; live end-to-end (register, publish, suggest, review, read on web, RSS); device QA the magic-link deep link. Longer track: Stripe Connect, EAS/ASC, RevenueCat products, a real domain (fallback origin <code>https://mynews.app</code> at origin.ts:7 is a placeholder). Free-tier Supabase pauses after 7 idle days.</p>
+  </div>
+
+  <h2>Final production-readiness plan</h2>
+  <p>Sequenced so security and the safety floor land before any public exposure.</p>
+
+  <div class="track">
+    <h3>Track 0 — Security fixes · ~1 day · before any deploy</h3>
+    <ul>
+      <li>F1: drop <code>nw_edit_suggestions_editor_insert</code> (or add a client-guard trigger) in a new migration + an RLS test proving direct inserts are rejected.</li>
+      <li>F2: validate citation scheme in <code>toCitations</code> + defensively at the web render; add a <code>javascript:</code> citation test.</li>
+      <li>F3: add the <code>verify_jwt</code>-on deploy note + post-deploy 401 check to the runbook.</li>
+      <li>Run <code>gate:function:changed</code>, the mynews baseline block, <code>check:mynews-parity</code>. Land to main.</li>
+    </ul>
+  </div>
+  <div class="track">
+    <h3>Track 1 — UGC safety + legal floor · ~2 to 3 weeks · the real public gate</h3>
+    <p>Author a plan (next queue number; 37 is Meerkat's): report flow wired to <code>nw_reports</code> on app + web; block/mute UI + enforcement; a moderation console (or minimal reviewer surface over <code>nw_reports</code>); DMCA agent + repeat-infringer policy + takedown; NCII/TAKE IT DOWN 48h pipeline; DSA Art 16/17 + EU contact; in-app Terms / Privacy / Community Guidelines + acceptance.</p>
+  </div>
+  <div class="track">
+    <h3>Track 2 — Deploy + go-live · founder-ops · ~2 to 4 days · parallel with Track 1</h3>
+    <p>The R2 checklist. Keep the free-tier Supabase warm or upgrade before launch.</p>
+  </div>
+  <div class="track">
+    <h3>Track 3 — Submit</h3>
+    <p><b>Full public path:</b> complete Tracks 0-2, device QA, App Store 1.2 self-check, submit. <b>Interim option:</b> an invite-only TestFlight beta with a known-user allowlist can start after Tracks 0 + 2 (no public UGC exposure defers the 1.2 floor), giving real end-to-end validation while Track 1 builds toward public GA.</p>
+  </div>
+
+  <p class="foot">Audit method: manual read of the trust-boundary code (edge functions, RLS migrations, RPCs, triggers), a parallel read-only review of the client/web surfaces, and the green baseline gate. Not a substitute for a professional penetration test before a public launch handling PII and payments.</p>
+</div>
+</body>
+</html>

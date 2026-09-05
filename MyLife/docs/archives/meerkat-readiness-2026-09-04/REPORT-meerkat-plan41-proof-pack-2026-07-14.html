@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat Plan 41 WP-41I Adversarial Proof Pack</title>
+<style>
+:root{color-scheme:dark;--bg:#0e0e13;--surface:#1b1b20;--raised:#2a292f;--text:#e4e1e9;--muted:#d6c3b5;--accent:#ffb877;--info:#8bcff0;--border:rgba(255,255,255,.1);--good:#30d158;--danger:#ffb4ab}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 10% 0,rgba(255,184,119,.1),transparent 32rem),var(--bg);color:var(--text);font:16px/1.58 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{width:min(1480px,calc(100% - 32px));margin:32px auto 72px;padding:clamp(22px,4vw,56px);background:rgba(27,27,32,.88);border:1px solid var(--border);border-radius:24px;box-shadow:0 24px 80px rgba(0,0,0,.34);backdrop-filter:blur(18px)}
+h1{font-size:clamp(2rem,5vw,4.4rem);line-height:1.02;letter-spacing:-.045em;margin:0 0 1.25rem;color:#fff;max-width:18ch}
+h2{margin:3.25rem 0 1rem;padding-top:.75rem;border-top:1px solid var(--border);font-size:clamp(1.45rem,2.5vw,2.1rem);letter-spacing:-.025em;color:var(--accent)}
+h3{color:var(--info)}
+p,li{max-width:100ch}
+strong{color:#fff}
+a{color:var(--info)}
+code{font:.9em/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;background:rgba(139,207,240,.08);border:1px solid rgba(139,207,240,.14);border-radius:6px;padding:.1em .35em;overflow-wrap:anywhere}
+pre{overflow:auto;padding:18px;background:#131318;border:1px solid var(--border);border-radius:14px}
+pre code{padding:0;border:0;background:none}
+table{display:block;width:100%;overflow-x:auto;border-collapse:separate;border-spacing:0;margin:1.1rem 0 2rem;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.018)}
+th,td{min-width:150px;padding:12px 14px;text-align:left;vertical-align:top;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+th{position:sticky;top:0;background:var(--raised);color:#fff;font-size:.86rem;letter-spacing:.02em}
+tr:last-child td{border-bottom:0}
+th:last-child,td:last-child{border-right:0}
+tbody tr:hover{background:rgba(255,184,119,.035)}
+blockquote{margin:1.25rem 0;padding:1px 18px;border-left:4px solid var(--accent);background:rgba(255,184,119,.055)}
+ul,ol{padding-left:1.4rem}
+hr{border:0;border-top:1px solid var(--border)}
+@media(max-width:700px){main{width:min(100% - 16px,1480px);margin:8px auto 40px;padding:20px;border-radius:16px}th,td{min-width:180px;padding:10px}h2{margin-top:2.4rem}}
+@media print{body{background:#fff;color:#111}main{width:100%;margin:0;padding:0;border:0;box-shadow:none;background:#fff}h1,h2,h3,strong{color:#111}table{display:table;font-size:10px}th{position:static;background:#eee;color:#111}code,pre{color:#111;background:#f5f5f5}}
+</style>
+</head>
+<body>
+<main>
+<h1>Meerkat Plan 41 WP-41I Adversarial Proof Pack</h1>
+<p>Date: 2026-07-14<br />
+Scope: Plan 41 Build Phase 9, every Failure Modes row, AC-41.1 through AC-41.14, NC-41.1 through NC-41.8, and Plan 40 evidence linkage<br />
+Verification target: the current working tree in <code>/Users/trey/Desktop/Apps-wt-41-meerkat-storage</code></p>
+<h2>Verdict</h2>
+<p>The WP-41I automated proof pack is implemented. The new deterministic suites add 72 tests across sync, relay, mobile, and web. Focused tests and all four package typechecks pass. The mobile package passes all 1,286 tests. The sync, relay, and web full runs reach the expected new totals, but this sandbox denies localhost listeners with <code>EPERM</code>; only pre-existing listener-dependent suites fail or time out. No WP-41I focused test fails.</p>
+<p>This is an automated engineering proof, not a production launch sign-off. Plan 41 and Plan 40 remain <strong>NO-GO</strong> until the founder-operated provider, signed-build, deployed-infrastructure, physical-device, live-browser, and publication evidence listed below is attached to the release ledger.</p>
+<p>No Git command was run. WP-41I is therefore described as implemented in the working tree, not as a new landed commit. The <code>Landed implementation</code> column identifies the existing Plan 41 packet whose behavior each test proves.</p>
+<h2>Landed stack under proof</h2>
+<table>
+<thead>
+<tr>
+<th>Packet</th>
+<th>Landed implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WP-41A</td>
+<td><code>d795c979</code></td>
+</tr>
+<tr>
+<td>WP-41B core</td>
+<td><code>95d69f99</code></td>
+</tr>
+<tr>
+<td>WP-41B2 platform</td>
+<td><code>95e29b72</code></td>
+</tr>
+<tr>
+<td>WP-41B3 UI</td>
+<td><code>cfa66a17</code></td>
+</tr>
+<tr>
+<td>WP-41C native and file providers</td>
+<td>Landed, but the Plan 41 board records no hash</td>
+</tr>
+<tr>
+<td>WP-41D</td>
+<td><code>e374ff4a</code></td>
+</tr>
+<tr>
+<td>WP-41E</td>
+<td><code>9167a2a7</code></td>
+</tr>
+<tr>
+<td>WP-41F</td>
+<td><code>01e17cc7</code></td>
+</tr>
+<tr>
+<td>WP-41G hosted</td>
+<td><code>a89ccc61</code></td>
+</tr>
+<tr>
+<td>WP-41G2 connected server</td>
+<td><code>81834321</code></td>
+</tr>
+<tr>
+<td>WP-41H lifecycle</td>
+<td><code>7f6e348b</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Evidence file key</h2>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Exact file</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sync adversarial</td>
+<td><code>packages/sync/src/storage/__tests__/storage-adversarial-e2e.test.ts</code></td>
+</tr>
+<tr>
+<td>NC sweep</td>
+<td><code>packages/sync/src/storage/__tests__/nc-sweep.test.ts</code></td>
+</tr>
+<tr>
+<td>Relay adversarial</td>
+<td><code>packages/meerkat-relay/src/__tests__/hosted-storage-adversarial.test.ts</code></td>
+</tr>
+<tr>
+<td>Mobile UI adversarial</td>
+<td><code>apps/meerkat/app/(root)/data/storage-destinations/__tests__/storage-ui-adversarial.test.ts</code></td>
+</tr>
+<tr>
+<td>Web UI adversarial</td>
+<td><code>apps/meerkat-web/src/lib/storage/__tests__/storage-ui-adversarial.test.ts</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Acceptance criteria matrix</h2>
+<p><code>Open ops</code> means the code proof passes but an acceptance criterion still requires real accounts, infrastructure, hardware, or publication evidence. It is not a completion claim.</p>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Status</th>
+<th>Named automated evidence</th>
+<th>Landed implementation</th>
+<th>Outstanding evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AC-41.1 Every listed destination can be configured without developer tools</td>
+<td>Open ops</td>
+<td>Mobile <code>storage-ui-core.test.ts</code> -&gt; <code>describes every registry kind including web_directory</code>; mobile and web UI adversarial -&gt; <code>renders &lt;state&gt; with honest copy</code></td>
+<td><code>cfa66a17</code>, `92b2cbd9` (WP-41C), <code>e374ff4a</code>, <code>9167a2a7</code>, <code>01e17cc7</code>, <code>a89ccc61</code>, <code>81834321</code></td>
+<td>Real provider registrations and live configuration journeys</td>
+</tr>
+<tr>
+<td>AC-41.2 No external adapter receives private plaintext or a device private key</td>
+<td>Automated pass</td>
+<td>NC sweep -&gt; <code>NC-41.1: router eligibility excludes device private keys and accepts ciphertext-only objects</code>; <code>router.test.ts</code> -&gt; <code>allows plaintext downloads only at an explicit file provider</code></td>
+<td><code>d795c979</code>, <code>95d69f99</code></td>
+<td>None for the static and adapter-boundary claim</td>
+</tr>
+<tr>
+<td>AC-41.3 Complete only after every required object and manifest verifies</td>
+<td>Automated pass</td>
+<td><code>router.test.ts</code> -&gt; <code>completes a backup only after every object and manifest verifies</code>; mobile <code>local-backup-run.test.ts</code> -&gt; <code>reaches complete only after every object and the manifest verify</code>; both UI adversarial suites -&gt; <code>never derives a backed-up claim from successful jobs, verified objects, or non-complete backup rows</code></td>
+<td><code>95d69f99</code>, <code>cfa66a17</code></td>
+<td>None</td>
+</tr>
+<tr>
+<td>AC-41.4 Mobile and web show real health, quota, last verification, jobs, and errors</td>
+<td>Automated pass</td>
+<td>Both UI adversarial suites -&gt; <code>renders &lt;state&gt; with honest copy</code>, <code>renders &lt;state&gt; job with &lt;error&gt; as an honest non-success state</code>, and <code>renders &lt;state&gt; backup state as &lt;label&gt;</code>; <code>diagnostics.test.ts</code> -&gt; <code>derives current auth and quota issues from active job checkpoints</code></td>
+<td><code>95d69f99</code>, <code>cfa66a17</code>, <code>7f6e348b</code></td>
+<td>Live-browser screenshots remain part of release QA, not criterion logic</td>
+</tr>
+<tr>
+<td>AC-41.5 iCloud backup and fresh-install restore work on a physical iPhone</td>
+<td>Open ops</td>
+<td>Mobile <code>icloud-adapter.test.ts</code> -&gt; <code>returns read-back evidence only after the data and metadata report uploaded</code> and <code>starts downloads before reading remote-only files on a fresh restore</code>; sync adversarial -&gt; <code>account switch: iCloud identity-token change invalidates the destination and prevents writes to the new account</code></td>
+<td>`92b2cbd9` (WP-41C); <code>7f6e348b</code></td>
+<td>Apple iCloud entitlement, signed build, and physical iPhone backup plus fresh-install restore</td>
+</tr>
+<tr>
+<td>AC-41.6 Google Drive backup and restore work on mobile and web through narrow auth</td>
+<td>Open ops</td>
+<td><code>google-drive-conformance.test.ts</code> -&gt; <code>probes the resumable session after a lost response and resumes from Drive committed bytes</code>; relay <code>oauth-broker.test.ts</code> -&gt; <code>loads provider registration secrets from files and defaults Google to drive.file</code>; sync adversarial -&gt; forged OAuth and revoked-auth tests</td>
+<td><code>e374ff4a</code>, <code>7f6e348b</code></td>
+<td>Real Google OAuth registration, consent, mobile and web sandbox or live backup and restore</td>
+</tr>
+<tr>
+<td>AC-41.7 Dropbox, OneDrive, and Box pass mobile and web sandbox proof</td>
+<td>Open ops</td>
+<td><code>dropbox-conformance.test.ts</code> -&gt; <code>resumes a partially accepted finish from the session id and corrected offset</code>; <code>onedrive-conformance.test.ts</code> -&gt; <code>resumes from nextExpectedRanges without authorizing the preauthorized upload URL</code>; <code>box-conformance.test.ts</code> -&gt; <code>resumes from provider-listed immutable parts</code>; web session suites -&gt; <code>requests fresh operation-bound tokens without browser persistence</code></td>
+<td><code>9167a2a7</code></td>
+<td>Real Dropbox, Microsoft, and Box registrations plus physical/mobile and live-browser QA</td>
+</tr>
+<tr>
+<td>AC-41.8 Generic iOS, Android, and supported web folders survive restart or honestly require reselection</td>
+<td>Open ops</td>
+<td>Sync adversarial -&gt; <code>stale bookmark: disappeared permission reports auth_required, reselects, and resumes without unauthorized writes</code>; web <code>browser-database-adapter.test.ts</code> -&gt; <code>survives a persist/reload cycle through the same IndexedDB key</code>; web <code>web-directory-adapter.test.ts</code> -&gt; <code>fails closed when permission is revoked during a write job</code></td>
+<td><code>95e29b72</code>, `92b2cbd9` (WP-41C)</td>
+<td>Physical iOS bookmark and Android SAF restart matrix plus supported-browser restart QA</td>
+</tr>
+<tr>
+<td>AC-41.9 WebDAV and S3 support the full health, quota, write, resume, list, checksum, read, delete, revoke, migrate, and restore contract</td>
+<td>Open ops</td>
+<td><code>webdav-conformance.test.ts</code> -&gt; <code>parses RFC 4331 quota properties and reports absent properties honestly</code>; <code>s3-conformance.test.ts</code> -&gt; <code>resumes from server ListParts state, including a part beyond the stale cursor</code>; sync adversarial -&gt; unsafe redirect, multipart ETag, outage, quota, conflict, and corruption tests</td>
+<td><code>01e17cc7</code>, <code>95d69f99</code>, <code>7f6e348b</code></td>
+<td>Physical per-provider QA against real WebDAV and S3-compatible services</td>
+</tr>
+<tr>
+<td>AC-41.10 Hosted and connected storage are ciphertext-only and expose signed capability, health, usage, and deletion</td>
+<td>Open ops</td>
+<td>Relay adversarial -&gt; all three named tenant, entitlement, and delete-retry tests; <code>hosted-storage-api.test.ts</code> -&gt; <code>round-trips only encrypted backup locator fields</code>; <code>connected-server-conformance.test.ts</code> -&gt; <code>authorizes only after descriptor, challenge, authenticated health, and quota in order</code></td>
+<td><code>a89ccc61</code>, <code>81834321</code></td>
+<td>Deployed broker KMS, hosted object store, connected operator key, and live service QA</td>
+</tr>
+<tr>
+<td>AC-41.11 Primary plus mirror reports partial failure without losing a valid copy</td>
+<td>Automated pass</td>
+<td>Sync adversarial -&gt; <code>failure mode: a mirror outage reports partial while the verified primary remains complete</code>; <code>router.test.ts</code> -&gt; <code>reports an exact mirror partial without invalidating the primary</code></td>
+<td><code>95d69f99</code>, <code>7f6e348b</code></td>
+<td>None for the state-machine claim</td>
+</tr>
+<tr>
+<td>AC-41.12 Restore validates, migrates, activates atomically, and preserves rollback</td>
+<td>Automated pass</td>
+<td>Sync adversarial -&gt; <code>atomic-restore-into-staging: active rows and files are untouched until awaiting_activation</code> and six <code>rollback: activation failure at &lt;boundary&gt; produces rolled_back with prior data intact</code> cases; mobile <code>local-restore.test.ts</code> -&gt; <code>rolls the prior database back after a crash between the two moves</code></td>
+<td><code>95d69f99</code>, <code>95e29b72</code></td>
+<td>Physical fresh-install restore remains required by provider-specific criteria</td>
+</tr>
+<tr>
+<td>AC-41.13 Revoke, account switch, sign-out, destination deletion, and account deletion remove credentials and stop work</td>
+<td>Open ops</td>
+<td>Sync adversarial -&gt; revoked-auth, account-switch, and stale-bookmark tests; relay adversarial -&gt; <code>account deletion interrupted after one physical block completes idempotently on retry</code>; <code>oauth-broker.test.ts</code> -&gt; <code>account deletion removes every vault and its session bindings</code></td>
+<td><code>e374ff4a</code>, `92b2cbd9` (WP-41C), <code>a89ccc61</code>, <code>7f6e348b</code></td>
+<td>Real-provider revoke, account-switch, sign-out, destination-delete, and complete-account-delete QA</td>
+</tr>
+<tr>
+<td>AC-41.14 Store and privacy disclosures describe provider and broker metadata accurately</td>
+<td>Open ops</td>
+<td>Web <code>google-drive-session.test.ts</code> -&gt; <code>discloses the broker token and encrypted-object trust boundary</code>; web <code>storage-ui-core.test.ts</code> -&gt; <code>carries the not-a-default and encrypt-before-leaving copy</code></td>
+<td><code>cfa66a17</code>, <code>e374ff4a</code>, <code>9167a2a7</code></td>
+<td>Final store copy, privacy publication, legal review, and release-ledger attachment</td>
+</tr>
+</tbody>
+</table>
+<h2>Negative criteria matrix</h2>
+<p>The sweep deliberately asserts only properties that can be proven from source structure. Runtime truth remains in the adversarial and existing conformance suites.</p>
+<table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Status</th>
+<th>Named evidence</th>
+<th>Landed implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NC-41.1 No device private keys or private plaintext at an external destination</td>
+<td>Pass</td>
+<td>NC sweep -&gt; <code>NC-41.1: router eligibility excludes device private keys and accepts ciphertext-only objects</code>; sync corruption cases exercise encrypted locator, manifest, database, object, and identity artifacts</td>
+<td><code>d795c979</code>, <code>95d69f99</code></td>
+</tr>
+<tr>
+<td>NC-41.2 No queued, uploaded, or locally written state is labeled backed up without remote verification</td>
+<td>Pass</td>
+<td>Both UI adversarial suites -&gt; <code>never derives a backed-up claim from successful jobs, verified objects, or non-complete backup rows</code>; mobile <code>storage-ui-core.test.ts</code> -&gt; <code>never shows a non-complete backup as done (NC-41.2)</code></td>
+<td><code>95d69f99</code>, <code>cfa66a17</code></td>
+</tr>
+<tr>
+<td>NC-41.3 No refresh token, access token, WebDAV password, or S3 secret enters SQLite, logs, crash reports, or backups</td>
+<td>Pass</td>
+<td>NC sweep -&gt; <code>NC-41.3: every SQLite credential_ref write has assertNotSecretLike at the schema seam</code>; relay <code>oauth-broker.test.ts</code> -&gt; <code>audit logs contain no token canaries and remain safe through log redaction</code>; hosted API -&gt; <code>keeps tokens, tenant ids, and ciphertext hashes out of failure logs</code></td>
+<td><code>d795c979</code>, <code>e374ff4a</code>, <code>a89ccc61</code></td>
+</tr>
+<tr>
+<td>NC-41.4 No provider appears ready before real authorization and health checks</td>
+<td>Pass</td>
+<td><code>router.test.ts</code> -&gt; <code>does not claim verified read-write health before real adapter evidence</code>; connected conformance -&gt; <code>authorizes only after descriptor, challenge, authenticated health, and quota in order</code>; UI adversarial authorization-pending and unverified-native cases</td>
+<td><code>95d69f99</code>, <code>81834321</code>, <code>cfa66a17</code></td>
+</tr>
+<tr>
+<td>NC-41.5 No restore failure partially replaces active data</td>
+<td>Pass</td>
+<td>Sync adversarial -&gt; five corruption cases, atomic staging, and six rollback boundaries; mobile <code>local-restore.test.ts</code> -&gt; crash-injection rollback tests</td>
+<td><code>95d69f99</code>, <code>95e29b72</code></td>
+</tr>
+<tr>
+<td>NC-41.6 No ETag is treated as a content hash without provider-specific proof</td>
+<td>Pass</td>
+<td>NC sweep -&gt; <code>NC-41.6: WebDAV and S3 ETags remain versions and never populate ciphertextHash</code>; sync adversarial -&gt; <code>failure mode: a multipart ETag remains a remote version and read-back verification supplies integrity evidence</code></td>
+<td><code>01e17cc7</code></td>
+</tr>
+<tr>
+<td>NC-41.7 Hosted or first-party storage is never a silent default</td>
+<td>Pass</td>
+<td>NC sweep -&gt; <code>NC-41.7: hosted remains last-party opt-in, ordered after user destinations, and absent from default policy rows</code>; web UI core -&gt; <code>carries the not-a-default and encrypt-before-leaving copy</code></td>
+<td><code>cfa66a17</code>, <code>a89ccc61</code></td>
+</tr>
+<tr>
+<td>NC-41.8 Unsupported platforms never render a provider as native support</td>
+<td>Pass</td>
+<td>NC sweep -&gt; <code>NC-41.8: unsupported platform factories return null instead of rendering native support</code>; mobile registry -&gt; <code>returns null for kinds unsupported or unwired on mobile</code>; web directory -&gt; <code>returns null when the File System Access directory picker is unsupported</code></td>
+<td><code>95e29b72</code>, `92b2cbd9` (WP-41C)</td>
+</tr>
+</tbody>
+</table>
+<h2>Failure Modes matrix</h2>
+<p>Every row in the Plan 41 Failure Modes table maps to a named test.</p>
+<table>
+<thead>
+<tr>
+<th>Plan failure mode</th>
+<th>Named test</th>
+<th>Exact file</th>
+<th>Landed implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot races with a write</td>
+<td><code>failure mode: snapshot races with a write are serialized before the router receives snapshot bytes</code></td>
+<td>Sync adversarial</td>
+<td><code>95e29b72</code></td>
+</tr>
+<tr>
+<td>iCloud account changes</td>
+<td><code>account switch: iCloud identity-token change invalidates the destination and prevents writes to the new account</code></td>
+<td>Sync adversarial</td>
+<td>`92b2cbd9` (WP-41C)</td>
+</tr>
+<tr>
+<td>Forged OAuth callback</td>
+<td><code>failure mode: forged OAuth callback state is returned as invalid_state and no vault is accepted</code></td>
+<td>Sync adversarial</td>
+<td><code>e374ff4a</code></td>
+</tr>
+<tr>
+<td>Refresh token revoked</td>
+<td><code>failure mode: revoked refresh authorization pauses the job and WP-41H rotation resumes it</code></td>
+<td>Sync adversarial</td>
+<td><code>e374ff4a</code>, <code>7f6e348b</code></td>
+</tr>
+<tr>
+<td>Large upload stops midway</td>
+<td><code>provider outage mid-backup persists a retry checkpoint, resumes, and never double-charges bytes</code></td>
+<td>Sync adversarial</td>
+<td><code>95d69f99</code></td>
+</tr>
+<tr>
+<td>Same ciphertext id maps to different bytes</td>
+<td><code>conflict: same object id with different ciphertext fails closed, marks corrupt, and leaves mirror untouched</code></td>
+<td>Sync adversarial</td>
+<td><code>95d69f99</code></td>
+</tr>
+<tr>
+<td>Remote quota full</td>
+<td><code>quota exhaustion stops before local or mirror deletion and surfaces exact required bytes</code></td>
+<td>Sync adversarial</td>
+<td><code>95d69f99</code></td>
+</tr>
+<tr>
+<td>File-provider permission disappears</td>
+<td><code>stale bookmark: disappeared permission reports auth_required, reselects, and resumes without unauthorized writes</code></td>
+<td>Sync adversarial</td>
+<td>`92b2cbd9` (WP-41C); <code>7f6e348b</code></td>
+</tr>
+<tr>
+<td>WebDAV redirects to another host</td>
+<td><code>unsafe redirect: webdav cross-origin 3xx is refused and credentials are never forwarded</code></td>
+<td>Sync adversarial</td>
+<td><code>01e17cc7</code></td>
+</tr>
+<tr>
+<td>S3 multipart ETag is tempting as a hash</td>
+<td><code>failure mode: a multipart ETag remains a remote version and read-back verification supplies integrity evidence</code></td>
+<td>Sync adversarial</td>
+<td><code>01e17cc7</code></td>
+</tr>
+<tr>
+<td>Mirror fails after primary succeeds</td>
+<td><code>failure mode: a mirror outage reports partial while the verified primary remains complete</code></td>
+<td>Sync adversarial</td>
+<td><code>95d69f99</code>, <code>7f6e348b</code></td>
+</tr>
+<tr>
+<td>Restore chunk is corrupt</td>
+<td><code>corruption: one-bit database chunk fault returns exact typed failure, preserves active state, and marks rows honest</code></td>
+<td>Sync adversarial</td>
+<td><code>d795c979</code>, <code>95d69f99</code></td>
+</tr>
+<tr>
+<td>Process crashes during activation</td>
+<td>Six <code>rollback: activation failure at &lt;boundary&gt; produces rolled_back with prior data intact</code> cases, plus <code>rolls the prior database back after a crash between the two moves</code></td>
+<td>Sync adversarial; mobile <code>local-restore.test.ts</code></td>
+<td><code>95d69f99</code>, <code>95e29b72</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Additional Build Phase 9 matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Adversarial requirement</th>
+<th>Named evidence</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One-bit corruption in every artifact class</td>
+<td>Five parameter cases: locator, manifest, database chunk, object chunk, identity chunk</td>
+<td>Pass, exact typed errors, active data unchanged, honest corrupt or partial rows</td>
+</tr>
+<tr>
+<td>Provider outage mid-backup and mid-restore</td>
+<td><code>provider outage mid-backup persists a retry checkpoint, resumes, and never double-charges bytes</code>; <code>provider outage mid-restore resumes from its checkpoint without staging or charging an object twice</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Revoked auth and credential rotation</td>
+<td><code>failure mode: revoked refresh authorization pauses the job and WP-41H rotation resumes it</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Quota exhaustion</td>
+<td><code>quota exhaustion stops before local or mirror deletion and surfaces exact required bytes</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Destination conflict</td>
+<td><code>conflict: same object id with different ciphertext fails closed, marks corrupt, and leaves mirror untouched</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Every restore-controller activation boundary</td>
+<td>Six rollback parameter cases: <code>before_active_close</code>, <code>after_active_close</code>, <code>after_rollback_snapshot</code>, <code>after_active_swap</code>, <code>before_boot_verification</code>, <code>during_boot_verification</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Account switch</td>
+<td><code>account switch: iCloud identity-token change invalidates the destination and prevents writes to the new account</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Stale bookmark or disappeared permission</td>
+<td><code>stale bookmark: disappeared permission reports auth_required, reselects, and resumes without unauthorized writes</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Cross-origin redirect refusal</td>
+<td>Three parameter cases for <code>webdav</code>, <code>s3</code>, and <code>connected</code></td>
+<td>Pass, one-origin transport log and no credential forwarding</td>
+</tr>
+<tr>
+<td>MITM-equivalent tampering</td>
+<td><code>MITM: descriptor tamper, challenge tamper, wrong operator key, and read-back substitution all fail closed</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Multi-hundred-MiB streaming</td>
+<td><code>large object: a simulated 256 MiB object streams in bounded chunks without a whole-object allocation</code></td>
+<td>Pass, 1 MiB chunks and peak tracked allocation below 3 MiB</td>
+</tr>
+<tr>
+<td>Restore only into staging</td>
+<td><code>atomic-restore-into-staging: active rows and files are untouched until awaiting_activation</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Hosted tenant attack and replay</td>
+<td>Relay adversarial -&gt; <code>tenant A tamper and replay attempts cannot read, overwrite, delete, or register tenant B objects and backups</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Entitlement expiry during upload</td>
+<td>Relay adversarial -&gt; <code>entitlement expiry mid-upload rejects the next block, preserves the cursor, and resumes after renewal</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Deletion job fault and retry</td>
+<td>Relay adversarial -&gt; <code>account deletion interrupted after one physical block completes idempotently on retry</code></td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>Honest ugly-state UI on mobile and web</td>
+<td>Both UI adversarial suites: 18 cases each across destination, backup, and job states plus the no-false-completion invariant</td>
+<td>Pass</td>
+</tr>
+</tbody>
+</table>
+<h2>Test Review Diagram trace</h2>
+<table>
+<thead>
+<tr>
+<th>Plan 41 review path</th>
+<th>Proof chain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Snapshot -&gt; encrypt chunks -&gt; provider put -&gt; read-back -&gt; complete</td>
+<td>Snapshot race serialization -&gt; Backup Format v1 five-class corruption and 256 MiB streaming -&gt; outage, resume, quota, redirect, and conflict injection -&gt; checksum and substituted-body rejection -&gt; router completion plus mobile/web no-false-<code>Backed up</code> invariant</td>
+</tr>
+<tr>
+<td>Locator -&gt; manifest -&gt; decrypt and verify -&gt; temporary DB migrate -&gt; atomic activate</td>
+<td>Locator and manifest one-bit tests -&gt; database, object, and identity chunk verification -&gt; wrong-key and MITM-equivalent rejection -&gt; integrity, identity, and migration rehearsal state transitions -&gt; staging-only restore plus six activation rollback boundaries and concrete mobile crash recovery</td>
+</tr>
+<tr>
+<td>Authorize -&gt; secure custody -&gt; refresh -&gt; revoke or delete</td>
+<td>Forged OAuth state rejection -&gt; NC-41.3 credential and log sweep plus KMS-envelope tests -&gt; revoked refresh pauses and injected credential rotation resumes -&gt; tenant-isolated, entitlement-gated, idempotent hosted deletion retry</td>
+</tr>
+</tbody>
+</table>
+<h2>Verification</h2>
+<table>
+<thead>
+<tr>
+<th>Command or focused battery</th>
+<th>Result</th>
+<th>Delta from supplied baseline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sync adversarial plus NC sweep</td>
+<td>33 passed</td>
+<td>+33</td>
+</tr>
+<tr>
+<td><code>pnpm --filter @mylife/sync test</code></td>
+<td>2,208 passed, 3 failed from 2,211 current tests. The three failures are the two existing <code>community-catalog</code> HTTP cases and one <code>lan-tcp-e2e</code> case after <code>listen EPERM 127.0.0.1</code>.</td>
+<td>Expected unrestricted total 2,211, +33 from 2,178</td>
+</tr>
+<tr>
+<td><code>pnpm --filter @mylife/sync typecheck</code></td>
+<td>Pass</td>
+<td>No regression</td>
+</tr>
+<tr>
+<td>Relay adversarial</td>
+<td>3 passed</td>
+<td>+3</td>
+</tr>
+<tr>
+<td><code>pnpm --filter @mylife/meerkat-relay test</code></td>
+<td>Sandbox observation: 938 passed, 326 failed, 172 skipped; all listener failures originate from <code>listen EPERM 127.0.0.1</code>. The new adversarial file passes. Total inventory is 1,436.</td>
+<td>Expected unrestricted total 1,268 passed and 168 skipped, +3 from 1,265</td>
+</tr>
+<tr>
+<td><code>pnpm --filter @mylife/meerkat-relay typecheck</code></td>
+<td>Pass</td>
+<td>No regression</td>
+</tr>
+<tr>
+<td><code>pnpm --filter @mylife/meerkat-app test</code></td>
+<td>1,286 passed</td>
+<td>+18 from 1,268</td>
+</tr>
+<tr>
+<td><code>pnpm --filter @mylife/meerkat-app typecheck</code></td>
+<td>Pass</td>
+<td>No regression</td>
+</tr>
+<tr>
+<td><code>pnpm --filter meerkat-web test</code></td>
+<td>826 passed and 14 existing listener-dependent tests failed from 840 current tests; every failure follows <code>listen EPERM 127.0.0.1</code>.</td>
+<td>Expected unrestricted total 840, +18 from 822</td>
+</tr>
+<tr>
+<td><code>pnpm --filter meerkat-web typecheck</code></td>
+<td>Pass</td>
+<td>No regression</td>
+</tr>
+<tr>
+<td><code>node scripts/check-meerkat-parity.mjs</code></td>
+<td>Pass</td>
+<td>Mobile and web storage core and product-law parity preserved</td>
+</tr>
+<tr>
+<td><code>pnpm gate:function --dir packages/meerkat-relay --tests src/__tests__/hosted-storage-adversarial.test.ts</code></td>
+<td>Pass</td>
+<td>Relay lint, typecheck, and 3 focused tests pass</td>
+</tr>
+<tr>
+<td>Non-Git packet artifact scan</td>
+<td>Pass</td>
+<td>10 packet artifacts checked; no forbidden performance path and no file above 2 MiB</td>
+</tr>
+<tr>
+<td><code>pnpm check:generated-artifacts</code></td>
+<td>Not run</td>
+<td>Its implementation invokes <code>git diff</code> and <code>git ls-files</code>; the packet explicitly forbids every Git command</td>
+</tr>
+</tbody>
+</table>
+<p>The required <code>open</code> attempt was made immediately after the self-contained HTML report was created. This environment returned <code>kLSExecutableIncorrectFormat</code> because no compatible desktop application is registered. That local artifact-viewer limitation is not counted as live-browser QA.</p>
+<h2>Close criteria status</h2>
+<p>Plan 41 does not meet its Close Criteria yet and must remain in <code>docs/plans/queue/</code>.</p>
+<ul>
+<li>Automated destination, format, router, verification, outage, revocation, credential-custody, restore-atomicity, rollback, UI-truth, and negative-criteria evidence is linked here.</li>
+<li>Plan 40 now links this exact automated proof pack and explicitly records the remaining founder-ops evidence.</li>
+<li>Real provider, signed physical-device, deployed Plan 44 service, live-browser, security-operations, legal, store, and release-owner evidence is still missing.</li>
+</ul>
+<p>The plan must not move to <code>docs/plans/done/</code> until those remaining evidence classes are complete.</p>
+<h2>Founder and operator evidence still outstanding</h2>
+<p>None of the following is claimed complete:</p>
+<ol>
+<li>Real Google, Dropbox, OneDrive, and Box OAuth registrations, consent screens, redirect allowlists, and narrow-scope verification.</li>
+<li>Apple iCloud container entitlement, signed Meerkat build, physical iPhone backup, account-switch test, and fresh-install restore.</li>
+<li>Deployed broker KMS and envelope-key custody proof, deployed hosted storage, operator-key custody, and production deletion-job proof.</li>
+<li>Physical per-provider matrix covering auth, write, interruption and resume, read-back, list, quota, revoke, migration, restore, corruption, and outage behavior for every destination.</li>
+<li>Browser QA on a live build for configuration, backup, diagnostics, restore, failure, revoke, and account-delete journeys.</li>
+<li>Final store and privacy disclosures, legal review, release-owner sign-off, and exact Plan 40 release-ledger attachments.</li>
+</ol>
+<p>These items remain release blockers. Automated fakes, conformance harnesses, and source scans do not substitute for them.</p>
+<h2>Exact Plan 40 linkage lines</h2>
+<p>The following exact lines are added to <code>docs/plans/queue/40-meerkat-final-launch-plan.md</code> under the Release Evidence Ledger:</p>
+<pre><code class="language-markdown">Plan 41 storage evidence for this ledger:
+
+- [WP-41I automated proof pack, 2026-07-14](../../reports/REPORT-meerkat-plan41-proof-pack-2026-07-14.md)
+- Founder-ops provider, physical-device, broker KMS, signed iCloud, and live-browser evidence remains open and must be attached to the release evidence before GO.
+</code></pre>
+<h2>Testability seam</h2>
+<p>One small, behavior-neutral production seam was necessary:</p>
+<ul>
+<li><code>StorageIngestOptions</code> now accepts optional <code>now?: () =&gt; number</code>, and <code>hosted-storage-api.ts</code> threads the same injected clock into direct and block-ingest entitlement verification. Production behavior remains <code>Date.now()</code> when the seam is absent. This lets the relay adversarial suite expire entitlement deterministically between upload blocks without a wall-clock wait or race.</li>
+</ul>
+<p>No other source seam was added. The sync suite uses the existing router adapter injection, restore reducer, credential-rotation seam, and codec streaming API. The UI suites use the existing pure diagnostics and view-model cores.</p>
+<h2>Judgment calls</h2>
+<ol>
+<li>&quot;Real stack&quot; means the production router, Backup Format v1 codec, restore controller, lifecycle helpers, schemas, and UI cores. Only provider transport and persistence edges are fake, because fault injection belongs at those boundaries.</li>
+<li>The 256 MiB object is simulated as 256 deterministic 1 MiB chunks. Materializing 256 MiB would test the fixture allocator rather than the streaming contract. The allocation tracker proves no whole-object buffer and holds peak tracked allocation below 3 MiB.</li>
+<li>The six restore-controller activation boundaries are parameterized at the controller contract. Existing mobile crash-injection tests provide the concrete filesystem move and durable-journal proof.</li>
+<li>NC-41.3, NC-41.7, and NC-41.8 have useful static properties and are scanned. NC-41.2, NC-41.4, and NC-41.5 are runtime claims and stay in end-to-end tests rather than receiving vacuous grep assertions.</li>
+<li>The relay clock seam is optional and defaults to existing behavior. It changes testability only, not authorization semantics.</li>
+<li>Sandbox listener failures are reported rather than suppressed, skipped, or weakened. Focused proof suites do not open sockets and pass deterministically.</li>
+<li>A test passing against a fake provider proves fail-closed product logic, not provider availability or provider policy. That is why the founder-ops column remains open.</li>
+</ol>
+<h2>Files in this packet</h2>
+<p>Tests:</p>
+<ul>
+<li><code>packages/sync/src/storage/__tests__/storage-adversarial-e2e.test.ts</code></li>
+<li><code>packages/sync/src/storage/__tests__/nc-sweep.test.ts</code></li>
+<li><code>packages/meerkat-relay/src/__tests__/hosted-storage-adversarial.test.ts</code></li>
+<li><code>apps/meerkat/app/(root)/data/storage-destinations/__tests__/storage-ui-adversarial.test.ts</code></li>
+<li><code>apps/meerkat-web/src/lib/storage/__tests__/storage-ui-adversarial.test.ts</code></li>
+</ul>
+<p>Behavior-neutral seam:</p>
+<ul>
+<li><code>packages/meerkat-relay/src/storage-ingest.ts</code></li>
+<li><code>packages/meerkat-relay/src/hosted-storage-api.ts</code></li>
+</ul>
+<p>Evidence and records:</p>
+<ul>
+<li><code>docs/reports/REPORT-meerkat-plan41-proof-pack-2026-07-14.md</code></li>
+<li><code>docs/reports/REPORT-meerkat-plan41-proof-pack-2026-07-14.html</code></li>
+<li><code>docs/plans/queue/40-meerkat-final-launch-plan.md</code></li>
+<li><code>docs/reports/README.md</code></li>
+<li><code>docs/README.md</code></li>
+<li><code>docs/sessions/2026-07-14-meerkat-plan41-wp41i.md</code></li>
+<li><code>memory.md</code></li>
+<li><code>errors_log.md</code></li>
+</ul>
+
+</main>
+</body>
+</html>
+

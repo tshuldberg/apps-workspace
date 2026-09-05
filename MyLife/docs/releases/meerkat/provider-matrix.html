@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meerkat Step 11 Provider Matrix</title>
+<style>
+:root{--bg:#0E0E13;--surface:#1B1B20;--elevated:#2A292F;--text:#E4E1E9;--text2:#D6C3B5;--muted:#9F8E81;
+--primary:#FFB877;--info:#8BCFF0;--danger:#FFB4AB;--success:#30D158;--border:rgba(255,255,255,0.08)}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,"SF Pro Text","Segoe UI",sans-serif;margin:0;padding:28px 20px 90px}
+.wrap{max-width:1500px;margin:0 auto}
+h1{color:var(--primary);font-size:20px}
+h2{color:var(--text2);font-size:15px;margin-top:30px}
+.meta{color:var(--muted);font-size:12.5px;margin:6px 0 18px}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--text2);margin:10px 0 16px;align-items:center;flex-wrap:wrap}
+.legend .cell{pointer-events:none}
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:1250px;background:var(--surface)}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:center;font-size:12px}
+th{color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-size:10px;background:#131318;position:sticky;top:0}
+td.dest,th.dest{text-align:left;min-width:210px}
+td .note{color:var(--muted);font-size:11px}
+.cell{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--elevated);cursor:pointer;font-size:12px;font-weight:800;color:var(--text)}
+.cell[data-state="pass"]{background:#0d3d1c;border-color:#30d15866;color:var(--success)}
+.cell[data-state="fail"]{background:#3d0d12;border-color:#ffb4ab66;color:var(--danger)}
+.cell[data-state="na"]{background:#1f2733;border-color:#8bcff044;color:var(--info)}
+.evidence{width:100%;background:#131318;border:1px solid var(--border);border-radius:8px;color:var(--text2);font:12px/1.4 "SF Mono",ui-monospace,monospace;padding:6px 8px}
+.evidence.line{flex:1}
+.scenario{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin:8px 0}
+.bar{position:fixed;bottom:0;left:0;right:0;background:#131318f0;border-top:1px solid var(--border);backdrop-filter:blur(10px)}
+.bar-inner{max-width:1500px;margin:0 auto;padding:12px 20px;display:flex;gap:18px;align-items:center}
+.bar b{color:var(--primary)}
+button.action{background:var(--elevated);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer}
+button.action:hover{border-color:var(--primary)}
+.progress{color:var(--muted);font-size:12.5px}
+</style></head><body><div class="wrap">
+<h1>Meerkat Step 11: Plan 41 provider matrix</h1>
+<div class="meta">Release: <b>meerkat-2026-08-01-rc18</b> · Exit gate: every applicable cell passes; unsupported cells show the intended unavailable state (mark N/A with the honest reason in row evidence), never a simulated success. State saves in this browser; export JSON into <code>meerkat-2026-08-01-rc18/providers/</code> when a session ends.</div>
+<div class="legend">Click a cell to cycle:
+  <span><button class="cell"></button> untested</span>
+  <span><button class="cell" data-state="pass">P</button> pass</span>
+  <span><button class="cell" data-state="fail">F</button> FAIL (stop, fix or record)</span>
+  <span><button class="cell" data-state="na">–</button> N/A (honest unavailable)</span>
+</div>
+<div class="tablewrap"><table><thead><tr><th class="dest">Destination</th><th>authorize</th><th>write</th><th>read-back</th><th>list</th><th>quota</th><th>resume</th><th>revoke</th><th>rotation</th><th>backup</th><th>restore</th><th>move</th><th>delete</th><th>reconnect</th><th class="dest">Row evidence (build id, account, manifest, hashes)</th></tr></thead><tbody>
+    <tr data-row="local-ios">
+      <td class="dest"><b>Local destination (iOS)</b><div class="note">Signed build, not Expo Go</div></td>
+      <td><button class="cell" data-key="local-ios:authorize" title="Local destination (iOS) / authorize"></button></td><td><button class="cell" data-key="local-ios:write" title="Local destination (iOS) / write"></button></td><td><button class="cell" data-key="local-ios:read-back" title="Local destination (iOS) / read-back"></button></td><td><button class="cell" data-key="local-ios:list" title="Local destination (iOS) / list"></button></td><td><button class="cell" data-key="local-ios:quota" title="Local destination (iOS) / quota"></button></td><td><button class="cell" data-key="local-ios:resume" title="Local destination (iOS) / resume"></button></td><td><button class="cell" data-key="local-ios:revoke" title="Local destination (iOS) / revoke"></button></td><td><button class="cell" data-key="local-ios:rotation" title="Local destination (iOS) / rotation"></button></td><td><button class="cell" data-key="local-ios:backup" title="Local destination (iOS) / backup"></button></td><td><button class="cell" data-key="local-ios:restore" title="Local destination (iOS) / restore"></button></td><td><button class="cell" data-key="local-ios:move" title="Local destination (iOS) / move"></button></td><td><button class="cell" data-key="local-ios:delete" title="Local destination (iOS) / delete"></button></td><td><button class="cell" data-key="local-ios:reconnect" title="Local destination (iOS) / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="local-ios:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="local-android">
+      <td class="dest"><b>Local destination (Android)</b><div class="note">Signed build</div></td>
+      <td><button class="cell" data-key="local-android:authorize" title="Local destination (Android) / authorize"></button></td><td><button class="cell" data-key="local-android:write" title="Local destination (Android) / write"></button></td><td><button class="cell" data-key="local-android:read-back" title="Local destination (Android) / read-back"></button></td><td><button class="cell" data-key="local-android:list" title="Local destination (Android) / list"></button></td><td><button class="cell" data-key="local-android:quota" title="Local destination (Android) / quota"></button></td><td><button class="cell" data-key="local-android:resume" title="Local destination (Android) / resume"></button></td><td><button class="cell" data-key="local-android:revoke" title="Local destination (Android) / revoke"></button></td><td><button class="cell" data-key="local-android:rotation" title="Local destination (Android) / rotation"></button></td><td><button class="cell" data-key="local-android:backup" title="Local destination (Android) / backup"></button></td><td><button class="cell" data-key="local-android:restore" title="Local destination (Android) / restore"></button></td><td><button class="cell" data-key="local-android:move" title="Local destination (Android) / move"></button></td><td><button class="cell" data-key="local-android:delete" title="Local destination (Android) / delete"></button></td><td><button class="cell" data-key="local-android:reconnect" title="Local destination (Android) / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="local-android:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="browser-granted">
+      <td class="dest"><b>Browser local (persistence granted)</b></td>
+      <td><button class="cell" data-key="browser-granted:authorize" title="Browser local (persistence granted) / authorize"></button></td><td><button class="cell" data-key="browser-granted:write" title="Browser local (persistence granted) / write"></button></td><td><button class="cell" data-key="browser-granted:read-back" title="Browser local (persistence granted) / read-back"></button></td><td><button class="cell" data-key="browser-granted:list" title="Browser local (persistence granted) / list"></button></td><td><button class="cell" data-key="browser-granted:quota" title="Browser local (persistence granted) / quota"></button></td><td><button class="cell" data-key="browser-granted:resume" title="Browser local (persistence granted) / resume"></button></td><td><button class="cell" data-key="browser-granted:revoke" title="Browser local (persistence granted) / revoke"></button></td><td><button class="cell" data-key="browser-granted:rotation" title="Browser local (persistence granted) / rotation"></button></td><td><button class="cell" data-key="browser-granted:backup" title="Browser local (persistence granted) / backup"></button></td><td><button class="cell" data-key="browser-granted:restore" title="Browser local (persistence granted) / restore"></button></td><td><button class="cell" data-key="browser-granted:move" title="Browser local (persistence granted) / move"></button></td><td><button class="cell" data-key="browser-granted:delete" title="Browser local (persistence granted) / delete"></button></td><td><button class="cell" data-key="browser-granted:reconnect" title="Browser local (persistence granted) / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="browser-granted:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="browser-denied">
+      <td class="dest"><b>Browser local (persistence denied)</b><div class="note">Honest degraded state, not simulated success</div></td>
+      <td><button class="cell" data-key="browser-denied:authorize" title="Browser local (persistence denied) / authorize"></button></td><td><button class="cell" data-key="browser-denied:write" title="Browser local (persistence denied) / write"></button></td><td><button class="cell" data-key="browser-denied:read-back" title="Browser local (persistence denied) / read-back"></button></td><td><button class="cell" data-key="browser-denied:list" title="Browser local (persistence denied) / list"></button></td><td><button class="cell" data-key="browser-denied:quota" title="Browser local (persistence denied) / quota"></button></td><td><button class="cell" data-key="browser-denied:resume" title="Browser local (persistence denied) / resume"></button></td><td><button class="cell" data-key="browser-denied:revoke" title="Browser local (persistence denied) / revoke"></button></td><td><button class="cell" data-key="browser-denied:rotation" title="Browser local (persistence denied) / rotation"></button></td><td><button class="cell" data-key="browser-denied:backup" title="Browser local (persistence denied) / backup"></button></td><td><button class="cell" data-key="browser-denied:restore" title="Browser local (persistence denied) / restore"></button></td><td><button class="cell" data-key="browser-denied:move" title="Browser local (persistence denied) / move"></button></td><td><button class="cell" data-key="browser-denied:delete" title="Browser local (persistence denied) / delete"></button></td><td><button class="cell" data-key="browser-denied:reconnect" title="Browser local (persistence denied) / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="browser-denied:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="icloud">
+      <td class="dest"><b>iCloud Drive (signed iOS)</b><div class="note">First native module proof point</div></td>
+      <td><button class="cell" data-key="icloud:authorize" title="iCloud Drive (signed iOS) / authorize"></button></td><td><button class="cell" data-key="icloud:write" title="iCloud Drive (signed iOS) / write"></button></td><td><button class="cell" data-key="icloud:read-back" title="iCloud Drive (signed iOS) / read-back"></button></td><td><button class="cell" data-key="icloud:list" title="iCloud Drive (signed iOS) / list"></button></td><td><button class="cell" data-key="icloud:quota" title="iCloud Drive (signed iOS) / quota"></button></td><td><button class="cell" data-key="icloud:resume" title="iCloud Drive (signed iOS) / resume"></button></td><td><button class="cell" data-key="icloud:revoke" title="iCloud Drive (signed iOS) / revoke"></button></td><td><button class="cell" data-key="icloud:rotation" title="iCloud Drive (signed iOS) / rotation"></button></td><td><button class="cell" data-key="icloud:backup" title="iCloud Drive (signed iOS) / backup"></button></td><td><button class="cell" data-key="icloud:restore" title="iCloud Drive (signed iOS) / restore"></button></td><td><button class="cell" data-key="icloud:move" title="iCloud Drive (signed iOS) / move"></button></td><td><button class="cell" data-key="icloud:delete" title="iCloud Drive (signed iOS) / delete"></button></td><td><button class="cell" data-key="icloud:reconnect" title="iCloud Drive (signed iOS) / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="icloud:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="ios-files">
+      <td class="dest"><b>iOS Files provider</b></td>
+      <td><button class="cell" data-key="ios-files:authorize" title="iOS Files provider / authorize"></button></td><td><button class="cell" data-key="ios-files:write" title="iOS Files provider / write"></button></td><td><button class="cell" data-key="ios-files:read-back" title="iOS Files provider / read-back"></button></td><td><button class="cell" data-key="ios-files:list" title="iOS Files provider / list"></button></td><td><button class="cell" data-key="ios-files:quota" title="iOS Files provider / quota"></button></td><td><button class="cell" data-key="ios-files:resume" title="iOS Files provider / resume"></button></td><td><button class="cell" data-key="ios-files:revoke" title="iOS Files provider / revoke"></button></td><td><button class="cell" data-key="ios-files:rotation" title="iOS Files provider / rotation"></button></td><td><button class="cell" data-key="ios-files:backup" title="iOS Files provider / backup"></button></td><td><button class="cell" data-key="ios-files:restore" title="iOS Files provider / restore"></button></td><td><button class="cell" data-key="ios-files:move" title="iOS Files provider / move"></button></td><td><button class="cell" data-key="ios-files:delete" title="iOS Files provider / delete"></button></td><td><button class="cell" data-key="ios-files:reconnect" title="iOS Files provider / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="ios-files:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="android-saf">
+      <td class="dest"><b>Android Storage Access Framework</b></td>
+      <td><button class="cell" data-key="android-saf:authorize" title="Android Storage Access Framework / authorize"></button></td><td><button class="cell" data-key="android-saf:write" title="Android Storage Access Framework / write"></button></td><td><button class="cell" data-key="android-saf:read-back" title="Android Storage Access Framework / read-back"></button></td><td><button class="cell" data-key="android-saf:list" title="Android Storage Access Framework / list"></button></td><td><button class="cell" data-key="android-saf:quota" title="Android Storage Access Framework / quota"></button></td><td><button class="cell" data-key="android-saf:resume" title="Android Storage Access Framework / resume"></button></td><td><button class="cell" data-key="android-saf:revoke" title="Android Storage Access Framework / revoke"></button></td><td><button class="cell" data-key="android-saf:rotation" title="Android Storage Access Framework / rotation"></button></td><td><button class="cell" data-key="android-saf:backup" title="Android Storage Access Framework / backup"></button></td><td><button class="cell" data-key="android-saf:restore" title="Android Storage Access Framework / restore"></button></td><td><button class="cell" data-key="android-saf:move" title="Android Storage Access Framework / move"></button></td><td><button class="cell" data-key="android-saf:delete" title="Android Storage Access Framework / delete"></button></td><td><button class="cell" data-key="android-saf:reconnect" title="Android Storage Access Framework / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="android-saf:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="gdrive">
+      <td class="dest"><b>Google Drive</b><div class="note">Through the deployed broker</div></td>
+      <td><button class="cell" data-key="gdrive:authorize" title="Google Drive / authorize"></button></td><td><button class="cell" data-key="gdrive:write" title="Google Drive / write"></button></td><td><button class="cell" data-key="gdrive:read-back" title="Google Drive / read-back"></button></td><td><button class="cell" data-key="gdrive:list" title="Google Drive / list"></button></td><td><button class="cell" data-key="gdrive:quota" title="Google Drive / quota"></button></td><td><button class="cell" data-key="gdrive:resume" title="Google Drive / resume"></button></td><td><button class="cell" data-key="gdrive:revoke" title="Google Drive / revoke"></button></td><td><button class="cell" data-key="gdrive:rotation" title="Google Drive / rotation"></button></td><td><button class="cell" data-key="gdrive:backup" title="Google Drive / backup"></button></td><td><button class="cell" data-key="gdrive:restore" title="Google Drive / restore"></button></td><td><button class="cell" data-key="gdrive:move" title="Google Drive / move"></button></td><td><button class="cell" data-key="gdrive:delete" title="Google Drive / delete"></button></td><td><button class="cell" data-key="gdrive:reconnect" title="Google Drive / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="gdrive:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="dropbox">
+      <td class="dest"><b>Dropbox</b><div class="note">Through the deployed broker</div></td>
+      <td><button class="cell" data-key="dropbox:authorize" title="Dropbox / authorize"></button></td><td><button class="cell" data-key="dropbox:write" title="Dropbox / write"></button></td><td><button class="cell" data-key="dropbox:read-back" title="Dropbox / read-back"></button></td><td><button class="cell" data-key="dropbox:list" title="Dropbox / list"></button></td><td><button class="cell" data-key="dropbox:quota" title="Dropbox / quota"></button></td><td><button class="cell" data-key="dropbox:resume" title="Dropbox / resume"></button></td><td><button class="cell" data-key="dropbox:revoke" title="Dropbox / revoke"></button></td><td><button class="cell" data-key="dropbox:rotation" title="Dropbox / rotation"></button></td><td><button class="cell" data-key="dropbox:backup" title="Dropbox / backup"></button></td><td><button class="cell" data-key="dropbox:restore" title="Dropbox / restore"></button></td><td><button class="cell" data-key="dropbox:move" title="Dropbox / move"></button></td><td><button class="cell" data-key="dropbox:delete" title="Dropbox / delete"></button></td><td><button class="cell" data-key="dropbox:reconnect" title="Dropbox / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="dropbox:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="onedrive">
+      <td class="dest"><b>OneDrive</b><div class="note">Through the deployed broker</div></td>
+      <td><button class="cell" data-key="onedrive:authorize" title="OneDrive / authorize"></button></td><td><button class="cell" data-key="onedrive:write" title="OneDrive / write"></button></td><td><button class="cell" data-key="onedrive:read-back" title="OneDrive / read-back"></button></td><td><button class="cell" data-key="onedrive:list" title="OneDrive / list"></button></td><td><button class="cell" data-key="onedrive:quota" title="OneDrive / quota"></button></td><td><button class="cell" data-key="onedrive:resume" title="OneDrive / resume"></button></td><td><button class="cell" data-key="onedrive:revoke" title="OneDrive / revoke"></button></td><td><button class="cell" data-key="onedrive:rotation" title="OneDrive / rotation"></button></td><td><button class="cell" data-key="onedrive:backup" title="OneDrive / backup"></button></td><td><button class="cell" data-key="onedrive:restore" title="OneDrive / restore"></button></td><td><button class="cell" data-key="onedrive:move" title="OneDrive / move"></button></td><td><button class="cell" data-key="onedrive:delete" title="OneDrive / delete"></button></td><td><button class="cell" data-key="onedrive:reconnect" title="OneDrive / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="onedrive:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="box">
+      <td class="dest"><b>Box</b><div class="note">Through the deployed broker</div></td>
+      <td><button class="cell" data-key="box:authorize" title="Box / authorize"></button></td><td><button class="cell" data-key="box:write" title="Box / write"></button></td><td><button class="cell" data-key="box:read-back" title="Box / read-back"></button></td><td><button class="cell" data-key="box:list" title="Box / list"></button></td><td><button class="cell" data-key="box:quota" title="Box / quota"></button></td><td><button class="cell" data-key="box:resume" title="Box / resume"></button></td><td><button class="cell" data-key="box:revoke" title="Box / revoke"></button></td><td><button class="cell" data-key="box:rotation" title="Box / rotation"></button></td><td><button class="cell" data-key="box:backup" title="Box / backup"></button></td><td><button class="cell" data-key="box:restore" title="Box / restore"></button></td><td><button class="cell" data-key="box:move" title="Box / move"></button></td><td><button class="cell" data-key="box:delete" title="Box / delete"></button></td><td><button class="cell" data-key="box:reconnect" title="Box / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="box:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="webdav">
+      <td class="dest"><b>WebDAV over trusted HTTPS</b></td>
+      <td><button class="cell" data-key="webdav:authorize" title="WebDAV over trusted HTTPS / authorize"></button></td><td><button class="cell" data-key="webdav:write" title="WebDAV over trusted HTTPS / write"></button></td><td><button class="cell" data-key="webdav:read-back" title="WebDAV over trusted HTTPS / read-back"></button></td><td><button class="cell" data-key="webdav:list" title="WebDAV over trusted HTTPS / list"></button></td><td><button class="cell" data-key="webdav:quota" title="WebDAV over trusted HTTPS / quota"></button></td><td><button class="cell" data-key="webdav:resume" title="WebDAV over trusted HTTPS / resume"></button></td><td><button class="cell" data-key="webdav:revoke" title="WebDAV over trusted HTTPS / revoke"></button></td><td><button class="cell" data-key="webdav:rotation" title="WebDAV over trusted HTTPS / rotation"></button></td><td><button class="cell" data-key="webdav:backup" title="WebDAV over trusted HTTPS / backup"></button></td><td><button class="cell" data-key="webdav:restore" title="WebDAV over trusted HTTPS / restore"></button></td><td><button class="cell" data-key="webdav:move" title="WebDAV over trusted HTTPS / move"></button></td><td><button class="cell" data-key="webdav:delete" title="WebDAV over trusted HTTPS / delete"></button></td><td><button class="cell" data-key="webdav:reconnect" title="WebDAV over trusted HTTPS / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="webdav:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="s3">
+      <td class="dest"><b>S3-compatible (versioned bucket)</b></td>
+      <td><button class="cell" data-key="s3:authorize" title="S3-compatible (versioned bucket) / authorize"></button></td><td><button class="cell" data-key="s3:write" title="S3-compatible (versioned bucket) / write"></button></td><td><button class="cell" data-key="s3:read-back" title="S3-compatible (versioned bucket) / read-back"></button></td><td><button class="cell" data-key="s3:list" title="S3-compatible (versioned bucket) / list"></button></td><td><button class="cell" data-key="s3:quota" title="S3-compatible (versioned bucket) / quota"></button></td><td><button class="cell" data-key="s3:resume" title="S3-compatible (versioned bucket) / resume"></button></td><td><button class="cell" data-key="s3:revoke" title="S3-compatible (versioned bucket) / revoke"></button></td><td><button class="cell" data-key="s3:rotation" title="S3-compatible (versioned bucket) / rotation"></button></td><td><button class="cell" data-key="s3:backup" title="S3-compatible (versioned bucket) / backup"></button></td><td><button class="cell" data-key="s3:restore" title="S3-compatible (versioned bucket) / restore"></button></td><td><button class="cell" data-key="s3:move" title="S3-compatible (versioned bucket) / move"></button></td><td><button class="cell" data-key="s3:delete" title="S3-compatible (versioned bucket) / delete"></button></td><td><button class="cell" data-key="s3:reconnect" title="S3-compatible (versioned bucket) / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="s3:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="hosted">
+      <td class="dest"><b>Meerkat hosted storage</b></td>
+      <td><button class="cell" data-key="hosted:authorize" title="Meerkat hosted storage / authorize"></button></td><td><button class="cell" data-key="hosted:write" title="Meerkat hosted storage / write"></button></td><td><button class="cell" data-key="hosted:read-back" title="Meerkat hosted storage / read-back"></button></td><td><button class="cell" data-key="hosted:list" title="Meerkat hosted storage / list"></button></td><td><button class="cell" data-key="hosted:quota" title="Meerkat hosted storage / quota"></button></td><td><button class="cell" data-key="hosted:resume" title="Meerkat hosted storage / resume"></button></td><td><button class="cell" data-key="hosted:revoke" title="Meerkat hosted storage / revoke"></button></td><td><button class="cell" data-key="hosted:rotation" title="Meerkat hosted storage / rotation"></button></td><td><button class="cell" data-key="hosted:backup" title="Meerkat hosted storage / backup"></button></td><td><button class="cell" data-key="hosted:restore" title="Meerkat hosted storage / restore"></button></td><td><button class="cell" data-key="hosted:move" title="Meerkat hosted storage / move"></button></td><td><button class="cell" data-key="hosted:delete" title="Meerkat hosted storage / delete"></button></td><td><button class="cell" data-key="hosted:reconnect" title="Meerkat hosted storage / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="hosted:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr>
+    <tr data-row="connected-server">
+      <td class="dest"><b>Signed connected server</b></td>
+      <td><button class="cell" data-key="connected-server:authorize" title="Signed connected server / authorize"></button></td><td><button class="cell" data-key="connected-server:write" title="Signed connected server / write"></button></td><td><button class="cell" data-key="connected-server:read-back" title="Signed connected server / read-back"></button></td><td><button class="cell" data-key="connected-server:list" title="Signed connected server / list"></button></td><td><button class="cell" data-key="connected-server:quota" title="Signed connected server / quota"></button></td><td><button class="cell" data-key="connected-server:resume" title="Signed connected server / resume"></button></td><td><button class="cell" data-key="connected-server:revoke" title="Signed connected server / revoke"></button></td><td><button class="cell" data-key="connected-server:rotation" title="Signed connected server / rotation"></button></td><td><button class="cell" data-key="connected-server:backup" title="Signed connected server / backup"></button></td><td><button class="cell" data-key="connected-server:restore" title="Signed connected server / restore"></button></td><td><button class="cell" data-key="connected-server:move" title="Signed connected server / move"></button></td><td><button class="cell" data-key="connected-server:delete" title="Signed connected server / delete"></button></td><td><button class="cell" data-key="connected-server:reconnect" title="Signed connected server / reconnect"></button></td>
+      <td class="dest"><textarea class="evidence" data-key="connected-server:evidence" rows="2" placeholder="build id / test account / manifest id / byte+hash compare / cleanup"></textarea></td>
+    </tr></tbody></table></div>
+<h2>Restore and failure scenarios</h2>
+
+    <div class="scenario">
+      <button class="cell" data-key="scenario:fresh-mobile"></button>
+      <span>Fresh-install restore on mobile (database + blobs + identity)</span>
+      <input class="evidence line" data-key="scenario:fresh-mobile:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:fresh-browser"></button>
+      <span>Fresh-browser restore on web (database + blobs + identity)</span>
+      <input class="evidence line" data-key="scenario:fresh-browser:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:corruption"></button>
+      <span>Corruption case: damaged object detected, never silently served</span>
+      <input class="evidence line" data-key="scenario:corruption:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:wrong-key"></button>
+      <span>Wrong key: restore refused honestly</span>
+      <input class="evidence line" data-key="scenario:wrong-key:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:torn-journal"></button>
+      <span>Torn journal: recovery to consistent state</span>
+      <input class="evidence line" data-key="scenario:torn-journal:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:quota-exceeded"></button>
+      <span>Quota exceeded: honest refusal, no partial silent write</span>
+      <input class="evidence line" data-key="scenario:quota-exceeded:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:provider-outage"></button>
+      <span>Provider outage: honest error, retry succeeds after restore</span>
+      <input class="evidence line" data-key="scenario:provider-outage:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:lost-response"></button>
+      <span>Lost response: idempotent retry, no duplicate</span>
+      <input class="evidence line" data-key="scenario:lost-response:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+    <div class="scenario">
+      <button class="cell" data-key="scenario:interrupted-move"></button>
+      <span>Interrupted move: resumes or rolls back, never loses bytes</span>
+      <input class="evidence line" data-key="scenario:interrupted-move:evidence" placeholder="evidence: ids, hashes, screenshots ref">
+    </div>
+<div class="bar"><div class="bar-inner">
+  <span class="progress" id="progress"></span>
+  <button class="action" id="export">Export evidence JSON</button>
+  <b id="verdict"></b>
+</div></div>
+</div>
+<script>
+(function(){
+  var KEY='mk-providers:meerkat-2026-08-01-rc18:';
+  var STATES=['','pass','fail','na'];
+  var LABEL={'':'','pass':'P','fail':'F','na':'\u2013'};
+  var cells=document.querySelectorAll('.cell[data-key]');
+  var texts=document.querySelectorAll('.evidence[data-key]');
+  cells.forEach(function(c){
+    var s=localStorage.getItem(KEY+c.dataset.key)||'';
+    set(c,s);
+    c.addEventListener('click',function(){
+      var next=STATES[(STATES.indexOf(c.dataset.state||'')+1)%STATES.length];
+      set(c,next);
+      if(next)localStorage.setItem(KEY+c.dataset.key,next);else localStorage.removeItem(KEY+c.dataset.key);
+      update();
+    });
+  });
+  texts.forEach(function(t){
+    t.value=localStorage.getItem(KEY+t.dataset.key)||'';
+    t.addEventListener('input',function(){
+      if(t.value)localStorage.setItem(KEY+t.dataset.key,t.value);else localStorage.removeItem(KEY+t.dataset.key);
+    });
+  });
+  function set(c,s){if(s){c.dataset.state=s;}else{delete c.dataset.state;}c.textContent=LABEL[s]||'';}
+  function update(){
+    var total=cells.length,done=0,fail=0,pass=0,na=0;
+    cells.forEach(function(c){var s=c.dataset.state||'';if(s)done++;if(s==='fail')fail++;if(s==='pass')pass++;if(s==='na')na++;});
+    document.getElementById('progress').textContent=done+'/'+total+' cells ('+pass+' pass, '+fail+' fail, '+na+' n/a)';
+    var v=document.getElementById('verdict');
+    if(fail>0){v.textContent='FAIL PRESENT: stop promotion';v.style.color='#FFB4AB';}
+    else if(done===total){v.textContent='Matrix complete';v.style.color='#30D158';}
+    else{v.textContent='';}
+  }
+  document.getElementById('export').addEventListener('click',function(){
+    var out={releaseId:'meerkat-2026-08-01-rc18',exportedAt:new Date().toISOString(),cells:{},evidence:{}};
+    cells.forEach(function(c){if(c.dataset.state)out.cells[c.dataset.key]=c.dataset.state;});
+    texts.forEach(function(t){if(t.value)out.evidence[t.dataset.key]=t.value;});
+    var blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='provider-matrix-meerkat-2026-08-01-rc18-'+new Date().toISOString().slice(0,10)+'.json';
+    a.click();
+  });
+  update();
+})();
+</script>
+</body></html>

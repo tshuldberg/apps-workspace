@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meerkat — Angel Round Two-Pager</title>
+<meta name="description" content="Meerkat: wedge-first angel round. BestChef launches Q3 2026. $400K on YC Post-Money SAFE, $10M cap." />
+<style>
+  @page { margin: 0; size: letter; }
+  :root {
+    --bg: #131318; --bg-1: #1B1B20; --bg-2: #1F1F25; --bg-3: #2A292F;
+    --text: #E4E1E9; --text-2: #D6C3B5; --muted: #9F8E81;
+    --primary: #FFB877; --primary-2: #C9894D;
+    --tertiary: #8BCFF0; --success: #30D158;
+    --wedge: #22C55E;
+    --border: rgba(255,255,255,0.10);
+    --border-soft: rgba(255,255,255,0.06);
+    --glass: rgba(255,255,255,0.03);
+    --glass-strong: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px; line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    width: 8.5in; height: 11in;
+    padding: 0.45in 0.5in;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+  h1, h2, h3 { font-weight: 700; letter-spacing: -0.01em; }
+  h2 { font-size: 20px; margin-bottom: 10px; }
+  h3 { font-size: 14px; }
+  p { font-size: 12px; color: var(--text-2); line-height: 1.45; }
+  .small { font-size: 10px; color: var(--muted); }
+  .caption { font-size: 9px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  /* Hero */
+  .hero {
+    border: 1px solid var(--border); border-radius: 14px;
+    background: linear-gradient(180deg, #1B1B20 0%, #131318 70%);
+    padding: 22px 24px 18px; margin-bottom: 14px;
+  }
+  .badges { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; background: var(--glass-strong);
+    border: 1px solid var(--border); border-radius: 999px;
+    font-size: 9px; color: var(--text-2); letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .badge .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); }
+  .badge.wedge .dot { background: var(--wedge); }
+  .wordmark {
+    font-size: 44px; font-weight: 800; letter-spacing: -0.04em; line-height: 0.95;
+    background: linear-gradient(135deg, #FFB877 0%, #D6C3B5 60%, #8BCFF0 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 8px;
+  }
+  .pitch { font-size: 15px; color: var(--text); line-height: 1.4; max-width: 96%; }
+  .pitch strong { color: var(--primary); font-weight: 600; }
+  .pitch .wedge-tag { color: var(--wedge); font-weight: 600; }
+
+  /* Wedge / platform split */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .split-card {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .split-card .tag {
+    display: inline-block; padding: 2px 6px; font-size: 8px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase; border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .split-card.wedge .tag { background: rgba(34,197,94,0.12); color: var(--wedge); border: 1px solid rgba(34,197,94,0.35); }
+  .split-card.platform .tag { background: rgba(255,184,119,0.08); color: var(--primary); border: 1px solid rgba(255,184,119,0.3); }
+  .split-card h3 { font-size: 13px; margin-bottom: 4px; color: var(--text); }
+  .split-card p { font-size: 10.5px; color: var(--text-2); line-height: 1.4; }
+  .split-card .kv { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .split-card .kv span {
+    font-size: 9px; padding: 2px 6px; border-radius: 4px;
+    background: var(--glass-strong); border: 1px solid var(--border-soft); color: var(--text-2);
+  }
+
+  /* Metrics */
+  .metric-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; background: var(--glass);
+    margin-bottom: 14px;
+  }
+  .metric { padding: 10px 12px; border-right: 1px solid var(--border-soft); }
+  .metric:last-child { border-right: none; }
+  .metric .num { font-size: 22px; font-weight: 700; color: var(--primary); line-height: 1; margin-bottom: 2px; }
+  .metric .num.wedge { color: var(--wedge); }
+  .metric .lbl { font-size: 9px; color: var(--text-2); }
+
+  /* Section */
+  section { margin-bottom: 14px; }
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+  .section-head .caption { color: var(--primary); }
+  .section-head.wedge .caption { color: var(--wedge); }
+
+  /* Launch plan */
+  .launch-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .launch-card {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+    border-top: 3px solid var(--wedge);
+  }
+  .launch-card h3 { font-size: 12px; margin-bottom: 3px; color: var(--text); }
+  .launch-card .num { font-size: 20px; font-weight: 700; color: var(--wedge); line-height: 1; margin-bottom: 4px; }
+  .launch-card p { font-size: 10px; color: var(--text-2); line-height: 1.4; }
+
+  /* Revenue rails */
+  .rail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .rail-card {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .rail-card .lbl { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .rail-card h3 { font-size: 13px; margin-bottom: 3px; }
+  .rail-card p { font-size: 10px; color: var(--text-2); }
+  .rail-card .arr { font-size: 13px; color: var(--primary); font-weight: 600; }
+
+  /* Ask */
+  .ask-card {
+    background: linear-gradient(135deg, rgba(34,197,94,0.10) 0%, rgba(255,184,119,0.06) 100%), var(--glass);
+    border: 1px solid rgba(34,197,94,0.30); border-radius: 14px; padding: 16px 20px;
+    margin-bottom: 14px;
+  }
+  .ask-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .ask-num { font-size: 44px; font-weight: 800; color: var(--wedge); line-height: 1; }
+  .ask-sub { font-size: 11px; color: var(--text-2); margin-bottom: 4px; }
+  .ask-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .ask-item { padding: 8px 10px; background: var(--glass); border: 1px solid var(--border-soft); border-radius: 8px; }
+  .ask-item .pct { font-size: 15px; color: var(--primary); font-weight: 700; }
+  .ask-item .lbl { font-size: 9px; color: var(--text-2); }
+
+  /* Tables */
+  table.t {
+    width: 100%; border-collapse: collapse; background: var(--glass);
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: 10px;
+  }
+  table.t thead th {
+    background: var(--bg-2); text-align: left; padding: 6px 10px;
+    font-size: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: 600; border-bottom: 1px solid var(--border);
+  }
+  table.t td { padding: 6px 10px; border-bottom: 1px solid var(--border-soft); color: var(--text-2); }
+  table.t tr:last-child td { border-bottom: none; }
+  table.t .company { color: var(--text); font-weight: 600; }
+  table.t .price { color: var(--primary); font-weight: 600; }
+  table.t .hl { background: rgba(34,197,94,0.06); }
+
+  /* SAFE */
+  .safe-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; }
+  .safe-list {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .safe-row { display: flex; justify-content: space-between; padding: 7px 12px; border-bottom: 1px solid var(--border-soft); font-size: 10px; }
+  .safe-row:last-child { border-bottom: none; }
+  .safe-row .k { color: var(--muted); }
+  .safe-row .v { color: var(--text); font-weight: 600; }
+  .safe-row .v.price { color: var(--primary); }
+
+  /* Milestone cards */
+  .milestones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ms {
+    padding: 10px 12px; background: var(--glass-strong);
+    border: 1px solid var(--border); border-radius: 10px;
+  }
+  .ms .when { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tertiary); margin-bottom: 4px; }
+  .ms h3 { font-size: 12px; margin-bottom: 3px; }
+  .ms p { font-size: 9.5px; line-height: 1.4; }
+
+  /* Team */
+  .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .team-card {
+    background: var(--glass); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+  }
+  .team-card .role { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .team-card h3 { font-size: 13px; margin-bottom: 3px; }
+  .team-card p { font-size: 10px; line-height: 1.45; }
+
+  /* Footer */
+  .deck-footer {
+    position: absolute; bottom: 0.4in; left: 0.5in; right: 0.5in;
+    border-top: 1px solid var(--border-soft); padding-top: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 10px; color: var(--muted);
+  }
+  .cta {
+    padding: 6px 14px; background: var(--wedge); color: #062A12;
+    border-radius: 8px; font-weight: 600; font-size: 11px; text-decoration: none;
+  }
+
+  /* Print */
+  @media print {
+    html, body { background: #fff !important; color: #111 !important; }
+    .page { padding: 0.4in 0.5in; }
+    * { color: #111 !important; }
+    .glass-card, .metric-strip, .metric, .ask-card, .ask-item, table.t,
+    .hero, .ms, .launch-card, .rail-card, .team-card, .safe-list, .split-card {
+      background: #fff !important; border-color: #bbb !important; backdrop-filter: none !important;
+    }
+    .wordmark { background: none !important; -webkit-text-fill-color: #111 !important; }
+    .metric .num, .ask-num, .ask-item .pct, table.t .price, table.t .company,
+    .launch-card .num, .rail-card .arr { color: #111 !important; }
+    .badge { background: #f4f4f4 !important; border-color: #ccc !important; }
+    .cta { background: #22C55E !important; color: #062A12 !important; }
+    .deck-footer { border-color: #ccc !important; }
+    a { text-decoration: none; }
+    .split-card.wedge .tag { background: #e7f9ec !important; color: #0b6b2f !important; border-color: #bbdcc6 !important; }
+    .split-card.platform .tag { background: #fff3e3 !important; color: #8a4a12 !important; border-color: #e6c9a5 !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== PAGE 1: WEDGE + PLATFORM ===== -->
+<div class="page">
+  <div class="hero">
+    <div class="badges">
+      <span class="badge wedge"><span class="dot"></span>Angel Round</span>
+      <span class="badge">$400K · YC Post-Money SAFE · $10M cap</span>
+      <span class="badge">April 2026</span>
+    </div>
+    <h1 class="wordmark">Meerkat</h1>
+    <p class="pitch">
+      <strong>Wedge first. Platform after.</strong>
+      We launch with <span class="wedge-tag">BestChef</span>, a social recipe app where home cooks compete on leaderboards and the best backyard burger in Michigan can beat Bon Appétit.
+      Behind BestChef sits Meerkat: <strong>39 private modules on one local SQLite file</strong>, ready to expand the moment a user wants macros, groceries, or workout data tied to the recipe they just cooked.
+      One app in front. Thirty-eight behind it. $12 a year. No ads, no data sales, ever.
+    </p>
+  </div>
+
+  <section>
+    <div class="split">
+      <div class="split-card wedge">
+        <span class="tag">The Wedge · Live Q3 2026</span>
+        <h3>BestChef — social recipes with leaderboards</h3>
+        <p>
+          Home cooks post recipes, vote on the best burger, pasta, or pho in each cuisine. Macros auto-calc. Pantry and grocery list stay in sync. Import a TikTok recipe in one tap. The experience any MyFitnessPal user wishes Paprika shipped.
+        </p>
+        <div class="kv">
+          <span>Standalone App Store launch</span>
+          <span>590 tests shipped</span>
+          <span>Creator-first UX</span>
+        </div>
+      </div>
+      <div class="split-card platform">
+        <span class="tag">The Platform · Already Built</span>
+        <h3>Meerkat — 39 private modules, one SQLite file</h3>
+        <p>
+          The moment a BestChef user logs a workout, MyWorkouts is there. Track groceries? MyBudget. Track cycle? MyCycle. All local, all private, all already shipped. Users never see a super-app; they see the module they came for and discover the rest.
+        </p>
+        <div class="kv">
+          <span>30 mobile · 27 web modules</span>
+          <span>Mesh sync shipped (716 tests)</span>
+          <span>Anti-enshittification pledge</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="metric-strip">
+      <div class="metric"><div class="num wedge">15+3</div><div class="lbl">creators locked — 12.75M reach at launch</div></div>
+      <div class="metric"><div class="num">39</div><div class="lbl">modules shipped · 4,000+ tests across repo</div></div>
+      <div class="metric"><div class="num">$12</div><div class="lbl">suite subscription · floor, not ceiling</div></div>
+      <div class="metric"><div class="num">0</div><div class="lbl">ads, data sales, or trackers — architecturally</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head wedge"><h2>Why BestChef wins the wedge</h2><span class="caption">50K paid Q1 target · $600K ARR from wedge alone</span></div>
+    <div class="launch-grid">
+      <div class="launch-card">
+        <div class="num">9.75M</div>
+        <h3>Free creator reach, confirmed</h3>
+        <p>15 food and lifestyle creators averaging 650K followers committed to launch sponsorship at zero cost. Relationships already in place.</p>
+      </div>
+      <div class="launch-card">
+        <div class="num">3M</div>
+        <h3>Paid creator reach</h3>
+        <p>3 top-tier creators × ~1M followers each funded by angel round. One national campaign, three wedge demographics.</p>
+      </div>
+      <div class="launch-card">
+        <div class="num">45M</div>
+        <h3>SAM — active U.S. home cooks</h3>
+        <p>Home cooks following 3+ food creators and paying for at least one recipe app today. Capture 0.1% = 45K paid users. Year 1 target: 50K.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Revenue architecture</h2><span class="caption">$12/yr is the floor — not the ceiling</span></div>
+    <div class="rail-grid">
+      <div class="rail-card">
+        <div class="lbl">Rail 1</div>
+        <h3>Suite subscription</h3>
+        <p>$12/yr unlocks all 34 premium modules. 5 free forever (Mood, Journal, Notes, Fast, Voice). Benchmark 5% free-to-paid.</p>
+      </div>
+      <div class="rail-card">
+        <div class="lbl">Rail 2</div>
+        <h3>Creator economy</h3>
+        <p>Recipe content, cosmetic profile items, and tipping. 50/50 split with creators. Twitch-model, pledge-aligned.</p>
+      </div>
+      <div class="rail-card">
+        <div class="lbl">Rail 3</div>
+        <h3>Payment rails (MyPay)</h3>
+        <p>Phone-number peer payments, small % fee. Dual-rail wallet (Unit BaaS + stablecoin) shipped through Phase 2D.</p>
+      </div>
+    </div>
+    <p class="small" style="margin-top:6px;">Year 2 blended ARPU target: ~$27 across engaged users. Year 3 path to $15M+ ARR with suite cross-sell from wedge users.</p>
+  </section>
+
+  <div class="deck-footer">
+    <span>Meerkat · Trey Shuldberg · trey.shuldberg@gmail.com · Angel Round — Page 1 of 2</span>
+  </div>
+</div>
+
+<!-- ===== PAGE 2: THE ASK ===== -->
+<div class="page">
+  <section>
+    <div class="ask-card">
+      <div class="ask-row">
+        <div>
+          <div class="caption" style="color:var(--wedge);">The ask</div>
+          <div class="ask-num">$400K</div>
+          <div class="ask-sub">YC Post-Money SAFE · $10M cap · no discount</div>
+        </div>
+        <div style="flex:1; min-width:260px;">
+          <p style="color:var(--text); font-size:12px; line-height:1.45;">
+            $400K funds the BestChef launch blitz, two key hires, and four months of runway to product-market proof.
+            Clean YC Post-Money SAFE. ~4% target dilution. Founder stays principal.
+            Raise closes the gap between "this ships in 6 months organically" and "this ships in Q3 with three paid creator slots and the hires to hold the quality bar."
+          </p>
+        </div>
+      </div>
+      <div class="ask-grid">
+        <div class="ask-item"><div class="pct">37%</div><div class="lbl">Creator blitz — 3 paid slots ($150K)</div></div>
+        <div class="ask-item"><div class="pct">25%</div><div class="lbl">Full-time founder (6 mo, $100K)</div></div>
+        <div class="ask-item"><div class="pct">15%</div><div class="lbl">Designer contractor ($60K)</div></div>
+        <div class="ask-item"><div class="pct">10%</div><div class="lbl">Infra + App Store ($40K)</div></div>
+        <div class="ask-item"><div class="pct">8%</div><div class="lbl">Legal + pledge enforcement ($30K)</div></div>
+        <div class="ask-item"><div class="pct">5%</div><div class="lbl">Buffer ($20K)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Milestones unlocked by $400K</h2><span class="caption">What converts at the next priced round</span></div>
+    <div class="milestones">
+      <div class="ms" style="border-top:3px solid var(--wedge);">
+        <div class="when">Month 3</div>
+        <h3>BestChef on App Store</h3>
+        <p>Public launch. Paid creator wave 1 live. Target: 10K downloads, 1K paid in first 30 days.</p>
+      </div>
+      <div class="ms" style="border-top:3px solid var(--tertiary);">
+        <div class="when">Month 6</div>
+        <h3>50K paid + retention proof</h3>
+        <p>Creator waves 2 and 3. D30 retention above 35%. Suite upsell flow for 1 of every 3 BestChef users.</p>
+      </div>
+      <div class="ms" style="border-top:3px solid var(--primary);">
+        <div class="when">Month 12</div>
+        <h3>Meerkat suite to 150K paid</h3>
+        <p>$1.8M ARR. Series A optional, not required. Founder controls price, pledge, and roadmap at all times.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>SAFE terms</h2><span class="caption">Standard YC Post-Money SAFE · Cap Only</span></div>
+    <div class="safe-grid">
+      <div class="safe-list">
+        <div class="safe-row"><span class="k">Instrument</span><span class="v">YC Post-Money SAFE (Cap Only)</span></div>
+        <div class="safe-row"><span class="k">Raise target</span><span class="v price">Up to $400,000</span></div>
+        <div class="safe-row"><span class="k">Valuation cap</span><span class="v price">$10,000,000 post-money</span></div>
+        <div class="safe-row"><span class="k">Discount</span><span class="v">None</span></div>
+        <div class="safe-row"><span class="k">MFN (Most Favored Nation)</span><span class="v">Yes, standard</span></div>
+        <div class="safe-row"><span class="k">Pro-rata</span><span class="v">Standard YC side letter, available on request</span></div>
+        <div class="safe-row"><span class="k">Conversion</span><span class="v">Next priced equity financing</span></div>
+        <div class="safe-row"><span class="k">Min check</span><span class="v">$25,000</span></div>
+        <div class="safe-row"><span class="k">Lead check</span><span class="v">$100,000+ (preferred)</span></div>
+        <div class="safe-row"><span class="k">Target close</span><span class="v">Rolling close, final by Q2 2026</span></div>
+      </div>
+      <div>
+        <table class="t">
+          <thead><tr><th>If next round is…</th><th>Cap converts at</th></tr></thead>
+          <tbody>
+            <tr><td class="company">$15M pre on $3M raise</td><td class="price">$10M (cap)</td></tr>
+            <tr><td class="company">$8M pre on $2M raise</td><td class="price">$8M (round price)</td></tr>
+            <tr><td class="company">Acquisition at $50M</td><td class="price">Per SAFE §1(b)</td></tr>
+            <tr class="hl"><td class="company">Example: $25K check</td><td class="price">~0.25% at cap</td></tr>
+            <tr class="hl"><td class="company">Example: $100K check</td><td class="price">~1.00% at cap</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:6px;">
+          We use the published YC Post-Money SAFE (Cap Only) template unmodified.
+          Any side letter (pro-rata, information rights) follows YC standard form.
+          Full executable copy: see <code>SAFE-C.pdf</code> in investor package.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2>Team</h2><span class="caption">Single founder · validated technical team</span></div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="role">Founder / Product / Engineering</div>
+        <h3>Trey Shuldberg</h3>
+        <p>
+          Shipped 15+ consumer apps across 8 personal-software categories in the last 24 months, including the 39-module Meerkat hub, mesh sync transport stack (716 tests, 9 commits), and the BestChef wedge.
+          Prior: product and engineering work across ShipHawk, EasyStreet, MySurf, MyBudget, MyBooks.
+          Going full-time on Meerkat at round close.
+        </p>
+      </div>
+      <div class="team-card">
+        <div class="role">Advisors · already engaged</div>
+        <h3>Review and validation</h3>
+        <p>
+          Senior engineers from Google and Amazon have reviewed the Meerkat architecture, mesh sync design, and BestChef build.
+          One is actively contributing to the team part-time.
+          External mentorship in place for GTM and consumer positioning.
+          Named advisors on request under NDA.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="deck-footer">
+    <div>
+      <div style="color:var(--text); font-weight:600; font-size:12px;">Meerkat · Angel Round</div>
+      <div>trey.shuldberg@gmail.com</div>
+    </div>
+    <a class="cta" href="mailto:trey.shuldberg@gmail.com?subject=Meerkat%20Angel%20Round">Start the conversation &rarr;</a>
+  </div>
+</div>
+
+</body>
+</html>

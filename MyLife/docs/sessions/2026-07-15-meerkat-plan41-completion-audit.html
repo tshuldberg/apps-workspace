@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Meerkat Plan 41 Audit Remediation Session</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+color-scheme: dark;
+--background: #131318;
+--surface: #1b1b20;
+--surface-elevated: #2a292f;
+--text: #e4e1e9;
+--secondary: #d6c3b5;
+--primary: #ffb877;
+--tertiary: #8bcff0;
+--border: rgba(255, 255, 255, 0.10);
+--success: #30d158;
+}
+* { box-sizing: border-box; }
+body {
+margin: 0 auto;
+max-width: 1120px;
+padding: 48px 44px 80px;
+background: var(--background);
+color: var(--text);
+font: 16px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+h1, h2, h3 { line-height: 1.2; letter-spacing: -0.02em; }
+h1 { color: var(--primary); font-size: 2.35rem; margin-bottom: 1.5rem; }
+h2 { color: var(--tertiary); margin-top: 2.5rem; padding-bottom: 0.35rem; border-bottom: 1px solid var(--border); }
+h3 { color: var(--secondary); margin-top: 2rem; }
+p, li { color: var(--text); }
+strong { color: #fff4e8; }
+a { color: var(--tertiary); }
+code {
+padding: 0.12rem 0.35rem;
+border: 1px solid var(--border);
+border-radius: 5px;
+background: var(--surface-elevated);
+color: #ffd5ad;
+}
+table {
+width: 100%;
+margin: 1.3rem 0 2rem;
+border-collapse: collapse;
+border: 1px solid var(--border);
+background: var(--surface);
+}
+th, td { padding: 0.72rem 0.8rem; text-align: left; vertical-align: top; border: 1px solid var(--border); }
+th { background: var(--surface-elevated); color: var(--primary); }
+tr:nth-child(even) td { background: rgba(255, 255, 255, 0.025); }
+blockquote { margin: 1.5rem 0; padding: 0.8rem 1rem; border-left: 4px solid var(--primary); background: var(--surface); }
+hr { border: 0; border-top: 1px solid var(--border); }
+@media (max-width: 760px) {
+body { padding: 28px 18px 60px; }
+h1 { font-size: 1.8rem; }
+table { display: block; overflow-x: auto; }
+}
+@media print {
+:root { color-scheme: light; }
+body { max-width: none; padding: 0; background: white; color: #17151a; font-size: 11pt; }
+p, li { color: #17151a; }
+h1, h2, h3, strong, code, th { color: #17151a; }
+table, th, td, code { border-color: #aaa; }
+table, th, td, code { background: white; }
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Meerkat Plan 41 Audit Remediation Session</h1>
+</header>
+<h1 id="meerkat-plan-41-completion-audit-and-remediation-session">Meerkat
+Plan 41 Completion Audit and Remediation Session</h1>
+<p>Date: 2026-07-15</p>
+<p>Scope: Independent completion audit, remediation of H1 through H7,
+Plan 43 integration, and final code-quality verification</p>
+<h2 id="outcome">Outcome</h2>
+<p>All seven original high-severity code findings are resolved. The
+implementation landed in <code>f29ab80d</code> and was combined with the
+complete Plan 43 tip in merge commit <code>6b70b994</code>. The code
+decision is PASS for the integrated candidate. The production release
+remains NO-GO until founder-operated provider, signed-build,
+physical-device, deployed-infrastructure, live-browser, restore-drill,
+and publication evidence is collected.</p>
+<p>The canonical report is <a href="../reports/REPORT-meerkat-plan41-completion-audit-2026-07-15.md">REPORT-meerkat-plan41-completion-audit-2026-07-15.md</a>,
+with a same-basename HTML review copy.</p>
+<h2 id="work-completed">Work completed</h2>
+<ul>
+<li>Replaced mobile provider placeholders with native PKCE and
+SecureStore flows; wired hosted and connected destinations on mobile and
+web.</li>
+<li>Added production recovery-identity and complete blob coverage,
+including zero-byte objects, with real backup-to-staged-restore
+tests.</li>
+<li>Added durable mobile/web payload stores so router memory is bounded
+to one payload instead of the total backup.</li>
+<li>Added cursor-v2 job rehydration and proved resume after destroying
+the original router.</li>
+<li>Made post-close web restore failures force controlled reload after
+durable rollback.</li>
+<li>Moved browser WebDAV/S3/connected secrets to KMS broker custody and
+added safe legacy-vault migration.</li>
+<li>Merged Plan 43 deliberately, preserving push, transport, archive,
+NCMEC, DMCA, hosted-storage, and OAuth work.</li>
+<li>Renumbered colliding PostgreSQL migrations to a contiguous 13
+through 16 sequence.</li>
+<li>Fixed the integrated duplicate relay barrel export and removed seven
+touched-surface lint warnings.</li>
+</ul>
+<h2 id="verification">Verification</h2>
+<ul>
+<li>Sync: 186 files and 2,245 tests passed; typecheck, lint, and build
+passed.</li>
+<li>Relay: 185 files and 1,386 tests passed; 180 live-environment tests
+skipped; typecheck and lint passed.</li>
+<li>Mobile: 127 files and 1,299 tests passed; typecheck, lint, and
+iOS/Android export passed.</li>
+<li>Web: 119 files and 887 tests passed; typecheck, lint, and production
+build passed.</li>
+<li>iCloud package: 1 file and 6 tests passed; typecheck and lint
+passed.</li>
+<li>Total: 618 files and 5,823 package tests passed.</li>
+<li><code>pnpm gate:function:changed</code>, the staged pre-commit gate,
+<code>pnpm check:meerkat-transport-nc</code>,
+<code>pnpm check:meerkat-parity</code>, <code>pnpm check:parity</code>,
+and <code>pnpm check:generated-artifacts</code> passed.</li>
+<li><code>git diff --check</code> passed.</li>
+</ul>
+<h2 id="decision">Decision</h2>
+<p>The integrated code candidate may proceed to protected-branch review
+and founder-operated evidence collection. It must not be represented as
+production-launch approved until those external gates pass on the exact
+release SHA.</p>
+</body>
+</html>

@@ -1,0 +1,206 @@
+{
+  "releaseId": "meerkat-2026-07-18-rc3",
+  "product": "Meerkat",
+  "runbook": "docs/guides/meerkat-production-activation-runbook-2026-07-15.md",
+  "createdAt": "2026-07-18",
+  "releaseSha": "90e131d2c4c1f2b41ec40da0c8db447a742642a6",
+  "releaseBranch": "main",
+  "remote": "https://github.com/tshuldberg/MyLife.git",
+  "immutabilityRule": "All evidence in this ledger binds to releaseSha. Any later code change creates a new release candidate directory and restarts affected evidence.",
+  "launchState": "NO-GO",
+  "supersedes": "meerkat-2026-07-18-rc2",
+  "lineage": {
+    "startingCodeCandidate": "25c38e51",
+    "priorCandidate": {
+      "releaseId": "meerkat-2026-07-18-rc2",
+      "releaseSha": "ab29dabea3f907e0d690957d85235322db82c44e",
+      "supersededReason": "The rc2 full-matrix release-verify run (29628547159) failed 4 jobs; 5 defects were root-caused: Node 20 runners vs Node 22 production images (community-node global-WebSocket import crash, surfaced by the rc2 harness diagnostics, plus the AWS SDK NodeVersionSupport stderr warning breaking the s3-hosted hygiene contract), postgres upgrade-contract schema-inventory drift from the plan 42/44 integration merge (rooms schema arrives at migration 17), archive quota-test fixture coupling to a shared owner hash, relay-image healthz race against a cold tsx boot, and a coverage-instrumented perf-gate flake."
+    },
+    "deltaFromPrior": "One commit on top of ab29dabe (plus the rc2 ledger work): 90e131d2 fixes the five release-verify findings. Test and CI changes only; no product code changed. Live-postgres suite verified locally 171/171 against postgres:17-alpine.",
+    "mergeCommits": {
+      "plan41AuditFindings": "d73e9828",
+      "plan42ProductionReadiness": "10dd78d9",
+      "plan43": "8f6b8017",
+      "wp43g": "739eef31",
+      "ciReleaseVerify": "ab29dabe",
+      "rc3VerificationFixes": "90e131d2"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Select the immutable release candidate",
+      "owner": "release owner (founder)",
+      "status": "IN_PROGRESS",
+      "evidence": {
+        "releaseSha": "90e131d2c4c1f2b41ec40da0c8db447a742642a6",
+        "releaseId": "meerkat-2026-07-18-rc3",
+        "branchPushed": "main pushed to origin without force on 2026-07-18 (ab29dabe..90e131d2); fix/meerkat-rc3-verification-fixes squash-merged per repo convention",
+        "review": "Inherited from rc1: Fable-led conflict resolution + independent opus review of the integration surface (docs/sessions/2026-07-17-integration-merge-sweep.md). rc2+rc3 deltas are test-harness, test-fixture, and CI workflow changes only; reviewed in-session 2026-07-18.",
+        "localVerification": "Inherited from rc1 at 10aaaf14: 133/133 typecheck tasks, 133/133 test tasks, check:parity, check:generated-artifacts green (no product code changed since). rc3 delta verified: live-postgres 34 files / 171 tests green vs postgres:17-alpine; log-hygiene-canary-e2e 12/12; perf-gate file green with MYLIFE_PERF_GATES on and off; typecheck green across all 9 patched packages.",
+        "remoteCi": {
+          "releaseVerifyRun": "https://github.com/tshuldberg/MyLife/actions/runs/29629244394 - COMPLETED: FAILURE. Green: audit, parity, lint, typecheck, test (canary fixed), coverage (perf gates fixed), meerkat-s3 (Node 22 fixed). Failed: meerkat-postgres (171/171 tests passed but 2 uncaught pg idle-client errors from the DROP DATABASE WITH (FORCE) teardown race), relay-image (hosted-service bin fail-closed fatal: MEERKAT_DEPLOYMENT_PROFILE missing from the smoke env, which predates plan 44 state-authority enforcement), e2e (first-ever CI execution of @mylife/web playwright: 2 failed / 3 flaky / 6 passed against a next dev server exhibiting on-demand-compile stalls).",
+          "pushCiRun": "https://github.com/tshuldberg/MyLife/actions/runs/29629244769 - CANCELLED: the rc3 ledger docs push retriggered ci.yml, whose concurrency group cancels in-progress main runs. Superseded by the run at the docs commit (same code tree). Process note: push ledger docs only after CI settles, or rely on the SHA-pinned release-verify run as the load-bearing evidence.",
+          "priorRuns": "rc2 diagnostics: release-verify 29628547159 (4 jobs failed, findings fixed in this candidate); rc1: 29608454099, 29621788581 (canary red)"
+        }
+      },
+      "exceptions": [
+        {
+          "id": "rc3-exc-1",
+          "subject": "Branch protection on the release branch",
+          "decision": "Founder-signed exception, approved by the founder in the interactive session of 2026-07-18.",
+          "reason": "github.com/tshuldberg/MyLife is a private repository on the GitHub Free plan; GitHub refuses branch-protection configuration (HTTP 403, requires GitHub Pro or a public repository). The founder declined the plan upgrade and the public option for a pre-launch product monorepo.",
+          "mitigations": [
+            "The release SHA is recorded here and remotely available on origin/main; any drift is detectable by comparing this ledger to the remote ref history.",
+            "Repository policy blocks force pushes and destructive git operations locally (CLAUDE.md git workflow rules).",
+            "The full-matrix release-verify run pins and verifies the exact SHA independent of branch state."
+          ],
+          "revisit": "If the repository moves to GitHub Pro/Team or goes public, configure protection on main (required status checks, no force push, no deletion, PRs with 0 required approvals for solo-founder operation) and retire this exception."
+        }
+      ],
+      "openItems": [
+        "Attach final conclusions and URLs for the release-verify and push CI runs once complete; both must be green before this step is PASS."
+      ],
+      "exitGate": "The exact SHA is immutable, remotely available, protected, reviewed, and green.",
+      "exitGateAssessment": "NOT PASS: the full-matrix run failed 3 jobs. All three root-caused as verification-infrastructure defects (pg pool teardown guard, stale smoke env, dev-server e2e in CI); no product defect found. Fixes cut rc4."
+    },
+    {
+      "step": 2,
+      "title": "Assign accountable owners and freeze launch changes",
+      "owner": "founder",
+      "status": "IN_PROGRESS",
+      "evidence": {
+        "ownerRoster": {
+          "release": "Trey Shuldberg (founder)",
+          "infrastructure": "Trey Shuldberg",
+          "security": "Trey Shuldberg",
+          "safety": "Trey Shuldberg",
+          "legal": "Trey Shuldberg (interim) - external counsel to be engaged and named as lane owner before Step 3 begins (founder commitment, 2026-07-18)",
+          "privacy": "Trey Shuldberg (interim) - same counsel condition as legal",
+          "billing": "Trey Shuldberg",
+          "appleRelease": "Trey Shuldberg",
+          "googleRelease": "Trey Shuldberg",
+          "support": "Trey Shuldberg",
+          "incidentCommand": "Trey Shuldberg"
+        },
+        "rollbackDecisionMakers": {
+          "primary": "Trey Shuldberg",
+          "backup": "None - covered by founder-signed exception rc3-exc-2"
+        },
+        "escalation": {
+          "contact": "Founder phone + email alerting (tshuldberg999@gmail.com); monitoring alert delivery is provisioned in Step 5 and must page the phone, not only email",
+          "launchWindowResponse": "15 minutes during the launch window and for 72 hours after activation",
+          "steadyStateResponse": "4 hours, 08:00-22:00 local; overnight critical alerts page immediately"
+        },
+        "changeFreeze": {
+          "startedAt": "2026-07-18 (founder-approved in session)",
+          "policy": "Only release-blocking fixes may enter the candidate. Every accepted fix cuts a new SHA, creates a new release candidate directory, and restarts affected evidence (demonstrated by rc1 through rc3). Non-Meerkat work continues on branches and does not merge to the release path during the freeze."
+        },
+        "approvalTimestamp": "2026-07-18, interactive founder session"
+      },
+      "exceptions": [
+        {
+          "id": "rc3-exc-2",
+          "subject": "Backup rollback decision-maker",
+          "decision": "Founder-signed exception, approved by the founder in the interactive session of 2026-07-18.",
+          "reason": "Solo-founder operation: no second human currently holds production access or rollback authority.",
+          "mitigations": [
+            "Automatic NO-GO stop conditions in the runbook remove discretionary judgment from the highest-risk calls.",
+            "Alerting pages the founder's phone during the launch window (15-minute response commitment).",
+            "The rollback procedure must be written cold-executable (exact commands, recorded compatible target) in Step 15 so any competent engineer could run it without context.",
+            "Launch activation (Step 18) is scheduled only when the founder is available for the full launch window."
+          ],
+          "revisit": "Name and onboard a backup human before any post-launch release, or at the first point a second trusted operator exists."
+        }
+      ],
+      "openItems": [
+        "Engage external counsel and record their identity as legal/privacy lane owner before Step 3 evidence collection begins."
+      ],
+      "exitGate": "Every mandatory lane has an accepting human owner and backup.",
+      "exitGateAssessment": "All eleven lanes have an accepting owner (founder). Backup coverage is by signed exception rc2-exc-2. Remaining open: counsel named for the legal and privacy lanes."
+    },
+    {
+      "step": 3,
+      "title": "Approve and publish legal and safety policy",
+      "status": "OPEN"
+    },
+    {
+      "step": 4,
+      "title": "Create production accounts and secure access",
+      "status": "OPEN"
+    },
+    {
+      "step": 5,
+      "title": "Provision the production data and network plane",
+      "status": "OPEN"
+    },
+    {
+      "step": 6,
+      "title": "Register external providers and load secrets",
+      "status": "OPEN"
+    },
+    {
+      "step": 7,
+      "title": "Deploy the complete topology by immutable digest",
+      "status": "OPEN"
+    },
+    {
+      "step": 8,
+      "title": "Run migrations and prove least privilege",
+      "status": "OPEN"
+    },
+    {
+      "step": 9,
+      "title": "Activate malware, abuse, NCMEC, DMCA, and moderation operations",
+      "status": "OPEN"
+    },
+    {
+      "step": 10,
+      "title": "Prove billing, entitlement, refund, and deletion behavior",
+      "status": "OPEN"
+    },
+    {
+      "step": 11,
+      "title": "Execute the complete Plan 41 provider matrix",
+      "status": "OPEN"
+    },
+    {
+      "step": 12,
+      "title": "Execute calls, rooms, push, mesh, and background device matrices",
+      "status": "OPEN"
+    },
+    {
+      "step": 13,
+      "title": "Prove backup, PITR, restore, failover, and regional recovery",
+      "status": "OPEN"
+    },
+    {
+      "step": 14,
+      "title": "Verify supply chain and signed artifacts",
+      "status": "OPEN"
+    },
+    {
+      "step": 15,
+      "title": "Run production-shaped browser, load, soak, canary, and rollback",
+      "status": "OPEN"
+    },
+    {
+      "step": 16,
+      "title": "Complete store compliance and submit exact builds",
+      "status": "OPEN"
+    },
+    {
+      "step": 17,
+      "title": "Assemble the immutable evidence ledger and rerun the final audit",
+      "status": "OPEN"
+    },
+    {
+      "step": 18,
+      "title": "Sign GO and activate public availability",
+      "status": "OPEN"
+    }
+  ],
+  "prohibited": "Never store passwords, private keys, OAuth client secrets, provider tokens, recovery codes, private user content, or abuse material in this ledger. Identifiers, timestamps, redacted outputs, digests, verdicts, and links only.",
+  "supersededBy": "meerkat-2026-07-18-rc4",
+  "supersededReason": "2026-07-18: the rc3 full-matrix run (29629244394) failed 3 jobs. All were verification-infrastructure defects, no product defect: pg idle-client teardown race, stale smoke env missing MEERKAT_DEPLOYMENT_PROFILE, and the first-ever CI execution of the web e2e suite (dev-server overlays + stale specs + dev-only tokenless fallback). Fixed in 55276e5b; rc4 binds there."
+}

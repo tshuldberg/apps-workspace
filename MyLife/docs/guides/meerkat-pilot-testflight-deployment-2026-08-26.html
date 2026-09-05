@@ -1,0 +1,152 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meerkat pilot TestFlight deployment (2026-08-26)</title>
+<style>
+:root { color-scheme: light dark; }
+body { font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  max-width: 860px; margin: 2rem auto; padding: 0 1.25rem; color: #20302b; background: #f6f4ef; }
+@media (prefers-color-scheme: dark) { body { color: #e6ede9; background: #111816; }
+  code, pre { background: #19211e !important; border-color: #2a3531 !important; }
+  h1, h2 { border-color: #2a3531 !important; } }
+h1 { font-size: 1.7rem; border-bottom: 3px solid #0e7c66; padding-bottom: .4rem; }
+h2 { font-size: 1.25rem; margin-top: 2.2rem; border-bottom: 1px solid #d8d4ca; padding-bottom: .3rem; color: #0e7c66; }
+h3 { font-size: 1.05rem; margin-top: 1.4rem; }
+code { background: #e9f1ed; border: 1px solid #d8d4ca; border-radius: 4px; padding: .1em .35em; font-size: .88em; }
+pre { background: #e9f1ed; border: 1px solid #d8d4ca; border-radius: 8px; padding: .9rem 1.1rem; overflow-x: auto; }
+pre code { background: none; border: none; padding: 0; }
+li { margin: .35rem 0; }
+hr { border: none; border-top: 1px solid #d8d4ca; margin: 2rem 0; }
+</style></head><body>
+<h1>Meerkat pilot TestFlight deployment, click by click (2026-08-26)</h1>
+<p>Scope: get Meerkat onto YOUR phone via TestFlight and usable with the private wedge (pairing, communities, channel chat, DMs, sync over relay). This is the pilot path, not the full 18-step launch runbook (<code>docs/guides/meerkat-launch-execution-guide-2026-07-21.md</code>); the full production topology (account/hosted/persona/LiveKit/scanner services) is public-tier infrastructure the pilot does not need. Release candidate context: <code>meerkat-2026-08-25-rc19</code> at <code>cdfea6d6</code>.</p>
+<p>Every identifier below was read from the repo at HEAD, not memory: <code>apps/meerkat/app.config.ts</code> (env vars), <code>apps/meerkat/eas.json</code> (profiles, ASC ids), <code>packages/entitlements/src/meerkat-app.ts</code> (product id), <code>apps/meerkat/app/(root)/data/app-unlock.ts</code> (purchase flow), <code>packages/meerkat-relay/deploy/fly.toml</code> + <code>render.yaml</code> (relay deploy).</p>
+<hr>
+<h2>Step 1: deploy one pilot relay (the only server the private wedge needs)</h2>
+<p>The slim relay is STATELESS: no database, no disk, no secrets. It reads only <code>PORT</code>/<code>HOST</code> and keeps a 24h in-memory store-and-forward mailbox (<code>RELAY_MAILBOX_TTL_MS=86400000</code>, already preset in both deploy templates). Pairing, manual sync sessions, offline mailbox delivery, communities, DMs, and live-wake all ride this one service.</p>
+<h3>Option A: Fly.io (recommended; template ready)</h3>
+<ol>
+<li>Install flyctl (<code>brew install flyctl</code>) and <code>fly auth login</code>.</li>
+<li>From the relay PACKAGE ROOT (this matters; the Docker build context is the package root):</li>
+</ol>
+<pre><code>
+   cd packages/meerkat-relay
+   fly apps create meerkat-relay-us       # first time; global namespace, rename on conflict
+   cp deploy/fly.toml ./fly.toml          # root copy is REQUIRED (gitignored)
+   fly deploy --remote-only
+</code></pre>
+<p>The template names the app <code>meerkat-relay-us</code> in region <code>iad</code>; change in <code>deploy/fly.toml</code> if you want another name/region.</p>
+<p><strong>Verified 2026-08-27:</strong> deploying straight off <code>--config deploy/fly.toml</code> FAILS because flyctl resolves the <code>[build].dockerfile</code> path relative to the config file's directory (it looks for <code>deploy/Dockerfile</code>), and a <code>--dockerfile</code> CLI override is ignored in favor of the config value. The root copy is the working layout; <code>fly launch --copy-config</code> produces the same file. Also verified: if <code>flyctl auth whoami</code> reports no token right after a successful browser login, pass the stored token explicitly: <code>FLY_API_TOKEN="$(awk '/^access_token:/{print $2}' ~/.fly/config.yml)" fly deploy ...</code></p>
+<ol>
+<li>Verify: <code>curl https://meerkat-relay-us.fly.dev/healthz</code> returns the two-field health response. Fly terminates TLS, so your relay URL is: <code>wss://meerkat-relay-us.fly.dev</code></li>
+<li>Keep this URL; it goes into the build in Step 3.</li>
+</ol>
+<h3>Option B: Render.com</h3>
+<ol>
+<li>Render dashboard &gt; New &gt; Blueprint &gt; connect the MyLife repo.</li>
+<li>Point it at <code>packages/meerkat-relay/deploy/render.yaml</code> (service <code>meerkat-relay</code>, Docker runtime, health check <code>/healthz</code>, <code>autoDeploy</code> deliberately off).</li>
+<li>After deploy, your relay URL is <code>wss://&lt;service&gt;.onrender.com</code>.</li>
+</ol>
+<p>Fleet notes (multi-region, custom domains, TLS): <code>docs/designs/meerkat-relay-fleet-runbook.md</code>.</p>
+<hr>
+<h2>Step 2: App Store Connect IAP + RevenueCat</h2>
+<p>The unlock gate is deny-by-default with no dev bypass: without this step the app installs and browses but stays LOCKED at the $4.99 gate (honest fail-closed copy). The app purchases by PRODUCT ID directly (<code>Purchases.getProducts([&#x27;meerkat_app_unlock&#x27;])</code>, <code>app-unlock.ts:175</code>), so RevenueCat needs NO offering or entitlement objects, just the app + store key.</p>
+<h3>2a. Create the IAP in App Store Connect</h3>
+<ol>
+<li>appstoreconnect.apple.com &gt; My Apps &gt; Meerkat (app id <code>6800001912</code>, bundle <code>com.mylife.meerkat</code>, team <code>4LMG5HM5UV</code>; all already wired in <code>eas.json</code>).</li>
+<li>Monetization &gt; In-App Purchases &gt; Create:</li>
+<li>Type: <strong>Non-Consumable</strong></li>
+<li>Product ID: exactly <code>meerkat_app_unlock</code> (the code keys off this literal; a typo here cannot be fixed later, only replaced)</li>
+<li>Reference name: Meerkat App Unlock</li>
+<li>Price: <strong>$4.99</strong> (founder-locked; no other SKU exists by design)</li>
+<li>Add the English localization (display name + description) and a review screenshot (any real app screenshot; required for metadata completeness).</li>
+<li>Get it to <strong>Ready to Submit</strong> state. TestFlight sandbox purchases work once metadata is complete; the IAP goes to review together with the first App Store submission, which the pilot does not need.</li>
+</ol>
+<h3>2b. The two .p8 keys (do not mix them up)</h3>
+<p>App Store Connect issues two different key types; the deploy walkthrough (<code>docs/guides/meerkat-deploy-and-test-walkthrough-2026-08-01.html</code>) documents the exact failure (&quot;Invalid file name, it should be SubscriptionKey_...&quot;) when they are swapped:</p>
+<ul>
+<li>Users and Access &gt; Integrations &gt; <strong>App Store Connect API</strong> &gt; generate <code>AuthKey_XXXX.p8</code> with <strong>App Manager</strong> access. This one is for <code>eas submit</code> (Step 5).</li>
+<li>Users and Access &gt; Integrations &gt; <strong>In-App Purchase</strong> &gt; generate <code>SubscriptionKey_XXXX.p8</code>. This one is what RevenueCat&#x27;s purchase-key field wants.</li>
+</ul>
+<h3>2c. RevenueCat</h3>
+<ol>
+<li>app.revenuecat.com &gt; create project Meerkat &gt; add an <strong>App Store</strong> app with bundle id <code>com.mylife.meerkat</code>.</li>
+<li>Upload <code>SubscriptionKey_XXXX.p8</code> in the In-App Purchase key field (issuer id + key id from the same ASC page).</li>
+<li>Project settings &gt; API keys &gt; copy the <strong>public Apple SDK key</strong> (starts <code>appl_</code>). The app validates that prefix (<code>app-unlock.ts</code> RC_KEY_PREFIX) and refuses a key that does not match it.</li>
+</ol>
+<hr>
+<h2>Step 3: bake the two env values into the testflight profile</h2>
+<p><code>extra.defaultRelayUrl</code> comes from <code>MEERKAT_DEFAULT_RELAY_URL</code> at build time and defaults to &#x27;&#x27; (no out-of-box connectivity, by design); <code>EXPO_PUBLIC_MEERKAT_RC_KEY_IOS</code> is inlined at build. Both are non-secret (a public wss address and RevenueCat&#x27;s publishable SDK key), so the simplest reproducible home is an <code>env</code> block on the testflight profile.</p>
+<p>Edit <code>apps/meerkat/eas.json</code>:</p>
+<pre><code>
+&quot;testflight&quot;: {
+  &quot;extends&quot;: &quot;production&quot;,
+  &quot;distribution&quot;: &quot;store&quot;,
+  &quot;ios&quot;: { &quot;image&quot;: &quot;macos-sequoia-15.6-xcode-26.0&quot; },
+  &quot;env&quot;: {
+    &quot;MEERKAT_DEFAULT_RELAY_URL&quot;: &quot;wss://meerkat-relay-us.fly.dev&quot;,
+    &quot;EXPO_PUBLIC_MEERKAT_RC_KEY_IOS&quot;: &quot;appl_XXXXXXXXXXXX&quot;
+  }
+}
+</code></pre>
+<p>Optional now, useful once friends join: <code>MEERKAT_INSTALL_URL</code> set to the TestFlight public link makes share/invite envelopes include the install step (unset, they honestly omit it).</p>
+<p>Notes:</p>
+<ul>
+<li>Updated 2026-09-04: every store-distributed profile, including <code>testflight</code>, runs <a href="../../apps/meerkat/scripts/check-build-env.mjs">the store environment guard</a>. The two values above are no longer sufficient: configured HTTPS service/legal endpoints, pinned public-service keys and topics, and secure TURN configuration are also required. Missing values stop the build before dependency installation and are listed by variable name. Supply real configuration, never placeholder endpoints. No private-only capability profile is currently implemented.</li>
+<li>Never set <code>EXPO_PUBLIC_MEERKAT_TEST_MODE</code>.</li>
+</ul>
+<p>Commit the eas.json change (Conventional Commits, branch off main if you treat it as feature work; it is build config, <code>build(meerkat):</code> is fine).</p>
+<hr>
+<h2>Step 4: build</h2>
+<pre><code>
+cd apps/meerkat
+npx eas-cli build --profile testflight --platform ios
+</code></pre>
+<ul>
+<li>Credentials are stored (valid to 2027-03) and this lane has produced FINISHED builds three times (06cc1435, 3280ac53, 4e355d3e), so expect ~20-35 min.</li>
+<li>If it errors on provisioning with a missing Push Notifications capability (the 2026-08-01 failure mode), run the same command once WITHOUT <code>--non-interactive</code>, sign in to Apple when prompted, and let EAS regenerate the profile; then re-run.</li>
+</ul>
+<hr>
+<h2>Step 5: submit and install</h2>
+<pre><code>
+cd apps/meerkat
+npx eas-cli submit --profile testflight --platform ios --latest
+</code></pre>
+<ul>
+<li><code>ascAppId 6800001912</code> and the team id are already in <code>eas.json</code>. When EAS asks for API credentials, use <code>AuthKey_XXXX.p8</code> (the App Store Connect API key from Step 2b, App Manager role), or sign in interactively.</li>
+<li>App Store Connect &gt; Meerkat &gt; TestFlight: the build appears as &quot;Processing&quot; (10-60 min). Export compliance (updated 2026-08-28): <code>ITSAppUsesNonExemptEncryption</code> is deliberately ABSENT from <code>app.json</code>. <code>true</code> without an <code>ITSEncryptionExportComplianceCode</code> is undeliverable (ITMS-90592 rejected build 12), Apple only issues codes for uploaded-documentation lanes (France/CCATS) which the app-level ASC encryption declaration (standard algorithms, distribution excludes France) concluded Meerkat does not need, and <code>false</code> would dishonestly skip the questionnaire. So each processed build shows &quot;Missing Compliance&quot; in TestFlight: click Manage, answer YES it uses encryption / standard algorithms / consistent with the saved declaration, and the build becomes testable.</li>
+<li>TestFlight &gt; Internal Testing &gt; create a group (e.g. &quot;Founders&quot;), add your Apple ID as tester, enable the processed build for the group.</li>
+<li>On your phone: install the TestFlight app, accept the invite, install Meerkat.</li>
+</ul>
+<hr>
+<h2>Step 6: first run + sandbox purchase + two-device proof</h2>
+<ol>
+<li>Launch: age gate (neutral first-launch floor), then identity creation (device keypair, stored in the keychain).</li>
+<li>Unlock: buy <code>meerkat_app_unlock</code>. TestFlight routes purchases to the SANDBOX automatically; you will not be charged. If the Unlock screen says purchase unavailable, the RC key is missing/typo&#x27;d (must start <code>appl_</code>) or the IAP is not yet metadata-complete; the copy is fail-closed, not a bug.</li>
+<li>Connectivity: the connection status card runs a real <code>/healthz</code> probe against the baked relay URL and should show the reachable state. No probe pass = check the Step 1 URL responds over TLS.</li>
+<li>Second device (pairing needs two): easiest is the web twin. Serve <code>apps/meerkat-web</code> on <code>127.0.0.1</code> (SubtleCrypto requires a secure context; localhost qualifies) or any HTTPS host, and point it at the same relay.</li>
+<li>Pilot smoke, in order: add friend (QR or friend code over the relay), SAS emoji verify (now MANDATORY before community sync; unverified peers do not replicate communities), create a community, send channel messages both ways, send a DM, kill the app on one side and confirm the mailbox drains on relaunch. The scripted version is the tester guide sweep (<code>docs/guides/meerkat-friend-guide-2026-08-01.html</code> for friends).</li>
+<li>Version rule: every pilot device must run a build from the SAME side of <code>cdfea6d6</code> (v1/v2 relay-token break, accepted in the rc19 ledger). Anyone installing this new build is automatically on the right side.</li>
+</ol>
+<hr>
+<h2>Step 7: re-enable CI and finish the rc19 ledger (governance)</h2>
+<p>Not install-blocking, but rc19 cannot flip to verified without it:</p>
+<ol>
+<li>github.com/settings/billing &gt; fix Billing &amp; plans (payment method).</li>
+<li>Repo Settings &gt; Actions &gt; General &gt; re-enable Actions (currently DISABLED at the repo level: <code>GET /actions/permissions</code> returns <code>enabled:false</code>, which is why the 2026-08-25 merge push created zero runs).</li>
+<li>Dispatch, never with a hand-typed SHA:</li>
+</ol>
+<pre><code>
+   gh workflow run release-verify.yml -f sha=$(git rev-parse cdfea6d6)
+</code></pre>
+<ol>
+<li>Attach the run URL + conclusion to <code>docs/releases/meerkat/meerkat-2026-08-25-rc19/evidence.json</code> Step 1 (or tell Claude to).</li>
+</ol>
+<hr>
+<h2>What this pilot deliberately does NOT include</h2>
+<ul>
+<li>The full compose topology (account service, hosted billing API, persona, directory, LiveKit calls, ClamAV/NCMEC pipeline): public-tier and calls infrastructure. The Plan 51 verification account and hosted subscription stay honestly <code>not_configured</code> in-app.</li>
+<li>Push wake (<code>MEERKAT_PUSH_GATEWAY_URL</code> unset =&gt; <code>registerPushWake</code> reports <code>not_configured</code>); the pilot uses foreground live-wake + drains.</li>
+<li>Native mesh rungs beyond relay (LAN/Nearby/BLE/WebRTC) work only in dev builds and are not required; relay is the pilot transport.</li>
+<li>App Store public release, legal page hosting, store review: launch-runbook Steps 3 and 16.</li>
+</ul>
+</body></html>

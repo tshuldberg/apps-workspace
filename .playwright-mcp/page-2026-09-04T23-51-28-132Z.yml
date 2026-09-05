@@ -1,0 +1,62 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Pixel Agent Hub home" [ref=e3] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e5]:
+        - text: Pixel Agent Hub
+        - generic [ref=e6]: Your terminals, a little more alive.
+    - navigation "View" [ref=e7]:
+      - button "Office" [ref=e8] [cursor=pointer]
+      - button "Terminals" [ref=e9] [cursor=pointer]
+    - generic [ref=e10]:
+      - generic [ref=e11]: Connecting
+      - button "+ New terminal" [ref=e12] [cursor=pointer]
+  - main [ref=e13]:
+    - complementary [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Your crew 0" [level=1] [ref=e16]:
+          - text: Your crew
+          - generic [ref=e17]: "0"
+        - button "Refresh terminal discovery" [ref=e18] [cursor=pointer]: ↻
+      - generic [ref=e19]:
+        - generic [aria-hidden] [ref=e20]: ⌕
+        - searchbox "Find a terminal" [ref=e21]
+      - group "Filter terminals" [ref=e22]:
+        - button "All" [ref=e23] [cursor=pointer]
+        - button "Active" [ref=e24] [cursor=pointer]
+        - button "Needs you" [ref=e25] [cursor=pointer]
+      - paragraph [ref=e27]: Finding your Ghostty terminals…
+      - generic [ref=e28]:
+        - generic [ref=e29]: ♟
+        - generic [ref=e30]:
+          - text: Connected to Ghostty
+          - generic [ref=e31]: Local to this Mac
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - heading "The little office" [level=2] [ref=e35]
+          - paragraph [ref=e36]: A seat for every terminal. Select a character to check in.
+        - button "Animation on" [pressed] [ref=e37] [cursor=pointer]
+      - generic [ref=e38]:
+        - generic "Animated pixel office. Select a terminal in Your crew for keyboard access." [ref=e39] [cursor=pointer]
+        - generic: Ghostty studio
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]: Active
+          - generic [ref=e44]: Needs you
+          - generic [ref=e46]: Done
+          - generic [ref=e48]: Quiet / unverified
+        - generic [ref=e50]: Waiting for discovery
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - heading "Happening now" [level=3] [ref=e53]
+          - generic [ref=e54]: Checking in…
+        - paragraph [ref=e55]: Your existing sessions will appear without restarting them.
+    - complementary [ref=e56]:
+      - generic [ref=e57]:
+        - heading "Pull up a chair" [level=2] [ref=e58]
+        - paragraph [ref=e59]: Select a terminal to see its activity, read its screen, or send it a task.
+  - contentinfo [ref=e60]:
+    - generic [ref=e61]: One Mac. One office. All your Ghostty terminals.
+    - link "Art from Pixel Agents ↗" [ref=e62] [cursor=pointer]:
+      - /url: https://github.com/pixel-agents-hq/pixel-agents

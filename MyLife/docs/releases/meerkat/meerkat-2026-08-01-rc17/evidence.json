@@ -1,0 +1,265 @@
+{
+  "releaseId": "meerkat-2026-08-01-rc17",
+  "product": "Meerkat",
+  "runbook": "docs/guides/meerkat-production-activation-runbook-2026-07-15.md",
+  "createdAt": "2026-08-01",
+  "releaseSha": "e406f58aff1b23883f34c951412db57513ad1c8e",
+  "releaseBranch": "main",
+  "remote": "https://github.com/tshuldberg/MyLife.git",
+  "immutabilityRule": "All evidence in this ledger binds to releaseSha. Any later code change creates a new release candidate directory and restarts affected evidence.",
+  "launchState": "NO-GO",
+  "supersedes": "meerkat-2026-07-29-rc16",
+  "lineage": {
+    "startingCodeCandidate": "25c38e51",
+    "priorCandidate": {
+      "releaseId": "meerkat-2026-07-29-rc16",
+      "releaseSha": "105adcc864e856181f8ffffe2c71d347490cbc52",
+      "supersededReason": "2026-08-01: planned release-blocking work landed after rc16 was cut: plans 52+53 (person identity + in-person tap-to-add, merged cad7db07), the TestFlight EAS production-beta profile (ca1253cb), live-wake persistent mailbox listeners (b999dc12), MyNews test de-flakes (7c2c4e69, non-meerkat), and the plan 51 account service wired into the production compose topology closing the Step 7 open item (PR #23, squash e406f58a). rc17 binds to the merged head so ONE full-matrix verification covers the complete tree."
+    },
+    "deltaFromPrior": "rc16 (105adcc8) + plans 52/53 merge (cad7db07) + TestFlight EAS profile (ca1253cb) + live-wake listeners (b999dc12) + MyNews de-flake (7c2c4e69) + account-service production topology (e406f58a, PR #23).",
+    "mergeCommits": {
+      "plan41AuditFindings": "d73e9828",
+      "plan42ProductionReadiness": "10dd78d9",
+      "plan43": "8f6b8017",
+      "wp43g": "739eef31",
+      "ciReleaseVerify": "ab29dabe",
+      "rc3VerificationFixes": "90e131d2",
+      "rc4VerificationFixes": "55276e5b",
+      "rc5PerfGateEnv": "ecae43cc",
+      "rc6PerfGateYaml": "c238ba01",
+      "rc7TurboEnv": "e7ce0661",
+      "rc8CoverageHonesty": "8989a091",
+      "rc9LegalReadinessFixes": "9f174c0b",
+      "plan51VerificationAccount": "719d52f6",
+      "rc11PostgresTestsDeps": "84e18151",
+      "rc12AgeGateE2e": "985a7dc7",
+      "rc13DefectFixes": "39b11c08",
+      "rc14VerifyFixes": "d1d802eb",
+      "rc15AdvisoryFix": "1ca5fc98",
+      "rc16BraceExpansionLane": "105adcc8",
+      "plan52Plan53": "cad7db07",
+      "testflightEasProfile": "ca1253cb",
+      "liveWakeListeners": "b999dc12",
+      "mynewsDeflake": "7c2c4e69",
+      "accountServiceTopology": "e406f58a"
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Select the immutable release candidate",
+      "owner": "release owner (founder)",
+      "status": "FAIL",
+      "evidence": {
+        "releaseSha": "e406f58aff1b23883f34c951412db57513ad1c8e",
+        "releaseId": "meerkat-2026-08-01-rc17",
+        "lineage": "rc16 lineage + plans 52/53 + TestFlight profile + live-wake + account-service topology (see lineage.mergeCommits)",
+        "localVerification": "Account-service branch at the merge base: meerkat-relay full suite 1589 passed / 189 env-gated skips (twice: pre- and post-adversarial fixes), relay typecheck green, production-topology + log-hygiene-canary + account-service-http suites green, compose YAML validated, real-bin boot checks (invalid ASSN PEM fatal; honest-OFF rails). sync mailbox-listen 9/9 on the merged base. Plans 52/53 battery per rc17-plan52-53-ledger-notes.md (sync 2498, relay 1587, app 1492, web 1038, parity + transport NC green at the P5 head).",
+        "advisoryExemption": "GHSA-mh99-v99m-4gvg (brace-expansion DoS) is ignored until 2026-10-31 with checked evidence: no fixed release exists on the 1.x line, 5.x is ESM-only and breaks the toolchain, the remaining 1.x hits reach us ONLY through minimatch@3.1.4, and its only consumers are dev tooling (eslint, glob@7, test-exclude). No shipped runtime artifact resolves brace-expansion 1.x.",
+        "liveBrowserEvidence": "Carried from rc13 (the meerkat surface is unchanged across rc14-rc16): pre-fix testbed repro of both 2026-07-24 defects, post-fix all six templates + a stale-window free-default session completed. Screenshots artifacts/meerkat-testbed/shots/rc13-*.png.",
+        "branchProtection": "Unchanged: main blocks force pushes and deletions, enforced for admins (exception rc10-exc-1).",
+        "remoteCi": {
+          "releaseVerifyRun": "https://github.com/tshuldberg/MyLife/actions/runs/30714545349 - COMPLETED: FAILURE. 9/10 jobs green (audit, parity, lint, typecheck, test, meerkat-postgres, meerkat-s3, relay-image, e2e); coverage failed both attempts on the deterministic mynews worker-RPC timeout (all tests passing).",
+          "pushCiRun": "https://github.com/tshuldberg/MyLife/actions/runs/30714534557 - COMPLETED: FAILURE, same single coverage failure both attempts."
+        },
+        "branchPushed": "PR #23 squash-merged to main (e406f58a) under branch protection, 2026-08-01; no force pushes."
+      },
+      "exceptions": [
+        {
+          "id": "rc10-exc-1",
+          "subject": "PR-review merge path on the release branch (narrowed 2026-07-21)",
+          "decision": "Founder-signed exception, narrowed 2026-07-21: branch protection is now CONFIGURED on main (no force push, no deletion, admin-enforced) after the GitHub Pro upgrade, satisfying the SHA-immutability substance of 'protected'. The remaining waived portion is the PR-based merge path with required reviews/status checks, retained deliberately for solo-founder operation.",
+          "reason": "Solo operation: requiring PR reviews would deadlock a single operator, and required status checks block the direct-push ledger workflow.",
+          "mitigations": [
+            "main blocks force pushes and deletions server-side, enforced for admins (configured 2026-07-21).",
+            "Every candidate is verified by the SHA-pinned full-matrix release-verify workflow before its Step 1 evidence is accepted.",
+            "The evidence ledger records the exact SHA; drift is detectable against the protected remote ref history."
+          ],
+          "revisit": "If a second trusted operator joins, enable required PR reviews and retire this exception fully."
+        }
+      ],
+      "openItems": [],
+      "exitGate": "The exact SHA is immutable, remotely available, protected, reviewed, and green.",
+      "exitGateAssessment": "FAIL: coverage job red on both runs (deterministic verification-infrastructure defect, zero product defects; every test passed). Fixed at 43a357a3; superseded by rc18 per the immutability rule."
+    },
+    {
+      "step": 2,
+      "title": "Assign accountable owners and freeze launch changes",
+      "owner": "founder",
+      "status": "IN_PROGRESS",
+      "evidence": {
+        "ownerRoster": {
+          "release": "Trey Shuldberg (founder)",
+          "infrastructure": "Trey Shuldberg",
+          "security": "Trey Shuldberg",
+          "safety": "Trey Shuldberg",
+          "legal": "Trey Shuldberg (interim) - external counsel to be engaged and named as lane owner before Step 3 begins (founder commitment, 2026-07-18)",
+          "privacy": "Trey Shuldberg (interim) - same counsel condition as legal",
+          "billing": "Trey Shuldberg",
+          "appleRelease": "Trey Shuldberg",
+          "googleRelease": "Trey Shuldberg",
+          "support": "Trey Shuldberg",
+          "incidentCommand": "Trey Shuldberg"
+        },
+        "rollbackDecisionMakers": {
+          "primary": "Trey Shuldberg",
+          "backup": "None - covered by founder-signed exception rc8-exc-2"
+        },
+        "escalation": {
+          "contact": "Founder phone + email alerting (tshuldberg999@gmail.com); monitoring alert delivery is provisioned in Step 5 and must page the phone, not only email",
+          "launchWindowResponse": "15 minutes during the launch window and for 72 hours after activation",
+          "steadyStateResponse": "4 hours, 08:00-22:00 local; overnight critical alerts page immediately"
+        },
+        "changeFreeze": {
+          "startedAt": "2026-07-18 (founder-approved in session)",
+          "policy": "Only release-blocking fixes may enter the candidate. Every accepted fix cuts a new SHA, creates a new release candidate directory, and restarts affected evidence (demonstrated by rc1 through rc5). Non-Meerkat work continues on branches and does not merge to the release path during the freeze."
+        },
+        "approvalTimestamp": "2026-07-18, interactive founder session"
+      },
+      "exceptions": [
+        {
+          "id": "rc8-exc-2",
+          "subject": "Backup rollback decision-maker",
+          "decision": "Founder-signed exception, approved by the founder in the interactive session of 2026-07-18.",
+          "reason": "Solo-founder operation: no second human currently holds production access or rollback authority.",
+          "mitigations": [
+            "Automatic NO-GO stop conditions in the runbook remove discretionary judgment from the highest-risk calls.",
+            "Alerting pages the founder's phone during the launch window (15-minute response commitment).",
+            "The rollback procedure must be written cold-executable (exact commands, recorded compatible target) in Step 15 so any competent engineer could run it without context.",
+            "Launch activation (Step 18) is scheduled only when the founder is available for the full launch window."
+          ],
+          "revisit": "Name and onboard a backup human before any post-launch release, or at the first point a second trusted operator exists."
+        }
+      ],
+      "openItems": [
+        "Engage external counsel and record their identity as legal/privacy lane owner before Step 3 evidence collection begins."
+      ],
+      "exitGate": "Every mandatory lane has an accepting human owner and backup.",
+      "exitGateAssessment": "All eleven lanes have an accepting owner (founder). Backup coverage is by signed exception rc2-exc-2. Remaining open: counsel named for the legal and privacy lanes."
+    },
+    {
+      "step": 3,
+      "title": "Approve and publish legal and safety policy",
+      "status": "IN_PROGRESS",
+      "owner": "legal, privacy, safety (founder + outside counsel)",
+      "evidence": {
+        "legalReadinessReview": "docs/reports/REPORT-meerkat-legal-readiness-2026-07-18.md (+ html twin): code-verified inventory of every legal artifact, documents-to-draft list, product-behavior facts the documents must match, and the 12-item attorney consult agenda",
+        "implementedInfrastructure": "DMCA intake/counter-notice + fail-closed agent config, NCMEC filing pipeline, CSAM scanning, account deletion with honest peer-boundary copy (paths in the review)",
+        "remediations2026_07_20": "Both review red flags fixed in code (age gate + export declaration, merge 9f174c0b); seven draft policy documents staged for counsel in REPORT-meerkat-legal-readiness-2026-07-18 (Section 9 md / expandable Section 7 html)",
+        "standaloneDocuments2026_07_20": "All seven documents promoted from the report Section 9 examples into standalone publishable sources at docs/legal/meerkat/ (md canonical + self-contained HTML via render-legal-pages.mjs + index). DRAFT banners and fields-to-complete panels render until frontmatter status flips on counsel approval. README maps each document to its env var (MEERKAT_TERMS_URL, MEERKAT_PRIVACY_POLICY_URL, MEERKAT_COMMUNITY_STANDARDS_URL, MEERKAT_SUPPORT_URL), store form, and consistency rules (report-category enum, DELETE_MY_DATA_COPY, DMCA 5/14-day windows, terms version 2026-07, plan 51 verification-account language).",
+        "plan51Alignment2026_07_20": "Plan 51 implemented: legal report Section 10 flipped adopted -> implemented with the truthful Grade 2 (for stored data) linkability claim and the renewal-serial transit residual documented; Terms Section 5 and Privacy Sections 2/9 synced to the shipped blind-credential grade; runbook Step 10 gained account-layer deletion evidence tasks. Design doc: docs/designs/meerkat-account-verification-architecture.md."
+      },
+      "openItems": [
+        "Entity decision, then DMCA agent registration (six MEERKAT_DMCA_AGENT_* fields)",
+        "Counsel review + approval of the seven staged drafts (Terms, Privacy, Community Standards, safety/appeals, law enforcement, DMCA policy, Play data-deletion)",
+        "Counsel ruling on the age floor (now configuration MEERKAT_MINIMUM_AGE, default 13, clamped 13-21)",
+        "Export classification founder-ops: ASC questionnaire, ECCN 5D992.c self-classification + annual BIS report, French declaration",
+        "Host all URLs over HTTPS on production domains; unauthenticated browser + mobile verification; record approvals, version ids, effective dates",
+        "Counsel sign-off on the Grade 2 verification-account launch claim and on purchase-rail agenda item 13 (store-only purchase)."
+      ],
+      "startedAt": "2026-07-18"
+    },
+    {
+      "step": 4,
+      "title": "Create production accounts and secure access",
+      "status": "OPEN"
+    },
+    {
+      "step": 5,
+      "title": "Provision the production data and network plane",
+      "status": "OPEN"
+    },
+    {
+      "step": 6,
+      "title": "Register external providers and load secrets",
+      "status": "OPEN",
+      "openItems": [
+        "Founder-ops (Plan 51): Apple Sign in with Apple service id + Google OAuth client id(s); App Store Server API / Play Developer API / Stripe webhook credentials for account-service entitlement binding; MEERKAT_ACCOUNT_SESSION_SECRET + MEERKAT_ACCOUNT_EPOCH_KEY_SECRET. Live SSO verification lands in founder-ops, same lane as NCMEC and the DMCA agent."
+      ]
+    },
+    {
+      "step": 7,
+      "title": "Deploy the complete topology by immutable digest",
+      "status": "OPEN",
+      "openItems": [
+        "LIVE: deploy the topology including the account service (compose service `account`, port 8896, ACCOUNT_DOMAIN route, assn_root_ca secret) by immutable digest and capture readiness + denial proofs. The compose/Caddy wiring itself landed at e406f58a (production-topology test pins it)."
+      ],
+      "codeReadiness2026_08_01": "Account service is a first-party compose topology member as of e406f58a: persona-lineage platform image, meerkat_account role URL, fail-fast wall secrets, honest-OFF SSO/entitlement rails until the founder-ops payload resolvers are wired (see errors_log 2026-08-01), assn_root_ca mounted secret, /readyz edge gate. Follow-ups tracked in rc17-plan52-53-ledger-notes.md: metrics listener, secret-mount hardening, rate limits, payload resolvers before Step 10."
+    },
+    {
+      "step": 8,
+      "title": "Run migrations and prove least privilege",
+      "status": "OPEN"
+    },
+    {
+      "step": 9,
+      "title": "Activate malware, abuse, NCMEC, DMCA, and moderation operations",
+      "status": "OPEN"
+    },
+    {
+      "step": 10,
+      "title": "Prove billing, entitlement, refund, and deletion behavior",
+      "status": "OPEN"
+    },
+    {
+      "step": 11,
+      "title": "Execute the complete Plan 41 provider matrix",
+      "status": "OPEN"
+    },
+    {
+      "step": 12,
+      "title": "Execute calls, rooms, push, mesh, and background device matrices",
+      "status": "OPEN"
+    },
+    {
+      "step": 13,
+      "title": "Prove backup, PITR, restore, failover, and regional recovery",
+      "status": "OPEN"
+    },
+    {
+      "step": 14,
+      "title": "Verify supply chain and signed artifacts",
+      "status": "OPEN"
+    },
+    {
+      "step": 15,
+      "title": "Run production-shaped browser, load, soak, canary, and rollback",
+      "status": "OPEN"
+    },
+    {
+      "step": 16,
+      "title": "Complete store compliance and submit exact builds",
+      "status": "OPEN"
+    },
+    {
+      "step": 17,
+      "title": "Assemble the immutable evidence ledger and rerun the final audit",
+      "status": "OPEN"
+    },
+    {
+      "step": 18,
+      "title": "Sign GO and activate public availability",
+      "status": "OPEN"
+    }
+  ],
+  "prohibited": "Never store passwords, private keys, OAuth client secrets, provider tokens, recovery codes, private user content, or abuse material in this ledger. Identifiers, timestamps, redacted outputs, digests, verdicts, and links only.",
+  "plan5253EvidenceRows": {
+    "source": "docs/releases/meerkat/rc17-plan52-53-ledger-notes.md",
+    "closedByTests": [
+      "Plan 52 P0-P6 (five adversarial review rounds)",
+      "Plan 53 AC-2 (code-proven; live re-check in sweep)",
+      "AC-4",
+      "AC-5",
+      "AC-6",
+      "NC-53.1"
+    ],
+    "openLiveOnly": [
+      "Plan 53 AC-1: two phones, no relay/internet, both confirm, DM sends (TestFlight sweep)",
+      "Plan 53 AC-3: native half never device-run (fresh MCPeerID per advertise, Android serviceType honor) - founder accepted schedule risk 2026-07-29; stays OPEN until a TestFlight build confirms",
+      "Nearby browse takeover: sync rung must RECOVER after a ceremony (sweep section 11)",
+      "Both native transport files (iOS Swift + Android Kotlin): UNVERIFIED until TestFlight"
+    ],
+    "securityNote": "account.test.ts intermittent (errors_log, Unresolved) must be root-caused before launch."
+  },
+  "supersededBy": "meerkat-2026-08-01-rc18"
+}

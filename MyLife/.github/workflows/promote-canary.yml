@@ -1,0 +1,107 @@
+# Meerkat canary promotion checklist (Plan 44 Phase 6, WP-6C).
+#
+# WHAT THIS WORKFLOW IS. An AUDITABLE CHECKLIST RAIL for advancing a release up the
+# canary ladder (staging_canary -> production_canary -> production), founder-
+# triggered. Same honest boundary as deploy-staging.yml: CI cannot choose a canary
+# cohort or drive a real deploy, so it does ONLY what it can truthfully do:
+#   - fails immediately if the release id input is empty,
+#   - prints the EXACT operator commands as a step summary: run the canary-verdict
+#     synthetic against the canary host set, read its exit code as the go/no-go, and
+#     RECORD the transition with the verdict attached as evidence.
+#
+# The `to_state` input names the rung to advance TO. The promotion CLI derives the
+# from-state from the release's current recorded state and refuses an illegal jump,
+# so this workflow does not need to (and must not) assert the ladder itself.
+#
+# WHAT THIS WORKFLOW IS NOT. It runs no probe against a real canary and records no
+# promotion; the canary-verdict run, the cohort choice, and the record are FOUNDER-
+# OPS. A green run proves the checklist was generated, not that a canary passed.
+# See docs/guides/meerkat-runbooks/release-promotion.md.
+
+name: Promote canary (checklist)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_id:
+        description: 'The recorded, APPROVED release id being promoted'
+        required: true
+        type: string
+      to_state:
+        description: 'The rung to advance TO'
+        required: true
+        type: choice
+        options:
+          - staging_canary
+          - production_canary
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  checklist:
+    name: Generate canary promotion checklist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      # Format guard: the ids are rendered into the step summary and copy/paste
+      # shell commands, so anything outside the safe charset would let a crafted
+      # input forge checklist sections or an operator-pasted command.
+      - name: Require well-formed inputs
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          TO_STATE: ${{ inputs.to_state }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$RELEASE_ID" | grep -Eq '^[A-Za-z0-9._:@/-]{1,512}$'; then
+            echo "::error::release_id must match ^[A-Za-z0-9._:@/-]{1,512}$; refusing to render it into a checklist" >&2
+            exit 1
+          fi
+          case "$TO_STATE" in
+            staging_canary|production_canary|production) ;;
+            *)
+              echo "::error::to_state must be staging_canary, production_canary, or production" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Emit the founder-ops canary promotion checklist
+        env:
+          RELEASE_ID: ${{ inputs.release_id }}
+          TO_STATE: ${{ inputs.to_state }}
+        run: |
+          set -euo pipefail
+          {
+            echo "# Canary promotion checklist for \`${RELEASE_ID}\` -> \`${TO_STATE}\`"
+            echo
+            echo "> This workflow generated the checklist. It did NOT probe a canary or record"
+            echo "> a promotion. Run the steps below (FOUNDER-OPS). The promotion CLI derives the"
+            echo "> from-state and refuses an illegal jump, so start from the release's real state."
+            echo
+            echo "## 1. Run the canary verdict against the canary host set"
+            echo '```bash'
+            echo "node packages/meerkat-relay/deploy/observability/synthetics/canary-verdict.mjs \\"
+            echo "  --relay-url http://<relay-canary-host>:8787/healthz \\"
+            echo "  --service persona:<persona-canary-host>:8894 \\"
+            echo "  --service humanity:<humanity-canary-host>:8892 \\"
+            echo "  > /tmp/canary-${RELEASE_ID}.ndjson; echo \"verdict exit: \$?\""
+            echo "# Decision: exit 0 PROCEED, exit 1 INVESTIGATE (degraded), exit 2 STOP (fail)."
+            echo "# A verdict with zero requested checks is a FAIL by design; request real hosts."
+            echo '```'
+            echo
+            echo "## 2. Record the transition with the verdict attached as evidence"
+            echo '```bash'
+            echo "MEERKAT_POSTGRES_URL='postgres://meerkat_ops:<pw>@<ops-host>/<db>' \\"
+            echo "  pnpm --filter @mylife/meerkat-relay promotion:postgres --promote \\"
+            echo "    --release-id '${RELEASE_ID}' --to '${TO_STATE}' --operator '<you>' \\"
+            echo "    --evidence /tmp/canary-${RELEASE_ID}.ndjson"
+            echo '```'
+            echo
+            echo "Only record the promotion when the canary verdict justified it. A recorded"
+            echo "transition proves the record, not the deploy or the canary health. If the"
+            echo "verdict is fail/degraded, STOP and follow the rollout-stop procedure in the"
+            echo "release-promotion runbook instead of promoting."
+          } >> "$GITHUB_STEP_SUMMARY"

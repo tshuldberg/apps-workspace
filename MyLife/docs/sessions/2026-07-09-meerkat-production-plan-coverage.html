@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>2026-07-09-meerkat-production-plan-coverage</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root {
+color-scheme: dark;
+--bg: #080a0f;
+--panel: #10151d;
+--panel-2: #171e29;
+--ink: #edf3f8;
+--muted: #9aa9ba;
+--line: rgba(255, 255, 255, 0.11);
+--cyan: #59d7cf;
+--blue: #72a9ff;
+--green: #4bd277;
+--amber: #f4bc58;
+--red: #ff6a66;
+}
+* { box-sizing: border-box; }
+html {
+background: var(--bg);
+scroll-behavior: smooth;
+}
+body {
+width: min(1100px, calc(100% - 32px));
+margin: 0 auto;
+padding: 48px 0 80px;
+color: var(--ink);
+background:
+radial-gradient(circle at 8% 0%, rgba(89, 215, 207, 0.10), transparent 32rem),
+radial-gradient(circle at 92% 2%, rgba(114, 169, 255, 0.11), transparent 34rem),
+var(--bg);
+font: 15px/1.62 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+h1, h2, h3, h4 {
+line-height: 1.15;
+letter-spacing: -0.02em;
+}
+h1 {
+margin: 0 0 24px;
+max-width: 980px;
+font-size: clamp(34px, 6vw, 66px);
+}
+h2 {
+margin: 42px 0 16px;
+padding: 24px 0 0;
+border-top: 1px solid var(--line);
+font-size: clamp(24px, 3vw, 34px);
+}
+h3 {
+margin: 30px 0 11px;
+color: var(--cyan);
+font-size: 20px;
+}
+h4 {
+margin: 24px 0 9px;
+color: var(--blue);
+font-size: 15px;
+text-transform: uppercase;
+letter-spacing: 0.07em;
+}
+p, ul, ol, blockquote { max-width: 940px; }
+p { margin: 10px 0 14px; }
+ul, ol { padding-left: 24px; }
+li { margin: 6px 0; }
+a { color: var(--cyan); }
+a:hover { color: white; }
+blockquote {
+margin: 20px 0 28px;
+padding: 15px 18px;
+color: #cbd6e2;
+background: rgba(89, 215, 207, 0.07);
+border-left: 3px solid var(--cyan);
+border-radius: 0 12px 12px 0;
+}
+code, pre {
+font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+code {
+color: #c8d9ed;
+overflow-wrap: anywhere;
+}
+pre {
+overflow-x: auto;
+margin: 18px 0;
+padding: 18px;
+color: #d8e4f0;
+background: #0b1017;
+border: 1px solid var(--line);
+border-radius: 13px;
+box-shadow: 0 16px 42px rgba(0, 0, 0, 0.22);
+}
+pre code { color: inherit; }
+table {
+display: block;
+width: 100%;
+max-width: 100%;
+overflow-x: auto;
+margin: 18px 0 26px;
+border-collapse: collapse;
+background: rgba(16, 21, 29, 0.88);
+border: 1px solid var(--line);
+border-radius: 13px;
+}
+thead { background: rgba(255, 255, 255, 0.045); }
+th, td {
+min-width: 150px;
+padding: 11px 13px;
+text-align: left;
+vertical-align: top;
+border-bottom: 1px solid var(--line);
+}
+th {
+color: #dce6ef;
+font-size: 12px;
+text-transform: uppercase;
+letter-spacing: 0.055em;
+}
+td { color: #c5d1dd; }
+tr:last-child td { border-bottom: 0; }
+strong { color: white; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+body > p:first-of-type {
+color: #c8d3de;
+font-size: 17px;
+}
+@media (max-width: 700px) {
+body {
+width: min(100% - 22px, 1100px);
+padding-top: 28px;
+font-size: 14px;
+}
+th, td { min-width: 130px; padding: 10px; }
+}
+@media print {
+:root { color-scheme: light; }
+html, body { background: white; color: #111827; }
+body { width: 100%; padding: 0; }
+h1, h2, h3, h4, strong { color: #111827; }
+blockquote, pre, table { break-inside: avoid; box-shadow: none; }
+a { color: #0f5f8f; }
+}
+</style>
+</head>
+<body>
+<h1 id="meerkat-production-plan-coverage">Meerkat Production Plan
+Coverage</h1>
+<p>Date: 2026-07-09</p>
+<p>Branch:
+<code>feature/meerkat-production-readiness-2026-07-09</code></p>
+<h2 id="outcome">Outcome</h2>
+<p>Created a complete, implementation-ready plan set for every verified
+production code gap from the BLACKGLASS audit and reconciled those plans
+into one master launch gate. Planning is complete. The affected code
+remains a production NO-GO until the plans are implemented and their
+evidence gates pass.</p>
+<h2 id="why">Why</h2>
+<p>The audit identified launch-blocking work beyond the earlier Calls
+and Rooms and Storage Destinations plans. Several gaps had no
+comprehensive owner, architecture, failure model, test map, or release
+evidence contract. The new plan set removes those planning gaps without
+treating old reports or recent commits as proof of implementation.</p>
+<h2 id="plans-created-or-rebuilt">Plans Created or Rebuilt</h2>
+<ul>
+<li>Plan 25 was rebuilt for direct calls, rooms, native incoming-call
+integration, screen sharing, recording, E2EE truth, and cross-platform
+evidence.</li>
+<li>Plan 41 was rebuilt for encrypted backup and atomic restore across
+local, cloud-drive, object-storage, hosted, and connected-server
+destinations.</li>
+<li>Plan 42 was created for real nearby and BLE native modules,
+capability-private push wake, and module-scope Expo background
+tasks.</li>
+<li>Plan 43 was created for durable managed archive publication, safe
+ingestion, private-history discovery, seeding, NCMEC filing, and runtime
+legal configuration.</li>
+<li>Plan 44 was created for PostgreSQL production state, object storage,
+HA, PITR, restore drills, observability, release images, SBOMs,
+attestations, signatures, canaries, and rollback.</li>
+<li>Plan 40 was rebuilt as the master coverage map, dependency graph,
+execution sequence, evidence ledger, and founder completion
+runbook.</li>
+</ul>
+<h2 id="residual-items-covered-by-the-master-plan">Residual Items
+Covered by the Master Plan</h2>
+<ul>
+<li>Share Inbox direct-message routing must be made honest and
+functional on mobile and web.</li>
+<li>Publicly exported placeholder clients must be implemented or removed
+from public barrels.</li>
+<li>Status claims and audit language must be reconciled against
+executable evidence before release.</li>
+</ul>
+<h2 id="files-changed">Files Changed</h2>
+<ul>
+<li><code>docs/plans/queue/25-meerkat-calls-and-rooms.md</code> and HTML
+twin</li>
+<li><code>docs/plans/queue/40-meerkat-final-launch-plan.md</code> and
+HTML twin</li>
+<li><code>docs/plans/queue/41-meerkat-storage-destinations.md</code> and
+HTML twin</li>
+<li><code>docs/plans/queue/42-meerkat-native-transport-push-background.md</code>
+and HTML twin</li>
+<li><code>docs/plans/queue/43-meerkat-managed-archive-seeding-safety.md</code>
+and HTML twin</li>
+<li><code>docs/plans/queue/44-meerkat-production-state-observability-release-supply-chain.md</code>
+and HTML twin</li>
+<li><code>docs/plans/plan-artifact.css</code></li>
+<li><code>docs/reports/REPORT-meerkat-blackglass-production-adversarial-audit-2026-07-09.md</code>
+and HTML twin</li>
+<li><code>memory.md</code></li>
+</ul>
+<h2 id="architecture-decisions">Architecture Decisions</h2>
+<ul>
+<li>Self-hosted LiveKit is the room media plane. Direct one-to-one calls
+retain a P2P path.</li>
+<li>The app owns one React Native WebRTC runtime to prevent duplicate
+native WebRTC stacks.</li>
+<li>iOS incoming calls use PushKit and CallKit. Android incoming calls
+use the Telecom framework.</li>
+<li>Native nearby transports are owned Expo modules, not dynamic imports
+of packages that are absent from the repository.</li>
+<li>Background tasks are defined at module scope so headless execution
+can discover them.</li>
+<li>Backup objects are encrypted before any provider receives them.
+Restore is staged, verified, and atomically promoted.</li>
+<li>Durable production services use PostgreSQL and object storage.
+File-backed adapters remain development or migration inputs only.</li>
+<li>Release artifacts require platform-complete images, SBOMs,
+attestations, signatures, canaries, and rehearsed rollback.</li>
+</ul>
+<h2 id="verification">Verification</h2>
+<ul>
+<li>Confirmed every detailed plan contains current-state evidence, scope
+boundaries, phased work, failure modes, test review, parallel ownership
+lanes, acceptance criteria, negative criteria, required gates, and close
+criteria.</li>
+<li>Confirmed Plan 40 maps every verified gap to a detailed plan or
+named residual task.</li>
+<li>Confirmed all plan and report HTML files are self-contained and use
+inline CSS.</li>
+<li>Ran Meerkat parity and generated-artifact checks.</li>
+<li>No source function logic changed, so the function quality gate was
+not required beyond the staged pre-commit check.</li>
+</ul>
+<h2 id="remaining-work">Remaining Work</h2>
+<p>All remaining work is implementation or founder-operated production
+evidence. Execute Plan 40 in its dependency order, keep each detailed
+plan open until its code and evidence gates pass, and retain the
+production NO-GO until every launch-hard criterion is green.</p>
+</body>
+</html>

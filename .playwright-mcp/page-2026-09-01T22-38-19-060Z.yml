@@ -1,0 +1,185 @@
+- generic [ref=f3e1]:
+  - status [ref=f3e2]
+  - dialog "This website uses cookies to ensure you get the best experience." [ref=f3e3]:
+    - generic [ref=f3e4]:
+      - heading "This website uses cookies to ensure you get the best experience." [level=2] [ref=f3e5]
+      - paragraph [ref=f3e6]: Ubeya and our selected partners use cookies and similar technologies (together “cookies”) that are necessary to present this website, and to ensure you get the best experience of it. If you consent to it, we will also use cookies for analytics purposes.
+      - paragraph [ref=f3e7]:
+        - text: See our
+        - link "Cookie Policy" [active] [ref=f3e8] [cursor=pointer]:
+          - /url: https://careers.ubeya.com/cookie-policy
+        - text: to read more about the cookies we set.
+      - paragraph [ref=f3e9]: You can withdraw and manage your consent at any time, by clicking “Manage cookies” at the bottom of each website page.
+    - generic [ref=f3e10]:
+      - button "Accept all cookies" [ref=f3e11] [cursor=pointer]
+      - button "Decline all non-necessary cookies" [ref=f3e12] [cursor=pointer]
+      - button "Cookie preferences" [ref=f3e13] [cursor=pointer]
+  - link "Skip to main content" [ref=f3e14] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=f3e19]:
+    - link [ref=f3e21] [cursor=pointer]:
+      - /url: https://careers.ubeya.com/
+      - img "Ubeya career site" [ref=f3e22]
+    - generic [ref=f3e24]:
+      - navigation [ref=f3e27]:
+        - list [ref=f3e28]:
+          - listitem [ref=f3e29]:
+            - link "Start" [ref=f3e30] [cursor=pointer]:
+              - /url: https://careers.ubeya.com/
+      - button "Share page" [ref=f3e34] [cursor=pointer]
+  - main [ref=f3e38]:
+    - generic [ref=f3e42]:
+      - generic [ref=f3e44]:
+        - heading "EMBARK ON YOUR NEW CAREER ADVENTURE" [level=1] [ref=f3e45]
+        - generic [ref=f3e46]:
+          - link "Connect" [ref=f3e47] [cursor=pointer]:
+            - /url: https://careers.ubeya.com/connect
+          - link "Job openings" [ref=f3e50] [cursor=pointer]:
+            - /url: "#jobs"
+      - button "Scroll to content" [ref=f3e55] [cursor=pointer]
+    - generic [ref=f3e61]:
+      - heading "Grow with us" [level=2] [ref=f3e62]
+      - generic [ref=f3e63]:
+        - paragraph [ref=f3e64]: At Ubeya, we’re redefining how staffing operations and temporary workers are managed with our Ubeya OS. In early 2024, we launched Ubeya Stadia, the first custom-built stadium workforce management product. It has rapidly spread across the English Football League, making waves and expanding into Europe. Ubeya Stadia perfects large event management, supporting over 10K internal and agency workers with maximum control and minimal stress
+        - paragraph [ref=f3e65]: One by one, major stadiums like Wembley, Johan Cruijff Arena, Emirates, The O2, Kia Oval, Aviva Stadium, and many more have adopted Ubeya for their staff management. With our rapid growth in stadium management, our company is expanding too—
+        - paragraph [ref=f3e66]:
+          - strong [ref=f3e67]: and that’s where you come in! 😉
+    - generic [ref=f3e69]:
+      - generic [ref=f3e70]:
+        - heading "Our Work, Our Passion" [level=2] [ref=f3e71]
+        - paragraph [ref=f3e73]: We are a dynamic team driven by a passion for innovation and excellence. Our diverse backgrounds and extensive experience in workforce management give us a unique perspective on the challenges faced by our customers. We believe that technology has the power to transform the way temporary work is managed, and we’re committed to making that transformation a reality.
+      - region [ref=f3e75]:
+        - generic [ref=f3e76]:
+          - tabpanel [aria-hidden] [ref=f3e77]
+          - tabpanel [aria-hidden] [ref=f3e80]
+          - tabpanel "1 of 4" [ref=f3e82]:
+            - img "Workplace image" [ref=f3e83]
+          - tabpanel [aria-hidden] [ref=f3e84]
+          - tabpanel [aria-hidden] [ref=f3e86]
+          - tabpanel [aria-hidden] [ref=f3e89]
+          - tabpanel [aria-hidden] [ref=f3e91]
+          - tabpanel [aria-hidden] [ref=f3e94]
+        - tablist "Select a slide to show":
+          - tab "Go to slide 1" [selected] [ref=f3e97] [cursor=pointer]
+          - tab "Go to slide 2" [ref=f3e99] [cursor=pointer]
+          - tab "Go to slide 3" [ref=f3e101] [cursor=pointer]
+          - tab "Go to slide 4" [ref=f3e103] [cursor=pointer]
+    - list [ref=f3e108]:
+      - listitem [ref=f3e109]:
+        - link "Read here" [ref=f3e110] [cursor=pointer]:
+          - /url: https://www.calcalistech.com/ctechnews/article/hjyhz00ckjx
+          - generic [ref=f3e111]:
+            - figure
+            - generic [ref=f3e113]: Read here
+      - listitem [ref=f3e114]:
+        - 'link "Ubeya Stadia: The Industry’s First Large Event Management Platform" [ref=f3e115] [cursor=pointer]':
+          - /url: https://www.ubeya.com/blog/introducing-ubeya-stadia
+          - generic [ref=f3e116]:
+            - figure
+            - generic [ref=f3e118]: "Ubeya Stadia: The Industry’s First Large Event Management Platform"
+      - listitem [ref=f3e119]:
+        - link "Listen here (Hebrew)" [ref=f3e120] [cursor=pointer]:
+          - /url: https://creators.spotify.com/pod/show/genesis-accelerator/episodes/--e2qqtq7
+          - generic [ref=f3e121]:
+            - figure
+            - generic [ref=f3e123]: Listen here (Hebrew)
+      - listitem [ref=f3e124]:
+        - link "Read here (Hebrew)" [ref=f3e125] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f3e126]:
+            - figure
+            - generic [ref=f3e128]: Read here (Hebrew)
+      - listitem [ref=f3e129]:
+        - link "Read here (Hebrew)" [ref=f3e130] [cursor=pointer]:
+          - /url: https://marketing.walla.co.il/item/3705910
+          - generic [ref=f3e131]:
+            - figure
+            - generic [ref=f3e133]: Read here (Hebrew)
+      - listitem [ref=f3e134]:
+        - link "Read here (Hebrew)" [ref=f3e135] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f3e136]:
+            - figure
+            - generic [ref=f3e138]: Read here (Hebrew)
+    - generic [ref=f3e141]:
+      - heading "Come work with us!" [level=2] [ref=f3e144]
+      - generic [ref=f3e145]:
+        - list [ref=f3e149]:
+          - listitem [ref=f3e150]:
+            - generic [ref=f3e151]:
+              - link "Customer Success & Implementation Specialist (Iberia Region)" [ref=f3e152] [cursor=pointer]:
+                - /url: https://careers.ubeya.com/jobs/8112615-customer-success-implementation-specialist-iberia-region
+              - generic [ref=f3e154]:
+                - text: Customer Success · Iberia Region ·
+                - generic [ref=f3e155]: Fully Remote
+          - listitem [ref=f3e159]:
+            - generic [ref=f3e160]:
+              - link "Customer Success & Growth Specialist (DACH Region)" [ref=f3e161] [cursor=pointer]:
+                - /url: https://careers.ubeya.com/jobs/8112044-customer-success-growth-specialist-dach-region
+              - generic [ref=f3e163]:
+                - text: Customer Success · DACH region ·
+                - generic [ref=f3e164]: Fully Remote
+          - listitem [ref=f3e168]:
+            - generic [ref=f3e169]:
+              - link "Customer Support Specialist" [ref=f3e170] [cursor=pointer]:
+                - /url: https://careers.ubeya.com/jobs/7954111-customer-support-specialist
+              - generic [ref=f3e172]: Support · Tel-Aviv
+          - listitem [ref=f3e174]:
+            - generic [ref=f3e175]:
+              - link "Product Marketing Manager" [ref=f3e176] [cursor=pointer]:
+                - /url: https://careers.ubeya.com/jobs/7211105-product-marketing-manager
+              - generic [ref=f3e178]: Tel-Aviv
+          - listitem [ref=f3e180]:
+            - generic [ref=f3e181]:
+              - link "Senior Account Executive, US" [ref=f3e182] [cursor=pointer]:
+                - /url: https://careers.ubeya.com/jobs/7201438-senior-account-executive-us
+              - generic [ref=f3e184]:
+                - text: Sales · USA ·
+                - generic [ref=f3e185]: Fully Remote
+        - link "All jobs" [ref=f3e189] [cursor=pointer]:
+          - /url: /jobs
+    - generic [ref=f3e195]:
+      - figure [ref=f3e196]
+      - figure [ref=f3e198]
+      - figure [ref=f3e200]
+      - figure [ref=f3e202]
+      - figure [ref=f3e204]
+      - figure [ref=f3e206]
+    - generic [ref=f3e210]:
+      - heading "About Ubeya" [level=2] [ref=f3e211]
+      - paragraph [ref=f3e213]: Ubeya is a leading B2B SaaS platform built for the workforce industry, making it easy to manage complex operations at scale. From major stadiums to high-profile sports and entertainment events, Ubeya powers staffing for Football, Basketball, Tennis Baseball, Racing, and more - helping top venues deliver seamless, unforgettable experiences.Our workforce management platform enables hundreds of businesses and staffing agencies worldwide to stay resilient and adaptable in a fast-changing world - driving growth, operational excellence, and a happier, more engaged workforce.
+    - generic [ref=f3e215]:
+      - generic [ref=f3e217]:
+        - generic [ref=f3e218]:
+          - heading "Career site" [level=2] [ref=f3e219]
+          - list [ref=f3e220]:
+            - listitem [ref=f3e221]:
+              - link "Start" [ref=f3e222] [cursor=pointer]:
+                - /url: https://careers.ubeya.com/
+            - listitem [ref=f3e223]:
+              - link "Data & privacy" [ref=f3e224] [cursor=pointer]:
+                - /url: /data-privacy
+            - listitem [ref=f3e225]:
+              - button "Manage cookies" [ref=f3e226] [cursor=pointer]
+        - link "ubeya.com" [ref=f3e228] [cursor=pointer]:
+          - /url: https://ubeya.com
+      - generic [ref=f3e229]:
+        - generic [ref=f3e230]:
+          - link "Employee login" [ref=f3e231] [cursor=pointer]:
+            - /url: https://app.teamtailor.com/companies/NrPnd44f1w8@eu/dashboard
+          - generic [ref=f3e232]: ·
+          - link "SSO" [ref=f3e233] [cursor=pointer]:
+            - /url: /sso_login
+        - link "Candidate Connect login" [ref=f3e235] [cursor=pointer]:
+          - /url: /connect/login
+    - generic [ref=f3e237]:
+      - heading "Already working at Ubeya?" [level=2] [ref=f3e238]
+      - paragraph [ref=f3e239]: Let’s recruit together and find your next colleague.
+      - generic [ref=f3e241] [cursor=pointer]:
+        - textbox "Email address without domain" [ref=f3e242]
+        - generic [ref=f3e243]:
+          - textbox "Email address without domain" [ref=f3e244]: name
+          - generic [ref=f3e245]: "@ubeya.com"
+        - button "Log in" [ref=f3e246]
+  - link "Career site by Teamtailor" [ref=f3e251] [cursor=pointer]:
+    - /url: https://www.teamtailor.com/?utm_campaign=poweredby&utm_content=careers.ubeya.com&utm_medium=referral&utm_source=career-site

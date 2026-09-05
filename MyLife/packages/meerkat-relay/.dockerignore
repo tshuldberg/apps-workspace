@@ -1,0 +1,13 @@
+# Keep the relay build context small and deterministic. The image compiles from
+# src/ and ships only dist/ + the slim bin; nothing else is needed.
+node_modules
+dist
+.turbo
+coverage
+src/**/__tests__
+scripts
+deploy
+*.md
+.env
+.env.*
+!.env.example

@@ -52,6 +52,8 @@ docs/performance/performance-remediation-plan.md
 !apps/manhattan/assets/*.png
 !apps/yearn/assets/
 !apps/yearn/assets/*.png
+!apps/meerkat/assets/
+!apps/meerkat/assets/*.png
 app.json
 !apps/bestchef/app.json
 !apps/dowork/app.json
@@ -59,6 +61,9 @@ app.json
 !apps/meerkat/app.json
 !apps/yearn/app.json
 .claude/memory/runtime/
+apps/meerkat/.claude/memory/runtime/
+/.claude/settings.json.bak
+/apps/meerkat-web/output/
 
 # Agent/tooling scratch (session artifacts, never repo content)
 .agents/

@@ -1,0 +1,14 @@
+**
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!packages/
+!packages/**
+**/.env
+**/.env.*
+**/node_modules
+**/.git
+**/.claude
+**/coverage
+**/dist
+**/artifacts
