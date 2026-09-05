@@ -12,3 +12,7 @@ tron-castle-fight/
 Parks/EasyStreet/
 Parks/easystreet-monorepo/
 SH/shiphawk-dev/
+
+# Git worktrees are transient and must never be tracked here
+Apps-wt-*/
+*-wt-*/
