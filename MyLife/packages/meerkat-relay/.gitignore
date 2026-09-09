@@ -1,5 +1,0 @@
-# Working copy of deploy/fly.toml at the package root (flyctl resolves the
-# [build].dockerfile path relative to the CONFIG file's directory, so deploying
-# straight off deploy/fly.toml looks for deploy/Dockerfile and fails; the root
-# copy is the working layout). deploy/fly.toml stays the tracked template.
-/fly.toml

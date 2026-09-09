@@ -9,3 +9,5 @@
 - When executing a queued plan, follow `docs/guides/parallel-agent-orchestration.md`; do not apply plan-queue ceremony to unrelated tasks.
 - For shared sweeping/holiday changes, check both `Parks/EasyStreet` and `Parks/easystreet-monorepo`.
 - Use plain, concise writing without em dashes. For unfamiliar human procedures, give exact locations, control labels, actions, and a verifiable result.
+
+- Follow the core shared-machine memory policy in `/Users/trey/.codex/AGENTS.md` for all editor, build, render, and other heavy work.

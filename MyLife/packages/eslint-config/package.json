@@ -1,9 +1,0 @@
-{
-  "name": "@mylife/eslint-config",
-  "version": "0.1.0",
-  "private": true,
-  "main": "index.js",
-  "dependencies": {
-    "eslint-plugin-react-hooks": "^5.1.0"
-  }
-}

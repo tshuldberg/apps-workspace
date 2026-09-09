@@ -1,7 +1,0 @@
-<!-- UNVERIFIED - pending dev build (Plan 42 WP-42C authors the real native bodies).
-     Library manifest for the owned Meerkat native transport module. Runtime
-     permissions are declared by the Expo config plugin (app.plugin.js) so they
-     merge into the host app manifest; this file only names the library package. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.mylife.meerkat.nativetransport">
-</manifest>

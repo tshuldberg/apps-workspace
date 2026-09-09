@@ -1,5 +1,0 @@
-import './trendline.js'
-import './ray.js'
-import './extended-line.js'
-import './horizontal-line.js'
-import './vertical-line.js'

@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "types": ["node"]
-  },
-  "include": ["lib/**/*.ts", "vitest.config.ts"],
-  "exclude": ["node_modules"]
-}

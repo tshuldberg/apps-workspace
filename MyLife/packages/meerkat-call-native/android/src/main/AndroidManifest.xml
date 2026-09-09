@@ -1,7 +1,0 @@
-<!-- UNVERIFIED - pending signed dev build (Plan 25 WP-25F).
-     The Expo config plugin adds MANAGE_OWN_CALLS to the host manifest. This
-     library manifest only names the package. The app, not this module, owns any
-     foreground service used while media is active. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.mylife.meerkat.callnative">
-</manifest>

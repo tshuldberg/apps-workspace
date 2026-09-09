@@ -1,3 +1,0 @@
-.mk-device-layout label { display: grid; gap: 6px; margin-block: 12px; }
-.mk-device-layout select { min-height: 44px; max-width: 100%; padding: 8px; border: 1px solid var(--mk-border-strong); border-radius: 8px; color: var(--mk-text); background: var(--mk-surface); font: inherit; }
-.mk-device-layout select:focus-visible { outline: 2px solid var(--mk-accent); outline-offset: 2px; }
